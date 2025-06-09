@@ -1,0 +1,134 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block style %}
+<style>
+.select2-container--default .select2-selection--multiple {
+    min-height: 38px;
+    max-height: 100px;  /* allow expansion */
+    overflow-y: auto;
+}
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Kumpulan Bagan Event {{ event.nama_event }}</div>
+                        <div>
+                            <a href="#" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahBaganModal">Tambah Bagan</a>
+                            <div class="modal fade" id="tambahBaganModal" tabindex="-1" aria-labelledby="tambahBaganModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">Tambah Bagan Manual</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="nama_bagan">Nama Bagan</label>
+                                                <input type="text" class="form-control" id="nama_bagan" name="nama_bagan">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="nomor_tanding_pk">Nomor Tanding</label>
+                                                <select class="form-control" id="nomor_tanding_pk" name="nomor_tanding_pk">
+                                                    {% for nomor_tanding in nomor_tandings %}
+                                                    <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="tambah_bagan" class="btn btn-primary">Tambah</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal">Drawing Bagan</a>
+                            <div class="modal fade" id="drawingBaganModal" tabindex="-1" aria-labelledby="drawingBaganModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title">Drawing Bagan</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="nomor_tanding_pk">Nomor Tanding (Pilih satu atau lebih).</label>
+                                                <select class="form-select select2" id="nomor_tanding_pk" name="nomor_tanding_pk" multiple>
+                                                    <option value="semua">SEMUA NOMOR TANDING</option>
+                                                    {% for nomor_tanding in nomor_tandings %}
+                                                    <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="drawing_bagan" class="btn btn-primary">Drawing</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                            <th scope="col" style="text-align: center;">No</th>
+                            <th scope="col" style="text-align: center;">Nama Bagan</th>
+                            <th scope="col" style="text-align: center;">Nomor Tanding</th>
+                            <th scope="col" style="text-align: center;">MISC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bagan in bagans %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td style="text-align: center;"><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>{{ bagan.nama_bagan }}</b></td>
+                                <td style="text-align: center;"><b>{{ bagan.nomor_tanding.nama_nomor_tanding }}</b></td>
+                                <td style="text-align: center;"><a href="" class="btn btn-primary">Edit</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+    $('.select2').select2({
+        dropdownParent: $('#drawingBaganModal'),
+        width: '100%'  // important for form-select and Bootstrap alignment
+    });
+</script>
+{% endblock script %}

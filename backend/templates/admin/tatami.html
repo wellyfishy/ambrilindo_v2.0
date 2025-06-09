@@ -1,0 +1,94 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Tatami Event</div>
+                        <div>
+                            <a href="#" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#confirmAddModal">Tambah Tatami</a>
+                            <div class="modal fade" id="confirmAddModal" tabindex="-1" aria-labelledby="confirmAddLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">Konfirmasi Menambah Tatami</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Apakah kamu yakin ingin menambahkan tatami?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" name="submit_type" value="tambah_tatami" class="btn btn-primary">Tambah</button>
+                                        </form>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                            <th scope="col" style="text-align: center;">Tatami</th>
+                            <th scope="col" style="text-align: center;">MISC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tatami in tatamis %}
+                            <tr>
+                                <td style="text-align: center;">Tatami - {{ tatami.tatami_number }}</td>
+                                <td style="text-align: center;">
+                                    <a href="#" class="btn btn-danger" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{tatami.pk}}">
+                                        Hapus
+                                    </a>
+                                    <div class="modal fade" id="confirmDeleteModal{{tatami.pk}}" tabindex="-1" aria-labelledby="confirmDeleteModal{{tatami.pk}}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title">Konfirmasi Menghapus Tatami</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Apakah kamu yakin ingin menghapus tatami {{ tatami.tatami_number }}?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="tatami_pk" value="{{ tatami.pk }}">
+                                                    <button type="submit" name="submit_type" value="hapus_tatami" class="btn btn-danger">Hapus</button>
+                                                </form>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}

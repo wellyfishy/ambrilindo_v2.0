@@ -1,0 +1,81 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Atlet Event</div>
+                        <div>
+                            <a href="" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;">Tambah Atlet</a>
+                            <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#importAtletModal">Import Atlet</a>
+                            <div class="modal fade" id="importAtletModal" tabindex="-1" aria-labelledby="importAtletModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">Import Atlet</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="excel_atlet">File Excel</label>
+                                                <input type="file" class="form-control" id="excel_atlet" name="excel_atlet" accept=".xls,.xlsx">
+                                                <small class="form-text text-muted">Hanya menerima file excel dengan format berikut: <br><b>(Nama Atlet/Perguruan/Utusan/Nomor Tanding)</b></small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="import_atlet" class="btn btn-primary">Import</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                            <th scope="col" style="text-align: center;">No</th>
+                            <th scope="col" style="text-align: center;">Nama Atlet</th>
+                            <th scope="col" style="text-align: center;">Perguruan</th>
+                            <th scope="col" style="text-align: center;">Utusan</th>
+                            <th scope="col" style="text-align: center;">Nomor Tanding</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for atlet in atlets %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td style="text-align: center;"><b>{{ atlet.nama_atlet }}</b></td>
+                                <td style="text-align: center;"><b>{{ atlet.perguruan.nama_perguruan }}</b></td>
+                                <td style="text-align: center;"><b>{{ atlet.utusan.nama_utusan }}</b></td>
+                                <td style="text-align: center;"><b>{{ atlet.nomor_tanding.nama_nomor_tanding }}</b></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}
