@@ -64,6 +64,13 @@
                         <span class="sub-item">Tatami</span>
                       </a>
                     </li>
+                    {% if admin_tatami %}
+                    <li class="">
+                      <a href="{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}">
+                        <span class="sub-item">Tatami</span>
+                      </a>
+                    </li>
+                    {% endif %}
                   </ul>
                 </div>
               </li>

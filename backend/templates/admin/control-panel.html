@@ -1,0 +1,138 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block style %}
+<style></style>
+{% endblock style %}
+
+{% block content %}
+{% if bagan.tipe_tanding == '1' %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
+                <b>Kembali</b>
+            </a>
+            <a href="#" class="btn btn-success" style="margin-left: 5px;">
+                <b>Simpan dan Keluar</b>
+            </a>
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;"><b style="color: red;">{{ detail_bagan.atlet1.nama_atlet }}</b> vs <b style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</b></div>
+                        <div></div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                            <th scope="col" style="text-align: center;">Nama Atlet</th>
+                            <th scope="col" style="text-align: center;">J1</th>
+                            <th scope="col" style="text-align: center;">J2</th>
+                            <th scope="col" style="text-align: center;">J3</th>
+                            <th scope="col" style="text-align: center;">J4</th>
+                            <th scope="col" style="text-align: center;">J5</th>
+                            <th scope="col" style="text-align: center;">Total</th>
+                            <th scope="col" style="text-align: center;">Pemenang</th>
+                            </tr>
+                        </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <b><span style="color: red">{{ detail_bagan.atlet1.nama_atlet }}</span> - {{ detail_bagan.atlet1.perguruan.nama_perguruan }} - {{ detail_bagan.atlet1.utusan.nama_utusan }}</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <input class="form-check-input" type="radio" name="pemenang" style="transform: scale(2);">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <b><span style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</span> - {{ detail_bagan.atlet2.perguruan.nama_perguruan }} - {{ detail_bagan.atlet2.utusan.nama_utusan }}</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <b>0.0</b>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <input class="form-check-input" type="radio" name="pemenang" style="transform: scale(2);">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">
+                            Control Panel
+                            <button class="btn btn-secondary" style="font-size: inherit; padding: 5px 10px;">Tampilkan Score</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select class="form-control" id="timer-choice">
+                                <option value="0" selected>00:00</option>
+                                <option value="30">00:30</option>
+                                <option value="60">01:00</option>
+                                <option value="90">01:30</option>
+                                <option value="120">02:00</option>
+                                <option value="150">02:30</option>
+                                <option value="180">03:00</option>
+                            </select>
+                            <button class="btn btn-primary" style="font-size: 25px;">Start</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="text-align: center;">
+                        <p style="font-weight: bold; font-size: 50px;">
+                            <span id="minutes">00</span>:
+                            <span id="seconds">00</span>:
+                            <span id="milliseconds">00</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+
+{% endif %}
+{% endblock content %}
+
+{% block script %}
+{% endblock script %}

@@ -67,9 +67,14 @@ class Atlet(models.Model):
         return f'{self.event} - {self.nama_atlet}'
     
 class Bagan(models.Model):
+    TIPE = [
+        ('1', 'Kata'),
+        ('2', 'Kumite'),
+    ]
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_bagan = models.CharField(max_length=100, null=True, blank=True)
     nomor_tanding = models.ForeignKey(NomorTanding, null=True, blank=True, on_delete=models.SET_NULL)
+    tipe_tanding = models.CharField(max_length=20, null=True, blank=True, choices=TIPE)
 
     def __str__(self):
         return f'{self.nama_bagan}'

@@ -456,7 +456,6 @@ h2 {
 <head>
   <meta charset="UTF-8">
   <title>Responsive Tournament Bracket</title>
-
 </head>
 <body>
 <!-- partial:index.partial.html -->
@@ -471,6 +470,7 @@ h2 {
         {% for detail_bagan in detail_bagans_round_1 %}
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -479,10 +479,12 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -491,6 +493,7 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         {% endfor %}
@@ -504,6 +507,7 @@ h2 {
         {% for detail_bagan in detail_bagans_round_2 %}
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -512,10 +516,12 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -524,6 +530,7 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         {% endfor %}
@@ -536,6 +543,7 @@ h2 {
         {% for detail_bagan in detail_bagans_round_3 %}
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -544,10 +552,12 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -556,6 +566,7 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         {% endfor %}
@@ -567,18 +578,21 @@ h2 {
         {% for detail_bagan in detail_bagans_round_4 %}
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
-                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                    <span style="color: red; padding-top: -20px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: red; padding-top: -20px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -587,6 +601,7 @@ h2 {
                 </td>
               </tbody>
             </table>
+            </a>
           </div>
         </li>
         {% endfor %}
@@ -612,7 +627,6 @@ h2 {
     </div>
   </div>
 </div>
-<!-- partial -->
   
 </body>
 </html>

@@ -94,6 +94,11 @@ def admin_dashboard(request, event_pk):
                         nama_bagan=nomor_tanding.nama_nomor_tanding,
                         nomor_tanding=nomor_tanding
                     )
+                    if 'KATA' in nomor_tanding.nama_nomor_tanding:
+                        bagan.tipe_tanding = '1'
+                    elif 'KUMITE' in nomor_tanding.nama_nomor_tanding:
+                        bagan.tipe_tanding = '2'
+                    bagan.save()
 
                     perguruan_index = 0
 
@@ -314,6 +319,22 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     }
 
     return render(request, 'admin/bagan-detail.html', context)
+
+def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagan = Bagan.objects.get(pk=bagan_pk)
+    detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagan': bagan,
+        'detail_bagan': detail_bagan,
+    }
+
+    return render(request, 'admin/control-panel.html', context)
 
 def admin_atlet(request, event_pk):
     event = Event.objects.get(pk=event_pk)
