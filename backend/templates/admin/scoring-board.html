@@ -155,15 +155,15 @@
             <div class="player-main">
                 <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
                 <div class="info">
-                    <div class="name">Ghea Nata Nasyilla Sagharmata</div>
-                    <div class="country">-</div>
+                    <div class="name" id="atlet_red_name">-</div>
+                    <div class="country" id="atlet_red_country">-</div>
                     <div class="kata">-</div>
                 </div>
-                <div class="aka-score">0</div>
+                <div class="aka-score" id="aka-score">0</div>
             </div>
             
-            <div class="criteria-row deactivate">
-                <div class="criteria active-red">C1</div>
+            <div class="criteria-row" name="criteria">
+                <div class="criteria">C1</div>
                 <div class="criteria">C2</div>
                 <div class="criteria">C3</div>
                 <div class="criteria">C4</div>
@@ -175,14 +175,14 @@
             <div class="player-main">
                 <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
                 <div class="info">
-                    <div class="name">-</div>
-                    <div class="country">-<br>-</div>
+                    <div class="name" id="atlet_blue_name">-</div>
+                    <div class="country" id="atlet_blue_country">-</div>
                     <div class="kata">-</div>
                 </div>
-                <div class="ao-score">0</div>
+                <div class="ao-score" id="ao-score">0</div>
             </div>
-            <div class="criteria-row deactivate">
-                <div class="criteria active-blue">C1</div>
+            <div class="criteria-row" name="criteria">
+                <div class="criteria">C1</div>
                 <div class="criteria">C2</div>
                 <div class="criteria">C3</div>
                 <div class="criteria">C4</div>
@@ -200,17 +200,84 @@
         <div class="time">
             <span id="minutes">00</span>:<span id="seconds">00</span>:<span id="milliseconds">00</span>
         </div>
-        <div class="round-info">TOURNAMENT USIA DINI - KATA PERORANGAN</div>
+        <div class="round-info" id="nomor-tanding">-</div>
     </div>
   </div>
 </body>
+<script src="{% static 'js/jquery.min.js' %}"></script>
 <script>
   const tatamiPk = {{ tatami.pk }};
   const socket = new WebSocket('ws://' + window.location.host + `/ws/scoring-board/${tatamiPk}`);
 
+  let interval = null;
+  let milliseconds = 0;
+  let totalSeconds = 0;
+  let isRunning = false;
+
+  function updateDisplay(seconds, ms) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      $('#minutes').text(String(minutes).padStart(2, '0'));
+      $('#seconds').text(String(secs).padStart(2, '0'));
+      $('#milliseconds').text(String(ms).padStart(2, '0'));
+  }
+
   socket.onmessage = function(e) {
       const data = JSON.parse(e.data);
       console.log(data.command, data.details)
+
+      if (data.command == 'get_atlet') {
+        reset()
+      } else if (data.command == 'timer-change') {
+        if (!isRunning) {
+          totalSeconds = data.details;
+          milliseconds = 0;
+          updateDisplay(totalSeconds, milliseconds);
+        }
+      } else if (data.command == 'timer-status') {
+        if (data.details == 'start' || data.details == 'pause') {
+          timer_status()
+        }
+      } 
+
+      function timer_status() {
+        if (!isRunning) {
+          isRunning = true;
+          interval = setInterval(() => {
+              if (milliseconds === 0) {
+                  if (totalSeconds === 0) {
+                      clearInterval(interval);
+                      isRunning = false;
+                      return;
+                  }
+                  totalSeconds--;
+                  milliseconds = 99;
+              } else {
+                  milliseconds--;
+              }
+              updateDisplay(totalSeconds, milliseconds);
+          }, 10);
+        } else {
+          isRunning = false;
+          clearInterval(interval);
+        }
+      }
+
+      function reset() {
+        if (data.details.tipe_tanding == '1') {
+          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
+            div.classList.add('deactivate');
+          });
+        }
+        document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
+        document.getElementById('atlet_red_name').innerText = data.details.atlet_red
+        document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
+        document.getElementById('aka-score').innerText = '0'
+
+        document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
+        document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
+        document.getElementById('ao-score').innerText = '0'
+      }
   };
 </script>
 </html>

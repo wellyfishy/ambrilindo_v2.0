@@ -10,4 +10,5 @@ urlpatterns = [
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/control-panel/<int:detailbagan_pk>', control_panel, name="control-panel"),
     path('admin-atlet/<int:event_pk>', admin_atlet, name="admin-atlet"),
     path('admin-tatami/<int:event_pk>', admin_tatami, name="admin-tatami"),
+    path('scoring-board/<int:tatami_pk>/message-retriever', message_retriever, name="message-retriever")
 ]

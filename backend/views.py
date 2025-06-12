@@ -7,8 +7,8 @@ from django.db.models import Count, Q
 import random
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from django.core.serializers import serialize
-import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 def auth(request):
     events = Event.objects.all().order_by('-pk')
@@ -329,9 +329,6 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     bagan = Bagan.objects.get(pk=bagan_pk)
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
 
-    group_name = f"scoring_{admin_tatami.tatami.pk}"
-    channel_layer = get_channel_layer()
-
     detail_data = {
         "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
         "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 else None,
@@ -340,7 +337,11 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
         "atlet_blue_perguruan": detail_bagan.atlet2.perguruan.nama_perguruan if detail_bagan.atlet2 else None,
         "atlet_blue_utusan": detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
         "tipe_tanding": bagan.tipe_tanding,
+        "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding,
     }
+
+    group_name = f"scoring_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
 
     async_to_sync(channel_layer.group_send)(
         group_name,
@@ -360,6 +361,28 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     }
 
     return render(request, 'admin/control-panel.html', context)
+
+@csrf_exempt
+def message_retriever(request, tatami_pk):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        details = request.POST.get('details')
+        tatami = Tatami.objects.get(pk=tatami_pk)
+
+        group_name = f"scoring_{tatami.pk}"
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
+        )
+
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 def admin_atlet(request, event_pk):
     event = Event.objects.get(pk=event_pk)
