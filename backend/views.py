@@ -5,6 +5,10 @@ from .models import *
 import openpyxl
 from django.db.models import Count, Q
 import random
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.core.serializers import serialize
+import json
 
 def auth(request):
     events = Event.objects.all().order_by('-pk')
@@ -285,7 +289,6 @@ def admin_dashboard(request, event_pk):
                             detail_bagan.save()
                             new_detail_bagan.save()
 
-
             return redirect('admin-dashboard', event_pk=event_pk)
 
     context = {
@@ -325,6 +328,28 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
+
+    group_name = f"scoring_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    detail_data = {
+        "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
+        "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 else None,
+        "atlet_red_utusan": detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 else None,
+        "atlet_blue": detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else None,
+        "atlet_blue_perguruan": detail_bagan.atlet2.perguruan.nama_perguruan if detail_bagan.atlet2 else None,
+        "atlet_blue_utusan": detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
+        "tipe_tanding": bagan.tipe_tanding,
+    }
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": detail_data,
+        }
+    )
 
     context = {
         'on': 'utama',
@@ -428,3 +453,11 @@ def admin_tatami(request, event_pk):
     }
 
     return render(request, 'admin/tatami.html', context)
+
+def scoring_board(request, tatami_pk):
+    tatami = Tatami.objects.get(pk=tatami_pk)
+    
+    context = {
+        'tatami': tatami,
+    }
+    return render(request, 'admin/scoring-board.html', context)

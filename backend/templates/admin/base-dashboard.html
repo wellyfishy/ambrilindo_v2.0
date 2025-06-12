@@ -66,8 +66,8 @@
                     </li>
                     {% if admin_tatami %}
                     <li class="">
-                      <a href="{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}">
-                        <span class="sub-item">Tatami</span>
+                      <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}'); return false;">
+                        <span class="sub-item">Scoring Board</span>
                       </a>
                     </li>
                     {% endif %}
@@ -172,6 +172,18 @@
     <script src="{% static 'js/plugin/sweetalert/sweetalert.min.js' %}"></script>
     <script src="{% static 'js/ambrilindo.min.js' %}"></script>
     <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
+    <script>
+      function openFullscreenWindow(url) {
+        const screenWidth = screen.availWidth;
+        const screenHeight = screen.availHeight;
+        window.open(
+          url,
+          '_blank',
+          `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,
+          width=${screenWidth},height=${screenHeight},top=0,left=0`
+        );
+      }
+    </script>
     {% block script %}{% endblock script %}
   </body>
 </html>

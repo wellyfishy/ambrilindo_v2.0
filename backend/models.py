@@ -11,30 +11,6 @@ class Event(models.Model):
     def __str__(self):
         return f'{self.nama_event} - {self.sedang_berjalan}'
 
-class Tatami(models.Model):
-    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
-    tatami_number = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return f'Tatami - {self.tatami_number}'
-
-class AdminTatami(models.Model):
-    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
-    tatami = models.ForeignKey(Tatami, null=True, blank=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.user.username}'
-    
-class Jury(models.Model):
-    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
-    tatami = models.ForeignKey(Tatami, null=True, blank=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
-    jury_number = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return f'{self.user.username}'
-
 class NomorTanding(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_nomor_tanding = models.CharField(max_length=50, null=True, blank=True)
@@ -92,6 +68,29 @@ class DetailBagan(models.Model):
     def __str__(self):
         return f'{self.round} - {self.urutan}'
     
+class Tatami(models.Model):
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
+    tatami_number = models.IntegerField(null=True, blank=True)
+    detail_bagan = models.ForeignKey(DetailBagan, on_delete=models.SET_NULL, null=True, blank=True)
 
+    def __str__(self):
+        return f'Tatami - {self.tatami_number}'
+
+class AdminTatami(models.Model):
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
+    tatami = models.ForeignKey(Tatami, null=True, blank=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user.username}'
+    
+class Jury(models.Model):
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
+    tatami = models.ForeignKey(Tatami, null=True, blank=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    jury_number = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.user.username}'
 
 

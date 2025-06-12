@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fullscreen Kata Scoreboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+      font-family: Arial, sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      padding: 20px;
+    }
+
+    .player {
+        display: flex;
+        flex-direction: column; /* vertical layout */
+        background: #111;
+        padding: 0;
+    }
+
+    .player-main {
+        display: flex; /* horizontal layout for contents */
+        align-items: center;
+        padding: 10px;
+    }
+
+    .criteria-row {
+        display: flex;
+        justify-content: space-around;
+        padding: 5px 0;
+        border-top: 2px solid yellow;
+        color: white;
+    }
+    
+    .criteria {
+        flex: 1;
+        text-align: center;
+        font-size: 5vh;
+        font-weight: bold;
+        color: white;
+        border-right: 1px solid #222;
+    }
+
+    .criteria:last-child {
+        border-right: none;
+    }
+
+    .flag {
+      width: 200px;
+      height: auto;
+      margin-right: 20px;
+    }
+
+    .info {
+      flex-grow: 1;
+    }
+
+    .name {
+      font-size: 3em;
+      font-weight: bold;
+      color: gold;
+    }
+
+    .country {
+      font-size: 1.5em;
+      color: #ccc;
+    }
+
+    .kata {
+      color: gold;
+      font-size: 1em;
+    }
+
+    .aka-score {
+      font-size: 8em;
+      font-weight: bold;
+      color: red;
+      margin-right: 50px;
+    }
+
+    .ao-score {
+      font-size: 8em;
+      font-weight: bold;
+      color: blue;
+      margin-right: 50px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 2vh;
+      padding: 10px 20px;
+      border-top: 2px solid #333;
+    }
+
+    .tatami {
+      font-size: 5vh;
+      font-weight: bold;
+    }
+
+    img.studio{
+        width: 300px;
+        height: auto;
+    }
+
+    .time {
+        font-size: 15vh;
+        color: yellow;
+        font-weight: bold;
+    }
+
+    .round-info {
+        white-space: normal;
+        word-break: break-word; 
+        max-width: 300px;
+        text-align: right;
+        font-size: 3vh;
+    }
+
+    .active-red {
+        background-color: red;
+    }
+
+    .active-blue {
+        background-color: blue;
+    }
+
+    .deactivate {
+        display: none;
+    }
+  </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="player">
+            <div class="player-main">
+                <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
+                <div class="info">
+                    <div class="name">Ghea Nata Nasyilla Sagharmata</div>
+                    <div class="country">-</div>
+                    <div class="kata">-</div>
+                </div>
+                <div class="aka-score">0</div>
+            </div>
+            
+            <div class="criteria-row deactivate">
+                <div class="criteria active-red">C1</div>
+                <div class="criteria">C2</div>
+                <div class="criteria">C3</div>
+                <div class="criteria">C4</div>
+                <div class="criteria">C</div>
+            </div>
+        </div>
+
+        <div class="player">
+            <div class="player-main">
+                <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
+                <div class="info">
+                    <div class="name">-</div>
+                    <div class="country">-<br>-</div>
+                    <div class="kata">-</div>
+                </div>
+                <div class="ao-score">0</div>
+            </div>
+            <div class="criteria-row deactivate">
+                <div class="criteria active-blue">C1</div>
+                <div class="criteria">C2</div>
+                <div class="criteria">C3</div>
+                <div class="criteria">C4</div>
+                <div class="criteria">C</div>
+            </div>
+        </div>
+
+    <div class="footer">
+        <div>
+            <img class="studio" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo">
+        </div>
+        <div>
+            <div class="tatami">TATAMI {{ tatami.tatami_number }}</div>
+        </div>
+        <div class="time">
+            <span id="minutes">00</span>:<span id="seconds">00</span>:<span id="milliseconds">00</span>
+        </div>
+        <div class="round-info">TOURNAMENT USIA DINI - KATA PERORANGAN</div>
+    </div>
+  </div>
+</body>
+<script>
+  const tatamiPk = {{ tatami.pk }};
+  const socket = new WebSocket('ws://' + window.location.host + `/ws/scoring-board/${tatamiPk}`);
+
+  socket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      console.log(data.command, data.details)
+  };
+</script>
+</html>
