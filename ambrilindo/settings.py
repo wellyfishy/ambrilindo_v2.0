@@ -27,9 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'channels',
     'daphne',
@@ -42,6 +39,8 @@ INSTALLED_APPS = [
     'backend',
 ]
 
+ASGI_APPLICATION = 'ambrilindo.asgi.application'    
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -50,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'ambrilindo.urls'
@@ -68,8 +68,6 @@ TEMPLATES = [
         },
     },
 ]
-
-ASGI_APPLICATION = 'ambrilindo.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
@@ -122,6 +120,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

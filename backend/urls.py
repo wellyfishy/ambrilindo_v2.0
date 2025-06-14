@@ -3,6 +3,7 @@ from .views import *
 
 urlpatterns = [
     path('', auth, name="auth"),
+    path('jury-panel/<int:tatami_pk>', jury_panel, name="jury-panel"),
     path('scoring-board/<int:tatami_pk>', scoring_board, name="scoring-board"),
     path('logout', logoutfunc, name="logout"),
     path('admin-dashboard/<int:event_pk>', admin_dashboard, name="admin-dashboard"),

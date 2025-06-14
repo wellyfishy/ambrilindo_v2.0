@@ -34,7 +34,7 @@ def auth(request):
                     jury = Jury.objects.filter(event=event, user=user).first()
                     if jury:
                         login(request, user)
-                        return redirect('jury-panel', event_pk=event_pk)
+                        return redirect('jury-panel', tatami_pk=jury.tatami.pk)
                     else:
                         messages.error(request, "Anda tidak terdaftar sebagai Admin atau Juri untuk event ini.")
                         return redirect('auth')
@@ -51,6 +51,9 @@ def auth(request):
     }
         
     return render(request, 'auth/auth.html', context)
+
+def jury_panel(request, tatami_pk):
+    return render(request, 'jury/jury-panel.html')
 
 def logoutfunc(request):
     logout(request)

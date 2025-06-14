@@ -207,7 +207,8 @@
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script>
   const tatamiPk = {{ tatami.pk }};
-  const socket = new WebSocket('ws://' + window.location.host + `/ws/scoring-board/${tatamiPk}`);
+  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+  const socket = new WebSocket(protocol + window.location.host + `/ws/scoring-board/${tatamiPk}`);
 
   let interval = null;
   let milliseconds = 0;
@@ -215,11 +216,13 @@
   let isRunning = false;
 
   function updateDisplay(seconds, ms) {
-      const minutes = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      $('#minutes').text(String(minutes).padStart(2, '0'));
-      $('#seconds').text(String(secs).padStart(2, '0'));
-      $('#milliseconds').text(String(ms).padStart(2, '0'));
+    if (seconds >= 0) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = ((seconds % 60) + 60) % 60;
+        $('#minutes').text(String(minutes).padStart(2, '0'));
+        $('#seconds').text(String(secs).padStart(2, '0'));
+        $('#milliseconds').text(String(ms).padStart(2, '0'));
+    }
   }
 
   socket.onmessage = function(e) {
@@ -238,7 +241,18 @@
         if (data.details == 'start' || data.details == 'pause') {
           timer_status()
         }
-      } 
+      } else if (data.command == 'timer-increment') {
+        totalSeconds++;
+        updateDisplay(totalSeconds, milliseconds);
+      } else if (data.command == 'timer-decrement') {
+        totalSeconds--;
+        updateDisplay(totalSeconds, milliseconds);
+      } else if (data.command == 'timer-sync') {
+        const detailsArray = JSON.parse(data.details);
+        totalSeconds = detailsArray[0]
+        milliseconds = detailsArray[1]
+        updateDisplay(totalSeconds, milliseconds);
+      }
 
       function timer_status() {
         if (!isRunning) {

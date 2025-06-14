@@ -102,7 +102,7 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">
                             Control Panel
-                            <button class="btn btn-secondary" style="font-size: inherit; padding: 5px 10px;">Tampilkan Score</button>
+                            <button class="btn btn-secondary" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}display: none{% endif %}">Tampilkan Score</button>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <select class="form-control" id="timer-choice">
@@ -119,9 +119,11 @@
                     </div>
                     <div class="card-body" style="text-align: center;">
                         <p style="font-weight: bold; font-size: 50px;">
+                            <button id="timer-decrement" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">-</button>
                             <span id="minutes">00</span>:
                             <span id="seconds">00</span>:
                             <span id="milliseconds">00</span>
+                            <button id="timer-increment" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">+</button>
                         </p>
                     </div>
                 </div>
@@ -142,12 +144,44 @@
     let isRunning = false;
 
     function updateDisplay(seconds, ms) {
-        const minutes = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        $('#minutes').text(String(minutes).padStart(2, '0'));
-        $('#seconds').text(String(secs).padStart(2, '0'));
-        $('#milliseconds').text(String(ms).padStart(2, '0'));
+        if (seconds >= 0) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = ((seconds % 60) + 60) % 60;
+            $('#minutes').text(String(minutes).padStart(2, '0'));
+            $('#seconds').text(String(secs).padStart(2, '0'));
+            $('#milliseconds').text(String(ms).padStart(2, '0'));
+        } 
     }
+
+    $('#timer-increment').on('click', function() {
+        totalSeconds++;
+        updateDisplay(totalSeconds, milliseconds);
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'timer-increment',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#timer-decrement').on('click', function() {
+        totalSeconds--;
+        updateDisplay(totalSeconds, milliseconds);
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'timer-decrement',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
 
     $('#timer-choice').on('change', function () {
         if (!isRunning) {
@@ -179,6 +213,18 @@
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });
+
+        if (status == 'pause') {
+            $.ajax({
+                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                type: 'POST',
+                data: {
+                    action: 'timer-sync',
+                    details: JSON.stringify([totalSeconds, milliseconds]),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+            });
+        }
 
         if (!isRunning) {
             isRunning = true;

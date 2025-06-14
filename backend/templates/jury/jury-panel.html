@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jury Panel</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <style>
+        body {
+            background-color:rgb(25, 25, 25);
+            color: gold;
+            font-family: sans-serif;
+        }
+
+        .ambrilindo-logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 80%;
+            height: auto;
+        }
+
+        input.slider-red::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px;
+            width: 30px;
+            background: red;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -10px;
+        }
+        input.slider-red::-webkit-slider-runnable-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+        input.slider-red::-moz-range-thumb {
+            height: 30px;
+            width: 30px;
+            background: red;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input.slider-red::-moz-range-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        /* BLUE SLIDER */
+        input.slider-blue::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px;
+            width: 30px;
+            background: #212180;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -10px;
+        }
+        input.slider-blue::-webkit-slider-runnable-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+        input.slider-blue::-moz-range-thumb {
+            height: 30px;
+            width: 30px;
+            background: #00bfff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input.slider-blue::-moz-range-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambrilindo-logo">
+        <img class="ambrilindo-logo" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="">
+    </div>
+
+    <div>
+        <h1 style="text-align: center;">Tatami 1 | Juri 1</h1>
+    </div>
+
+    <div style="">
+        <div style="text-align: center; background-color: red; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+            <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
+                <b>SDFJ LKDS FJLKSDFJ LKDSFJLK SJLF</b>
+            </h1>
+            <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
+                SDFJ LKDS FJLKSDFJ LKDSFJLK SJLF
+            </h4>
+        </div>
+        <div style="background-color: white; padding-bottom: 20px;">
+            <h1 id="scoreDisplayAka" style="padding-top: 20px; max-width: 90%; margin: 0 auto; text-align: center; color: red; font-weight: bold; font-size: 50px;">
+                7.5
+            </h1>
+            <div style="text-align: center;">
+                <input type="range" class="slider-red" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAka').innerText = this.value;">
+            </div>
+        </div>
+        <div style="background-color: red; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
+            <div style="text-align: right;">
+                <button class="btn btn-warning">Reset</button>
+                <button class="btn btn-primary">Kirim</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; background-color: #212180; border-top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 20px;">
+            <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
+                <b>SDFJ LKDS FJLKSDFJ LKDSFJLK SJLF</b>
+            </h1>
+            <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
+                SDFJ LKDS FJLKSDFJ LKDSFJLK SJLF
+            </h4>
+        </div>
+        <div style="background-color: white; padding-bottom: 20px;">
+            <h1 id="scoreDisplayAo" style="padding-top: 20px; max-width: 90%; margin: 0 auto; text-align: center; color: #212180; font-weight: bold; font-size: 50px;">
+                7.5
+            </h1>
+            <div style="text-align: center;">
+                <input type="range" class="slider-blue" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAo').innerText = this.value;">
+            </div>
+        </div>
+        <div style="background-color: #212180; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
+            <div style="text-align: right;">
+                <button class="btn btn-warning">Reset</button>
+                <button class="btn btn-primary">Kirim</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
