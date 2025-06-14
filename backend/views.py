@@ -53,7 +53,14 @@ def auth(request):
     return render(request, 'auth/auth.html', context)
 
 def jury_panel(request, tatami_pk):
-    return render(request, 'jury/jury-panel.html')
+    jury = Jury.objects.get(user=request.user)
+    detail_bagan = jury.tatami.detail_bagan
+
+    context = {
+        'jury': jury,
+        'detail_bagan': detail_bagan,
+    }
+    return render(request, 'jury/jury-panel.html', context)
 
 def logoutfunc(request):
     logout(request)
@@ -331,6 +338,9 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
+    tatami = admin_tatami.tatami
+    tatami.detail_bagan = detail_bagan
+    tatami.save()
 
     detail_data = {
         "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
