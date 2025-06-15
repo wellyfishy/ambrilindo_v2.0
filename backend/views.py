@@ -365,6 +365,45 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     tatami.detail_bagan = detail_bagan
     tatami.save()
 
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'simpan':
+            aka_scores = request.POST.getlist('akaScores')
+            total_aka = request.POST.get('totalAka')
+            ao_scores = request.POST.getlist('aoScores')
+            total_ao = request.POST.get('totalAo')
+            pemenang = request.POST.get('pemenang')
+            kata_aka = request.POST.get('kata-aka')
+            kata_ao = request.POST.get('kata-ao')
+
+            print(aka_scores, total_aka, ao_scores, total_ao, pemenang, kata_aka, kata_ao)
+
+            detail_bagan.score1 = total_aka
+            detail_bagan.score2 = total_ao
+            detail_bagan.kata1 = kata_aka
+            detail_bagan.kata2 = kata_ao
+
+            next_round_number = detail_bagan.round + 1
+            next_round_urutan = (detail_bagan.urutan + 1) // 2
+
+            detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
+            if detailbagan_next_round:
+                if pemenang == 'aka':
+                    winner_atlet = detail_bagan.atlet1
+                elif pemenang == 'ao':
+                    winner_atlet = detail_bagan.atlet2
+                else:
+                    winner_atlet = None
+
+                if winner_atlet:
+                    if detail_bagan.urutan % 2 == 1:
+                        detailbagan_next_round.atlet1 = winner_atlet
+                    else: 
+                        detailbagan_next_round.atlet2 = winner_atlet
+            detail_bagan.save()
+            detailbagan_next_round.save()
+
+            return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
+
     detail_data = {
         "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
         "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 else None,
