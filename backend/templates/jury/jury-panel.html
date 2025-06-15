@@ -22,6 +22,12 @@
             height: auto;
         }
 
+        input.slider-red {
+            width: 80%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
         input.slider-red::-webkit-slider-thumb {
             -webkit-appearance: none;
             height: 30px;
@@ -31,11 +37,13 @@
             cursor: pointer;
             margin-top: -10px;
         }
+
         input.slider-red::-webkit-slider-runnable-track {
             height: 8px;
             background: #ccc;
             border-radius: 4px;
         }
+
         input.slider-red::-moz-range-thumb {
             height: 30px;
             width: 30px;
@@ -44,39 +52,76 @@
             border-radius: 50%;
             cursor: pointer;
         }
+
         input.slider-red::-moz-range-track {
             height: 8px;
             background: #ccc;
             border-radius: 4px;
         }
 
-        /* BLUE SLIDER */
+        /* === Disabled state === */
+
+        input.slider-red:disabled::-webkit-slider-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        input.slider-red:disabled::-moz-range-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        input.slider-blue {
+            width: 80%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
         input.slider-blue::-webkit-slider-thumb {
             -webkit-appearance: none;
             height: 30px;
             width: 30px;
-            background: #212180;
+            background: blue;
             border-radius: 50%;
             cursor: pointer;
             margin-top: -10px;
         }
+
         input.slider-blue::-webkit-slider-runnable-track {
             height: 8px;
             background: #ccc;
             border-radius: 4px;
         }
+
         input.slider-blue::-moz-range-thumb {
             height: 30px;
             width: 30px;
-            background: #00bfff;
+            background: blue;
             border: none;
             border-radius: 50%;
             cursor: pointer;
         }
+
         input.slider-blue::-moz-range-track {
             height: 8px;
             background: #ccc;
             border-radius: 4px;
+        }
+
+        /* === Disabled state === */
+
+        input.slider-blue:disabled::-webkit-slider-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        input.slider-blue:disabled::-moz-range-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -90,7 +135,7 @@
     </div>
 
     <div style="">
-        <div style="text-align: center; background-color: red; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+        <div style="text-align: center; background: linear-gradient(to bottom, rgb(255, 112, 112),rgb(255, 46, 46)); top-left-radius: 10px; border-top-right-radius: 10px;">
             <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
                 <b>{{ detail_bagan.atlet1.nama_atlet }}</b>
             </h1>
@@ -103,14 +148,14 @@
                 7.5
             </h1>
             <div style="text-align: center;">
-                <input type="range" class="slider-red" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAka').innerText = this.value;">
+                <input id="aka-slider" type="range" class="slider-red" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAka').innerText = this.value;">
             </div>
         </div>
 
-        <div style="background-color: red; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
+        <div style="background: linear-gradient(to top, rgb(255, 112, 112),rgb(255, 46, 46)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
             <div style="text-align: right;">
-                <a href="#" id="akaKirimModalBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#akaKirimModal">Kirim</a>
-                <a href="#" id="akaResetModalBtn" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#akaResetModal" style="display: none">Reset</a>
+                <a href="#" id="akaKirimModalBtn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#akaKirimModal" style="font-size: 25px;"><b>Kirim</b></a>
+                <a href="#" id="akaResetModalBtn" class="btn btn-warning btn-sm hidden" data-bs-toggle="modal" data-bs-target="#akaResetModal" style="font-size: 25px;"><b>Reset</b></a>
 
                 <div class="modal fade" id="akaKirimModal" tabindex="-1" aria-labelledby="akaKirimModal" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
@@ -134,11 +179,11 @@
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title">Konfirmasi Score</h5>
+                                <h5 class="modal-title">Konfirmasi Reset</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin mengirim score aka?</h2>
+                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin reset score aka?</h2>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
@@ -151,26 +196,64 @@
             </div>
         </div>
 
-        <div style="text-align: center; background-color: #212180; border-top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 20px;">
+        <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
             <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b>SDFJ LKDS FJLKSDFJ LKDSFJLK SJLF</b>
+                <b>{{ detail_bagan.atlet2.nama_atlet }}</b>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                SDFJ LKDS FJLKSDFJ LKDSFJLK SJLF
+                {{ detail_bagan.atlet2.perguruan.nama_perguruan }} | {{ detail_bagan.atlet2.utusan.nama_utusan }}
             </h4>
         </div>
         <div style="background-color: white; padding-bottom: 20px;">
-            <h1 id="scoreDisplayAo" style="padding-top: 20px; max-width: 90%; margin: 0 auto; text-align: center; color: #212180; font-weight: bold; font-size: 50px;">
+            <h1 id="scoreDisplayAo" style="padding-top: 20px; max-width: 90%; margin: 0 auto; text-align: center; color: blue; font-weight: bold; font-size: 50px;">
                 7.5
             </h1>
             <div style="text-align: center;">
-                <input type="range" class="slider-blue" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAo').innerText = this.value;">
+                <input id="ao-slider" type="range" class="slider-blue" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAo').innerText = this.value;">
             </div>
         </div>
-        <div style="background-color: #212180; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
+
+        <div style="background: linear-gradient(to top, rgb(105, 120, 255),rgb(26, 80, 255)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;  ">
             <div style="text-align: right;">
-                <button class="btn btn-warning" style="display: none">Reset</button>
-                <button class="btn btn-success">Kirim</button>
+                <a href="#" id="aoKirimModalBtn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aoKirimModal" style="font-size: 25px;"><b>Kirim</b></a>
+                <a href="#" id="aoResetModalBtn" class="btn btn-warning btn-sm hidden" data-bs-toggle="modal" data-bs-target="#aoResetModal" style="font-size: 25px;"><b>Reset</b></a>
+
+                <div class="modal fade" id="aoKirimModal" tabindex="-1" aria-labelledby="aoKirimModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Konfirmasi Score</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin mengirim score aka?</h2>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
+                                <button id="aoKirimScore" class="btn btn-success" data-bs-dismiss="modal" aria-label="Close">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="aoResetModal" tabindex="-1" aria-labelledby="aoResetModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">Konfirmasi Reset</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin reset score aka?</h2>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
+                                <button id="aoResetScore" class="btn btn-success" data-bs-dismiss="modal" aria-label="Close">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -185,9 +268,53 @@
             const akaKirimModalBtn = $('#akaKirimModalBtn');
             const akaResetModalBtn = $('#akaResetModalBtn');
             
-            akaKirimScore.on('click', function () {
-                akaKirimModalBtn.css('display', 'none')
-                akaResetModalBtn.css('display', 'inline')
+            $('#akaKirimScore').on('click', function () {
+                $('#akaKirimModalBtn').addClass('hidden');
+                $('#akaResetModalBtn').removeClass('hidden');
+                $('.slider-red').prop('disabled', true);
+                
+                $.ajax({
+                    url: '/control-panel/{{ detail_bagan.pk }}/message-retriever',
+                    type: 'POST',
+                    data: {
+                        action: '{{ jury.jury_number }}',
+                        details: JSON.stringify(['aka', $('#aka-slider').val()]),
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                });
+            });
+
+            $('#akaResetScore').on('click', function () {
+                $('#akaKirimModalBtn').removeClass('hidden');
+                $('#akaResetModalBtn').addClass('hidden');
+                $('.slider-red').prop('disabled', false);
+            });
+
+            const aoKirimScore = $('#aoKirimScore');
+            const aoResetScore = $('#aoResetScore');
+            const aoKirimModalBtn = $('#aoKirimModalBtn');
+            const aoResetModalBtn = $('#aoResetModalBtn');
+            
+            $('#aoKirimScore').on('click', function () {
+                $('#aoKirimModalBtn').addClass('hidden');
+                $('#aoResetModalBtn').removeClass('hidden');
+                $('.slider-blue').prop('disabled', true);
+                
+                $.ajax({
+                    url: '/control-panel/{{ detail_bagan.pk }}/message-retriever',
+                    type: 'POST',
+                    data: {
+                        action: '{{ jury.jury_number }}',
+                        details: JSON.stringify(['ao', $('#ao-slider').val()]),
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                });
+            });
+
+            $('#aoResetScore').on('click', function () {
+                $('#aoKirimModalBtn').removeClass('hidden');
+                $('#aoResetModalBtn').addClass('hidden');
+                $('.slider-blue').prop('disabled', false);
             });
         });
     </script>

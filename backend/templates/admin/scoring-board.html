@@ -149,7 +149,7 @@
   </style>
 </head>
 <body>
-
+  
     <div class="container">
         <div class="player">
             <div class="player-main">
@@ -214,6 +214,7 @@
   let milliseconds = 0;
   let totalSeconds = 0;
   let isRunning = false;
+  let isShowing = false;
 
   function updateDisplay(seconds, ms) {
     if (seconds >= 0) {
@@ -252,6 +253,19 @@
         totalSeconds = detailsArray[0]
         milliseconds = detailsArray[1]
         updateDisplay(totalSeconds, milliseconds);
+      } else if (data.command == 'tampilkan-score') {
+        const detailsArray = JSON.parse(data.details);
+        var totalAka = detailsArray[0]
+        var totalAo = detailsArray[1]
+        if (isShowing == false) {
+          $('#aka-score').text(totalAka)
+          $('#ao-score').text(totalAo)
+          isShowing = true
+        } else {
+          $('#aka-score').text('0')
+          $('#ao-score').text('0')
+          isShowing = false
+        }
       }
 
       function timer_status() {
@@ -291,6 +305,10 @@
         document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
         document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
         document.getElementById('ao-score').innerText = '0'
+
+        totalSeconds = 0
+        milliseconds = 0
+        updateDisplay(totalSeconds, milliseconds);
       }
   };
 </script>

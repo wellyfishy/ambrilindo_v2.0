@@ -56,11 +56,34 @@ def jury_panel(request, tatami_pk):
     jury = Jury.objects.get(user=request.user)
     detail_bagan = jury.tatami.detail_bagan
 
+    
+
     context = {
         'jury': jury,
         'detail_bagan': detail_bagan,
     }
     return render(request, 'jury/jury-panel.html', context)
+
+@csrf_exempt
+def message_retriever_admin(request, detailbagan_pk):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        details = request.POST.get('details')
+
+        group_name = f"control_{detailbagan_pk}"
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
+        )
+
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 def logoutfunc(request):
     logout(request)

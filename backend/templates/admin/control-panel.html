@@ -12,9 +12,6 @@
             <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
                 <b>Kembali</b>
             </a>
-            <a href="#" class="btn btn-success" style="margin-left: 5px;">
-                <b>Simpan dan Keluar</b>
-            </a>
           <h3 class="fw-bold mb-3"></h3>
         </div>
         <div class="row">
@@ -26,40 +23,40 @@
                     </div>
                     <div class="card-body">
                         <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                            <th scope="col" style="text-align: center;">Nama Atlet</th>
-                            <th scope="col" style="text-align: center;">J1</th>
-                            <th scope="col" style="text-align: center;">J2</th>
-                            <th scope="col" style="text-align: center;">J3</th>
-                            <th scope="col" style="text-align: center;">J4</th>
-                            <th scope="col" style="text-align: center;">J5</th>
-                            <th scope="col" style="text-align: center;">Total</th>
-                            <th scope="col" style="text-align: center;">Pemenang</th>
-                            </tr>
-                        </thead>
+                            <thead>
+                                <tr>
+                                <th scope="col" style="text-align: center; width: 1000px;">Nama Atlet</th>
+                                <th scope="col" style="text-align: center;">J1</th>
+                                <th scope="col" style="text-align: center;">J2</th>
+                                <th scope="col" style="text-align: center;">J3</th>
+                                <th scope="col" style="text-align: center;">J4</th>
+                                <th scope="col" style="text-align: center;">J5</th>
+                                <th scope="col" style="text-align: center;">Total</th>
+                                <th scope="col" style="text-align: center;">Pemenang</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <tr>
                                     <td>
                                         <b><span style="color: red">{{ detail_bagan.atlet1.nama_atlet }}</span> - {{ detail_bagan.atlet1.perguruan.nama_perguruan }} - {{ detail_bagan.atlet1.utusan.nama_utusan }}</b>
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj1" value="0.0">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj2" value="7.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj3" value="7.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj4" value="8.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj5" value="8.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 150%; text-align: center; margin-left: -13px;" id="totalAka" value="23.5">
                                     </td>
                                     <td style="text-align: center;">
                                         <input class="form-check-input" type="radio" name="pemenang" style="transform: scale(2);">
@@ -71,22 +68,22 @@
                                         <b><span style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</span> - {{ detail_bagan.atlet2.perguruan.nama_perguruan }} - {{ detail_bagan.atlet2.utusan.nama_utusan }}</b>
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj1" value="0.0">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj2" value="7.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj3" value="7.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj4" value="8.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj5" value="8.5">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <b>0.0</b>
+                                        <input type="text" style="width: 150%; text-align: center; margin-left: -13px;" id="totalAo" value="22.3">
                                     </td>
                                     <td style="text-align: center;">
                                         <input class="form-check-input" type="radio" name="pemenang" style="transform: scale(2);">
@@ -102,7 +99,7 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">
                             Control Panel
-                            <button class="btn btn-secondary" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}display: none{% endif %}">Tampilkan Score</button>
+                            <button class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <select class="form-control" id="timer-choice">
@@ -113,6 +110,10 @@
                                 <option value="120">02:00</option>
                                 <option value="150">02:30</option>
                                 <option value="180">03:00</option>
+                                <option value="210">03:30</option>
+                                <option value="240">04:00</option>
+                                <option value="270">04:30</option>
+                                <option value="300">05:00</option>
                             </select>
                             <button class="btn btn-primary" id="start-timer" style="font-size: 25px;">Start</button>
                         </div>
@@ -128,6 +129,54 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">
+                            Kata Input
+                        </div>
+                    </div>
+                    <div class="card-body" style="text-align: center;">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                <th scope="col" style="text-align: center;;">Info</th>
+                                <th scope="col" style="text-align: center;">Kata</th>
+                                <th scope="col" style="text-align: center;">MISC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <b><span style="font-size: 20px; color: red">Aka</span></b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <select class="form-select select2" id="kata-aka">
+                                        </select>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <button class="btn btn-primary" id="kata-aka-kirim">Kirim</button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <b><span style="font-size: 20px; color: blue">Ao</span></b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <select class="form-select select2" id="kata-ao">
+                                        </select>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <button class="btn btn-primary" id="kata-ao-kirim">Kirim</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -138,10 +187,17 @@
 
 {% block script %}
 <script>
+    $('.select2').select2({
+        width: '100%'
+    });
+
     let interval = null;
     let milliseconds = 0;
     let totalSeconds = 0;
     let isRunning = false;
+
+    const kataAka = document.getElementById('kata-aka');
+    const kataAo = document.getElementById('kata-ao');
 
     function updateDisplay(seconds, ms) {
         if (seconds >= 0) {
@@ -152,6 +208,62 @@
             $('#milliseconds').text(String(ms).padStart(2, '0'));
         } 
     }
+
+    const eventPk = {{ event.pk }}
+    const baganPk = {{ bagan.pk }}
+    const detailbaganPk = {{ detail_bagan.pk }}
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const socket = new WebSocket(protocol + window.location.host + `/ws/admin-dashboard/${eventPk}/bagan-detail/${baganPk}/control-panel/${detailbaganPk}`);
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data.command, data.details)
+
+        const detailsArray = JSON.parse(data.details);
+        const atlet = detailsArray[0];
+        const score = detailsArray[1];
+
+        if ((atlet === 'aka' || atlet === 'ao') && data.command >= '1' && data.command <= '5') {
+            const prefix = atlet === 'aka' ? '#akaj' : '#aoj';
+            const inputId = prefix + data.command;
+            $(inputId).val(score);
+
+            let scores = [];
+            for (let i = 1; i <= 5; i++) {
+                const val = parseFloat($(prefix + i).val());
+                if (!isNaN(val) && val !== 0) {
+                    scores.push(val);
+                }
+            }
+
+            if (scores.length >= 3) {
+                scores.sort((a, b) => a - b);
+                const trimmedScores = scores.slice(1, -1);
+                const total = trimmedScores.reduce((a, b) => a + b, 0);
+                console.log(total)
+
+                if (atlet === 'aka') {
+                    $('#totalAka').val(total.toFixed(1));
+                } else {
+                    $('#totalAo').val(total.toFixed(1));
+                }
+            }
+        }
+    }
+
+    $('#tampilkan-score').on('click', function() {
+        let scoreAka = $('#totalAka').val();
+        let scoreAo = $('#totalAo').val();
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'tampilkan-score',
+                details: JSON.stringify([scoreAka, scoreAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
 
     $('#timer-increment').on('click', function() {
         totalSeconds++;
@@ -251,5 +363,123 @@
             $(this).text('Start').removeClass('btn-danger').addClass('btn-primary');
         }
     });
+
+    const kataList = [
+        "Blank",
+        "Anan",
+        "Anan Dai",
+        "Ananko",
+        "Aoyagi",
+        "Bassai",
+        "Bassai Dai",
+        "Bassai Sho",
+        "Chatanyara Kusanku",
+        "Chibana No Kushanku",
+        "Chinte",
+        "Chinto",
+        "Enpi",
+        "Fukyugata Ichi",
+        "Fukvugata Ni",
+        "Gankaku",
+        "Garyu",
+        "Gekisai (Geksai) 1",
+        "Gekisai (Geksai) 2",
+        "Gojushiho",
+        "Gojushiho Dai",
+        "Gojushiho Sho",
+        "Hakucho",
+        "Hangetsu",
+        "Haufa (Haffa)",
+        "Heian Shodan",
+        "Heian Nidan",
+        "Heian Sandan",
+        "Heian Yondan",
+        "Heian Godan",
+        "Heiku",
+        "Ishimine Bassai",
+        "Itosu Rohai Shodan",
+        "Itosu Rohai Nidan",
+        "Itosu Rohai Sandan",
+        "Jiin",
+        "Jion",
+        "Jitte",
+        "Juroku",
+        "Kanchin",
+        "Kanku Dai",
+        "Kanku Sho",
+        "Kanshu",
+        "Kishimoto No Kushanku",
+        "Kousoukun",
+        "Kousoukun Dai",
+        "Kousoukun Sho",
+        "Kurunmfa",
+        "Kusanku",
+        "Kyan No Chinto",
+        "Kyan No Wanshu",
+        "Matsukaze",
+        "Matsumura Bassai",
+        "Matsumura Rohai",
+        "Meikyo",
+        "Myojo",
+        "Naifanchin Shodan",
+        "Naifanchin Nidan",
+        "Naifanchin Sandan",
+        "Naihanchi",
+        "Nijushiho",
+        "Nipaipo",
+        "Niseishi",
+        "Ohan",
+        "Ohan Dai",
+        "Oyadomari No Passai",
+        "Pachu",
+        "Paiku",
+        "Papuren",
+        "Passai",
+        "Pinan Shodan",
+        "Pinan Nidan",
+        "Pinan Sandan",
+        "Pinan Yondan",
+        "Pinan Godan",
+        "Rohai",
+        "Saifa",
+        "Sanchin",
+        "Sansai",
+        "Sanseiru",
+        "Sanseni",
+        "Seichin",
+        "Seienchin (Seiyunchin)",
+        "Seipai",
+        "Seiryu",
+        "Seishan",
+        "Seisan (Sesan)",
+        "Shiho Kousoukun",
+        "Shinpa",
+        "Shinsei",
+        "Shisochin",
+        "Sochin",
+        "Suparinpei",
+        "Tekki Shodan",
+        "Tekki Nidan",
+        "Tekki Sandan",
+        "Tensho",
+        "Tomari Bassai",
+        "Unshu",
+        "Unsu",
+        "Useishi",
+        "Wankan",
+        "Wanshu"
+    ];
+
+    function populateSelect(selectElement) {
+        kataList.forEach((kata, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = `${index} - ${kata}`;
+            selectElement.appendChild(option);
+        });
+    }
+
+    populateSelect(kataAka);
+    populateSelect(kataAo);
 </script>
 {% endblock script %}
