@@ -22,9 +22,6 @@
       <div class="sidebar sidebar-style-2" data-background-color="dark">
         <div class="sidebar-logo">
           <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo">
-              <img src="" alt="navbar brand" class="navbar-brand" height="90" style=""/>
-            </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">
                 <i class="gg-menu-right"></i>
@@ -103,13 +100,6 @@
               <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                 <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                    <div class="avatar-sm">
-                      <img
-                        src="{% static 'img/piggypoggo/jinhsi-icon.png' %}"
-                        alt="..."
-                        class="avatar-img rounded-circle"
-                      />
-                    </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
                       <span class="fw-bold">{{ request.user }}</span>
@@ -118,18 +108,6 @@
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
                     <div class="dropdown-user-scroll scrollbar-outer">
                       <li>
-                        <div class="user-box">
-                          <div class="avatar-lg">
-                            <img src="{% static 'img/piggypoggo/jinhsi-icon.png' %}" alt="image profile" class="avatar-img rounded"/>
-                          </div>
-                          <div class="u-text">
-                            <h4>{{ request.user }}</h4>
-                            <p class="text-muted">{{ request.user.email }}</p>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                       </li>
                     </div>
@@ -153,11 +131,11 @@
             </nav>
             <div class="copyright">
               2025, made with <i class="fa fa-heart heart text-danger"></i> by
-              <a href="">PiggyPoggo</a>
+              <a href="">wellyfishy</a>
             </div>
             <div>
               Distributed by
-              <a target="_blank" href="">POLNES</a>.
+              <a target="_blank" href="">Ambrilindo</a>.
             </div>
           </div>
         </footer>
@@ -168,8 +146,6 @@
     <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/plugin/jquery-scrollbar/jquery.scrollbar.min.js' %}"></script>
     <script src="{% static 'js/plugin/datatables/datatables.min.js' %}"></script>
-    <script src="{% static 'js/plugin/bootstrap-notify/bootstrap-notify.min.js' %}"></script>
-    <script src="{% static 'js/plugin/sweetalert/sweetalert.min.js' %}"></script>
     <script src="{% static 'js/ambrilindo.min.js' %}"></script>
     <script src="{% static 'select2/dist/js/select2.min.js' %}"></script>
     <script>

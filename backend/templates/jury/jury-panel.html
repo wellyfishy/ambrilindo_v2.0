@@ -140,7 +140,7 @@
                 <b>{{ detail_bagan.atlet1.nama_atlet }}</b>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                {{ detail_bagan.atlet1.perguruan.nama_perguruan }} | {{ detail_bagan.atlet1.utusan.nama_utusan }}
+                <span id="kata-aka">0 - Blank</span> | {{ detail_bagan.atlet1.perguruan.nama_perguruan }} | {{ detail_bagan.atlet1.utusan.nama_utusan }}
             </h4>
         </div>
         <div style="background-color: white; padding-bottom: 20px;">
@@ -201,7 +201,7 @@
                 <b>{{ detail_bagan.atlet2.nama_atlet }}</b>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                {{ detail_bagan.atlet2.perguruan.nama_perguruan }} | {{ detail_bagan.atlet2.utusan.nama_utusan }}
+                <span id="kata-ao">0 - Blank</span> | {{ detail_bagan.atlet2.perguruan.nama_perguruan }} | {{ detail_bagan.atlet2.utusan.nama_utusan }}
             </h4>
         </div>
         <div style="background-color: white; padding-bottom: 20px;">
@@ -263,6 +263,19 @@
 
     <script>
         $(document).ready(function () {
+            const tatamiPk = {{ tatami.pk }}
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const socket = new WebSocket(protocol + window.location.host + `/ws/jury-panel/${tatamiPk}`);
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                console.log(data.command, data.details)
+
+                if (data.command == 'kata-kirim') {
+                    const detailsArray = JSON.parse(data.details);
+                    $('#kata-aka').text(detailsArray[0])
+                    $('#kata-ao').text(detailsArray[1])
+                }
+            }
             const akaKirimScore = $('#akaKirimScore');
             const akaResetScore = $('#akaResetScore');
             const akaKirimModalBtn = $('#akaKirimModalBtn');

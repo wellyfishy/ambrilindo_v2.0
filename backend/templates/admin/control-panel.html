@@ -14,7 +14,7 @@
             <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
                 <b>Kembali</b>
             </a>
-            <button type="submit" name="submit_type" value="simpan" class="btn btn-success" style="margin-left: 5px;"><b>Simpan & Keluar</b></button>
+            <button type="submit" name="submit_type" value="kata-simpan" class="btn btn-success" style="margin-left: 5px;"><b>Simpan</b></button>
           <h3 class="fw-bold mb-3"></h3>
         </div>
         <div class="row">
@@ -44,19 +44,19 @@
                                         <b><span style="color: red">{{ detail_bagan.atlet1.nama_atlet }}</span> - {{ detail_bagan.atlet1.perguruan.nama_perguruan }} - {{ detail_bagan.atlet1.utusan.nama_utusan }}</b>
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj1" name="akaScores" value="0.0">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj1" name="akaScores" value="{{ aka_score.score1 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj2" name="akaScores" value="7.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj2" name="akaScores" value="{{ aka_score.score2 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj3" name="akaScores" value="7.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj3" name="akaScores" value="{{ aka_score.score3 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj4" name="akaScores" value="8.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj4" name="akaScores" value="{{ aka_score.score4 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj5" name="akaScores" value="8.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="akaj5" name="akaScores" value="{{ aka_score.score5 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
                                         <input type="text" style="width: 150%; text-align: center; margin-left: -13px;" id="totalAka" name="totalAka" value="{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}0.0{% endif %}">
@@ -71,19 +71,19 @@
                                         <b><span style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</span> - {{ detail_bagan.atlet2.perguruan.nama_perguruan }} - {{ detail_bagan.atlet2.utusan.nama_utusan }}</b>
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj1" name="aoScores" value="0.0">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj1" name="aoScores" value="{{ ao_score.score1 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj2" name="aoScores" value="7.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj2" name="aoScores" value="{{ ao_score.score2 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj3" name="aoScores" value="7.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj3" name="aoScores" value="{{ ao_score.score3 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj4" name="aoScores" value="8.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj4" name="aoScores" value="{{ ao_score.score4 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
-                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj5" name="aoScores" value="8.5">
+                                        <input type="text" style="width: 250%; text-align: center; margin-left: -15px;" id="aoj5" name="aoScores" value="{{ ao_score.score5 }}">
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
                                         <input type="text" style="width: 150%; text-align: center; margin-left: -13px;" id="totalAo" name="totalAo" value="{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}0.0{% endif %}">
@@ -102,7 +102,7 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">
                             Control Panel
-                            <button class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
+                            <button type="button" class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <select class="form-control" id="timer-choice">
@@ -118,16 +118,16 @@
                                 <option value="270">04:30</option>
                                 <option value="300">05:00</option>
                             </select>
-                            <button class="btn btn-primary" id="start-timer" style="font-size: 25px;">Start</button>
+                            <button type="button" class="btn btn-primary" id="start-timer" style="font-size: 25px;">Start</button>
                         </div>
                     </div>
                     <div class="card-body" style="text-align: center;">
                         <p style="font-weight: bold; font-size: 50px;">
-                            <button id="timer-decrement" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">-</button>
+                            <button type="button" id="timer-decrement" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">-</button>
                             <span id="minutes">00</span>:
                             <span id="seconds">00</span>:
                             <span id="milliseconds">00</span>
-                            <button id="timer-increment" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">+</button>
+                            <button type="button" id="timer-increment" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">+</button>
                         </p>
                     </div>
                 </div>
@@ -139,6 +139,9 @@
                         <div class="card-title" style="margin-right: 10px;">
                             Kata Input
                         </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-primary" id="kata-kirim" style="font-size: 25px;">Kirim</button>
+                        </div>
                     </div>
                     <div class="card-body" style="text-align: center;">
                         <table class="table table-striped mt-3">
@@ -146,7 +149,6 @@
                                 <tr>
                                 <th scope="col" style="text-align: center;;">Info</th>
                                 <th scope="col" style="text-align: center;">Kata</th>
-                                <th scope="col" style="text-align: center;">MISC</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -158,9 +160,6 @@
                                         <select class="form-select select2" name="kata-aka" id="kata-aka">
                                         </select>
                                     </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <button class="btn btn-primary" id="kata-aka-kirim">Kirim</button>
-                                    </td>
                                 </tr>
 
                                 <tr>
@@ -170,9 +169,6 @@
                                     <td style="text-align: center; font-size: 20px;">
                                         <select class="form-select select2" name="kata-ao" id="kata-ao">
                                         </select>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <button type="button" class="btn btn-primary" id="kata-ao-kirim">Kirim</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -185,8 +181,118 @@
     </form>
 </div>
 {% else %}
+<div class="container">
+    <form method="POST">
+    {% csrf_token %}
+    <div class="page-inner">
+        <div class="page-header">
+            <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
+                <b>Kembali</b>
+            </a>
+            <button type="submit" name="submit_type" value="kumite-simpan" class="btn btn-success" style="margin-left: 5px;"><b>Simpan</b></button>
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;"><b style="color: red;">{{ detail_bagan.atlet1.nama_atlet }}</b> vs <b style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</b></div>
+                        <div></div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                <th scope="col" style="text-align: center;">Nama Atlet</th>
+                                <th scope="col" style="text-align: center;">Score</th>
+                                <th scope="col" style="text-align: center;">Criteria</th>
+                                <th scope="col" style="text-align: center;">Pemenang</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <b><span style="color: red">{{ detail_bagan.atlet1.nama_atlet }}</span> - {{ detail_bagan.atlet1.perguruan.nama_perguruan }} - {{ detail_bagan.atlet1.utusan.nama_utusan }}</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <button type="button" class="btn btn-danger" id="aka-score-dec">-</button>
+                                        <input type="number" style="text-align: center; width: 10%" id="aka-score" name="akaScore" value="0">
+                                        <button type="button" class="btn btn-success" id="aka-score-inc">+</button>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <button type="button" class="btn btn-danger" id="aka-criteria-dec">-</button>
+                                        <input type="number" style="text-align: center; width: 10%" id="aka-criteria" name="akaCriteria" value="0">
+                                        <button type="button" class="btn btn-success" id="aka-criteria-inc">+</button>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <input class="form-check-input" type="radio" name="pemenang" value="aka" style="transform: scale(2);">
+                                    </td>
+                                </tr>
 
+                                <tr>
+                                    <td>
+                                        <b><span style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</span> - {{ detail_bagan.atlet2.perguruan.nama_perguruan }} - {{ detail_bagan.atlet2.utusan.nama_utusan }}</b>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <button type="button" class="btn btn-danger" id="ao-score-dec">-</button>
+                                        <input type="number" style="text-align: center; width: 10%" id="ao-score" name="aoScore" value="0">
+                                        <button type="button" class="btn btn-success" id="ao-score-inc">+</button>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <button type="button" class="btn btn-danger" id="ao-criteria-dec">-</button>
+                                        <input type="number" style="text-align: center; width: 10%" id="ao-criteria" name="aoCriteria" value="0">
+                                        <button type="button" class="btn btn-success" id="ao-criteria-inc">+</button>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <input class="form-check-input" type="radio" name="pemenang" value="ao" style="transform: scale(2);">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">
+                            Control Panel
+                            <button type="button" class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select class="form-control" id="timer-choice">
+                                <option value="0" selected>00:00</option>
+                                <option value="30">00:30</option>
+                                <option value="60">01:00</option>
+                                <option value="90">01:30</option>
+                                <option value="120">02:00</option>
+                                <option value="150">02:30</option>
+                                <option value="180">03:00</option>
+                                <option value="210">03:30</option>
+                                <option value="240">04:00</option>
+                                <option value="270">04:30</option>
+                                <option value="300">05:00</option>
+                            </select>
+                            <button type="button" class="btn btn-primary" id="start-timer" style="font-size: 25px;">Start</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="text-align: center;">
+                        <p style="font-weight: bold; font-size: 50px;">
+                            <button type="button" id="timer-decrement" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">-</button>
+                            <span id="minutes">00</span>:
+                            <span id="seconds">00</span>:
+                            <span id="milliseconds">00</span>
+                            <button type="button" id="timer-increment" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">+</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
 {% endif %}
+<input type="hidden" id="tipe-tanding" value="{{ bagan.tipe_tanding }}">
 {% endblock content %}
 
 {% block script %}
@@ -199,6 +305,14 @@
     let milliseconds = 0;
     let totalSeconds = 0;
     let isRunning = false;
+
+    const tipeTanding = $('#tipe-tanding').val()
+
+    let aka_score = 0 
+    let ao_score = 0 
+
+    let aka_criteria = 0
+    let ao_criteria = 0
 
     const kataAka = document.getElementById('kata-aka');
     const kataAo = document.getElementById('kata-ao');
@@ -254,6 +368,150 @@
             }
         }
     }
+
+    $('#aka-score-dec').on('click', function() {
+        if (aka_score != 0) {
+            aka_score--;
+            $.ajax({
+                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                type: 'POST',
+                data: {
+                    action: 'aka-score-dec',
+                    details: '',
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+            });
+        }
+        $('#aka-score').val(aka_score)
+    })
+
+    $('#aka-score-inc').on('click', function() {
+        aka_score++;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'aka-score-inc',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#aka-score').val(aka_score)
+    })
+
+    $('#aka-criteria-dec').on('click', function() {
+        if (aka_criteria != 0) {
+            aka_criteria--;
+            $.ajax({
+                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                type: 'POST',
+                data: {
+                    action: 'aka-criteria-dec',
+                    details: '',
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+            });
+        }
+        $('#aka-criteria').val(aka_criteria)
+    })
+
+    $('#aka-criteria-inc').on('click', function() {
+        aka_criteria++;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'aka-criteria-inc',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#aka-criteria').val(aka_criteria)
+    })
+
+    $('#ao-score-dec').on('click', function() {
+        if (ao_score != 0) {
+            ao_score--;
+            $.ajax({
+                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                type: 'POST',
+                data: {
+                    action: 'ao-score-dec',
+                    details: '',
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+            });
+        }
+        $('#ao-score').val(ao_score)
+    })
+
+    $('#ao-score-inc').on('click', function() {
+        ao_score++;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-score-inc',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#ao-score').val(ao_score)
+    })
+
+    $('#ao-criteria-dec').on('click', function() {
+        if (ao_criteria != 0) {
+            ao_criteria--;
+            $.ajax({
+                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                type: 'POST',
+                data: {
+                    action: 'ao-criteria-dec',
+                    details: '',
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+            });
+        }
+        $('#ao-criteria').val(ao_criteria)
+    })
+
+    $('#ao-criteria-inc').on('click', function() {
+        ao_criteria++;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-criteria-inc',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#ao-criteria').val(ao_criteria)
+    })
+
+    $('#kata-kirim').on('click', function() {
+        var kataAka = $('#kata-aka').val();
+        var kataAo = $('#kata-ao').val();
+        $.ajax({
+            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'kata-kirim',
+                details: JSON.stringify([kataAka, kataAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'kata-kirim',
+                details: JSON.stringify([kataAka, kataAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
 
     $('#tampilkan-score').on('click', function() {
         let scoreAka = $('#totalAka').val();
@@ -474,16 +732,27 @@
         "Wanshu"
     ];
 
-    function populateSelect(selectElement) {
-        kataList.forEach((kata, index) => {
-            const option = document.createElement('option');
-            option.value = `${index} - ${kata}`;
-            option.textContent = `${index} - ${kata}`;
-            selectElement.appendChild(option);
-        });
-    }
+    var kata_aka = '{{ detail_bagan.kata1 }}';
+    var kata_ao = '{{ detail_bagan.kata2 }}';
+    
+    if (tipeTanding == '1') {
+        function populateSelect(selectElement, selectedValue) {
+            kataList.forEach((kata, index) => {
+                const option = document.createElement('option');
+                option.value = `${index} - ${kata}`;
+                option.textContent = `${index} - ${kata}`;
 
-    populateSelect(kataAka);
-    populateSelect(kataAo);
+                // Set selected if this option matches the value from the DB
+                if (option.value === selectedValue) {
+                    option.selected = true;
+                }
+
+                selectElement.appendChild(option);
+            });
+        }
+
+        populateSelect(kataAka, kata_aka);
+        populateSelect(kataAo, kata_ao);
+    }
 </script>
 {% endblock script %}

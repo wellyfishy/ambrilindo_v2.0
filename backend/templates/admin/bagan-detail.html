@@ -475,8 +475,8 @@ h2 {
 <body>
 <!-- partial:index.partial.html -->
 <div class="container" id="print-wrapper">
-    <a href="{% url 'admin-dashboard' event_pk=event.pk %}">Kembali</a>
-  <h1>{{ bagan.nama_bagan }} | <button class="btn btn-success hidden" onclick="window.print()">Print</button></h1>
+    <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
+  <h1>{{ bagan.nama_bagan }} <button class="btn btn-success hidden" onclick="window.print()">Print</button></h1>
   <div class="tournament-bracket tournament-bracket--rounded">                                                     
     <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
       <h3 class="tournament-bracket__round-title"></h3>
@@ -633,6 +633,84 @@ h2 {
 
     <div class="tournament-bracket__round tournament-bracket__round--gold">
       <h3 class="tournament-bracket__round-title"></h3>
+      <form method="POST">
+        {% csrf_token %}
+        <table style="
+          position: absolute; 
+          border-collapse: collapse; 
+          width: 100%; 
+          max-width: 500px; 
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+          font-family: Arial, sans-serif;
+          margin-left: -100px;
+          margin-top: -70px;
+        ">
+          <thead>
+            <tr style="background-color: #f5f5f5;">
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 10%;">Juara</th>
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Nama</th>
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 20%;">Perguruan</th>
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Utusan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>1</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <select name="juara_1_pk">
+                  {% for atlet in all_atlets %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>2</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <select name="juara_2_pk">
+                  {% for atlet in all_atlets %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <select name="juara_3a_pk">
+                  {% for atlet in all_atlets %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <select name="juara_3b_pk">
+                  {% for atlet in all_atlets %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+            </tr>
+            <tr class="hidden">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style="text-align: center"><button type="submit" name="submit_type" value="simpan_juara">Simpan</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
       <ul class="tournament-bracket__list">
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0">
@@ -647,9 +725,11 @@ h2 {
           </div>
         </li>
       </ul>
+
+      <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" style="width: 300px; height: auto; position: absolute; margin-top: -100px;" alt="">
     </div>
   </div>
 </div>
-  
+
 </body>
 </html>

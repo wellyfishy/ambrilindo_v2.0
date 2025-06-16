@@ -85,7 +85,7 @@
 
     .kata {
       color: gold;
-      font-size: 1em;
+      font-size: 2em;
     }
 
     .aka-score {
@@ -157,17 +157,17 @@
                 <div class="info">
                     <div class="name" id="atlet_red_name">-</div>
                     <div class="country" id="atlet_red_country">-</div>
-                    <div class="kata">-</div>
+                    <div class="kata" id="kata-aka">0 - Blank</div>
                 </div>
                 <div class="aka-score" id="aka-score">0</div>
             </div>
             
             <div class="criteria-row" name="criteria">
-                <div class="criteria">C1</div>
-                <div class="criteria">C2</div>
-                <div class="criteria">C3</div>
-                <div class="criteria">C4</div>
-                <div class="criteria">C</div>
+                <div class="criteria" id="akac1">C1</div>
+                <div class="criteria" id="akac2">C2</div>
+                <div class="criteria" id="akac3">C3</div>
+                <div class="criteria" id="akac4">C4</div>
+                <div class="criteria" id="akac5">C</div>
             </div>
         </div>
 
@@ -177,16 +177,16 @@
                 <div class="info">
                     <div class="name" id="atlet_blue_name">-</div>
                     <div class="country" id="atlet_blue_country">-</div>
-                    <div class="kata">-</div>
+                    <div class="kata" id="kata-ao">0 - Blank</div>
                 </div>
                 <div class="ao-score" id="ao-score">0</div>
             </div>
             <div class="criteria-row" name="criteria">
-                <div class="criteria">C1</div>
-                <div class="criteria">C2</div>
-                <div class="criteria">C3</div>
-                <div class="criteria">C4</div>
-                <div class="criteria">C</div>
+                <div class="criteria" id="aoc1">C1</div>
+                <div class="criteria" id="aoc2">C2</div>
+                <div class="criteria" id="aoc3">C3</div>
+                <div class="criteria" id="aoc4">C4</div>
+                <div class="criteria" id="aoc5">C</div>
             </div>
         </div>
 
@@ -215,6 +215,12 @@
   let totalSeconds = 0;
   let isRunning = false;
   let isShowing = false;
+
+  let aka_score = 0 
+  let ao_score = 0 
+
+  let aka_criteria = 0
+  let ao_criteria = 0
 
   function updateDisplay(seconds, ms) {
     if (seconds >= 0) {
@@ -266,6 +272,42 @@
           $('#ao-score').text('0')
           isShowing = false
         }
+      } else if (data.command == 'kata-kirim') {
+        const detailsArray = JSON.parse(data.details);
+        $('#kata-aka').text(detailsArray[0])
+        $('#kata-ao').text(detailsArray[1])
+      } else if (data.command == 'aka-score-inc') {
+        aka_score++;
+        $('#aka-score').text(aka_score)
+      } else if (data.command == 'aka-score-dec') {
+        aka_score--;
+        $('#aka-score').text(aka_score)
+      } if (data.command === 'aka-criteria-inc') {
+        aka_criteria++;
+        if (aka_criteria >= 1 && aka_criteria <= 5) {
+            $(`#akac${aka_criteria}`).addClass('active-red');
+        }
+      } else if (data.command === 'aka-criteria-dec') {
+        if (aka_criteria >= 1 && aka_criteria <= 5) {
+          $(`#akac${aka_criteria}`).removeClass('active-red');
+        }
+        aka_criteria--;
+      } else if (data.command == 'ao-score-inc') {
+        ao_score++;
+        $('#ao-score').text(ao_score)
+      } else if (data.command == 'ao-score-dec') {
+        ao_score--;
+        $('#ao-score').text(ao_score)
+      } if (data.command === 'ao-criteria-inc') {
+        ao_criteria++;
+        if (ao_criteria >= 1 && ao_criteria <= 5) {
+          $(`#aoc${ao_criteria}`).addClass('active-blue');
+        }
+      } else if (data.command === 'ao-criteria-dec') {
+        if (ao_criteria >= 1 && ao_criteria <= 5) {
+          $(`#aoc${ao_criteria}`).removeClass('active-blue');
+        }
+        ao_criteria--;
       }
 
       function timer_status() {
@@ -309,6 +351,22 @@
         totalSeconds = 0
         milliseconds = 0
         updateDisplay(totalSeconds, milliseconds);
+
+        aka_score = 0
+        ao_score = 0
+        aka_criteria = 0
+        ao_criteria = 0
+
+        isRunning = false;
+        isShowing = false;
+
+        for (let i = 1; i <= 5; i++) {
+          $(`#akac${i}`).removeClass('active-red');
+        }
+
+        for (let i = 1; i <= 5; i++) {
+          $(`#aoc${i}`).removeClass('active-blue');
+        }
       }
   };
 </script>

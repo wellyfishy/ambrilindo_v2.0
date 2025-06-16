@@ -55,14 +55,35 @@ def auth(request):
 def jury_panel(request, tatami_pk):
     jury = Jury.objects.get(user=request.user)
     detail_bagan = jury.tatami.detail_bagan
-
-    
+    tatami = Tatami.objects.get(pk=tatami_pk)
 
     context = {
         'jury': jury,
         'detail_bagan': detail_bagan,
+        'tatami': tatami,
     }
     return render(request, 'jury/jury-panel.html', context)
+
+@csrf_exempt
+def message_retriever_jury(request, tatami_pk):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        details = request.POST.get('details')
+
+        group_name = f"juryroom_{tatami_pk}"
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
+        )
+
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @csrf_exempt
 def message_retriever_admin(request, detailbagan_pk):
@@ -340,11 +361,22 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
+    all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
     detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
     detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
     detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
     detail_bagans_round_4 = DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan')
     detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
+
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'simpan_juara':
+            juara_1_pk = request.POST.get('juara_1_pk')
+            juara_2_pk = request.POST.get('juara_2_pk')
+            juara_3a_pk = request.POST.get('juara_3a_pk')
+            juara_3b_pk = request.POST.get('juara_3b_pk')
+            print(juara_1_pk, juara_2_pk, juara_3a_pk, juara_3b_pk)
+
+        return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
     context = {
         'on': 'utama',
@@ -356,6 +388,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
         'detail_bagans_round_3': detail_bagans_round_3,
         'detail_bagans_round_4': detail_bagans_round_4,
         'detail_bagan_round_5': detail_bagan_round_5,
+        'all_atlets': all_atlets,
     }
 
     return render(request, 'admin/bagan-detail.html', context)
@@ -365,48 +398,75 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
+    aka_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=0).first()
+    ao_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=1).first()
+    if not aka_score_obj:
+        aka_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=0)
+    if not ao_score_obj:
+        ao_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=1)
     tatami = admin_tatami.tatami
     tatami.detail_bagan = detail_bagan
     tatami.save()
 
     if request.method == 'POST':
-        if request.POST.get('submit_type') == 'simpan':
+        pemenang = request.POST.get('pemenang')
+        if request.POST.get('submit_type') == 'kata-simpan':
             aka_scores = request.POST.getlist('akaScores')
-            total_aka = request.POST.get('totalAka')
             ao_scores = request.POST.getlist('aoScores')
+            total_aka = request.POST.get('totalAka')
             total_ao = request.POST.get('totalAo')
-            pemenang = request.POST.get('pemenang')
             kata_aka = request.POST.get('kata-aka')
             kata_ao = request.POST.get('kata-ao')
 
-            print(aka_scores, total_aka, ao_scores, total_ao, pemenang, kata_aka, kata_ao)
+            score_fields = ['score1', 'score2', 'score3', 'score4', 'score5']
+        
+            for i, field in enumerate(score_fields):
+                if i < len(aka_scores):
+                    setattr(aka_score_obj, field, aka_scores[i])
+            
+            for i, field in enumerate(score_fields):
+                if i < len(ao_scores):
+                    setattr(ao_score_obj, field, ao_scores[i])
+            
+            aka_score_obj.save()
+            ao_score_obj.save()
 
             detail_bagan.score1 = total_aka
             detail_bagan.score2 = total_ao
             detail_bagan.kata1 = kata_aka
             detail_bagan.kata2 = kata_ao
-
-            next_round_number = detail_bagan.round + 1
-            next_round_urutan = (detail_bagan.urutan + 1) // 2
-
-            detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
-            if detailbagan_next_round:
-                if pemenang == 'aka':
-                    winner_atlet = detail_bagan.atlet1
-                elif pemenang == 'ao':
-                    winner_atlet = detail_bagan.atlet2
-                else:
-                    winner_atlet = None
-
-                if winner_atlet:
-                    if detail_bagan.urutan % 2 == 1:
-                        detailbagan_next_round.atlet1 = winner_atlet
-                    else: 
-                        detailbagan_next_round.atlet2 = winner_atlet
+        
             detail_bagan.save()
-            detailbagan_next_round.save()
+        
+        elif request.POST.get('submit_type') == 'kumite-simpan':
+            aka_score = request.POST.get('akaScore')
+            ao_score = request.POST.get('aoScore')
 
-            return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
+            detail_bagan.score1 = aka_score
+            detail_bagan.score2 = ao_score
+
+            detail_bagan.save()
+        
+        next_round_number = detail_bagan.round + 1
+        next_round_urutan = (detail_bagan.urutan + 1) // 2
+        detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
+
+        if detailbagan_next_round:
+            if pemenang == 'aka':
+                winner_atlet = detail_bagan.atlet1
+            elif pemenang == 'ao':
+                winner_atlet = detail_bagan.atlet2
+            else:
+                winner_atlet = None
+            if winner_atlet:
+                if detail_bagan.urutan % 2 == 1:
+                    detailbagan_next_round.atlet1 = winner_atlet
+                else: 
+                    detailbagan_next_round.atlet2 = winner_atlet
+
+        detailbagan_next_round.save()
+
+        return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
 
     detail_data = {
         "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
@@ -437,6 +497,8 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
         'admin_tatami': admin_tatami,
         'bagan': bagan,
         'detail_bagan': detail_bagan,
+        'aka_score': aka_score_obj,
+        'ao_score': ao_score_obj,
     }
 
     return render(request, 'admin/control-panel.html', context)

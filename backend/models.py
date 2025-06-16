@@ -68,7 +68,19 @@ class DetailBagan(models.Model):
     hantei = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.round} - {self.urutan}'
+        return f'{self.pk} - {self.round} - {self.urutan}'
+    
+class Score(models.Model):
+    detail_bagan = models.ForeignKey(DetailBagan, on_delete=models.CASCADE, null=True, blank=True)
+    atlet = models.IntegerField(null=True, blank=True)
+    score1 = models.CharField(null=True, blank=True, max_length=10, default='0.0')
+    score2 = models.CharField(null=True, blank=True, max_length=10, default='0.0')
+    score3 = models.CharField(null=True, blank=True, max_length=10, default='0.0')
+    score4 = models.CharField(null=True, blank=True, max_length=10, default='0.0')
+    score5 = models.CharField(null=True, blank=True, max_length=10, default='0.0')
+
+    def __str__(self):
+        return f'{self.detail_bagan} - {self.atlet}'
     
 class Tatami(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)

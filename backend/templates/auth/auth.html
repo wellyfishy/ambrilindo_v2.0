@@ -15,11 +15,10 @@
 
     </head>
     <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
-        <div class="card" style="width: 60rem; display: flex; flex-direction: row;">
-            <img src="" class="card-img-left" alt="Image" style="width: 400px; height: 100%; object-fit: cover;">
-            
+        <div class="card" style="width: 30rem; display: flex; flex-direction: row;">
             <div class="card-body d-flex flex-column justify-content-center">
-                <img src="" class="mx-auto d-block" width="170" height="100" style="border-radius: 5px;">
+                <h1 style="text-align: center;"><b>Login</b></h1>
+                {% comment %} <img src="" class="mx-auto d-block" width="170" height="100" style="border-radius: 5px;"> {% endcomment %}
                 {% if messages %}
                     <ul>
                         {% for message in messages %}
@@ -45,9 +44,8 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">Login</button>
-                        <a href="#" class="text-muted"></a>
                     </div>
                 </form>
             </div>
