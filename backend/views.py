@@ -321,6 +321,8 @@ def admin_dashboard(request, event_pk):
                             
                             detail_bagan.save()
                             new_detail_bagan.save()
+                        
+                    detail_bagan_round_5 = DetailBagan.objects.create(bagan=bagan, round=5, urutan=1)
 
             return redirect('admin-dashboard', event_pk=event_pk)
 
@@ -342,6 +344,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
     detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
     detail_bagans_round_4 = DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan')
+    detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
 
     context = {
         'on': 'utama',
@@ -352,6 +355,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
         'detail_bagans_round_2': detail_bagans_round_2,
         'detail_bagans_round_3': detail_bagans_round_3,
         'detail_bagans_round_4': detail_bagans_round_4,
+        'detail_bagan_round_5': detail_bagan_round_5,
     }
 
     return render(request, 'admin/bagan-detail.html', context)
