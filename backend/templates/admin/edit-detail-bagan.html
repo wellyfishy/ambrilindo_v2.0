@@ -1,0 +1,79 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block style %}
+<style></style>
+{% endblock style %}
+
+{% block content %}
+<div class="container">
+    <form method="POST">
+    {% csrf_token %}
+    <div class="page-inner">
+        <div class="page-header">
+            <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
+                <b>Kembali</b>
+            </a>
+            <button type="submit" name="submit_type" value="atlet-simpan" class="btn btn-success" style="margin-left: 5px;"><b>Simpan</b></button>
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;"><b style="color: red;">{{ detail_bagan.atlet1.nama_atlet }}</b> vs <b style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</b></div>
+                        <div></div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="text-align: center; width: 20%">Team</th>
+                                    <th scope="col" style="text-align: center;">Nama Atlet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center">
+                                        <b><span style="color: red;"><b>Aka</b></span></b>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="atlet-aka" name="atlet-aka">
+                                            {% for atlet in atlets %}
+                                                {% if detail_bagan.atlet1 == atlet %}
+                                                <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }} - {{ atlet.perguruan.nama_perguruan }} - {{ atlet.utusan.nama_utusan }}</option>
+                                                {% else %}
+                                                <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }} - {{ atlet.perguruan.nama_perguruan }} - {{ atlet.utusan.nama_utusan }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center">
+                                        <b><span style="color: blue;"><b>Ao</b></span></b>
+                                    </td>
+                                    <td>
+                                        <select class="form-control" id="atlet-ao" name="atlet-ao">
+                                            {% for atlet in atlets %}
+                                                {% if detail_bagan.atlet2 == atlet %}
+                                                <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }} - {{ atlet.perguruan.nama_perguruan }} - {{ atlet.utusan.nama_utusan }}</option>
+                                                {% else %}
+                                                <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }} - {{ atlet.perguruan.nama_perguruan }} - {{ atlet.utusan.nama_utusan }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+{% endblock content %}
+
+{% block script %}
+{% endblock script %}

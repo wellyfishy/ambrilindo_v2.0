@@ -451,6 +451,9 @@ h2 {
 * {
   text-decoration: none !important;
 }
+.pop {
+  visibility: hidden !important;
+}
 
 @media print {
   body {
@@ -462,6 +465,9 @@ h2 {
   .scores {
     margin-left: 250px;
   }
+  .pop {
+    visibility: visible !important;
+  }
 }
 </style>
 {% endblock style %}
@@ -470,7 +476,7 @@ h2 {
 <html lang="en" >
 <head>
   <meta charset="UTF-8">
-  <title>Bracket</title>
+  <title>{{ bagan }}</title>
 </head>
 <body>
 <!-- partial:index.partial.html -->
@@ -639,11 +645,11 @@ h2 {
           position: absolute; 
           border-collapse: collapse; 
           width: 100%; 
-          max-width: 500px; 
+          max-width: 700px; 
           box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
           font-family: Arial, sans-serif;
-          margin-left: -100px;
-          margin-top: -70px;
+          margin-left: -250px;
+          margin-top: 0px;
         ">
           <thead>
             <tr style="background-color: #f5f5f5;">
@@ -657,50 +663,74 @@ h2 {
             <tr>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>1</b></td>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <select name="juara_1_pk">
+                <b class="pop">{{ bagan.juara_1.nama_atlet }}</b>
+                <select class="hidden" name="juara_1_pk">
+                  <option value="-">-</option>
                   {% for atlet in all_atlets %}
+                  {% if bagan.juara_1 == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
                   <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.utusan.nama_utusan }}</b></td>
             </tr>
             <tr>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>2</b></td>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <select name="juara_2_pk">
+                <b class="pop">{{ bagan.juara_2.nama_atlet }}</b>
+                <select class="hidden" name="juara_2_pk">
+                  <option value="-">-</option>
                   {% for atlet in all_atlets %}
+                  {% if bagan.juara_2 == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
                   <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.utusan.nama_utusan }}</b></td>
             </tr>
             <tr>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <select name="juara_3a_pk">
+                <b class="pop">{{ bagan.juara_3a.nama_atlet }}</b>
+                <select class="hidden" name="juara_3a_pk">
+                  <option value="-">-</option>
                   {% for atlet in all_atlets %}
+                  {% if bagan.juara_3a == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
                   <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.utusan.nama_utusan }}</b></td>
             </tr>
             <tr>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <select name="juara_3b_pk">
+                <b class="pop">{{ bagan.juara_3b.nama_atlet }}</b>
+                <select class="hidden" name="juara_3b_pk">
+                  <option value="-">-</option>
                   {% for atlet in all_atlets %}
+                  {% if bagan.juara_3b == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
                   <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b></b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.utusan.nama_utusan }}</b></td>
             </tr>
             <tr class="hidden">
               <td></td>

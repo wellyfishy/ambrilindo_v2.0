@@ -9,6 +9,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from collections import defaultdict
 
 def auth(request):
     events = Event.objects.all().order_by('-pk')
@@ -141,301 +142,311 @@ def admin_dashboard(request, event_pk):
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'drawing_bagan':
             nomor_tanding_pks = request.POST.getlist('nomor_tanding_pk')
+            tipe_shuffle = request.POST.get('shuffle_type')
             if 'semua' in nomor_tanding_pks:
                 nomor_tanding_pks = NomorTanding.objects.filter(event=event).values_list('pk', flat=True)
-                
-            for nomor_tanding_pk in nomor_tanding_pks:
-                nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
-                
-                perguruan_counts = list(
-                    Perguruan.objects.annotate(
-                        num_atlet=Count('atlet', filter=Q(atlet__nomor_tanding=nomor_tanding))
+            
+            if tipe_shuffle in ['perguruan', 'kontingen']:
+                for nomor_tanding_pk in nomor_tanding_pks:
+                    nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
+
+                    if tipe_shuffle == 'perguruan':
+                        group_model = Perguruan
+                        group_field = 'perguruan'
+                    elif tipe_shuffle == 'kontingen':
+                        group_model = Utusan  # Make sure you have imported this model
+                        group_field = 'utusan'
+
+                    group_counts = list(
+                        group_model.objects.annotate(
+                            num_atlet=Count('atlet', filter=Q(**{f'atlet__nomor_tanding': nomor_tanding}))
+                        )
+                        .filter(num_atlet__gt=0)
+                        .order_by('-num_atlet')
+                        .values_list('id', 'num_atlet')
                     )
-                    .filter(num_atlet__gt=0)
-                    .order_by('-num_atlet')
-                    .values_list('id', 'num_atlet')
-                )
 
-                atlets_temp = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
+                    atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
+                    group_counts_temp = group_counts
 
-                perguruan_counts_temp = perguruan_counts
+                    def split_count_balanced(total, parts, start_index=0):
+                        base = total // parts
+                        remainder = total % parts
+                        splits = [base] * parts
+                        idx = start_index
+                        for _ in range(remainder):
+                            splits[idx] += 1
+                            idx = (idx + 1) % parts
+                        return splits
 
-                def split_count_balanced(total, parts, start_index=0):
-                    base = total // parts
-                    remainder = total % parts
-                    splits = [base] * parts
-                    idx = start_index
-                    for _ in range(remainder):
-                        splits[idx] += 1
-                        idx = (idx + 1) % parts
-                    return splits
+                    group_counts_pool_a = []
+                    group_counts_pool_b = []
+                    group_counts_pool_c = []
 
-                perguruan_counts_pool_a = []
-                perguruan_counts_pool_b = []
-                perguruan_counts_pool_c = []
+                    if 0 < len(atlets_temp_all) < 17:
+                        perulangan = 1
+                    elif 16 < len(atlets_temp_all) < 33:
+                        perulangan = 2
+                    elif 32 < len(atlets_temp_all) < 49:
+                        perulangan = 3
 
-                if 0 < len(atlets_temp) < 17:
-                    perulangan = 1
-                elif 16 < len(atlets_temp) < 33:
-                    perulangan = 2
-                elif 32 < len(atlets_temp) < 49:
-                    perulangan = 3
+                    pools = [[] for _ in range(perulangan)]
 
-                pools = [[] for _ in range(perulangan)]
+                    for idx, (group_id, count) in enumerate(group_counts):
+                        splits = split_count_balanced(count, perulangan, start_index=idx % perulangan)
+                        for pool_idx, val in enumerate(splits):
+                            pools[pool_idx].append((group_id, val))
 
-                for idx, (perguruan_id, count) in enumerate(perguruan_counts):
-                    # rotate start index to spread remainder better
-                    splits = split_count_balanced(count, perulangan, start_index=idx % perulangan)
-                    for pool_idx, val in enumerate(splits):
-                        pools[pool_idx].append((perguruan_id, val))
+                    if perulangan >= 1:
+                        group_counts_pool_a = pools[0]
+                    if perulangan >= 2:
+                        group_counts_pool_b = pools[1]
+                    if perulangan >= 3:
+                        group_counts_pool_c = pools[2]
 
-                if perulangan >= 1:
-                    perguruan_counts_pool_a = pools[0]
-                if perulangan >= 2:
-                    perguruan_counts_pool_b = pools[1]
-                if perulangan >= 3:
-                    perguruan_counts_pool_c = pools[2]
+                    def assign_atlets_to_pool(atlets, group_counts_pool, field_name):
+                        result = []
+                        remaining_counts = {gid: count for gid, count in group_counts_pool}
+                        for gid in remaining_counts:
+                            for atlet in atlets[:]:
+                                if getattr(atlet, field_name + '_id') == gid and remaining_counts[gid] > 0:
+                                    result.append(atlet)
+                                    atlets.remove(atlet)
+                                    remaining_counts[gid] -= 1
+                        return result
 
-                def assign_atlets_to_pool(atlets, perguruan_counts_pool):
-                    result = []
-                    remaining_counts = {pid: count for pid, count in perguruan_counts_pool}
-                    for pid in remaining_counts:
-                        for atlet in atlets[:]:  # iterate over a copy
-                            if atlet.perguruan_id == pid and remaining_counts[pid] > 0:
-                                result.append(atlet)
-                                atlets.remove(atlet)
-                                remaining_counts[pid] -= 1
-                    return result
+                    atlets_temp_main = atlets_temp_all.copy()
+                    atlets_temp_pool_a = assign_atlets_to_pool(atlets_temp_main, group_counts_pool_a, group_field)
+                    atlets_temp_pool_b = assign_atlets_to_pool(atlets_temp_main, group_counts_pool_b, group_field)
+                    atlets_temp_pool_c = assign_atlets_to_pool(atlets_temp_main, group_counts_pool_c, group_field)
 
-                # Split the main atlets_temp list into pools
-                atlets_temp_main = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
-                atlets_temp_pool_a = assign_atlets_to_pool(atlets_temp_main, perguruan_counts_pool_a)
-                atlets_temp_pool_b = assign_atlets_to_pool(atlets_temp_main, perguruan_counts_pool_b)
-                atlets_temp_pool_c = assign_atlets_to_pool(atlets_temp_main, perguruan_counts_pool_c)
-                
-                for i in range(1, perulangan + 1):
-                    if perulangan > 1:
-                        if i == 1:
-                            nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool A'
-                            perguruan_counts = list(perguruan_counts_pool_a) 
-                            print(perguruan_counts_pool_a)
-                            atlets_temp = atlets_temp_pool_a
-                        elif i == 2:
-                            nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool B'
-                            perguruan_counts = list(perguruan_counts_pool_b)
-                            print(perguruan_counts_pool_b)
-                            atlets_temp = atlets_temp_pool_b
-                        elif i == 3:
-                            nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool C'
-                            perguruan_counts = list(perguruan_counts_pool_c)
-                            atlets_temp = atlets_temp_pool_c
-                        bagan = Bagan.objects.create(
-                            event=event,
-                            nomor_tanding=nomor_tanding,
-                            nama_bagan=nama_bagan,
-                        )
-                    else:
-                        bagan = Bagan.objects.create(
-                            event=event,
-                            nama_bagan=nomor_tanding.nama_nomor_tanding,
-                            nomor_tanding=nomor_tanding
-                        )
-                        perguruan_counts = perguruan_counts_temp
+                    for i in range(1, perulangan + 1):
+                        if perulangan > 1:
+                            if i == 1:
+                                nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool A'
+                                group_counts = list(group_counts_pool_a)
+                                atlets_temp = atlets_temp_pool_a
+                            elif i == 2:
+                                nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool B'
+                                group_counts = list(group_counts_pool_b)
+                                atlets_temp = atlets_temp_pool_b
+                            elif i == 3:
+                                nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool C'
+                                group_counts = list(group_counts_pool_c)
+                                atlets_temp = atlets_temp_pool_c
+                            bagan = Bagan.objects.create(
+                                event=event,
+                                nomor_tanding=nomor_tanding,
+                                nama_bagan=nama_bagan,
+                            )
+                        else:
+                            bagan = Bagan.objects.create(
+                                event=event,
+                                nama_bagan=nomor_tanding.nama_nomor_tanding,
+                                nomor_tanding=nomor_tanding
+                            )
+                            group_counts = group_counts_temp
+                            atlets_temp = atlets_temp_all
 
-                    if 'KATA' in nomor_tanding.nama_nomor_tanding:
-                        bagan.tipe_tanding = '1'
-                    elif 'KUMITE' in nomor_tanding.nama_nomor_tanding:
-                        bagan.tipe_tanding = '2'
-                    bagan.save()
+                        if 'KATA' in nomor_tanding.nama_nomor_tanding:
+                            bagan.tipe_tanding = '1'
+                        elif 'KUMITE' in nomor_tanding.nama_nomor_tanding:
+                            bagan.tipe_tanding = '2'
+                        bagan.save()
 
-                    perguruan_index = 0
+                        group_index = 0
 
-                    for i in custom_order:
-                        detail_bagan = DetailBagan.objects.create(bagan=bagan, round=1, urutan=i)
+                        for urutan in custom_order:
+                            detail_bagan = DetailBagan.objects.create(bagan=bagan, round=1, urutan=urutan)
 
-                        if atlets_temp and perguruan_index < len(perguruan_counts):
+                            if atlets_temp and group_index < len(group_counts):
+                                assigned = False
+                                while group_index < len(group_counts) and not assigned:
+                                    group_id, remaining = group_counts[group_index]
+                                    eligible_atlets = [a for a in atlets_temp if getattr(a, group_field + '_id') == group_id]
+
+                                    if eligible_atlets:
+                                        atlet = random.choice(eligible_atlets)
+                                        target_field = atlet_assignment1.get(urutan)
+
+                                        if target_field == 'atlet1':
+                                            detail_bagan.atlet1 = atlet
+                                        elif target_field == 'atlet2':
+                                            detail_bagan.atlet2 = atlet
+
+                                        detail_bagan.save()
+
+                                        atlets_temp.remove(atlet)
+                                        group_counts[group_index] = (group_id, remaining - 1)
+                                        if group_counts[group_index][1] <= 0:
+                                            group_index += 1
+
+                                        assigned = True
+                                    else:
+                                        group_index += 1
+                            else:
+                                detail_bagan.save()
+
+                        group_index = 0
+
+                        for urutan in custom_order:
+                            detail_bagan = DetailBagan.objects.get(bagan=bagan, round=1, urutan=urutan)
+
+                            if not atlets_temp:
+                                break
+
+                            target_field = atlet_assignment1.get(urutan)
+
+                            if target_field == 'atlet1' and detail_bagan.atlet2 is None:
+                                eligible_field = 'atlet2'
+                            elif target_field == 'atlet2' and detail_bagan.atlet1 is None:
+                                eligible_field = 'atlet1'
+                            else:
+                                continue
+
                             assigned = False
-                            while perguruan_index < len(perguruan_counts) and not assigned:
-                                perguruan_id, remaining = perguruan_counts[perguruan_index]
-                                eligible_atlets = [a for a in atlets_temp if a.perguruan_id == perguruan_id]
+                            while group_index < len(group_counts) and not assigned:
+                                group_id, remaining = group_counts[group_index]
+                                eligible_atlets = [a for a in atlets_temp if getattr(a, group_field + '_id') == group_id]
 
                                 if eligible_atlets:
                                     atlet = random.choice(eligible_atlets)
-                                    target_field = atlet_assignment1.get(i)
 
-                                    if target_field == 'atlet1':
+                                    if eligible_field == 'atlet1':
                                         detail_bagan.atlet1 = atlet
-                                    elif target_field == 'atlet2':
+                                    else:
                                         detail_bagan.atlet2 = atlet
 
                                     detail_bagan.save()
-
                                     atlets_temp.remove(atlet)
-                                    perguruan_counts[perguruan_index] = (perguruan_id, remaining - 1)
-                                    if perguruan_counts[perguruan_index][1] <= 0:
-                                        perguruan_index += 1
+
+                                    group_counts[group_index] = (group_id, remaining - 1)
+                                    if group_counts[group_index][1] <= 0:
+                                        group_index += 1
 
                                     assigned = True
                                 else:
-                                    perguruan_index += 1
-                        else:
-                            detail_bagan.save()
+                                    group_index += 1
 
-                    perguruan_index = 0
-                    
-                    for i in custom_order:
-                        detail_bagan = DetailBagan.objects.get(bagan=bagan, round=1, urutan=i)
-
-                        if not atlets_temp:
-                            break 
-
-                        target_field = atlet_assignment1.get(i)
-
-                        if target_field == 'atlet1' and detail_bagan.atlet2 is None:
-                            eligible_field = 'atlet2'
-                        elif target_field == 'atlet2' and detail_bagan.atlet1 is None:
-                            eligible_field = 'atlet1'
-                        else:
-                            continue
-
-                        assigned = False
-                        while perguruan_index < len(perguruan_counts) and not assigned:
-                            perguruan_id, remaining = perguruan_counts[perguruan_index]
-                            eligible_atlets = [a for a in atlets_temp if a.perguruan_id == perguruan_id]
-
-                            if eligible_atlets:
-                                atlet = random.choice(eligible_atlets)
-
-                                if eligible_field == 'atlet1':
-                                    detail_bagan.atlet1 = atlet
-                                else:
-                                    detail_bagan.atlet2 = atlet
-
-                                detail_bagan.save()
-                                atlets_temp.remove(atlet)
-
-                                perguruan_counts[perguruan_index] = (perguruan_id, remaining - 1)
-                                if perguruan_counts[perguruan_index][1] <= 0:
-                                    perguruan_index += 1
-
-                                assigned = True
-                            else:
-                                perguruan_index += 1
                         
-                    urutan_map = {
-                        1: (1, 'atlet1'),
-                        2: (1, 'atlet2'),
-                        3: (2, 'atlet1'),
-                        4: (2, 'atlet2'),
-                        5: (3, 'atlet1'),
-                        6: (3, 'atlet2'),
-                        7: (4, 'atlet1'),
-                        8: (4, 'atlet2'),
-                    }
+                        urutan_map = {
+                            1: (1, 'atlet1'),
+                            2: (1, 'atlet2'),
+                            3: (2, 'atlet1'),
+                            4: (2, 'atlet2'),
+                            5: (3, 'atlet1'),
+                            6: (3, 'atlet2'),
+                            7: (4, 'atlet1'),
+                            8: (4, 'atlet2'),
+                        }
 
-                    detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
+                        detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
 
-                    for detail_bagan in detail_bagans_round_1:
-                        target = urutan_map.get(detail_bagan.urutan)
-                        if not target:
-                            continue
+                        for detail_bagan in detail_bagans_round_1:
+                            target = urutan_map.get(detail_bagan.urutan)
+                            if not target:
+                                continue
 
-                        target_urutan, target_field = target
+                            target_urutan, target_field = target
 
-                        new_detail_bagan, _ = DetailBagan.objects.get_or_create(
-                            bagan=bagan,
-                            round=2,
-                            urutan=target_urutan
-                        )
+                            new_detail_bagan, _ = DetailBagan.objects.get_or_create(
+                                bagan=bagan,
+                                round=2,
+                                urutan=target_urutan
+                            )
 
-                        atlet = None
-                        if not detail_bagan.atlet1:
-                            atlet = detail_bagan.atlet2
-                            detail_bagan.atlet2 = None
-                        elif not detail_bagan.atlet2:
-                            atlet = detail_bagan.atlet1
-                            detail_bagan.atlet1 = None
-
-                        if atlet:
-                            setattr(new_detail_bagan, target_field, atlet)
-
-                        detail_bagan.save()
-                        new_detail_bagan.save()
-
-                    match_map = {
-                        1: {'round1_urutans': (2, 1), 'round3_urutan': 1, 'slot': 'atlet1'},
-                        2: {'round1_urutans': (4, 3), 'round3_urutan': 1, 'slot': 'atlet2'},
-                        3: {'round1_urutans': (6, 5), 'round3_urutan': 2, 'slot': 'atlet1'},
-                        4: {'round1_urutans': (8, 7), 'round3_urutan': 2, 'slot': 'atlet2'},
-                    }
-
-                    detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
-
-                    for detail_bagan in detail_bagans_round_2:
-                        config = match_map.get(detail_bagan.urutan)
-                        if not config:
-                            continue
-
-                        round1_a, round1_b = config['round1_urutans']
-                        target_slot = config['slot']
-                        new_detail_bagan, _ = DetailBagan.objects.get_or_create(
-                            bagan=bagan, round=3, urutan=config['round3_urutan']
-                        )
-
-                        if not detail_bagan.atlet2:
-                            target_detail = DetailBagan.objects.filter(bagan=bagan, round=1, urutan=round1_a).first()
-                            if target_detail and (not target_detail.atlet1 or not target_detail.atlet2):
-                                setattr(new_detail_bagan, target_slot, detail_bagan.atlet1)
-                                detail_bagan.atlet1 = None
-                        elif not detail_bagan.atlet1:
-                            target_detail = DetailBagan.objects.filter(bagan=bagan, round=1, urutan=round1_b).first()
-                            if target_detail and (not target_detail.atlet1 or not target_detail.atlet2):
-                                setattr(new_detail_bagan, target_slot, detail_bagan.atlet2)
+                            atlet = None
+                            if not detail_bagan.atlet1:
+                                atlet = detail_bagan.atlet2
                                 detail_bagan.atlet2 = None
+                            elif not detail_bagan.atlet2:
+                                atlet = detail_bagan.atlet1
+                                detail_bagan.atlet1 = None
 
-                        detail_bagan.save()
-                        new_detail_bagan.save()
-                    
-                    detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
+                            if atlet:
+                                setattr(new_detail_bagan, target_field, atlet)
 
-                    for detail_bagan in detail_bagans_round_3:
-                        if detail_bagan.urutan == 1:
-                            new_detail_bagan = DetailBagan.objects.filter(bagan=bagan, round=4, urutan=1).first()
-                            if not new_detail_bagan:
-                                new_detail_bagan = DetailBagan.objects.create(bagan=bagan, round=4, urutan=1)
-
-                            if not detail_bagan.atlet2:
-                                if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=2).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=2).first().atlet2:
-                                    new_detail_bagan.atlet1 = detail_bagan.atlet1
-                                    detail_bagan.atlet1 = None
-                            elif not detail_bagan.atlet1:
-                                if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=1).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=1).first().atlet2:
-                                    new_detail_bagan.atlet1 = detail_bagan.atlet2
-                                    detail_bagan.atlet2 = None
-                            
                             detail_bagan.save()
                             new_detail_bagan.save()
 
-                        elif detail_bagan.urutan == 2:
-                            new_detail_bagan = DetailBagan.objects.filter(bagan=bagan, round=4, urutan=1).first()
-                            if not new_detail_bagan:
-                                new_detail_bagan = DetailBagan.objects.create(bagan=bagan, round=4, urutan=1)
+                        match_map = {
+                            1: {'round1_urutans': (2, 1), 'round3_urutan': 1, 'slot': 'atlet1'},
+                            2: {'round1_urutans': (4, 3), 'round3_urutan': 1, 'slot': 'atlet2'},
+                            3: {'round1_urutans': (6, 5), 'round3_urutan': 2, 'slot': 'atlet1'},
+                            4: {'round1_urutans': (8, 7), 'round3_urutan': 2, 'slot': 'atlet2'},
+                        }
+
+                        detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
+
+                        for detail_bagan in detail_bagans_round_2:
+                            config = match_map.get(detail_bagan.urutan)
+                            if not config:
+                                continue
+
+                            round1_a, round1_b = config['round1_urutans']
+                            target_slot = config['slot']
+                            new_detail_bagan, _ = DetailBagan.objects.get_or_create(
+                                bagan=bagan, round=3, urutan=config['round3_urutan']
+                            )
 
                             if not detail_bagan.atlet2:
-                                if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=4).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=4).first().atlet2:
-                                    new_detail_bagan.atlet2 = detail_bagan.atlet1
+                                target_detail = DetailBagan.objects.filter(bagan=bagan, round=1, urutan=round1_a).first()
+                                if target_detail and (not target_detail.atlet1 or not target_detail.atlet2):
+                                    setattr(new_detail_bagan, target_slot, detail_bagan.atlet1)
                                     detail_bagan.atlet1 = None
                             elif not detail_bagan.atlet1:
-                                if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=3).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=3).first().atlet2:
-                                    new_detail_bagan.atlet2 = detail_bagan.atlet2
+                                target_detail = DetailBagan.objects.filter(bagan=bagan, round=1, urutan=round1_b).first()
+                                if target_detail and (not target_detail.atlet1 or not target_detail.atlet2):
+                                    setattr(new_detail_bagan, target_slot, detail_bagan.atlet2)
                                     detail_bagan.atlet2 = None
-                            
+
                             detail_bagan.save()
                             new_detail_bagan.save()
                         
-                    detail_bagan_round_5 = DetailBagan.objects.create(bagan=bagan, round=5, urutan=1)
+                        detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
+
+                        for detail_bagan in detail_bagans_round_3:
+                            if detail_bagan.urutan == 1:
+                                new_detail_bagan = DetailBagan.objects.filter(bagan=bagan, round=4, urutan=1).first()
+                                if not new_detail_bagan:
+                                    new_detail_bagan = DetailBagan.objects.create(bagan=bagan, round=4, urutan=1)
+
+                                if not detail_bagan.atlet2:
+                                    if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=2).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=2).first().atlet2:
+                                        new_detail_bagan.atlet1 = detail_bagan.atlet1
+                                        detail_bagan.atlet1 = None
+                                elif not detail_bagan.atlet1:
+                                    if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=1).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=1).first().atlet2:
+                                        new_detail_bagan.atlet1 = detail_bagan.atlet2
+                                        detail_bagan.atlet2 = None
+                                
+                                detail_bagan.save()
+                                new_detail_bagan.save()
+
+                            elif detail_bagan.urutan == 2:
+                                new_detail_bagan = DetailBagan.objects.filter(bagan=bagan, round=4, urutan=1).first()
+                                if not new_detail_bagan:
+                                    new_detail_bagan = DetailBagan.objects.create(bagan=bagan, round=4, urutan=1)
+
+                                if not detail_bagan.atlet2:
+                                    if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=4).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=4).first().atlet2:
+                                        new_detail_bagan.atlet2 = detail_bagan.atlet1
+                                        detail_bagan.atlet1 = None
+                                elif not detail_bagan.atlet1:
+                                    if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=3).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=3).first().atlet2:
+                                        new_detail_bagan.atlet2 = detail_bagan.atlet2
+                                        detail_bagan.atlet2 = None
+                                
+                                detail_bagan.save()
+                                new_detail_bagan.save()
+                            
+                        detail_bagan_round_5 = DetailBagan.objects.create(bagan=bagan, round=5, urutan=1)
 
             return redirect('admin-dashboard', event_pk=event_pk)
+        
+        elif request.POST.get('submit_type') == 'tambah_bagan':
+            nomor_tanding_pk = request.POST.get('nomor_tanding_pk')
+            return redirect('tambah-bagan', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
 
     context = {
         'on': 'utama',
@@ -466,6 +477,28 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
             juara_3b_pk = request.POST.get('juara_3b_pk')
             print(juara_1_pk, juara_2_pk, juara_3a_pk, juara_3b_pk)
 
+            if juara_1_pk == '-':
+                bagan.juara_1 = None
+            else:
+                bagan.juara_1 = Atlet.objects.filter(pk=juara_1_pk).first()
+
+            if juara_2_pk == '-':
+                bagan.juara_2 = None
+            else:
+                bagan.juara_2 = Atlet.objects.filter(pk=juara_2_pk).first()
+
+            if juara_3a_pk == '-':
+                bagan.juara_3a = None
+            else:
+                bagan.juara_3a = Atlet.objects.filter(pk=juara_3a_pk).first()
+
+            if juara_3b_pk == '-':
+                bagan.juara_3b = None
+            else:
+                bagan.juara_3b = Atlet.objects.filter(pk=juara_3b_pk).first()
+
+            bagan.save()
+
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
     context = {
@@ -482,6 +515,126 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     }
 
     return render(request, 'admin/bagan-detail.html', context)
+
+def tambah_bagan(request, event_pk, nomor_tanding_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
+    all_atlets = Atlet.objects.filter(nomor_tanding=nomor_tanding)
+
+    round_1 = [1, 2, 3, 4, 5, 6, 7, 8]
+    round_2 = [1, 2, 3, 4]
+    round_3 = [1, 2]
+    round_4 = [1]
+
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'simpan-bagan':
+            rounds_data = [
+                (1, request.POST.getlist('atlet_round_1_aka_pk'), request.POST.getlist('atlet_round_1_ao_pk')),
+                (2, request.POST.getlist('atlet_round_2_aka_pk'), request.POST.getlist('atlet_round_2_ao_pk')),
+                (3, request.POST.getlist('atlet_round_3_aka_pk'), request.POST.getlist('atlet_round_3_ao_pk')),
+                (4, request.POST.getlist('atlet_round_4_aka_pk'), request.POST.getlist('atlet_round_4_ao_pk')),
+            ]
+            nama_bagan = request.POST.get('nama_bagan').strip().upper()
+
+            if 'KATA' in nomor_tanding.nama_nomor_tanding:
+                tipe_tanding = '1'
+            else:
+                tipe_tanding = '2'
+
+            new_bagan = Bagan.objects.create(event=event, nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, nama_bagan=nama_bagan)
+
+            for round_number, aka_list, ao_list in rounds_data:
+                for index, (aka_pk, ao_pk) in enumerate(zip(aka_list, ao_list), start=1):
+                    atlet1 = Atlet.objects.filter(pk=aka_pk).first() if aka_pk != '-' else None
+                    atlet2 = Atlet.objects.filter(pk=ao_pk).first() if ao_pk != '-' else None
+
+                    DetailBagan.objects.create(
+                        bagan=new_bagan,
+                        round=round_number,
+                        urutan=index,
+                        atlet1=atlet1,
+                        atlet2=atlet2
+                    )
+                
+
+            return redirect('admin-dashboard', event_pk=event_pk)
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'nomor_tanding': nomor_tanding,
+        'round_1': round_1,
+        'round_2': round_2,
+        'round_3': round_3,
+        'round_4': round_4,
+        'all_atlets': all_atlets,
+    }
+
+    return render(request, 'admin/tambah-bagan.html', context)
+
+def edit_admin_bagan_detail(request, event_pk, bagan_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagan = Bagan.objects.get(pk=bagan_pk)
+    all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
+    detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
+    detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
+    detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
+    detail_bagans_round_4 = DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan')
+    detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
+
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'simpan_juara':
+            pass
+
+        return redirect('edit-admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagan': bagan,
+        'detail_bagans_round_1': detail_bagans_round_1,
+        'detail_bagans_round_2': detail_bagans_round_2,
+        'detail_bagans_round_3': detail_bagans_round_3,
+        'detail_bagans_round_4': detail_bagans_round_4,
+        'detail_bagan_round_5': detail_bagan_round_5,
+        'all_atlets': all_atlets,
+    }
+
+    return render(request, 'admin/edit-bagan-detail.html', context)
+
+def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagan = Bagan.objects.get(pk=bagan_pk)
+    detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
+    atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
+
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'atlet-simpan':
+            atlet_1_pk = request.POST.get('atlet-aka')
+            if atlet_1_pk:
+                detail_bagan.atlet1 = Atlet.objects.filter(pk=atlet_1_pk).first()
+            atlet_2_pk = request.POST.get('atlet-ao')
+            if atlet_2_pk:
+                detail_bagan.atlet2 = Atlet.objects.filter(pk=atlet_2_pk).first()
+            detail_bagan.save()
+        
+        return redirect('edit-detail-bagan', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagan': bagan,
+        'detail_bagan': detail_bagan,
+        'atlets': atlets,
+    }
+
+    return render(request, 'admin/edit-detail-bagan.html', context)
 
 def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     event = Event.objects.get(pk=event_pk)
@@ -618,6 +771,9 @@ def message_retriever(request, tatami_pk):
 def admin_atlet(request, event_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    perguruans = Perguruan.objects.filter(event=event)
+    utusans = Utusan.objects.filter(event=event)
+    nomor_tandings = NomorTanding.objects.filter(event=event)
     atlets = Atlet.objects.filter(event=event).order_by('-pk')
 
     if request.method == 'POST':
@@ -655,21 +811,45 @@ def admin_atlet(request, event_pk):
                 messages.success(request, "Data atlet berhasil diimport.")
             except Exception as e:
                 messages.error(request, f"Gagal mengimport file: {str(e)}")
+        
+        elif request.POST.get('submit_type') == 'tambah_atlet':
+            nama_atlet = request.POST.get('nama_atlet')
+            perguruan_pk = request.POST.get('perguruan')
+            perguruan = Perguruan.objects.get(pk=perguruan_pk)
+            utusan_pk = request.POST.get('utusan')
+            utusan = Utusan.objects.get(pk=utusan_pk)
+            nomor_tanding_pk = request.POST.get('nomor_tanding')
+            nomor_tanding = NomorTanding.objects.get(pk=nomor_tanding_pk)
+
+            Atlet.objects.create(event=event, nama_atlet=nama_atlet, perguruan=perguruan, utusan=utusan, nomor_tanding=nomor_tanding)
+
+            messages.success(request, "Berhasil menambahkan atlet.")
             
-            return redirect('admin-atlet', event_pk=event_pk)
+        return redirect('admin-atlet', event_pk=event_pk)
 
     context = {
         'on': 'atlet',
         'event': event,
         'admin_tatami': admin_tatami,
         'atlets': atlets,
+        'perguruans': perguruans,
+        'utusans': utusans,
+        'nomor_tandings': nomor_tandings,
     }
 
     return render(request, 'admin/atlet.html', context)
 
 def admin_nomor_tanding(request, event_pk):
     event = Event.objects.get(pk=event_pk)
-    nomor_tandings = NomorTanding.objects.filter(event=event)
+    nomor_tandings = NomorTanding.objects.filter(event=event).order_by('-pk')
+
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'tambah_nomor_tanding':
+            nama_nomor_tanding = request.POST.get('nomor_tanding').strip().upper()
+            new_nomor_tanding = NomorTanding.objects.create(event=event, nama_nomor_tanding=nama_nomor_tanding)
+
+        return redirect('admin-nomor-tanding', event_pk=event_pk)
+    
     context = {
         'on': 'nomor-tanding',
         'event': event,
@@ -680,12 +860,46 @@ def admin_nomor_tanding(request, event_pk):
 def admin_utusan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
     utusans = Utusan.objects.filter(event=event)
+    
+    utusan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
+
+    # All bagans for this event
+    bagans = Bagan.objects.filter(event=event)
+
+    for bagan in bagans:
+        if bagan.juara_1 and bagan.juara_1.utusan:
+            utusan_medals[bagan.juara_1.utusan.pk]["gold"] += 1
+        if bagan.juara_2 and bagan.juara_2.utusan:
+            utusan_medals[bagan.juara_2.utusan.pk]["silver"] += 1
+        if bagan.juara_3a and bagan.juara_3a.utusan:
+            utusan_medals[bagan.juara_3a.utusan.pk]["bronze"] += 1
+        if bagan.juara_3b and bagan.juara_3b.utusan:
+            utusan_medals[bagan.juara_3b.utusan.pk]["bronze"] += 1
+    
+    utusans = list(utusans)
+    utusans.sort(key=lambda u: (
+        -utusan_medals[u.pk]["gold"],
+        -utusan_medals[u.pk]["silver"],
+        -utusan_medals[u.pk]["bronze"],
+    ))
+
     context = {
-        'on': 'nomor-tanding',
+        'on': 'utusan',
         'event': event,
         'utusans': utusans,
+        'utusan_medals': utusan_medals,
     }
     return render(request, 'admin/utusan.html', context)
+
+def admin_rekapan(request, event_pk):
+    event = Event.objects.get(pk=event_pk)
+    bagans = Bagan.objects.filter(event=event)
+    context = {
+        'on': 'rekapan',
+        'event': event,
+        'bagans': bagans,
+    }
+    return render(request, 'admin/rekapan.html', context)
 
 def admin_tatami(request, event_pk):
     event = Event.objects.get(pk=event_pk)

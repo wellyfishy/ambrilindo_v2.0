@@ -51,6 +51,10 @@ class Bagan(models.Model):
     nama_bagan = models.CharField(max_length=100, null=True, blank=True)
     nomor_tanding = models.ForeignKey(NomorTanding, null=True, blank=True, on_delete=models.SET_NULL)
     tipe_tanding = models.CharField(max_length=20, null=True, blank=True, choices=TIPE)
+    juara_1 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara1", null=True, blank=True)
+    juara_2 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara2", null=True, blank=True)
+    juara_3a = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3a", null=True, blank=True)
+    juara_3b = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3b", null=True, blank=True)
 
     def __str__(self):
         return f'{self.nama_bagan}'

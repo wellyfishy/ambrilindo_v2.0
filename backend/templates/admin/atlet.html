@@ -12,7 +12,56 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">Atlet Event</div>
                         <div>
-                            <a href="" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;">Tambah Atlet</a>
+                            <a href="" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahAtletModal">Tambah Atlet</a>
+                            <div class="modal fade" id="tambahAtletModal" tabindex="-1" aria-labelledby="tambahAtletModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title">Tambah Atlet</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="nama_atlet">Nama Atlet</label>
+                                                <input type="text" class="form-control" id="nama_atlet" name="nama_atlet">
+                                                <small class="form-text text-muted">Akan auto uppercase.</b></small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="perguruan">Perguruan</label>
+                                                <select class="form-control" id="perguruan" name="perguruan">
+                                                    {% for perguruan in perguruans %}
+                                                        <option value="{{ perguruan.pk }}">{{ perguruan.nama_perguruan }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="utusan">Utusan</label>
+                                                <select class="form-control" id="utusan" name="utusan">
+                                                    {% for utusan in utusans %}
+                                                        <option value="{{ utusan.pk }}">{{ utusan.nama_utusan }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="nomor_tanding">Nomor Tanding</label>
+                                                <select class="form-control" id="nomor_tanding" name="nomor_tanding">
+                                                    {% for nomor_tanding in nomor_tandings %}
+                                                        <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="tambah_atlet" class="btn btn-primary">Tambah</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
                             <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#importAtletModal">Import Atlet</a>
                             <div class="modal fade" id="importAtletModal" tabindex="-1" aria-labelledby="importAtletModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">

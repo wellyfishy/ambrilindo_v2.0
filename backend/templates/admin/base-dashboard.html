@@ -61,14 +61,19 @@
                         <span class="sub-item">Tatami</span>
                       </a>
                     </li>
-                    <li class="{% if on == 'nomor-tanding' %}active{% endif %}">
-                      <a href="{% url 'admin-nomor-tanding' event_pk=event.pk %}">
-                        <span class="sub-item">Nomor Tanding</span>
-                      </a>
-                    </li>
                     <li class="{% if on == 'utusan' %}active{% endif %}">
                       <a href="{% url 'admin-utusan' event_pk=event.pk %}">
                         <span class="sub-item">Utusan</span>
+                      </a>
+                    </li>
+                    <li class="{% if on == 'rekapan' %}active{% endif %}">
+                      <a href="{% url 'admin-rekapan' event_pk=event.pk %}">
+                        <span class="sub-item">Rekapan Bagan</span>
+                      </a>
+                    </li>
+                    <li class="{% if on == 'nomor-tanding' %}active{% endif %}">
+                      <a href="{% url 'admin-nomor-tanding' event_pk=event.pk %}">
+                        <span class="sub-item">Nomor Tanding</span>
                       </a>
                     </li>
                     {% if admin_tatami %}
