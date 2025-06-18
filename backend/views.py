@@ -114,6 +114,7 @@ def admin_dashboard(request, event_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     nomor_tandings = NomorTanding.objects.filter(event=event)
+    
     bagans = Bagan.objects.filter(event=event)
 
     custom_order = [1, 8, 4, 5, 2, 7, 3, 6]
@@ -132,9 +133,12 @@ def admin_dashboard(request, event_pk):
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'drawing_bagan':
             nomor_tanding_pks = request.POST.getlist('nomor_tanding_pk')
+            if 'semua' in nomor_tanding_pks:
+                nomor_tanding_pks = NomorTanding.objects.filter(event=event).values_list('pk', flat=True)
                 
             for nomor_tanding_pk in nomor_tanding_pks:
                 nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
+                
                 perguruan_counts = list(
                     Perguruan.objects.annotate(
                         num_atlet=Count('atlet', filter=Q(atlet__nomor_tanding=nomor_tanding))
@@ -146,12 +150,90 @@ def admin_dashboard(request, event_pk):
 
                 atlets_temp = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
 
+                perguruan_counts_temp = perguruan_counts
+
+                def split_count_balanced(total, parts, start_index=0):
+                    base = total // parts
+                    remainder = total % parts
+                    splits = [base] * parts
+                    idx = start_index
+                    for _ in range(remainder):
+                        splits[idx] += 1
+                        idx = (idx + 1) % parts
+                    return splits
+
+                perguruan_counts_pool_a = []
+                perguruan_counts_pool_b = []
+                perguruan_counts_pool_c = []
+
                 if 0 < len(atlets_temp) < 17:
-                    bagan = Bagan.objects.create(
-                        event=event,
-                        nama_bagan=nomor_tanding.nama_nomor_tanding,
-                        nomor_tanding=nomor_tanding
-                    )
+                    perulangan = 1
+                elif 16 < len(atlets_temp) < 33:
+                    perulangan = 2
+                elif 32 < len(atlets_temp) < 49:
+                    perulangan = 3
+
+                pools = [[] for _ in range(perulangan)]
+
+                for idx, (perguruan_id, count) in enumerate(perguruan_counts):
+                    # rotate start index to spread remainder better
+                    splits = split_count_balanced(count, perulangan, start_index=idx % perulangan)
+                    for pool_idx, val in enumerate(splits):
+                        pools[pool_idx].append((perguruan_id, val))
+
+                if perulangan >= 1:
+                    perguruan_counts_pool_a = pools[0]
+                if perulangan >= 2:
+                    perguruan_counts_pool_b = pools[1]
+                if perulangan >= 3:
+                    perguruan_counts_pool_c = pools[2]
+
+                def assign_atlets_to_pool(atlets, perguruan_counts_pool):
+                    result = []
+                    remaining_counts = {pid: count for pid, count in perguruan_counts_pool}
+                    for pid in remaining_counts:
+                        for atlet in atlets[:]:  # iterate over a copy
+                            if atlet.perguruan_id == pid and remaining_counts[pid] > 0:
+                                result.append(atlet)
+                                atlets.remove(atlet)
+                                remaining_counts[pid] -= 1
+                    return result
+
+                # Split the main atlets_temp list into pools
+                atlets_temp_main = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
+                atlets_temp_pool_a = assign_atlets_to_pool(atlets_temp_main, perguruan_counts_pool_a)
+                atlets_temp_pool_b = assign_atlets_to_pool(atlets_temp_main, perguruan_counts_pool_b)
+                atlets_temp_pool_c = assign_atlets_to_pool(atlets_temp_main, perguruan_counts_pool_c)
+                
+                for i in range(1, perulangan + 1):
+                    if perulangan > 1:
+                        if i == 1:
+                            nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool A'
+                            perguruan_counts = list(perguruan_counts_pool_a) 
+                            print(perguruan_counts_pool_a)
+                            atlets_temp = atlets_temp_pool_a
+                        elif i == 2:
+                            nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool B'
+                            perguruan_counts = list(perguruan_counts_pool_b)
+                            print(perguruan_counts_pool_b)
+                            atlets_temp = atlets_temp_pool_b
+                        elif i == 3:
+                            nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool C'
+                            perguruan_counts = list(perguruan_counts_pool_c)
+                            atlets_temp = atlets_temp_pool_c
+                        bagan = Bagan.objects.create(
+                            event=event,
+                            nomor_tanding=nomor_tanding,
+                            nama_bagan=nama_bagan,
+                        )
+                    else:
+                        bagan = Bagan.objects.create(
+                            event=event,
+                            nama_bagan=nomor_tanding.nama_nomor_tanding,
+                            nomor_tanding=nomor_tanding
+                        )
+                        perguruan_counts = perguruan_counts_temp
+
                     if 'KATA' in nomor_tanding.nama_nomor_tanding:
                         bagan.tipe_tanding = '1'
                     elif 'KUMITE' in nomor_tanding.nama_nomor_tanding:
@@ -576,6 +658,26 @@ def admin_atlet(request, event_pk):
     }
 
     return render(request, 'admin/atlet.html', context)
+
+def admin_nomor_tanding(request, event_pk):
+    event = Event.objects.get(pk=event_pk)
+    nomor_tandings = NomorTanding.objects.filter(event=event)
+    context = {
+        'on': 'nomor-tanding',
+        'event': event,
+        'nomor_tandings': nomor_tandings,
+    }
+    return render(request, 'admin/nomor-tanding.html', context)
+
+def admin_utusan(request, event_pk):
+    event = Event.objects.get(pk=event_pk)
+    utusans = Utusan.objects.filter(event=event)
+    context = {
+        'on': 'nomor-tanding',
+        'event': event,
+        'utusans': utusans,
+    }
+    return render(request, 'admin/utusan.html', context)
 
 def admin_tatami(request, event_pk):
     event = Event.objects.get(pk=event_pk)

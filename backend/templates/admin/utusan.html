@@ -1,0 +1,79 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Nomor Tanding Event {{ event.nama_event }}</div>
+                        <div>
+                            <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahNomorTandingModal">Tambah Nomor Tanding</a>
+                            <div class="modal fade" id="tambahNomorTandingModal" tabindex="-1" aria-labelledby="tambahNomorTandingModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title">Tambah Nomor Tanding</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="nomor_tanding">Nomor Tanding</label>
+                                                <input type="text" class="form-control" id="nomor_tanding" name="nomor_tanding" accept=".xls,.xlsx">
+                                                <small class="form-text text-muted">Nomor Tanding Otomatis di Uppercase</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="tambah_nomor_tanding" class="btn btn-primary">Tambah</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                            <th scope="col" style="text-align: center;">No</th>
+                            <th scope="col" style="text-align: center;">Nama Utusan</th>
+                            <th scope="col" style="text-align: center;">MISC</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for utusan in utusans %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td><b>{{ utusan.nama_utusan }}</b></td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-warning">Edit</button>
+                                    <button class="btn btn-danger">Hapus</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}
