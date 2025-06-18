@@ -116,7 +116,15 @@ def admin_dashboard(request, event_pk):
     nomor_tandings = NomorTanding.objects.filter(event=event)
     
     bagans = Bagan.objects.filter(event=event)
-
+    # count = 0
+    # for bagan in bagans:
+    #     dbs = DetailBagan.objects.filter(bagan=bagan)
+    #     for db in dbs:
+    #         if db.atlet1:
+    #             count += 1
+    #         if db.atlet2:
+    #             count += 1
+    # print(count)
     custom_order = [1, 8, 4, 5, 2, 7, 3, 6]
 
     atlet_assignment1 = {
