@@ -89,17 +89,43 @@
     }
 
     .aka-score {
-      font-size: 8em;
+      display: flex;
+      align-items: center;
+      gap: 0.3em; /* space between o and number */
+      font-size: 14em;
+      font-weight: bold;
+      color: red;
+      margin-right: 100px;
+      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+    }
+
+    .aka-senshu {
+      font-size: 7.5em;
       font-weight: bold;
       color: red;
       margin-right: 50px;
+      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+      display: none
     }
 
     .ao-score {
-      font-size: 8em;
+      display: flex;
+      align-items: center;
+      gap: 0.3em; /* space between o and number */
+      font-size: 14em;
+      font-weight: bold;
+      color: blue;
+      margin-right: 100px;
+      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+    }
+
+    .ao-senshu {
+      font-size: 7.5em;
       font-weight: bold;
       color: blue;
       margin-right: 50px;
+      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
+      display: none
     }
 
     .footer {
@@ -159,15 +185,20 @@
                     <div class="country" id="atlet_red_country">-</div>
                     <div class="kata" id="kata-aka">0 - Blank</div>
                 </div>
-                <div class="aka-score" id="aka-score">0</div>
+                <span class="aka-senshu" id="aka-senshu">
+                  o
+                </span>
+                <div class="aka-score" id="aka-score">
+                  0
+                </div>
             </div>
             
             <div class="criteria-row" name="criteria">
                 <div class="criteria" id="akac1">C1</div>
                 <div class="criteria" id="akac2">C2</div>
                 <div class="criteria" id="akac3">C3</div>
-                <div class="criteria" id="akac4">C4</div>
-                <div class="criteria" id="akac5">C</div>
+                <div class="criteria" id="akac4">HC</div>
+                <div class="criteria" id="akac5">H</div>
             </div>
         </div>
 
@@ -179,14 +210,19 @@
                     <div class="country" id="atlet_blue_country">-</div>
                     <div class="kata" id="kata-ao">0 - Blank</div>
                 </div>
-                <div class="ao-score" id="ao-score">0</div>
+                <span class="ao-senshu" id="ao-senshu">
+                  o
+                </span>
+                <div class="ao-score" id="ao-score">
+                  0
+                </div>
             </div>
             <div class="criteria-row" name="criteria">
                 <div class="criteria" id="aoc1">C1</div>
                 <div class="criteria" id="aoc2">C2</div>
                 <div class="criteria" id="aoc3">C3</div>
-                <div class="criteria" id="aoc4">C4</div>
-                <div class="criteria" id="aoc5">C</div>
+                <div class="criteria" id="aoc4">HC</div>
+                <div class="criteria" id="aoc5">H</div>
             </div>
         </div>
 
@@ -308,6 +344,16 @@
           $(`#aoc${ao_criteria}`).removeClass('active-blue');
         }
         ao_criteria--;
+      } else if (data.command == 'senshu') {
+        if (data.details == 'aka-senshu') {
+          $('#aka-senshu').css('display', 'inline') 
+        } else if (data.details == 'aka-remove-senshu') {
+          $('#aka-senshu').css('display', 'none') 
+        } else if (data.details == 'ao-senshu') {
+          $('#ao-senshu').css('display', 'inline') 
+        } else if (data.details == 'ao-remove-senshu') {
+          $('#ao-senshu').css('display', 'none') 
+        }
       }
 
       function timer_status() {
@@ -338,6 +384,10 @@
           document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
             div.classList.add('deactivate');
           });
+        } else if (data.details.tipe_tanding == '2') {
+          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
+            div.classList.remove('deactivate');
+          });
         }
         document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
         document.getElementById('atlet_red_name').innerText = data.details.atlet_red
@@ -359,6 +409,9 @@
 
         isRunning = false;
         isShowing = false;
+
+        $('#aka-senshu').css('display', 'none') 
+        $('#ao-senshu').css('display', 'none') 
 
         for (let i = 1; i <= 5; i++) {
           $(`#akac${i}`).removeClass('active-red');

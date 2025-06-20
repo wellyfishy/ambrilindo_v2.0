@@ -556,6 +556,8 @@ def tambah_bagan(request, event_pk, nomor_tanding_pk):
                         atlet1=atlet1,
                         atlet2=atlet2
                     )
+
+            round_5 = DetailBagan.objects.create(bagan=new_bagan, round=5, urutan=1)
                 
 
             return redirect('admin-dashboard', event_pk=event_pk)
