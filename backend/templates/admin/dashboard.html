@@ -109,7 +109,10 @@
                             <tr>
                                 <td style="text-align: center;">{{ forloop.counter }}</td>
                                 <td><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>{{ bagan.nama_bagan }}</b></td>
-                                <td style="text-align: center;"><a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-primary">Edit</a></td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-primary">Edit</a>
+                                    <a href="{% url 'hapus-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">Hapus</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

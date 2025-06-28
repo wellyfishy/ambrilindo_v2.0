@@ -608,6 +608,14 @@ def edit_admin_bagan_detail(request, event_pk, bagan_pk):
 
     return render(request, 'admin/edit-bagan-detail.html', context)
 
+def hapus_admin_bagan_detail(request, event_pk, bagan_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagan = Bagan.objects.get(pk=bagan_pk)
+    bagan.delete()
+
+    return redirect('admin-dashboard', event_pk=event_pk)
+
 def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()

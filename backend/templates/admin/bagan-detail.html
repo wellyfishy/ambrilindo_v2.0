@@ -203,14 +203,17 @@ h2 {
 .tournament-bracket__match {
   display: flex;
   width: 100%;
-  background-color: #ffffff;
+  background-color: rgb(255, 255, 255);
   padding: 1em;
-  border: 1px solid transparent;
-  border-radius: 0.1em;
-  box-shadow: 0 2px 0 0 #e5e5e5;
+  border: 1px solid rgb(150, 150, 150); /* Add black border */
+  border-radius: 0.3em;     /* Slightly more rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for smoothness */
   outline: none;
   cursor: pointer;
-  transition: padding 0.2s ease-in-out, border 0.2s linear;
+  transition: 
+    padding 0.2s ease-in-out, 
+    border 0.2s linear, 
+    box-shadow 0.2s ease-in-out; /* Smooth transition */
 }
 .tournament-bracket__match:focus {
   border-color: #2196F3;
@@ -430,7 +433,7 @@ h2 {
   border-bottom: 0.075em solid transparent;
   font-size: 0.95rem;
   background-color: #F5F5F5;
-  border-color: #dddddd;
+  border-color:rgb(0, 0, 0);
 }
 .tournament-bracket__team--winner .tournament-bracket__number {
   background-color: #FFF176;
@@ -496,7 +499,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -511,7 +514,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -535,7 +538,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 230px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -550,7 +553,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -573,7 +576,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 230px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -588,7 +591,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -610,7 +613,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 230px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -625,7 +628,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -648,7 +651,7 @@ h2 {
           max-width: 700px; 
           box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
           font-family: Arial, sans-serif;
-          margin-left: -250px;
+          margin-left: -300px;
           margin-top: 0px;
         ">
           <thead>
