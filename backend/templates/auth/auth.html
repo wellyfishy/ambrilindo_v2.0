@@ -40,7 +40,7 @@
                         <label for="event" class="form-label">Event</label>
                         <select class="form-control" name="event_pk">
                             {% for event in events %}
-                            <option value="{{ event.pk }}">{{ event }}</option>
+                            <option value="{{ event.pk }}">{{ event.nama_event }} - Kode Event: e{{ event.pk }} {% if event.sedang_berjalan %}(Sedang Berjalan){% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
