@@ -116,7 +116,7 @@ def admin_dashboard(request, event_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     nomor_tandings = NomorTanding.objects.filter(event=event)
     
-    bagans = Bagan.objects.filter(event=event)
+    bagans = Bagan.objects.filter(event=event).order_by('-pk')
     # count = 0
     # for bagan in bagans:
     #     dbs = DetailBagan.objects.filter(bagan=bagan)
@@ -873,7 +873,6 @@ def admin_utusan(request, event_pk):
     
     utusan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
 
-    # All bagans for this event
     bagans = Bagan.objects.filter(event=event)
 
     for bagan in bagans:
@@ -900,6 +899,39 @@ def admin_utusan(request, event_pk):
         'utusan_medals': utusan_medals,
     }
     return render(request, 'admin/utusan.html', context)
+
+def admin_perguruan(request, event_pk):
+    event = Event.objects.get(pk=event_pk)
+    perguruans = Perguruan.objects.filter(event=event)
+    
+    perguruan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
+
+    bagans = Bagan.objects.filter(event=event)
+
+    for bagan in bagans:
+        if bagan.juara_1 and bagan.juara_1.perguruan:
+            perguruan_medals[bagan.juara_1.perguruan.pk]["gold"] += 1
+        if bagan.juara_2 and bagan.juara_2.perguruan:
+            perguruan_medals[bagan.juara_2.perguruan.pk]["silver"] += 1
+        if bagan.juara_3a and bagan.juara_3a.perguruan:
+            perguruan_medals[bagan.juara_3a.perguruan.pk]["bronze"] += 1
+        if bagan.juara_3b and bagan.juara_3b.perguruan:
+            perguruan_medals[bagan.juara_3b.perguruan.pk]["bronze"] += 1
+    
+    perguruans = list(perguruans)
+    perguruans.sort(key=lambda u: (
+        -perguruan_medals[u.pk]["gold"],
+        -perguruan_medals[u.pk]["silver"],
+        -perguruan_medals[u.pk]["bronze"],
+    ))
+
+    context = {
+        'on': 'perguruan',
+        'event': event,
+        'perguruans': perguruans,
+        'perguruan_medals': perguruan_medals,
+    }
+    return render(request, 'admin/perguruan.html', context)
 
 def admin_rekapan(request, event_pk):
     event = Event.objects.get(pk=event_pk)

@@ -149,7 +149,7 @@
 
     .time {
         font-size: 15vh;
-        color: yellow;
+        color: white;
         font-weight: bold;
     }
 
@@ -174,8 +174,7 @@
     }
   </style>
 </head>
-<body>
-  
+<body>  
     <div class="container">
         <div class="player">
             <div class="player-main">
@@ -233,8 +232,8 @@
         <div>
             <div class="tatami">TATAMI {{ tatami.tatami_number }}</div>
         </div>
-        <div class="time">
-            <span id="minutes">00</span>:<span id="seconds">00</span>:<span id="milliseconds">00</span>
+        <div class="time" id="timer">
+            <span id="minutes">00</span>:<span id="seconds">00</span>.<span id="milliseconds" style="font-size: 50%;">00</span>
         </div>
         <div class="round-info" id="nomor-tanding">-</div>
     </div>
@@ -360,21 +359,36 @@
         if (!isRunning) {
           isRunning = true;
           interval = setInterval(() => {
-              if (milliseconds === 0) {
-                  if (totalSeconds === 0) {
-                      clearInterval(interval);
-                      isRunning = false;
-                      return;
-                  }
-                  totalSeconds--;
-                  milliseconds = 99;
+            if (milliseconds === 0) {
+                if (totalSeconds === 0) {
+                  clearInterval(interval);
+                  isRunning = false;
+                  $('#timer').css('color', 'white')
+                  return;
+                }
+                totalSeconds--;
+                milliseconds = 99;
+            } else {
+              if (totalSeconds < 15) {
+                $('#timer').css({
+                  'color': 'red',
+                  'text-shadow': `
+                    -1px -1px 0 white,
+                    1px -1px 0 white,
+                    -1px  1px 0 white,
+                    1px  1px 0 white
+                  `
+                });
               } else {
-                  milliseconds--;
+                $('#timer').css('color', 'yellow')
               }
-              updateDisplay(totalSeconds, milliseconds);
+              milliseconds--;
+            }
+            updateDisplay(totalSeconds, milliseconds);
           }, 10);
         } else {
           isRunning = false;
+          $('#timer').css('color', 'white')
           clearInterval(interval);
         }
       }

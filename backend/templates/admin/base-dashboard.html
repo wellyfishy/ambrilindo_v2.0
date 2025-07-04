@@ -66,6 +66,11 @@
                         <span class="sub-item">Utusan</span>
                       </a>
                     </li>
+                    <li class="{% if on == 'perguruan' %}active{% endif %}">
+                      <a href="{% url 'admin-perguruan' event_pk=event.pk %}">
+                        <span class="sub-item">Perguruan</span>
+                      </a>
+                    </li>
                     <li class="{% if on == 'rekapan' %}active{% endif %}">
                       <a href="{% url 'admin-rekapan' event_pk=event.pk %}">
                         <span class="sub-item">Rekapan Bagan</span>
