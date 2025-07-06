@@ -67,8 +67,8 @@ class DetailBagan(models.Model):
     atlet2 = models.ForeignKey(Atlet, null=True, blank=True, on_delete=models.SET_NULL, related_name="atlet2")
     score1 = models.CharField(max_length=10, null=True, blank=True)
     score2 = models.CharField(max_length=10, null=True, blank=True)
-    kata1 = models.CharField(max_length=50, null=True, blank=True)
-    kata2 = models.CharField(max_length=50, null=True, blank=True)
+    kata1 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
+    kata2 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
     hantei = models.BooleanField(default=False)
 
     def __str__(self):

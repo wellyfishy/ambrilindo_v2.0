@@ -23,29 +23,53 @@
                             {% endfor %}
                         {% endif %}
                         <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                            <th scope="col" style="text-align: center;">No</th>
-                            <th scope="col" style="text-align: center;">Nama Bagan</th>
-                            <th scope="col" style="text-align: center;">Juara</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                            <thead>
+                                <tr>
+                                <th scope="col" style="text-align: center; vertical-align: middle;" rowspan="2">No</th>
+                                <th scope="col" style="text-align: center; vertical-align: middle;" rowspan="2">Nama Bagan</th>
+                                <th scope="col" style="text-align: center;" colspan="4">Juara</th>
+                                </tr>
+                                <tr>
+                                    <th scope="col" style="text-align: center; width: 5%;">Juara</th>
+                                    <th scope="col" style="text-align: center; width: 20%;">Nama</th>
+                                    <th scope="col" style="text-align: center; width: 10%;">Perguruan</th>
+                                    <th scope="col" style="text-align: center; width: 20%;">Utusan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                             {% for bagan in bagans %}
-                            <tr>
-                                <td style="text-align: center;">{{ forloop.counter }}</td>
-                                <td><b>{{ bagan.nama_bagan }}</b></td>
-                                <td>
-                                    <ul>
-                                        <li><b>1.</b> {{ bagan.juara_1.nama_atlet }} - {{ bagan.juara_1.perguruan.nama_perguruan }} - {{ bagan.juara_1.utusan.nama_utusan }}</li>
-                                        <li><b>2.</b> {{ bagan.juara_2.nama_atlet }} - {{ bagan.juara_2.perguruan.nama_perguruan }} - {{ bagan.juara_2.utusan.nama_utusan }}</li>
-                                        <li><b>3.</b> {{ bagan.juara_3a.nama_atlet }} - {{ bagan.juara_3a.perguruan.nama_perguruan }} - {{ bagan.juara_3a.utusan.nama_utusan }}</li>
-                                        <li><b>3.</b> {{ bagan.juara_3b.nama_atlet }} - {{ bagan.juara_3b.perguruan.nama_perguruan }} - {{ bagan.juara_3b.utusan.nama_utusan }}</li>
-                                    </ul>
-                                </td>
-                            </tr>
+                                {% with bg=forloop.counter|divisibleby:2|yesno:"table-light," %}
+                                <tr>
+                                    <td rowspan="5" style="text-align: center;">{{ forloop.counter }}</td>
+                                    <td rowspan="5"><b>({{ bagan.pk }}) {{ bagan.nama_bagan }}</b></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;"><b>1</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_1 %}{{ bagan.juara_1.nama_atlet }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_1 %}{{ bagan.juara_1.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_1 %}{{ bagan.juara_1.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;"><b>2</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_2 %}{{ bagan.juara_2.nama_atlet }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_2 %}{{ bagan.juara_2.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_2 %}{{ bagan.juara_2.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;"><b>3</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_3a %}{{ bagan.juara_3a.nama_atlet }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_3a %}{{ bagan.juara_3a.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_3a %}{{ bagan.juara_3a.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;"><b>3</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_3b %}{{ bagan.juara_3b.nama_atlet }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_3b %}{{ bagan.juara_3b.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
+                                    <td style="text-align: left;"><b>{% if bagan.juara_3b %}{{ bagan.juara_3b.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
+                                </tr>
+                                {% endwith %}
                             {% endfor %}
-                        </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>

@@ -483,9 +483,17 @@ h2 {
     {% csrf_token %}
 <div class="container" id="print-wrapper">
     <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
-  <h2>Tambah bagan Manual {{ nomor_tanding.nama_nomor_tanding }} <input type="text" name="nama_bagan"> <button type="submit" name="submit_type" value="simpan-bagan">Simpan</button></h2>
-  
-  <div class="tournament-bracket tournament-bracket--rounded">                                                     
+    <h2>
+      Tambah Bagan <br>
+      <span style="">
+        Nomor Tanding: {{ nomor_tanding.nama_nomor_tanding }}
+      </span> <br>
+      Nama Bagan: <input type="text" name="nama_bagan" style="width: 20%;"> 
+      <button type="submit" name="submit_type" value="simpan-bagan">
+        Simpan
+      </button>
+    </h2>
+  <div class="tournament-bracket tournament-bracket--rounded" style="margin-top: -50px;">                                                     
     <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
       <h3 class="tournament-bracket__round-title"></h3>
       <ul class="tournament-bracket__list">

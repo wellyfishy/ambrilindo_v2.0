@@ -485,7 +485,7 @@ h2 {
 <!-- partial:index.partial.html -->
 <div class="container" id="print-wrapper">
     <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
-  <h1>{{ bagan.nama_bagan }} <button class="btn btn-success hidden" onclick="window.print()">Print</button></h1>
+  <h1>({{ bagan.pk }}) {{ bagan.nama_bagan }} <button class="btn btn-success hidden" onclick="window.print()">Print</button></h1>
   <div class="tournament-bracket tournament-bracket--rounded">                                                     
     <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
       <h3 class="tournament-bracket__round-title"></h3>
@@ -735,11 +735,13 @@ h2 {
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.perguruan.nama_perguruan }}</b></td>
               <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.utusan.nama_utusan }}</b></td>
             </tr>
-            <tr class="hidden">
+            <tr class="hidden" style="position: relative; z-index: 1000;">
               <td></td>
               <td></td>
               <td></td>
-              <td style="text-align: center"><button type="submit" name="submit_type" value="simpan_juara">Simpan</button></td>
+              <td style="text-align: center; padding-top: 10px; padding-bottom: 10px;">
+                <button type="submit" name="submit_type" value="simpan_juara" style="">Simpan</button>
+              </td>
             </tr>
           </tbody>
         </table>

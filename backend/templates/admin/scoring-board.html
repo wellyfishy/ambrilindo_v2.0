@@ -412,6 +412,9 @@
         document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
         document.getElementById('ao-score').innerText = '0'
 
+        $('#kata-aka').text(data.details.atlet_red_kata)
+        $('#kata-ao').text(data.details.atlet_blue_kata)
+
         totalSeconds = 0
         milliseconds = 0
         updateDisplay(totalSeconds, milliseconds);
