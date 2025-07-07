@@ -172,10 +172,33 @@
     .deactivate {
         display: none;
     }
+
+    .fullscreen-banner {
+      height: 75vh;
+      width: 100%;
+      background-color: #3498db;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      position: absolute;
+    }
   </style>
 </head>
 <body>  
     <div class="container">
+      <div class="fullscreen-banner">
+        <h1 style="text-align: center; font-size: 400%;">
+          <span id="aka-point-1">
+            YUKO
+          </span> <br>
+          <span id="aka-point-2">
+            0
+          </span> - POINT
+        </h1>
+        <br>
+      </div>
         <div class="player">
             <div class="player-main">
                 <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
