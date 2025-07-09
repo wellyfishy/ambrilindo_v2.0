@@ -1,7 +1,12 @@
 {% extends "admin/base-dashboard.html" %} {% load static %}
 
 {% block style %}
-<style></style>
+<style>
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+</style>
 {% endblock style %}
 
 {% block content %}
@@ -218,7 +223,16 @@
                                     <td style="text-align: center; font-size: 20px;">
                                         <button type="button" class="btn btn-warning" id="aka-score-dec">-</button>
                                         <input type="number" style="text-align: center; width: 20%" id="aka-score" name="akaScore" value="0">
-                                        <button type="button" class="btn btn-success" id="aka-score-inc">+</button>
+                                        <div class="dropdown" style="display: inline-block; position: relative;">
+                                            <button type="button" class="btn btn-success dropdown-toggle" id="aka-score-inc">
+                                                +
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="aka-score-inc">
+                                                <li><button type="button" id="aka-yuko" class="dropdown-item" href="#">Yuko +1</button></li>
+                                                <li><button type="button" id="aka-wazaari" class="dropdown-item" href="#">Waza-ari +2</button></li>
+                                                <li><button type="button" id="aka-ippon" class="dropdown-item" href="#">Ippon +3</button></li>
+                                            </ul>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <input class="form-check-input" type="checkbox" name="aka-senshu" id="aka-senshu" style="transform: scale(2);">
@@ -240,7 +254,16 @@
                                     <td style="text-align: center; font-size: 20px;">
                                         <button type="button" class="btn btn-warning" id="ao-score-dec">-</button>
                                         <input type="number" style="text-align: center; width: 20%" id="ao-score" name="aoScore" value="0">
-                                        <button type="button" class="btn btn-success" id="ao-score-inc">+</button>
+                                        <div class="dropdown" style="display: inline-block; position: relative;">
+                                            <button type="button" class="btn btn-success dropdown-toggle" id="ao-score-inc">
+                                                +
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="ao-score-inc">
+                                                <li><button type="button" id="ao-yuko" class="dropdown-item" href="#">Yuko +1</button></li>
+                                                <li><button type="button" id="ao-wazaari" class="dropdown-item" href="#">Waza-ari +2</button></li>
+                                                <li><button type="button" id="ao-ippon" class="dropdown-item" href="#">Ippon +3</button></li>
+                                            </ul>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <input class="form-check-input" type="checkbox" name="ao-senshu" id="ao-senshu" style="transform: scale(2);">
@@ -433,13 +456,41 @@
         $('#aka-score').val(aka_score)
     })
 
-    $('#aka-score-inc').on('click', function() {
-        aka_score++;
+    $('#aka-yuko').on('click', function() {
+        aka_score += 1;
         $.ajax({
             url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
-                action: 'aka-score-inc',
+                action: 'aka-yuko',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#aka-score').val(aka_score)
+    })
+
+    $('#aka-wazaari').on('click', function() {
+        aka_score += 2;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'aka-wazaari',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#aka-score').val(aka_score)
+    })
+
+    $('#aka-ippon').on('click', function() {
+        aka_score += 3;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'aka-ippon',
                 details: '',
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
@@ -493,13 +544,41 @@
         $('#ao-score').val(ao_score)
     })
 
-    $('#ao-score-inc').on('click', function() {
-        ao_score++;
+    $('#ao-yuko').on('click', function() {
+        ao_score += 1;
         $.ajax({
             url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
-                action: 'ao-score-inc',
+                action: 'ao-yuko',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#ao-score').val(ao_score)
+    })
+
+    $('#ao-wazaari').on('click', function() {
+        ao_score += 2;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-wazaari',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+        $('#ao-score').val(ao_score)
+    })
+
+    $('#ao-ippon').on('click', function() {
+        ao_score += 3;
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-ippon',
                 details: '',
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },

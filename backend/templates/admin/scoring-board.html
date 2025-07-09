@@ -176,7 +176,7 @@
     .fullscreen-banner {
       height: 75vh;
       width: 100%;
-      background-color: #3498db;
+      background-color: black;
       color: white;
       display: flex;
       justify-content: center;
@@ -188,14 +188,14 @@
 </head>
 <body>  
     <div class="container">
-      <div class="fullscreen-banner">
+      <div class="fullscreen-banner" id="banner" style="display: none">
         <h1 style="text-align: center; font-size: 400%;">
-          <span id="aka-point-1">
-            YUKO
+          <span id="point-1">
+            NULL
           </span> <br>
-          <span id="aka-point-2">
-            0
-          </span> - POINT
+          <span id="point-2">
+            0 - POINT
+          </span>
         </h1>
         <br>
       </div>
@@ -267,6 +267,10 @@
   const tatamiPk = {{ tatami.pk }};
   const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
   const socket = new WebSocket(protocol + window.location.host + `/ws/scoring-board/${tatamiPk}`);
+  const warning = new Audio("{% static 'sound/warning.mp3' %}");
+  const finish = new Audio("{% static 'sound/finish.mp3' %}");
+  let warningVal = false
+  {% comment %} audio.play(); {% endcomment %}
 
   let interval = null;
   let milliseconds = 0;
@@ -334,25 +338,50 @@
         const detailsArray = JSON.parse(data.details);
         $('#kata-aka').text(detailsArray[0])
         $('#kata-ao').text(detailsArray[1])
-      } else if (data.command == 'aka-score-inc') {
-        aka_score++;
+      } else if (data.command == 'aka-yuko') {
+        aka_score += 1;
         $('#aka-score').text(aka_score)
+        aka_banner('YUKO', '1 - POINT')
+      } else if (data.command == 'aka-wazaari') {
+        aka_score += 2;
+        $('#aka-score').text(aka_score)
+        aka_banner('WAZA-ARI', '2 - POINT')
+      } else if (data.command == 'aka-ippon') {
+        aka_score += 3;
+        $('#aka-score').text(aka_score)
+        aka_banner('IPPON', '3 - POINT')
       } else if (data.command == 'aka-score-dec') {
         aka_score--;
         $('#aka-score').text(aka_score)
       } if (data.command === 'aka-criteria-inc') {
         aka_criteria++;
         if (aka_criteria >= 1 && aka_criteria <= 5) {
-            $(`#akac${aka_criteria}`).addClass('active-red');
+          $(`#akac${aka_criteria}`).addClass('active-red');
+          if (aka_criteria == 4) {
+            aka_banner(`HANSOKU CHUI`, 'WARNING')
+          } else if (aka_criteria == 5) {
+            aka_banner(`HANSOKU`, 'PENALTY')
+          } else {
+            aka_banner(`CHUI ${aka_criteria}`, 'WARNING')
+          }
         }
       } else if (data.command === 'aka-criteria-dec') {
         if (aka_criteria >= 1 && aka_criteria <= 5) {
           $(`#akac${aka_criteria}`).removeClass('active-red');
         }
         aka_criteria--;
-      } else if (data.command == 'ao-score-inc') {
-        ao_score++;
+      } else if (data.command == 'ao-yuko') {
+        ao_score += 1;
         $('#ao-score').text(ao_score)
+        ao_banner('YUKO', '1 - POINT')
+      } else if (data.command == 'ao-wazaari') {
+        ao_score += 2;
+        $('#ao-score').text(ao_score)
+        ao_banner('WAZA-ARI', '2 - POINT')
+      } else if (data.command == 'ao-ippon') {
+        ao_score += 3;
+        $('#ao-score').text(ao_score)
+        ao_banner('IPPON', '3 - POINT')
       } else if (data.command == 'ao-score-dec') {
         ao_score--;
         $('#ao-score').text(ao_score)
@@ -360,6 +389,13 @@
         ao_criteria++;
         if (ao_criteria >= 1 && ao_criteria <= 5) {
           $(`#aoc${ao_criteria}`).addClass('active-blue');
+          if (ao_criteria == 4) {
+            ao_banner(`HANSOKU CHUI`, 'WARNING')
+          } else if (ao_criteria == 5) {
+            ao_banner(`HANSOKU`, 'PENALTY')
+          } else {
+            ao_banner(`CHUI ${ao_criteria}`, 'WARNING')
+          }
         }
       } else if (data.command === 'ao-criteria-dec') {
         if (ao_criteria >= 1 && ao_criteria <= 5) {
@@ -378,6 +414,36 @@
         }
       }
 
+      function aka_banner(score1, score2) {
+        $('#banner').css({
+            'background-color': 'red',
+            'position': 'absolute',
+            'display': ''
+        });
+
+        $('#point-1').text(score1)
+        $('#point-2').text(score2)
+
+        setTimeout(function () {
+            $('#banner').css('display', 'none');
+        }, 500);
+      }
+
+      function ao_banner(score1, score2) {
+        $('#banner').css({
+            'background-color': '#3498db',
+            'position': 'absolute',
+            'display': '',
+        });
+
+        $('#point-1').text(score1)
+        $('#point-2').text(score2)
+
+        setTimeout(function () {
+            $('#banner').css('display', 'none');
+        }, 500);
+      }
+
       function timer_status() {
         if (!isRunning) {
           isRunning = true;
@@ -387,12 +453,17 @@
                   clearInterval(interval);
                   isRunning = false;
                   $('#timer').css('color', 'white')
+                  finish.play()
                   return;
                 }
                 totalSeconds--;
                 milliseconds = 99;
             } else {
               if (totalSeconds < 15) {
+                if (warningVal == false) {
+                  warning.play()
+                  warningVal = true
+                }
                 $('#timer').css({
                   'color': 'red',
                   'text-shadow': `
