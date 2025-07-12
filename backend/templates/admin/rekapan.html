@@ -41,7 +41,7 @@
                                 {% with bg=forloop.counter|divisibleby:2|yesno:"table-light," %}
                                 <tr>
                                     <td rowspan="5" style="text-align: center;">{{ forloop.counter }}</td>
-                                    <td rowspan="5"><b>({{ bagan.pk }}) {{ bagan.nama_bagan }}</b></td>
+                                    <td rowspan="5"><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.pk }}) {{ bagan.nama_bagan }}</b></a></td>
                                 </tr>
                                 <tr>
                                     <td style="text-align: center;"><b>1</b></td>

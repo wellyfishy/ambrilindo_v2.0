@@ -38,6 +38,7 @@
                                     </td>
                                     <td>
                                         <select class="form-control" id="atlet-aka" name="atlet-aka">
+                                            <option value="-">-</option>
                                             {% for atlet in atlets %}
                                                 {% if detail_bagan.atlet1 == atlet %}
                                                 <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }} - {{ atlet.perguruan.nama_perguruan }} - {{ atlet.utusan.nama_utusan }}</option>
@@ -54,6 +55,7 @@
                                     </td>
                                     <td>
                                         <select class="form-control" id="atlet-ao" name="atlet-ao">
+                                            <option value="-">-</option>
                                             {% for atlet in atlets %}
                                                 {% if detail_bagan.atlet2 == atlet %}
                                                 <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }} - {{ atlet.perguruan.nama_perguruan }} - {{ atlet.utusan.nama_utusan }}</option>

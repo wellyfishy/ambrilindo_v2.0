@@ -628,11 +628,15 @@ def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'atlet-simpan':
             atlet_1_pk = request.POST.get('atlet-aka')
-            if atlet_1_pk:
+            if atlet_1_pk != '-':
                 detail_bagan.atlet1 = Atlet.objects.filter(pk=atlet_1_pk).first()
+            else:
+                detail_bagan.atlet1 = None
             atlet_2_pk = request.POST.get('atlet-ao')
-            if atlet_2_pk:
+            if atlet_2_pk != '-':
                 detail_bagan.atlet2 = Atlet.objects.filter(pk=atlet_2_pk).first()
+            else:
+                detail_bagan.atlet2 = None
             detail_bagan.save()
         
         return redirect('edit-detail-bagan', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
@@ -940,6 +944,7 @@ def admin_perguruan(request, event_pk):
 def admin_rekapan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
     bagans = Bagan.objects.filter(event=event)
+    bagans = Bagan.objects.filter(event=event, juara_1__isnull=False)
     context = {
         'on': 'rekapan',
         'event': event,
