@@ -448,7 +448,11 @@ def admin_dashboard(request, event_pk):
         
         elif request.POST.get('submit_type') == 'tambah_bagan':
             nomor_tanding_pk = request.POST.get('nomor_tanding_pk')
-            return redirect('tambah-bagan', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
+            tipe = request.POST.get('tipe')
+            if tipe == 'normal':
+                return redirect('tambah-bagan', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
+            else:
+                return redirect('tambah-bagan-referchange', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
 
     context = {
         'on': 'utama',
@@ -469,7 +473,13 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
     detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
     detail_bagans_round_4 = DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan')
+    
     detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
+
+    if 'REFERCHANGE' in bagan.nama_bagan:
+        referchange = True
+    else:
+        referchange = False
 
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'simpan_juara':
@@ -514,6 +524,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
         'detail_bagans_round_4': detail_bagans_round_4,
         'detail_bagan_round_5': detail_bagan_round_5,
         'all_atlets': all_atlets,
+        'referchange': referchange,
     }
 
     return render(request, 'admin/bagan-detail.html', context)
@@ -577,6 +588,62 @@ def tambah_bagan(request, event_pk, nomor_tanding_pk):
     }
 
     return render(request, 'admin/tambah-bagan.html', context)
+
+def tambah_bagan_referchange(request, event_pk, nomor_tanding_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
+    all_atlets = Atlet.objects.filter(nomor_tanding=nomor_tanding)
+
+    round_1 = [1]
+    round_2 = [1]
+    round_3 = [1]
+
+    if request.method == 'POST':
+        if request.POST.get('submit_type') == 'simpan-bagan':
+            rounds_data = [
+                (1, request.POST.getlist('atlet_round_1_aka_pk'), request.POST.getlist('atlet_round_1_ao_pk')),
+                (2, request.POST.getlist('atlet_round_2_aka_pk'), request.POST.getlist('atlet_round_2_ao_pk')),
+                (3, request.POST.getlist('atlet_round_3_aka_pk'), request.POST.getlist('atlet_round_3_ao_pk')),
+            ]
+            nama_bagan = request.POST.get('nama_bagan').strip().upper()
+
+            if 'KATA' in nomor_tanding.nama_nomor_tanding:
+                tipe_tanding = '1'
+            else:
+                tipe_tanding = '2'
+
+            new_bagan = Bagan.objects.create(event=event, nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, nama_bagan=nama_bagan)
+
+            for round_number, aka_list, ao_list in rounds_data:
+                for index, (aka_pk, ao_pk) in enumerate(zip(aka_list, ao_list), start=1):
+                    atlet1 = Atlet.objects.filter(pk=aka_pk).first() if aka_pk != '-' else None
+                    atlet2 = Atlet.objects.filter(pk=ao_pk).first() if ao_pk != '-' else None
+
+                    DetailBagan.objects.create(
+                        bagan=new_bagan,
+                        round=round_number,
+                        urutan=index,
+                        atlet1=atlet1,
+                        atlet2=atlet2
+                    )
+
+            round_4 = DetailBagan.objects.create(bagan=new_bagan, round=4, urutan=1)
+
+            return redirect('admin-dashboard', event_pk=event_pk)
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'nomor_tanding': nomor_tanding,
+        'round_1': round_1,
+        'round_2': round_2,
+        'round_3': round_3,
+        'all_atlets': all_atlets,
+    }
+
+    return render(request, 'admin/tambah-bagan-referchange.html', context)
 
 def edit_admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
@@ -944,7 +1011,7 @@ def admin_perguruan(request, event_pk):
 def admin_rekapan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
     bagans = Bagan.objects.filter(event=event)
-    bagans = Bagan.objects.filter(event=event, juara_1__isnull=False)
+    bagans = Bagan.objects.filter(event=event)
     context = {
         'on': 'rekapan',
         'event': event,

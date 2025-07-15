@@ -482,10 +482,11 @@ h2 {
   <title>{{ bagan }}</title>
 </head>
 <body>
-<!-- partial:index.partial.html -->
 <div class="container" id="print-wrapper">
     <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
   <h1>({{ bagan.pk }}) {{ bagan.nama_bagan }} <button class="btn btn-success hidden" onclick="window.print()">Print</button></h1>
+  
+  {% if not referchange %}
   <div class="tournament-bracket tournament-bracket--rounded">                                                     
     <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
       <h3 class="tournament-bracket__round-title"></h3>
@@ -764,6 +765,250 @@ h2 {
       <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" style="width: 300px; height: auto; position: absolute; margin-top: -100px;" alt="">
     </div>
   </div>
+  {% else %}
+  <div class="tournament-bracket tournament-bracket--rounded" style="margin-top: 200px;">                                                     
+    <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
+      <h3 class="tournament-bracket__round-title"></h3>
+      <ul class="tournament-bracket__list">
+        {% for detail_bagan in detail_bagans_round_1 %}
+        <li class="tournament-bracket__item">
+          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                </td>
+              </tbody>
+            </table>
+            </a>
+          </div>
+        </li>
+        <li class="tournament-bracket__item">
+          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                </td>
+              </tbody>
+            </table>
+            </a>
+          </div>
+        </li>
+        {% endfor %}
+
+      </ul>
+    </div>
+    <div class="tournament-bracket__round tournament-bracket__round--semifinals">
+      <h3 class="tournament-bracket__round-title"></h3>
+      <ul class="tournament-bracket__list">
+
+        {% for detail_bagan in detail_bagans_round_2 %}
+        <li class="tournament-bracket__item" style="margin-top: 100px">
+          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                </td>
+              </tbody>
+            </table>
+            </a>
+          </div>
+        </li>
+        <li class="tournament-bracket__item">
+          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                </td>
+              </tbody>
+            </table>
+            </a>
+          </div>
+        </li>
+        {% endfor %}
+
+      </ul>
+    </div>
+    <div class="tournament-bracket__round tournament-bracket__round--bronze">
+      <h3 class="tournament-bracket__round-title"></h3>
+      <ul class="tournament-bracket__list">
+        {% for detail_bagan in detail_bagans_round_3 %}
+        <li class="tournament-bracket__item" style="margin-top: 175px">
+          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                </td>
+              </tbody>
+            </table>
+            </a>
+          </div>
+        </li>
+        <li class="tournament-bracket__item">
+          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                </td>
+              </tbody>
+            </table>
+            </a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="tournament-bracket__round tournament-bracket__round--gold">
+      <h3 class="tournament-bracket__round-title"></h3>
+      <form method="POST">
+        {% csrf_token %}
+        <table style="
+          position: absolute; 
+          border-collapse: collapse; 
+          width: 100%; 
+          max-width: 700px; 
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+          font-family: Arial, sans-serif;
+          margin-left: -300px;
+          margin-top: -150px;
+        ">
+          <thead>
+            <tr style="background-color: #f5f5f5;">
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 10%;">Juara</th>
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Nama</th>
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 20%;">Perguruan</th>
+              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Utusan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>1</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <b class="pop">{{ bagan.juara_1.nama_atlet }}</b>
+                <select class="hidden" name="juara_1_pk">
+                  <option value="-">-</option>
+                  {% for atlet in all_atlets %}
+                  {% if bagan.juara_1 == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.utusan.nama_utusan }}</b></td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>2</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <b class="pop">{{ bagan.juara_2.nama_atlet }}</b>
+                <select class="hidden" name="juara_2_pk">
+                  <option value="-">-</option>
+                  {% for atlet in all_atlets %}
+                  {% if bagan.juara_2 == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.utusan.nama_utusan }}</b></td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <b class="pop">{{ bagan.juara_3a.nama_atlet }}</b>
+                <select class="hidden" name="juara_3a_pk">
+                  <option value="-">-</option>
+                  {% for atlet in all_atlets %}
+                  {% if bagan.juara_3a == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.utusan.nama_utusan }}</b></td>
+            </tr>
+            <tr>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
+                <b class="pop">{{ bagan.juara_3b.nama_atlet }}</b>
+                <select class="hidden" name="juara_3b_pk">
+                  <option value="-">-</option>
+                  {% for atlet in all_atlets %}
+                  {% if bagan.juara_3b == atlet %}
+                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
+                  {% else %}
+                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+              </td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.perguruan.nama_perguruan }}</b></td>
+              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.utusan.nama_utusan }}</b></td>
+            </tr>
+            <tr class="hidden" style="position: relative; z-index: 1000;">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style="text-align: center; padding-top: 10px; padding-bottom: 10px;">
+                <button type="submit" name="submit_type" value="simpan_juara" style="">Simpan</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+      {% for detail_bagan_round_4 in detail_bagans_round_4 %}
+      <ul class="tournament-bracket__list">
+        <li class="tournament-bracket__item" style="margin-top: 175px;">
+          <div class="tournament-bracket__match" tabindex="0">
+            <table class="tournament-bracket__table">
+              <tbody class="tournament-bracket">
+                <td class="tournament-bracket__team">
+                    <span style="font-size: 12px"><b>{% if detail_bagan_round_4.atlet1 %}{{ detail_bagan_round_4.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan_round_4.atlet1 %}{{ detail_bagan_round_4.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
+                    <span style="padding-top: -20px;"><b>{% if detail_bagan_round_4.atlet1 %}{{ detail_bagan_round_4.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                </td>
+              </tbody>
+            </table>
+          </div>
+        </li>
+      </ul>
+      {% endfor %}  
+
+      <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" style="width: 300px; height: auto; position: absolute; margin-top: 400px;" alt="">
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 </body>

@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout', logoutfunc, name="logout"),
     path('admin-dashboard/<int:event_pk>', admin_dashboard, name="admin-dashboard"),
     path('admin-dashboard/<int:event_pk>/tambah-bagan/<int:nomor_tanding_pk>', tambah_bagan, name="tambah-bagan"),
+    path('admin-dashboard/<int:event_pk>/tambah-bagan/<int:nomor_tanding_pk>/referchange', tambah_bagan_referchange, name="tambah-bagan-referchange"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>', admin_bagan_detail, name="admin-bagan-detail"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/edit', edit_admin_bagan_detail, name="edit-admin-bagan-detail"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/hapus', hapus_admin_bagan_detail, name="hapus-admin-bagan-detail"),
