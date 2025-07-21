@@ -5,7 +5,7 @@ class Admin(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
 
 class Event(models.Model):
-    nama_event = models.CharField(max_length=100, null=True, blank=True)
+    nama_event = models.CharField(max_length=150, null=True, blank=True)
     sedang_berjalan = models.BooleanField(default=False)
 
     def __str__(self):
