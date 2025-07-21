@@ -1012,7 +1012,17 @@ h2 {
         </li>
       </ul>
       {% endfor %}  
-      <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" style="width: 300px; height: auto; position: absolute; margin-top: 400px;" alt="">
+      <div style="text-align: center; margin-top: -100px; margin-left: -300px;">
+        
+        <h3 style="display: inline-block; max-width: 90%; word-wrap: break-word;">
+          {{ bagan.event.nama_event }}
+        </h3>
+        <br>
+        <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" 
+            style="width: 300px; height: auto; max-width: 90%;" 
+            alt="">
+        
+      </div>
     </div>
   </div>
   {% endif %}
