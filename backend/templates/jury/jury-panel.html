@@ -131,13 +131,14 @@
     </div>
 
     <div>
-        <h1 style="text-align: center;">{{ jury.tatami }} | Juri {{ jury.jury_number }}</h1>
+        <h1 style="text-align: center;">{{ jury.tatami }} | Juri {{ jury.jury_number }} | <a href="" class="btn btn-success">Refresh</a></h1>
     </div>
 
     <div style="">
         <div style="text-align: center; background: linear-gradient(to bottom, rgb(255, 112, 112),rgb(255, 46, 46)); top-left-radius: 10px; border-top-right-radius: 10px;">
             <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b>{{ detail_bagan.atlet1.nama_atlet }}</b>
+                <b>{{ detail_bagan.atlet1.nama_atlet }}</b> <br>
+                <span style="color: gold; display: none" id="aka-winner"><b>WINNER</b></span>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
                 <span id="kata-aka">0 - Blank</span> | {{ detail_bagan.atlet1.perguruan.nama_perguruan }} | {{ detail_bagan.atlet1.utusan.nama_utusan }}
@@ -198,7 +199,8 @@
 
         <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
             <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b>{{ detail_bagan.atlet2.nama_atlet }}</b>
+                <b>{{ detail_bagan.atlet2.nama_atlet }}</b> <br>
+                <span style="color: gold; display: none" id="ao-winner"><b>WINNER</b></span>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
                 <span id="kata-ao">0 - Blank</span> | {{ detail_bagan.atlet2.perguruan.nama_perguruan }} | {{ detail_bagan.atlet2.utusan.nama_utusan }}
@@ -221,12 +223,12 @@
                 <div class="modal fade" id="aoKirimModal" tabindex="-1" aria-labelledby="aoKirimModal" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
-                            <div class="modal-header bg-danger text-white">
+                            <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title">Konfirmasi Score</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin mengirim score aka?</h2>
+                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin mengirim score ao?</h2>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
@@ -239,12 +241,12 @@
                 <div class="modal fade" id="aoResetModal" tabindex="-1" aria-labelledby="aoResetModal" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
-                            <div class="modal-header bg-danger text-white">
+                            <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title">Konfirmasi Reset</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin reset score aka?</h2>
+                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin reset score ao?</h2>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
@@ -264,6 +266,8 @@
     <script>
         $(document).ready(function () {
             const tatamiPk = {{ tatami.pk }}
+            const juriNumber = {{ jury.jury_number }}
+            console.log(juriNumber)
             const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
             const socket = new WebSocket(protocol + window.location.host + `/ws/jury-panel/${tatamiPk}`);
             socket.onmessage = function(e) {
@@ -274,6 +278,18 @@
                     const detailsArray = JSON.parse(data.details);
                     $('#kata-aka').text(detailsArray[0])
                     $('#kata-ao').text(detailsArray[1])
+                }
+
+                if (data.command == 'pemenang') {
+                    if (juriNumber == 1) {
+                        if (data.details == 'aka') {
+                            $('#aka-winner').css('display', 'inline')
+                            $('#ao-winner').css('display', 'none')
+                        } else if (data.details == 'ao') {
+                            $('#ao-winner').css('display', 'inline')
+                            $('#aka-winner').css('display', 'none')
+                        }
+                    }
                 }
             }
             const akaKirimScore = $('#akaKirimScore');

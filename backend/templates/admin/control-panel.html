@@ -417,6 +417,20 @@
         }
     }
 
+    $('input[name="pemenang"]').on('change', function() {
+        const selectedValue = $(this).val();
+        console.log("Selected pemenang:", selectedValue);
+        $.ajax({
+            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'pemenang',
+                details: selectedValue,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    });
+
     $('#aka-bendera').on('change', function() {
         $('#totalAka').val($(this).val())
         if ($(this).val() == '0') {
