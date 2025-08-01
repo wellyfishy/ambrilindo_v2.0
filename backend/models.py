@@ -70,6 +70,7 @@ class DetailBagan(models.Model):
     kata1 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
     kata2 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
     hantei = models.BooleanField(default=False)
+    selesai = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.pk} - {self.round} - {self.urutan}'

@@ -762,16 +762,15 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
             detail_bagan.kata1 = kata_aka
             detail_bagan.kata2 = kata_ao
         
-            detail_bagan.save()
-        
         elif request.POST.get('submit_type') == 'kumite-simpan':
             aka_score = request.POST.get('akaScore')
             ao_score = request.POST.get('aoScore')
 
             detail_bagan.score1 = aka_score
             detail_bagan.score2 = ao_score
-
-            detail_bagan.save()
+        
+        detail_bagan.selesai = True
+        detail_bagan.save()
         
         next_round_number = detail_bagan.round + 1
         next_round_urutan = (detail_bagan.urutan + 1) // 2
