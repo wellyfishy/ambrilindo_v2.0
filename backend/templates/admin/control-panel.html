@@ -419,13 +419,15 @@
 
     $('input[name="pemenang"]').on('change', function() {
         const selectedValue = $(this).val();
-        console.log("Selected pemenang:", selectedValue);
+        let scoreAka = $('#totalAka').val();
+        let scoreAo = $('#totalAo').val();
         $.ajax({
             url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'pemenang',
                 details: selectedValue,
+                // details: JSON.stringify([selectedValue, scoreAka, scoreAo]),
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });

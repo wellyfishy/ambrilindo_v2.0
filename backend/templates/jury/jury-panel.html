@@ -281,15 +281,29 @@
                 }
 
                 if (data.command == 'pemenang') {
-                    if (juriNumber == 1) {
-                        if (data.details == 'aka') {
-                            $('#aka-winner').css('display', 'inline')
-                            $('#ao-winner').css('display', 'none')
-                        } else if (data.details == 'ao') {
-                            $('#ao-winner').css('display', 'inline')
-                            $('#aka-winner').css('display', 'none')
-                        }
+                    // if (juriNumber == 1) {
+                    //     if (data.details == 'aka') {
+                    //         $('#aka-winner').css('display', 'inline')
+                    //         $('#ao-winner').css('display', 'none')
+                    //     } else if (data.details == 'ao') {
+                    //         $('#ao-winner').css('display', 'inline')
+                    //         $('#aka-winner').css('display', 'none')
+                    //     }
+                    // }
+                    // const detailsArray = JSON.parse(data.details);
+                    // var pemenang = detailsArray[0]
+                    // var totalAka = detailsArray[1]
+                    // var totalAo = detailsArray[2]
+                    // console.log(pemenang, totalAka, totalAo)
+
+                    if (data.details == 'aka') {
+                        $('#aka-winner').css('display', 'inline')
+                        $('#ao-winner').css('display', 'none')
+                    } else if (data.details == 'ao') {
+                        $('#ao-winner').css('display', 'inline')
+                        $('#aka-winner').css('display', 'none')
                     }
+                    
                 }
             }
             const akaKirimScore = $('#akaKirimScore');
