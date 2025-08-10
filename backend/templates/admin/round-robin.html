@@ -1,0 +1,82 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block style %}
+<style>
+.select2-container--default .select2-selection--multiple {
+    min-height: 38px;
+    max-height: 100px;  /* allow expansion */
+    overflow-y: auto;
+}
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Kumpulan Bagan Event {{ event.nama_event }}</div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="table-responsive">
+                            <table class="table table-striped mt-3 align-middle text-center">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 50px;">No</th>
+                                        <th scope="col" style="min-width: 150px;">Nama</th>
+                                        {% for col, _ in table_rows %}
+                                            <th scope="col" style="width: 60px;">{{ forloop.counter }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row_atlet, matches in table_rows %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td class="text-start">{{ row_atlet.nama_atlet }}</td>
+                                            {% for match in matches %}
+                                                <td {% if match.atlet1 == row_atlet and match.pemenang == '2' %}class="bg-primary"{% elif match.atlet1 == match.atlet2 %}class="bg-secondary"{% endif %}>
+                                                    {% if match.atlet1 != match.atlet2 %}
+                                                        {% if match.selesai %}
+                                                            {% if match.atlet1 == row_atlet %}
+                                                                <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}">{{ match.score1 }}</a>
+                                                            {% else %}
+                                                                <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}">{{ match.score2 }}</a>
+                                                            {% endif %}
+                                                        {% else %}
+                                                        <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" class="btn btn-success btn-sm">Mulai</a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}
+
+{% block script %}
+{% endblock script %}

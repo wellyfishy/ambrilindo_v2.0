@@ -55,20 +55,27 @@ class Bagan(models.Model):
     juara_2 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara2", null=True, blank=True)
     juara_3a = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3a", null=True, blank=True)
     juara_3b = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3b", null=True, blank=True)
+    round_robin = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.nama_bagan}'
     
 class DetailBagan(models.Model):
+    TIPE_PEMENANG = [
+        ('1', 'Aka'),
+        ('2', 'Ao'),
+        ('3', 'Draw')
+    ]
     bagan = models.ForeignKey(Bagan, null=True, blank=True, on_delete=models.CASCADE)
-    round = models.IntegerField()
-    urutan = models.IntegerField()
+    round = models.IntegerField(null=True, blank=True)
+    urutan = models.IntegerField(null=True, blank=True)
     atlet1 = models.ForeignKey(Atlet, null=True, blank=True, on_delete=models.SET_NULL, related_name="atlet1")
     atlet2 = models.ForeignKey(Atlet, null=True, blank=True, on_delete=models.SET_NULL, related_name="atlet2")
     score1 = models.CharField(max_length=10, null=True, blank=True)
     score2 = models.CharField(max_length=10, null=True, blank=True)
     kata1 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
     kata2 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
+    pemenang = models.CharField(null=True, blank=True, max_length=50, choices=TIPE_PEMENANG)
     hantei = models.BooleanField(default=False)
     selesai = models.BooleanField(default=False)
 

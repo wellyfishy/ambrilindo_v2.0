@@ -451,8 +451,10 @@ def admin_dashboard(request, event_pk):
             tipe = request.POST.get('tipe')
             if tipe == 'normal':
                 return redirect('tambah-bagan', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
-            else:
+            elif tipe == 'referchange':
                 return redirect('tambah-bagan-referchange', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
+            elif tipe == 'round_robin':
+                return redirect('tambah-bagan-round-robin', event_pk=event_pk, nomor_tanding_pk=nomor_tanding_pk)
 
     context = {
         'on': 'utama',
@@ -464,10 +466,44 @@ def admin_dashboard(request, event_pk):
 
     return render(request, 'admin/dashboard.html', context)
 
+def admin_bagan_detail_round_robin(request, event_pk, bagan_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagan = Bagan.objects.get(pk=bagan_pk)
+
+    all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding).order_by('pk')
+    details = DetailBagan.objects.filter(bagan=bagan)
+
+    match_lookup = {}
+    for d in details:
+        pk1, pk2 = sorted([d.atlet1.pk, d.atlet2.pk])
+        match_lookup[f"{pk1}-{pk2}"] = d
+
+    table_rows = []
+    for row in all_atlets:
+        row_matches = []
+        for col in all_atlets:
+            pk1, pk2 = sorted([row.pk, col.pk])
+            row_matches.append(match_lookup[f"{pk1}-{pk2}"])
+        table_rows.append((row, row_matches))
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagan': bagan,
+        "all_atlets": all_atlets,
+        "match_lookup": match_lookup,
+        "table_rows": table_rows,
+    }
+    return render(request, 'admin/round-robin.html', context)
+
 def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
+    if bagan.round_robin:
+        return redirect('admin-bagan-detail-round-robin', event_pk=event_pk, bagan_pk=bagan_pk)
     all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
     detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
     detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
@@ -645,6 +681,35 @@ def tambah_bagan_referchange(request, event_pk, nomor_tanding_pk):
 
     return render(request, 'admin/tambah-bagan-referchange.html', context)
 
+def tambah_bagan_round_robin(request, event_pk, nomor_tanding_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
+    all_atlets = list(
+        Atlet.objects.filter(nomor_tanding=nomor_tanding).order_by('pk')
+    )
+
+    if 'KATA' in nomor_tanding.nama_nomor_tanding:
+        tipe_tanding = '1'
+    else:
+        tipe_tanding = '2'
+
+    new_bagan = Bagan.objects.create(event=event, nama_bagan=f'ROUND ROBIN {nomor_tanding.nama_nomor_tanding}', nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, round_robin=True)
+    
+    match_lookup = {}
+    for atlet_1 in all_atlets:
+        for atlet_2 in all_atlets:
+            key = tuple(sorted([atlet_1.pk, atlet_2.pk]))
+            if key not in match_lookup:
+                match = DetailBagan.objects.create(
+                    bagan=new_bagan,
+                    atlet1=atlet_1,
+                    atlet2=atlet_2
+                )
+                match_lookup[key] = match
+
+    return redirect('admin-dashboard', event_pk=event_pk)
+
 def edit_admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
@@ -769,27 +834,40 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
             detail_bagan.score1 = aka_score
             detail_bagan.score2 = ao_score
         
+        if pemenang == 'aka':
+            detail_bagan.pemenang = '1'
+        elif pemenang == 'ao':
+            detail_bagan.pemenang = '2'
+        else:
+            detail_bagan.pemenang = '3'
+
         detail_bagan.selesai = True
         detail_bagan.save()
         
-        next_round_number = detail_bagan.round + 1
-        next_round_urutan = (detail_bagan.urutan + 1) // 2
-        detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
+        if not bagan.round_robin:
+            next_round_number = detail_bagan.round + 1
+            next_round_urutan = (detail_bagan.urutan + 1) // 2
+            detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
 
-        if detailbagan_next_round:
-            if pemenang == 'aka':
-                winner_atlet = detail_bagan.atlet1
-            elif pemenang == 'ao':
-                winner_atlet = detail_bagan.atlet2
-            else:
-                winner_atlet = None
-            if winner_atlet:
-                if detail_bagan.urutan % 2 == 1:
-                    detailbagan_next_round.atlet1 = winner_atlet
-                else: 
-                    detailbagan_next_round.atlet2 = winner_atlet
+            if detailbagan_next_round:
+                if pemenang == 'aka':
+                    winner_atlet = detail_bagan.atlet1
+                    detail_bagan.pemenang = '1'
+                elif pemenang == 'ao':
+                    winner_atlet = detail_bagan.atlet2
+                    detail_bagan.pemenang = '2'
+                else:
+                    winner_atlet = None
+                    detail_bagan.pemenang = '3'
 
-        detailbagan_next_round.save()
+                if winner_atlet:
+                    if detail_bagan.urutan % 2 == 1:
+                        detailbagan_next_round.atlet1 = winner_atlet
+                    else: 
+                        detailbagan_next_round.atlet2 = winner_atlet
+
+                detail_bagan.save()
+                detailbagan_next_round.save()
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
