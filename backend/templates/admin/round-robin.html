@@ -20,7 +20,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Kumpulan Bagan Event {{ event.nama_event }}</div>
+                        <div class="card-title" style="margin-right: 10px;">{{ bagan.nama_bagan }}</div>
                     </div>
                     
                     <div class="card-body">
@@ -37,7 +37,7 @@
                             <table class="table table-striped mt-3 align-middle text-center">
                                 <thead>
                                     <tr>
-                                        <th scope="col" style="width: 50px;">No</th>
+                                        <th scope="col" style="width: 30px;">No</th>
                                         <th scope="col" style="min-width: 150px;">Nama</th>
                                         {% for col, _ in table_rows %}
                                             <th scope="col" style="width: 60px;">{{ forloop.counter }}</th>
@@ -48,9 +48,19 @@
                                     {% for row_atlet, matches in table_rows %}
                                         <tr>
                                             <td>{{ forloop.counter }}</td>
-                                            <td class="text-start">{{ row_atlet.nama_atlet }}</td>
+                                            <td class="text-start">{{ row_atlet.nama_atlet }} - {{ row_atlet.perguruan.nama_perguruan }} - {{ row_atlet.utusan.nama_utusan }}</td>
                                             {% for match in matches %}
-                                                <td {% if match.atlet1 == row_atlet and match.pemenang == '2' %}class="bg-primary"{% elif match.atlet1 == match.atlet2 %}class="bg-secondary"{% endif %}>
+                                                <td
+                                                {% if match.pemenang == '1' and match.atlet2 == row_atlet %}
+                                                    class="bg-dark"
+                                                {% elif match.pemenang == '2' and match.atlet1 == row_atlet %}
+                                                    class="bg-dark"
+                                                {% elif match.pemenang == '3' %}
+                                                    class="bg-warning"
+                                                {% elif match.atlet1 == match.atlet2 %}
+                                                    class="bg-secondary"
+                                                {% endif %}
+                                                >
                                                     {% if match.atlet1 != match.atlet2 %}
                                                         {% if match.selesai %}
                                                             {% if match.atlet1 == row_atlet %}
@@ -59,11 +69,50 @@
                                                                 <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}">{{ match.score2 }}</a>
                                                             {% endif %}
                                                         {% else %}
-                                                        <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" class="btn btn-success btn-sm">Mulai</a>
+                                                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" class="btn btn-success btn-sm">Mulai</a>
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
                                             {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">HASIL {{ bagan.nama_bagan }}</div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped mt-3 align-middle text-center">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 30px;">No</th>
+                                        <th scope="col" style="min-width: 150px;">Nama</th>
+                                        <th scope="col" style="min-width: 150px;">Utusan</th>
+                                        <th scope="col" style="min-width: 150px;">Perguruan</th>
+                                        <th scope="col" style="min-width: 150px;">Menang (+1)</th>
+                                        <th scope="col" style="min-width: 150px;">Kalah (+0)</th>
+                                        <th scope="col" style="min-width: 150px;">Draw (+0.5)</th>
+                                        <th scope="col" style="min-width: 150px;">Total Akumulasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in results %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td class="text-start">{{ row.atlet.nama_atlet }}</td>
+                                            <td>{{ row.atlet.utusan.nama_utusan }}</td>
+                                            <td>{{ row.atlet.perguruan.nama_perguruan }}</td>
+                                            <td><b>{{ row.menang }}</b></td>
+                                            <td><b>{{ row.kalah }}</b></td>
+                                            <td><b>{{ row.draw }}</b></td>
+                                            <td><b>{{ row.total }}</b></td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

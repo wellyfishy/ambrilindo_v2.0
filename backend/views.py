@@ -487,10 +487,42 @@ def admin_bagan_detail_round_robin(request, event_pk, bagan_pk):
             row_matches.append(match_lookup[f"{pk1}-{pk2}"])
         table_rows.append((row, row_matches))
 
+    results = []
+    for row_atlet, matches in table_rows:
+        menang = kalah = draw = 0
+        
+        for match in matches:
+            # Skip self matches
+            if match.atlet1 == match.atlet2:
+                continue
+            
+            if match.pemenang == '1':
+                if match.atlet1 == row_atlet:
+                    menang += 1
+                elif match.atlet2 == row_atlet:
+                    kalah += 1
+            elif match.pemenang == '2':
+                if match.atlet2 == row_atlet:
+                    menang += 1
+                elif match.atlet1 == row_atlet:
+                    kalah += 1
+            elif match.pemenang == '3':
+                draw += 1  # Each draw counts as 1 here; you can handle 0.5 in total
+            
+        total = menang * 1 + draw * 0.5
+        results.append({
+            "atlet": row_atlet,
+            "menang": menang,
+            "kalah": kalah,
+            "draw": draw,
+            "total": total
+        })
+
     context = {
         'on': 'utama',
         'event': event,
         'admin_tatami': admin_tatami,
+        "results": results,
         'bagan': bagan,
         "all_atlets": all_atlets,
         "match_lookup": match_lookup,
