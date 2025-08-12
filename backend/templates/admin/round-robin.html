@@ -58,20 +58,34 @@
                                                 {% elif match.pemenang == '3' %}
                                                     class="bg-warning"
                                                 {% elif match.atlet1 == match.atlet2 %}
-                                                    class="bg-secondary"
+                                                    class="bg-default"
                                                 {% endif %}
                                                 >
+                                                <b>
                                                     {% if match.atlet1 != match.atlet2 %}
                                                         {% if match.selesai %}
                                                             {% if match.atlet1 == row_atlet %}
-                                                                <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}">{{ match.score1 }}</a>
+                                                                {% if match.pemenang == '1' %}
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score1 }}</a>
+                                                                {% elif match.pemenang == '2' %}
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: white">{{ match.score1 }}</a>
+                                                                {% elif match.pemenang == '3' %}
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score1 }}</a>
+                                                                {% endif %}
                                                             {% else %}
-                                                                <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}">{{ match.score2 }}</a>
+                                                                {% if match.pemenang == '1' %}
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: white">{{ match.score1 }}</a>
+                                                                {% elif match.pemenang == '2' %}
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score1 }}</a>
+                                                                {% elif match.pemenang == '3' %}
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score1 }}</a>
+                                                                {% endif %}
                                                             {% endif %}
                                                         {% else %}
                                                             <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" class="btn btn-success btn-sm">Mulai</a>
                                                         {% endif %}
                                                     {% endif %}
+                                                </b>
                                                 </td>
                                             {% endfor %}
                                         </tr>
