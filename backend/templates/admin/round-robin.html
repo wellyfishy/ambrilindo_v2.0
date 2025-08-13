@@ -74,11 +74,11 @@
                                                                 {% endif %}
                                                             {% else %}
                                                                 {% if match.pemenang == '1' %}
-                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: white">{{ match.score1 }}</a>
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: white">{{ match.score2 }}</a>
                                                                 {% elif match.pemenang == '2' %}
-                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score1 }}</a>
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score2 }}</a>
                                                                 {% elif match.pemenang == '3' %}
-                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score1 }}</a>
+                                                                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=match.pk %}" style="color: black">{{ match.score2 }}</a>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% else %}
