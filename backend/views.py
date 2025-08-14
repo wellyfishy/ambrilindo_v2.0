@@ -754,8 +754,11 @@ def edit_admin_bagan_detail(request, event_pk, bagan_pk):
     detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
 
     if request.method == 'POST':
-        if request.POST.get('submit_type') == 'simpan_juara':
-            pass
+        if request.POST.get('submit_type') == 'simpan_nama':
+            nama_bagan = request.POST.get('nama_bagan')
+            if nama_bagan:
+                bagan.nama_bagan = nama_bagan
+                bagan.save()
 
         return redirect('edit-admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 

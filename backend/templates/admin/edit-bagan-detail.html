@@ -31,7 +31,7 @@ html {
   }
 }
 body {
-  background-color: #f1f1f1;
+  background-color: #fff1cfff;
   font-family: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 .container {
@@ -476,7 +476,13 @@ h2 {
 <!-- partial:index.partial.html -->
 <div class="container" id="print-wrapper">
     <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
-  <h1>Edit {{ bagan.nama_bagan }}</h1>
+    <form method="POST">
+      {% csrf_token %}
+      <h1>
+        <input type="text" name="nama_bagan" value="{{ bagan.nama_bagan }}" style="font-size: 30px;">
+        <button type="submit" name="submit_type" value="simpan_nama">Simpan</button>
+      </h1>
+    </form>
   <div class="tournament-bracket tournament-bracket--rounded">                                                     
     <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
       <h3 class="tournament-bracket__round-title"></h3>
