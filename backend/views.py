@@ -1122,8 +1122,7 @@ def admin_perguruan(request, event_pk):
 
 def admin_rekapan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
-    bagans = Bagan.objects.filter(event=event)
-    bagans = Bagan.objects.filter(event=event)
+    bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
     context = {
         'on': 'rekapan',
         'event': event,
