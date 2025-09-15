@@ -641,6 +641,7 @@ def tambah_bagan(request, event_pk, nomor_tanding_pk):
             round_5 = DetailBagan.objects.create(bagan=new_bagan, round=5, urutan=1)
                 
 
+            messages.success(request, f'Berhasil membuat bagan: {nama_bagan}')
             return redirect('admin-dashboard', event_pk=event_pk)
 
     context = {
@@ -783,6 +784,7 @@ def hapus_admin_bagan_detail(request, event_pk, bagan_pk):
     bagan = Bagan.objects.get(pk=bagan_pk)
     bagan.delete()
 
+    messages.success(request, f'Berhasil menghapus bagan: {bagan.nama_bagan}')
     return redirect('admin-dashboard', event_pk=event_pk)
 
 def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
