@@ -17,12 +17,22 @@
           <h3 class="fw-bold mb-3"></h3>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12"> 
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">Kumpulan Bagan Event {{ event.nama_event }}</div>
                         <div>
-                            <a href="#" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahBaganModal">Tambah Bagan</a>
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Buat Bagan
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" class="dropdown-item" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahBaganModal">Tambah Bagan</a></li>
+                                    <li><a href="#" class="dropdown-item" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal">Drawing Bagan</a></li>
+                                    <li><a href="#" class="dropdown-item" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#bobBaganModal">Bagan BOB</a></li>
+                                </ul>
+                            </div>
+                            
                             <div class="modal fade" id="tambahBaganModal" tabindex="-1" aria-labelledby="tambahBaganModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -57,7 +67,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal">Drawing Bagan</a>
+                            
                             <div class="modal fade" id="drawingBaganModal" tabindex="-1" aria-labelledby="drawingBaganModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -87,6 +97,41 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="submit" name="submit_type" value="drawing_bagan" class="btn btn-primary">Drawing</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="bobBaganModal" tabindex="-1" aria-labelledby="bobBaganModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title">Drawing Bagan BOB</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="bagan_pk">Bagan (Pilih satu atau lebih).</label>
+                                                <select class="form-select select2" id="bagan_pk" name="bagan_pk" multiple>
+                                                    <option value="semua">SEMUA BAGAN</option>
+                                                    {% for bagan in bagans %}
+                                                    <option value="{{ bagan.pk }}">{{ bagan.nama_bagan }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="bagan_pk">Tipe Shuffle.</label>
+                                                <select class="form-select" name="shuffle_type">
+                                                    <option value="perguruan">Perguruan</option>
+                                                    <option value="kontingen">Utusan</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="bob_bagan" class="btn btn-primary">Drawing</button>
                                         </div>
                                     </form>
                                     </div>
