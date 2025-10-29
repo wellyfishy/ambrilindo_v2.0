@@ -56,6 +56,7 @@ class Bagan(models.Model):
     juara_3a = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3a", null=True, blank=True)
     juara_3b = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3b", null=True, blank=True)
     round_robin = models.BooleanField(default=False)
+    pool = models.IntegerField(default=1)
 
     def __str__(self):
         return f'{self.nama_bagan}'
@@ -73,6 +74,8 @@ class DetailBagan(models.Model):
     atlet2 = models.ForeignKey(Atlet, null=True, blank=True, on_delete=models.SET_NULL, related_name="atlet2")
     score1 = models.CharField(max_length=10, null=True, blank=True)
     score2 = models.CharField(max_length=10, null=True, blank=True)
+    vr1 = models.BooleanField(default=False)
+    vr2 = models.BooleanField(default=False)
     kata1 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
     kata2 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')
     pemenang = models.CharField(null=True, blank=True, max_length=50, choices=TIPE_PEMENANG)

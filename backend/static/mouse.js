@@ -48,6 +48,17 @@ function keySend(keys) {
     console.log("Keys pressed:", keys);
     console.log("Aka Result:", akaResult);
     console.log("Ao Result:", aoResult);
+    const url = `/scoring-board/${tatamiPk}/message-retriever`;
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+            action: 'mouse',
+            details: JSON.stringify([akaResult, aoResult]),
+            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+        },
+    });
 
     // Clear keys after processing
     pressedKeys.clear();
@@ -67,14 +78,14 @@ function startTimer() {
 
 // Conflict keys dictionary
 const conflictGroups = [
-    { a: ['b', 'c'], b: ['a', 'c'], c: ['a', 'b'] },
-    { d: ['e', 'f'], e: ['d', 'f'], f: ['d', 'e'] },
-    { g: ['h', 'i'], h: ['g', 'i'], i: ['g', 'h'] },
-    { j: ['k', 'l'], k: ['j', 'l'], l: ['j', 'k'] },
-    { n: ['m', 'o'], m: ['n', 'o'], o: ['n', 'm'] },
-    { p: ['q', 'r'], q: ['p', 'r'], r: ['p', 'q'] },
-    { s: ['t', 'u'], t: ['s', 'u'], u: ['s', 't'] },
-    { v: ['w', 'x'], w: ['v', 'x'], x: ['v', 'w'] }
+    { a: ['b', 'c', 'd', 'e', 'f'], b: ['a', 'c', 'd', 'e', 'f'], c: ['a', 'b', 'd', 'e', 'f'] },
+    { d: ['a', 'b', 'c', 'e', 'f'], e: ['a', 'b', 'c', 'd', 'f'], f: ['a', 'b', 'c', 'd', 'e'] },
+    { g: ['h', 'i', 'j', 'k', 'l'], h: ['g', 'i', 'j', 'k', 'l'], i: ['g', 'h', 'j', 'k', 'l'] },
+    { j: ['g', 'h', 'i', 'k', 'l'], k: ['g', 'h', 'i', 'j', 'l'], l: ['g', 'h', 'i', 'j', 'k'] },
+    { n: ['m', 'o', 'p', 'q', 'r'], m: ['n', 'o', 'p', 'q', 'r'], o: ['n', 'm', 'p', 'q', 'r'] },
+    { p: ['n', 'm', 'o', 'q', 'r'], q: ['n', 'm', 'o', 'p', 'r'], r: ['n', 'm', 'o', 'p', 'q'] },
+    { s: ['t', 'u', 'v', 'w', 'x'], t: ['s', 'u', 'v', 'w', 'x'], u: ['s', 't', 'v', 'w', 'x'] },
+    { v: ['s', 't', 'u', 'w', 'x'], w: ['s', 't', 'u', 'v', 'x'], x: ['s', 't', 'u', 'v', 'w'] }
 ];
 
 // Key press handler

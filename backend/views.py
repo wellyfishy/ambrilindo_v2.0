@@ -487,12 +487,14 @@ def admin_dashboard(request, event_pk):
                                 event=event,
                                 nomor_tanding=nomor_tanding,
                                 nama_bagan=nama_bagan,
+                                pool=perulangan
                             )
                         else:
                             bagan = Bagan.objects.create(
                                 event=event,
                                 nama_bagan=nomor_tanding.nama_nomor_tanding,
-                                nomor_tanding=nomor_tanding
+                                nomor_tanding=nomor_tanding,
+                                pool=perulangan
                             )
                             group_counts = group_counts_temp
                             atlets_temp = atlets_temp_all
@@ -1075,10 +1077,18 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
     aka_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=0).first()
     ao_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=1).first()
+    if detail_bagan.round == 1:
+        detail_bagan.vr1 = True
+        detail_bagan.vr2 = True
+        detail_bagan.save()
+    elif detail_bagan.round == 2:
+        pass
+
     if not aka_score_obj:
         aka_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=0)
     if not ao_score_obj:
         ao_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=1)
+
     tatami = admin_tatami.tatami
     tatami.detail_bagan = detail_bagan
     tatami.save()
