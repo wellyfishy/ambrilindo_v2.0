@@ -1077,12 +1077,21 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
     aka_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=0).first()
     ao_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=1).first()
-    if detail_bagan.round == 1:
-        detail_bagan.vr1 = True
-        detail_bagan.vr2 = True
+
+    if bagan.pool == 1 and not detail_bagan.selesai:
+        if detail_bagan.round == 1:
+            detail_bagan.vr1 = True
+            detail_bagan.vr2 = True
+
+        elif detail_bagan.round == 3:
+            detail_bagan.vr1 = True
+            detail_bagan.vr2 = True
+
+        elif detail_bagan.round == 4:
+            detail_bagan.vr1 = True
+            detail_bagan.vr2 = True
+
         detail_bagan.save()
-    elif detail_bagan.round == 2:
-        pass
 
     if not aka_score_obj:
         aka_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=0)
@@ -1124,9 +1133,14 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
         elif request.POST.get('submit_type') == 'kumite-simpan':
             aka_score = request.POST.get('akaScore')
             ao_score = request.POST.get('aoScore')
+            aka_vr = bool(request.POST.get('aka-vr'))
+            ao_vr = bool(request.POST.get('ao-vr'))
 
             detail_bagan.score1 = aka_score
             detail_bagan.score2 = ao_score
+
+            detail_bagan.vr1 = aka_vr
+            detail_bagan.vr2 = ao_vr
         
         if pemenang == 'aka':
             detail_bagan.pemenang = '1'
@@ -1157,8 +1171,20 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
                 if winner_atlet:
                     if detail_bagan.urutan % 2 == 1:
                         detailbagan_next_round.atlet1 = winner_atlet
-                    else: 
+                        if detail_bagan.vr1 and pemenang == 'aka':
+                            detailbagan_next_round.vr1 = True
+                            print('1')
+                        elif detail_bagan.vr2 and pemenang == 'ao':
+                            detailbagan_next_round.vr1 = True
+                            print('2')
+                    else:
                         detailbagan_next_round.atlet2 = winner_atlet
+                        if detail_bagan.vr1 and pemenang == 'aka':
+                            detailbagan_next_round.vr2 = True
+                            print('3')
+                        elif detail_bagan.vr2 and pemenang == 'ao':
+                            detailbagan_next_round.vr2 = True
+                            print('4')
 
                 detail_bagan.save()
                 detailbagan_next_round.save()
