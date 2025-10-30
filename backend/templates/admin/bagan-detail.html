@@ -501,7 +501,7 @@ h2 {
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
                   <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 30%;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -518,7 +518,7 @@ h2 {
                   <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
   {{ detail_bagan.kata2 }}
 </span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 30%;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -542,7 +542,7 @@ h2 {
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
                   <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 40%;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -559,7 +559,7 @@ h2 {
                   <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
   {{ detail_bagan.kata2 }}
 </span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 40%; margin-bottom: -10px;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -582,7 +582,7 @@ h2 {
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
                   <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 40%; margin-bottom: -10px;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -599,7 +599,7 @@ h2 {
                   <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
   {{ detail_bagan.kata2 }}
 </span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 40%; margin-bottom: -10px;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -621,7 +621,7 @@ h2 {
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
                   <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 40%; margin-bottom: -10px;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
@@ -638,7 +638,7 @@ h2 {
                   <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
   {{ detail_bagan.kata2 }}
 </span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
+                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 40%; margin-bottom: -10px;">{% endif %}</span>
                 </td>
               </tbody>
             </table>
