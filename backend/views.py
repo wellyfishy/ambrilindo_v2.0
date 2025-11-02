@@ -291,10 +291,13 @@ def admin_dashboard(request, event_pk):
                 if not detail_bagan.atlet1:
                     atlet = detail_bagan.atlet2
                     detail_bagan.atlet2 = None
+                    detail_bagan.vr2 = False
                 elif not detail_bagan.atlet2:
                     atlet = detail_bagan.atlet1
                     detail_bagan.atlet1 = None
+                    detail_bagan.vr1 = False
 
+                print(target_field)
                 if atlet:
                     setattr(new_detail_bagan, target_field, atlet)
 
@@ -522,8 +525,11 @@ def admin_dashboard(request, event_pk):
 
                                         if target_field == 'atlet1':
                                             detail_bagan.atlet1 = atlet
+                                            detail_bagan.vr1 = True
+
                                         elif target_field == 'atlet2':
                                             detail_bagan.atlet2 = atlet
+                                            detail_bagan.vr2 = True
 
                                         detail_bagan.save()
 
@@ -565,8 +571,10 @@ def admin_dashboard(request, event_pk):
 
                                     if eligible_field == 'atlet1':
                                         detail_bagan.atlet1 = atlet
+                                        detail_bagan.vr1 = True
                                     else:
                                         detail_bagan.atlet2 = atlet
+                                        detail_bagan.vr2 = True
 
                                     detail_bagan.save()
                                     atlets_temp.remove(atlet)
@@ -610,12 +618,19 @@ def admin_dashboard(request, event_pk):
                             if not detail_bagan.atlet1:
                                 atlet = detail_bagan.atlet2
                                 detail_bagan.atlet2 = None
+                                detail_bagan.vr2 = False
                             elif not detail_bagan.atlet2:
                                 atlet = detail_bagan.atlet1
                                 detail_bagan.atlet1 = None
+                                detail_bagan.vr1 = False
 
                             if atlet:
                                 setattr(new_detail_bagan, target_field, atlet)
+                                # enable next player's VR based on slot
+                                if target_field == 'atlet1':
+                                    new_detail_bagan.vr1 = True
+                                elif target_field == 'atlet2':
+                                    new_detail_bagan.vr2 = True
 
                             detail_bagan.save()
                             new_detail_bagan.save()
@@ -645,11 +660,23 @@ def admin_dashboard(request, event_pk):
                                 if target_detail and (not target_detail.atlet1 or not target_detail.atlet2):
                                     setattr(new_detail_bagan, target_slot, detail_bagan.atlet1)
                                     detail_bagan.atlet1 = None
+                                    detail_bagan.vr1 = False
+                                    if target_slot == 'atlet1':
+                                        new_detail_bagan.vr1 = True
+                                    elif target_slot == 'atlet2':
+                                        new_detail_bagan.vr2 = True
+
                             elif not detail_bagan.atlet1:
                                 target_detail = DetailBagan.objects.filter(bagan=bagan, round=1, urutan=round1_b).first()
                                 if target_detail and (not target_detail.atlet1 or not target_detail.atlet2):
                                     setattr(new_detail_bagan, target_slot, detail_bagan.atlet2)
                                     detail_bagan.atlet2 = None
+                                    detail_bagan.vr2 = False
+                                    if target_slot == 'atlet1':
+                                        new_detail_bagan.vr1 = True
+                                    elif target_slot == 'atlet2':
+                                        new_detail_bagan.vr2 = True
+
 
                             detail_bagan.save()
                             new_detail_bagan.save()
@@ -663,12 +690,17 @@ def admin_dashboard(request, event_pk):
                                     new_detail_bagan = DetailBagan.objects.create(bagan=bagan, round=4, urutan=1)
 
                                 if not detail_bagan.atlet2:
+                                    detail_bagan.vr1 = False
                                     if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=2).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=2).first().atlet2:
                                         new_detail_bagan.atlet1 = detail_bagan.atlet1
+                                        new_detail_bagan.vr1 = True
                                         detail_bagan.atlet1 = None
+                                        
                                 elif not detail_bagan.atlet1:
+                                    detail_bagan.vr2 = False
                                     if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=1).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=1).first().atlet2:
                                         new_detail_bagan.atlet1 = detail_bagan.atlet2
+                                        new_detail_bagan.vr1 = True
                                         detail_bagan.atlet2 = None
                                 
                                 detail_bagan.save()
@@ -680,13 +712,18 @@ def admin_dashboard(request, event_pk):
                                     new_detail_bagan = DetailBagan.objects.create(bagan=bagan, round=4, urutan=1)
 
                                 if not detail_bagan.atlet2:
+                                    detail_bagan.vr1 = False
                                     if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=4).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=4).first().atlet2:
                                         new_detail_bagan.atlet2 = detail_bagan.atlet1
+                                        new_detail_bagan.vr2 = True
                                         detail_bagan.atlet1 = None
                                 elif not detail_bagan.atlet1:
+                                    detail_bagan.vr2 = False
                                     if not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=3).first().atlet1 or not DetailBagan.objects.filter(bagan=bagan, round=2, urutan=3).first().atlet2:
                                         new_detail_bagan.atlet2 = detail_bagan.atlet2
+                                        new_detail_bagan.vr2 = True
                                         detail_bagan.atlet2 = None
+                                        
                                 
                                 detail_bagan.save()
                                 new_detail_bagan.save()
@@ -1078,20 +1115,20 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
     aka_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=0).first()
     ao_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=1).first()
 
-    if bagan.pool == 1 and not detail_bagan.selesai:
-        if detail_bagan.round == 1:
-            detail_bagan.vr1 = True
-            detail_bagan.vr2 = True
+    # if bagan.pool == 1 and not detail_bagan.selesai:
+    #     if detail_bagan.round == 1:
+    #         detail_bagan.vr1 = True
+    #         detail_bagan.vr2 = True
 
-        elif detail_bagan.round == 3:
-            detail_bagan.vr1 = True
-            detail_bagan.vr2 = True
+    #     elif detail_bagan.round == 3:
+    #         detail_bagan.vr1 = True
+    #         detail_bagan.vr2 = True
 
-        elif detail_bagan.round == 4:
-            detail_bagan.vr1 = True
-            detail_bagan.vr2 = True
+    #     elif detail_bagan.round == 4:
+    #         detail_bagan.vr1 = True
+    #         detail_bagan.vr2 = True
 
-        detail_bagan.save()
+    #     detail_bagan.save()
 
     if not aka_score_obj:
         aka_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=0)
