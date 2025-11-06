@@ -994,10 +994,12 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
         "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 else None,
         "atlet_red_utusan": detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 else None,
         "atlet_red_kata": detail_bagan.kata1 if detail_bagan.kata1 else None,
+        "atlet_red_vr": detail_bagan.vr1 if detail_bagan.vr1 else None,
         "atlet_blue": detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else None,
         "atlet_blue_perguruan": detail_bagan.atlet2.perguruan.nama_perguruan if detail_bagan.atlet2 else None,
         "atlet_blue_utusan": detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
         "atlet_blue_kata": detail_bagan.kata2 if detail_bagan.kata2 else None,
+        "atlet_blue_vr": detail_bagan.vr2 if detail_bagan.vr2 else None,
         "tipe_tanding": bagan.tipe_tanding,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding,
     }

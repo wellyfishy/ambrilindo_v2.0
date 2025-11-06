@@ -90,6 +90,11 @@
       font-weight: bold;
     }
 
+    .aka-vr {
+      width: 7%;
+      margin-right: 3vw;
+    } 
+
     .aka-score {
       display: flex;
       align-items: center;
@@ -105,10 +110,17 @@
       font-size: 7.5em;
       font-weight: bold;
       color: red;
-      margin-right: 50px;
+      margin-right: 100px;
+      margin-left: -50px;
+      padding-right: -50px;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-      display: none
+      visibility: hidden
     }
+
+    .ao-vr {
+      width: 7%;
+      margin-right: 3vw;
+    } 
 
     .ao-score {
       display: flex;
@@ -125,9 +137,10 @@
       font-size: 7.5em;
       font-weight: bold;
       color: blue;
-      margin-right: 50px;
+      margin-right: 100px;
+      margin-left: -50px;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-      display: none
+      visibility: hidden;
     }
 
     .footer {
@@ -209,12 +222,13 @@
                     <div class="country" id="atlet_red_country">-</div>
                     <div class="kata" id="kata-aka">0 - Blank</div>
                 </div>
-                <span class="aka-senshu" id="aka-senshu">
-                  o
-                </span>
+                <img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" class="aka-vr" id="aka-vr">
                 <div class="aka-score" id="aka-score">
                   0
                 </div>
+                <span class="aka-senshu" id="aka-senshu">
+                  o
+                </span>
             </div>
             
             <div class="criteria-row" name="criteria">
@@ -234,12 +248,13 @@
                     <div class="country" id="atlet_blue_country">-</div>
                     <div class="kata" id="kata-ao">0 - Blank</div>
                 </div>
-                <span class="ao-senshu" id="ao-senshu">
-                  o
-                </span>
+                <img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" class="ao-vr" id="ao-vr">
                 <div class="ao-score" id="ao-score">
                   0
                 </div>
+                <span class="ao-senshu" id="ao-senshu">
+                  o
+                </span>
             </div>
             <div class="criteria-row" name="criteria">
                 <div class="criteria" id="aoc1">C1</div>
@@ -406,13 +421,13 @@
         ao_criteria--;
       } else if (data.command == 'senshu') {
         if (data.details == 'aka-senshu') {
-          $('#aka-senshu').css('display', 'inline') 
+          $('#aka-senshu').css('visibility', 'visible') 
         } else if (data.details == 'aka-remove-senshu') {
-          $('#aka-senshu').css('display', 'none') 
+          $('#aka-senshu').css('visibility', 'hidden') 
         } else if (data.details == 'ao-senshu') {
-          $('#ao-senshu').css('display', 'inline') 
+          $('#ao-senshu').css('visibility', 'visible') 
         } else if (data.details == 'ao-remove-senshu') {
-          $('#ao-senshu').css('display', 'none') 
+          $('#ao-senshu').css('visibility', 'hidden') 
         }
       }
 
@@ -499,6 +514,14 @@
             div.classList.remove('deactivate');
           });
         }
+        document.getElementById('aka-vr').style.visibility = 'hidden';
+        if (data.details.atlet_red_vr) {
+          document.getElementById('aka-vr').style.visibility = 'visible';
+        }
+        document.getElementById('ao-vr').style.visibility = 'hidden';
+        if (data.details.atlet_blue_vr) {
+          document.getElementById('ao-vr').style.visibility = 'visible';
+        }
         document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
         document.getElementById('atlet_red_name').innerText = data.details.atlet_red
         document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
@@ -524,8 +547,8 @@
         isRunning = false;
         isShowing = false;
 
-        $('#aka-senshu').css('display', 'none') 
-        $('#ao-senshu').css('display', 'none') 
+        $('#aka-senshu').css('visibility', 'hidden') 
+        $('#ao-senshu').css('visibility', 'hidden') 
 
         for (let i = 1; i <= 5; i++) {
           $(`#akac${i}`).removeClass('active-red');
