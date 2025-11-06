@@ -429,6 +429,16 @@
         } else if (data.details == 'ao-remove-senshu') {
           $('#ao-senshu').css('visibility', 'hidden') 
         }
+      } else if (data.command == 'vr') {
+        if (data.details == 'aka-vr') {
+          $('#aka-vr').css('visibility', 'visible') 
+        } else if (data.details == 'aka-remove-vr') {
+          $('#aka-vr').css('visibility', 'hidden') 
+        } else if (data.details == 'ao-vr') {
+          $('#ao-vr').css('visibility', 'visible') 
+        } else if (data.details == 'ao-remove-vr') {
+          $('#ao-vr').css('visibility', 'hidden') 
+        }
       }
 
       function aka_banner(score1, score2) {
