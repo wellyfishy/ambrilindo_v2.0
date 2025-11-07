@@ -364,7 +364,16 @@
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
                                         {% if detail_bagan.vr1 %}
-                                        <button class="btn btn-success">Request</button>
+                                        <div class="dropdown" style="display: inline-block;">
+                                            <button type="button" class="btn btn-success dropdown-toggle" id="aka-vr-button">
+                                                +
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="aka-vr-button">
+                                                <li><button type="button" style="font-size: 20px;" id="aka-request" class="dropdown-item">Request</button></li>
+                                                <li><button type="button" style="font-size: 20px;" id="aka-accept" class="dropdown-item">Accept</button></li>
+                                                <li><button type="button" style="font-size: 20px;" id="aka-decline" class="dropdown-item">Decline</button></li>
+                                            </ul>
+                                        </div>
                                         {% else %}
                                         <button class="btn btn-light" disabled>Unavailable</button>
                                         {% endif %}
@@ -377,7 +386,16 @@
                                     </td>
                                     <td style="text-align: center; font-size: 20px;">
                                         {% if detail_bagan.vr2 %}
-                                        <input class="form-check-input" type="checkbox" name="ao-vr-request" id="ao-vr-request" style="transform: scale(2);">
+                                        <div class="dropdown" style="display: inline-block;">
+                                            <button type="button" class="btn btn-success dropdown-toggle" id="ao-vr-button">
+                                                +
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="ao-vr-button">
+                                                <li><button type="button" style="font-size: 20px;" id="ao-request" class="dropdown-item">Request</button></li>
+                                                <li><button type="button" style="font-size: 20px;" id="ao-accept" class="dropdown-item">Accept</button></li>
+                                                <li><button type="button" style="font-size: 20px;" id="ao-decline" class="dropdown-item">Decline</button></li>
+                                            </ul>
+                                        </div>
                                         {% else %}
                                         <button class="btn btn-light" disabled>Unavailable</button>
                                         {% endif %}
@@ -530,280 +548,206 @@
         });
     })
 
-    $('#aka-senshu').on('change', function() {
+    $('#aka-request').on('click', function() {
+        kirim_vr('aka-request')
+    })
+    $('#aka-accept').on('click', function() {
+        kirim_vr('aka-accept')
+    })
+    $('#aka-decline').on('click', function() {
+        kirim_vr('aka-decline')
+        $('#aka-vr').prop('checked', false)
+        kirim_vr('aka-remove-vr')
+    })
+    $('#ao-request').on('click', function() {
+        kirim_vr('ao-request')
+    })
+    $('#ao-accept').on('click', function() {
+        kirim_vr('ao-accept')
+    })
+    $('#ao-decline').on('click', function() {
+        kirim_vr('ao-decline')
+        $('#ao-vr').prop('checked', false)
+        kirim_vr('ao-remove-vr')
+    })
+    $('#aka-vr').on('change', function() {
         if ($(this).is(':checked')) {
-            console.log('Checkbox is checked:', $(this).val());
-            type = 'aka-senshu'
+            kirim_vr('aka-vr')
         } else {
-            console.log('Checkbox is unchecked');
-            type = 'aka-remove-senshu'
+            kirim_vr('aka-remove-vr')
         }
+    })
+    $('#ao-vr').on('change', function() {
+        if ($(this).is(':checked')) {
+            kirim_vr('ao-vr')
+        } else {
+            kirim_vr('ao-remove-vr')
+        }
+    })
+
+    function kirim_vr(vr_value) {
         $.ajax({
             url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
-                action: 'senshu',
-                details: type,
+                action: 'vr',
+                details: vr_value,
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });
+    }
+
+    $('#aka-senshu').on('change', function() {
+        if ($(this).is(':checked')) {
+            kirim_senshu('aka-senshu')
+        } else {
+            kirim_senshu('aka-remove-senshu')
+        }
     })
 
     $('#ao-senshu').on('change', function() {
         if ($(this).is(':checked')) {
-            console.log('Checkbox is checked:', $(this).val());
-            type = 'ao-senshu'
+            kirim_senshu('ao-senshu')
         } else {
-            console.log('Checkbox is unchecked');
-            type = 'ao-remove-senshu'
+            kirim_senshu('ao-remove-senshu')
         }
+    })
+
+    function kirim_senshu(senshu_value) {
         $.ajax({
             url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'senshu',
-                details: type,
+                details: senshu_value,
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });
-    })
-
-    $('#aka-vr').on('change', function() {
-        if ($(this).is(':checked')) {
-            console.log('Checkbox is checked:', $(this).val());
-            type = 'aka-vr'
-        } else {
-            console.log('Checkbox is unchecked');
-            type = 'aka-remove-vr'
-        }
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'vr',
-                details: type,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-
-    $('#ao-vr').on('change', function() {
-        if ($(this).is(':checked')) {
-            console.log('Checkbox is checked:', $(this).val());
-            type = 'ao-vr'
-        } else {
-            console.log('Checkbox is unchecked');
-            type = 'ao-remove-vr'
-        }
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'vr',
-                details: type,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
+    }
 
     $('#aka-score-dec').on('click', function() {
         if (aka_score != 0) {
             aka_score--;
-            $.ajax({
-                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-                type: 'POST',
-                data: {
-                    action: 'aka-score-dec',
-                    details: '',
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-            });
+            score('aka-score-dec')
         }
         $('#aka-score').val(aka_score)
     })
-
     $('#aka-yuko').on('click', function() {
         aka_score += 1;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'aka-yuko',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('aka-yuko')
         $('#aka-score').val(aka_score)
     })
-
     $('#aka-wazaari').on('click', function() {
         aka_score += 2;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'aka-wazaari',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('aka-wazaari')
         $('#aka-score').val(aka_score)
     })
-
     $('#aka-ippon').on('click', function() {
         aka_score += 3;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'aka-ippon',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('aka-ippon')
         $('#aka-score').val(aka_score)
     })
-
     $('#aka-criteria-dec').on('click', function() {
         if (aka_criteria != 0) {
             aka_criteria--;
-            $.ajax({
-                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-                type: 'POST',
-                data: {
-                    action: 'aka-criteria-dec',
-                    details: '',
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-            });
+            score('aka-criteria-dec')
         }
         $('#aka-criteria').val(aka_criteria)
     })
-
     $('#aka-criteria-inc').on('click', function() {
         aka_criteria++;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'aka-criteria-inc',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('aka-criteria-inc')
         $('#aka-criteria').val(aka_criteria)
     })
-
     $('#ao-score-dec').on('click', function() {
         if (ao_score != 0) {
             ao_score--;
-            $.ajax({
-                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-                type: 'POST',
-                data: {
-                    action: 'ao-score-dec',
-                    details: '',
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-            });
+            score('ao-score-dec')
         }
         $('#ao-score').val(ao_score)
     })
-
     $('#ao-yuko').on('click', function() {
         ao_score += 1;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'ao-yuko',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('ao-yuko')
         $('#ao-score').val(ao_score)
     })
-
     $('#ao-wazaari').on('click', function() {
         ao_score += 2;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'ao-wazaari',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('ao-wazaari')
         $('#ao-score').val(ao_score)
     })
-
     $('#ao-ippon').on('click', function() {
         ao_score += 3;
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'ao-ippon',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        score('ao-ippon')
         $('#ao-score').val(ao_score)
     })
-
     $('#ao-criteria-dec').on('click', function() {
         if (ao_criteria != 0) {
             ao_criteria--;
-            $.ajax({
-                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-                type: 'POST',
-                data: {
-                    action: 'ao-criteria-dec',
-                    details: '',
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-            });
+            score('ao-criteria-dec')
         }
         $('#ao-criteria').val(ao_criteria)
     })
-
     $('#ao-criteria-inc').on('click', function() {
         ao_criteria++;
+        score('ao-criteria-inc')
+        $('#ao-criteria').val(ao_criteria)
+    })
+
+    function score(value) {
         $.ajax({
             url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
-                action: 'ao-criteria-inc',
+                action: value,
                 details: '',
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });
-        $('#ao-criteria').val(ao_criteria)
-    })
+    } 
 
-    $('#kata-kirim').on('click', function() {
-        var kataAka = $('#kata-aka').val();
-        var kataAo = $('#kata-ao').val();
+    $('#kata-aka').on('change', function() {
+        kata_val = $('#kata-aka').val()
         $.ajax({
             url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
-                action: 'kata-kirim',
-                details: JSON.stringify([kataAka, kataAo]),
+                action: 'aka-kata-kirim',
+                details: kata_val,
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
-        });
-
-        $.ajax({
+         });
+         $.ajax({
             url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
-                action: 'kata-kirim',
-                details: JSON.stringify([kataAka, kataAo]),
+                action: 'aka-kata-kirim',
+                details: kata_val,
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
-        });
+         });
+    })
+
+    $('#kata-ao').on('change', function() {
+        kata_val = $('#kata-ao').val()
+        $.ajax({
+            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-kata-kirim',
+                details: kata_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+         });
+         $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-kata-kirim',
+                details: kata_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+         });
     })
 
     $('#tampilkan-score').on('click', function() {
@@ -830,50 +774,33 @@
     $('#timer-increment').on('click', function() {
         totalSeconds++;
         updateDisplay(totalSeconds, milliseconds);
-
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'timer-increment',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        timer_func('timer-increment', '')
     })
-
     $('#timer-decrement').on('click', function() {
         totalSeconds--;
         updateDisplay(totalSeconds, milliseconds);
-
-        $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'timer-decrement',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        timer_func('timer-decrement', '')
     })
-
     $('#timer-choice').on('change', function () {
         if (!isRunning) {
             totalSeconds = parseInt($(this).val());
             milliseconds = 0;
             updateDisplay(totalSeconds, milliseconds);
-
-            $.ajax({
-                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
-                type: 'POST',
-                data: {
-                    action: 'timer-change',
-                    details: totalSeconds,
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-            });
+            timer_func('timer-change', totalSeconds)
         }
     });
+
+    function timer_func(value1, value2) {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: value1,
+                details: value2,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    }
 
     $('#start-timer').on('click', function () {
         const status = isRunning ? 'pause' : 'start';

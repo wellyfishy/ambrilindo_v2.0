@@ -274,28 +274,13 @@
                 const data = JSON.parse(e.data);
                 console.log(data.command, data.details)
 
-                if (data.command == 'kata-kirim') {
-                    const detailsArray = JSON.parse(data.details);
-                    $('#kata-aka').text(detailsArray[0])
-                    $('#kata-ao').text(detailsArray[1])
+                if (data.command == 'aka-kata-kirim') {
+                    $('#kata-aka').text(data.details)
+                } else if (data.command == 'ao-kata-kirim') {
+                    $('#kata-ao').text(data.details)
                 }
 
                 if (data.command == 'pemenang') {
-                    // if (juriNumber == 1) {
-                    //     if (data.details == 'aka') {
-                    //         $('#aka-winner').css('display', 'inline')
-                    //         $('#ao-winner').css('display', 'none')
-                    //     } else if (data.details == 'ao') {
-                    //         $('#ao-winner').css('display', 'inline')
-                    //         $('#aka-winner').css('display', 'none')
-                    //     }
-                    // }
-                    // const detailsArray = JSON.parse(data.details);
-                    // var pemenang = detailsArray[0]
-                    // var totalAka = detailsArray[1]
-                    // var totalAo = detailsArray[2]
-                    // console.log(pemenang, totalAka, totalAo)
-
                     if (data.details == 'aka') {
                         $('#aka-winner').css('display', 'inline')
                         $('#ao-winner').css('display', 'none')
@@ -303,7 +288,6 @@
                         $('#ao-winner').css('display', 'inline')
                         $('#aka-winner').css('display', 'none')
                     }
-                    
                 }
             }
             const akaKirimScore = $('#akaKirimScore');

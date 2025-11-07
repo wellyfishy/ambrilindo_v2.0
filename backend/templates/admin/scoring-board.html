@@ -203,6 +203,7 @@
 </head>
 <body>  
     <div class="container">
+      
       <div class="fullscreen-banner" id="banner" style="display: none">
         <h1 style="text-align: center; font-size: 400%;">
           <span id="point-1">
@@ -214,6 +215,7 @@
         </h1>
         <br>
       </div>
+
         <div class="player">
             <div class="player-main">
                 <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
@@ -311,12 +313,28 @@
     }
   }
 
+  vr_status = false
+
   socket.onmessage = function(e) {
       const data = JSON.parse(e.data);
       console.log(data.command, data.details)
 
       if (data.command == 'get_atlet') {
         reset()
+      } else if (data.command == 'vr') {
+        if (data.details == 'aka-request') {
+          aka_vr_on('VIDEO REVIEW', 'REQUESTED')
+        } else if (data.details == 'aka-accept') {
+          aka_vr_on('VIDEO REVIEW', 'ACCEPTED')
+        } else if (data.details == 'aka-decline') {
+          aka_vr_on('VIDEO REVIEW', 'DECLINED')
+        } else if (data.details == 'ao-request') {
+          ao_vr_on('VIDEO REVIEW', 'REQUESTED')
+        } else if (data.details == 'ao-accept') {
+          ao_vr_on('VIDEO REVIEW', 'ACCEPTED')
+        } else if (data.details == 'ao-decline') {
+          ao_vr_on('VIDEO REVIEW', 'DECLINED')
+        }
       } else if (data.command == 'timer-change') {
         if (!isRunning) {
           totalSeconds = data.details;
@@ -351,10 +369,10 @@
           $('#ao-score').text('0')
           isShowing = false
         }
-      } else if (data.command == 'kata-kirim') {
-        const detailsArray = JSON.parse(data.details);
-        $('#kata-aka').text(detailsArray[0])
-        $('#kata-ao').text(detailsArray[1])
+      } else if (data.command == 'aka-kata-kirim') {
+        $('#kata-aka').text(data.details)
+      } else if (data.command == 'ao-kata-kirim') {
+        $('#kata-ao').text(data.details)
       } else if (data.command == 'aka-yuko') {
         aka_score += 1;
         $('#aka-score').text(aka_score)
@@ -438,6 +456,77 @@
           $('#ao-vr').css('visibility', 'visible') 
         } else if (data.details == 'ao-remove-vr') {
           $('#ao-vr').css('visibility', 'hidden') 
+        }
+      }
+
+      function aka_vr_on(value1, value2) {
+        $('#point-1').text(value1)
+        $('#point-2').text(value2)
+        $('#point-2').css({
+          backgroundColor: 'orange',
+          borderRadius: '10px',
+          padding: '10px'
+        });
+        if (vr_status == false) {
+          if (data.details == 'aka-request') {
+            $('#banner').css({
+              'background-color': 'red',
+              'position': 'absolute',
+              'display': '',
+            });
+            vr_status = true
+          }
+        } else {
+          if (data.details == 'aka-request') {
+            $('#banner').css('display', 'none');
+            $('#point-2').css({backgroundColor: ''});
+          } else if (data.details == 'aka-accept' || data.details == 'aka-decline') {
+            if (data.details == 'aka-accept') {
+              $('#point-2').css({backgroundColor: '#006400'});
+            } else if (data.details == 'aka-decline') {
+              $('#point-2').css({backgroundColor: '#B22222'});
+            }
+            setTimeout(function () {
+              $('#banner').css('display', 'none');
+              $('#point-2').css({backgroundColor: ''});
+            }, 3000);
+          }
+          vr_status = false
+        }
+      }
+      function ao_vr_on(value1, value2) {
+        $('#point-1').text(value1)
+        $('#point-2').text(value2)
+        $('#point-2').css({
+          backgroundColor: 'orange',
+          borderRadius: '10px',
+          padding: '10px'
+        });
+        if (vr_status == false) {
+          if (data.details == 'ao-request') {
+            $('#banner').css({
+              'background-color': '#3498db',
+              'position': 'absolute',
+              'display': '',
+            });
+            vr_status = true
+          }
+        } else {
+          if (data.details == 'ao-request') {
+            $('#banner').css('display', 'none');
+            $('#point-2').css({backgroundColor: ''});
+          } else if (data.details == 'ao-accept' || data.details == 'ao-decline') {
+            if (data.details == 'ao-accept') {
+              $('#point-2').css({backgroundColor: '#006400'});
+            } else if (data.details == 'ao-decline') {
+              $('#point-2').css({backgroundColor: '#B22222'});
+            }
+            setTimeout(function () {
+              $('#banner').css('display', 'none');
+              $('#point-2').css({backgroundColor: ''});
+            }, 3000);
+          }
+          vr_status = false
         }
       }
 
