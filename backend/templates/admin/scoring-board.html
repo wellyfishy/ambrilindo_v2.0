@@ -188,6 +188,14 @@
         display: none;
     }
 
+    #banner-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 75vh;
+      width: 100%;
+      position: absolute;
+    }
+
     .fullscreen-banner {
       height: 75vh;
       width: 100%;
@@ -196,24 +204,38 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 3rem;
-      position: absolute;
+      text-align: center;
+      font-size: 5vw;
+      line-height: 1;
+    }
+
+    .fullscreen-banner #point-2-2 {
+      font-size: 4.5vw;
+      margin-top: -5vw;
+    }
+
+    .fullscreen-banner #point-2 {
+      font-size: 4.5vw;
+      margin-top: -0.3em;
     }
   </style>
 </head>
 <body>  
     <div class="container">
-      
-      <div class="fullscreen-banner" id="banner" style="display: none">
-        <h1 style="text-align: center; font-size: 400%;">
-          <span id="point-1">
-            NULL
-          </span> <br>
-          <span id="point-2">
-            0 - POINT
-          </span>
-        </h1>
-        <br>
+      <div id="banner-wrap">
+        <div class="fullscreen-banner" id="banner" style="display: none;">
+          <h1>
+            <span id="point-1">NULL</span><br>
+            <span id="point-2">0 - POINT</span>
+          </h1>
+        </div>
+
+        <div class="fullscreen-banner" id="banner-2" style="display: none;">
+          <h1>
+            <span id="point-1-2">NULL</span><br>
+            <span id="point-2-2">0 - POINT</span>
+          </h1>
+        </div>
       </div>
 
         <div class="player">
@@ -314,26 +336,63 @@
   }
 
   vr_status = false
+  let aka_state = 'off';
+  let ao_state = 'off';
 
   socket.onmessage = function(e) {
       const data = JSON.parse(e.data);
       console.log(data.command, data.details)
+
+      function aka_point(value1, value2) {
+
+      }
 
       if (data.command == 'get_atlet') {
         reset()
       } else if (data.command == 'vr') {
         if (data.details == 'aka-request') {
           aka_vr_on('VIDEO REVIEW', 'REQUESTED')
-        } else if (data.details == 'aka-accept') {
-          aka_vr_on('VIDEO REVIEW', 'ACCEPTED')
+        } else if (data.details == 'aka-accept-1') {
+          aka_vr_on('VR +1 POINT', 'ACCEPTED')
+        } else if (data.details == 'aka-accept-2') {
+          aka_vr_on('VR +2 POINT', 'ACCEPTED')
+        } else if (data.details == 'aka-accept-3') {
+          aka_vr_on('VR +3 POINT', 'ACCEPTED')
         } else if (data.details == 'aka-decline') {
-          aka_vr_on('VIDEO REVIEW', 'DECLINED')
+          aka_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
         } else if (data.details == 'ao-request') {
           ao_vr_on('VIDEO REVIEW', 'REQUESTED')
-        } else if (data.details == 'ao-accept') {
-          ao_vr_on('VIDEO REVIEW', 'ACCEPTED')
+        } else if (data.details == 'ao-accept-1') {
+          ao_vr_on('VR +1 POINT', 'ACCEPTED')
+        } else if (data.details == 'ao-accept-2') {
+          ao_vr_on('VR +2 POINT', 'ACCEPTED')
+        } else if (data.details == 'ao-accept-3') {
+          ao_vr_on('VR +3 POINT', 'ACCEPTED')
         } else if (data.details == 'ao-decline') {
-          ao_vr_on('VIDEO REVIEW', 'DECLINED')
+          ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
+        }
+      } else if (data.command === 'mouse') {
+        var arr = JSON.parse(data.details); 
+        var a = arr[0];
+        var b = arr[1];
+        if (a == 'Aka Yuko') {
+          score_banner('1 POINT', 'YUKO')
+        }
+        function score_banner(value1, value2) {
+          $('#point-1').text(value1);
+          $('#point-2').text(value2);
+
+          $('#banner').css('display', a ? '' : 'none');
+          $('#banner').css('background-color', a ? 'red' : '');
+          $('#banner-2').css('display', b ? '' : 'none');
+          $('#banner-2').css('background-color', b ? '#3498db' : '');
+          if (a && b) {
+            $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+            $('.fullscreen-banner h1').css('font-size','4vw');
+          } else {
+            $('#banner-wrap').css('grid-template-columns','1fr');
+            $('.fullscreen-banner h1').css('font-size','10vw');
+          }
         }
       } else if (data.command == 'timer-change') {
         if (!isRunning) {
@@ -459,82 +518,137 @@
         }
       }
 
-      function aka_vr_on(value1, value2) {
-        $('#point-1').text(value1)
-        $('#point-2').text(value2)
-        $('#point-2').css({
-          backgroundColor: 'orange',
-          borderRadius: '10px',
-          padding: '10px'
-        });
-        if (vr_status == false) {
-          if (data.details == 'aka-request') {
-            $('#banner').css({
-              'background-color': 'red',
-              'position': 'absolute',
-              'display': '',
-            });
-            vr_status = true
-          }
+      if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
+      if (data.details === 'aka-accept-1')   aka_vr_on(data.v1, data.v2, 'accept');
+      if (data.details === 'aka-accept-2')   aka_vr_on(data.v1, data.v2, 'accept');
+      if (data.details === 'aka-accept-3')   aka_vr_on(data.v1, data.v2, 'accept');
+      if (data.details === 'aka-decline')  aka_vr_on(data.v1, data.v2, 'decline');
+
+      if (data.details === 'ao-request')   ao_vr_on(data.v1, data.v2, 'request');
+      if (data.details === 'ao-accept-1')   ao_vr_on(data.v1, data.v2, 'accept');
+      if (data.details === 'ao-accept-2')   ao_vr_on(data.v1, data.v2, 'accept');
+      if (data.details === 'ao-accept-3')   ao_vr_on(data.v1, data.v2, 'accept');
+      if (data.details === 'ao-decline')   ao_vr_on(data.v1, data.v2, 'decline');
+      
+
+      function updateLayout() {
+        const b1 = (aka_state === 'pending');
+        const b2 = (ao_state === 'pending');
+
+        $('#banner').css('display', b1 ? '' : 'none');
+        $('#banner-2').css('display', b2 ? '' : 'none');
+
+        if (b1 && b2) {
+          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+          $('.fullscreen-banner h1').css('font-size','4vw');
         } else {
-          if (data.details == 'aka-request') {
-            $('#banner').css('display', 'none');
-            $('#point-2').css({backgroundColor: ''});
-          } else if (data.details == 'aka-accept' || data.details == 'aka-decline') {
-            if (data.details == 'aka-accept') {
-              $('#point-2').css({backgroundColor: '#006400'});
-            } else if (data.details == 'aka-decline') {
-              $('#point-2').css({backgroundColor: '#B22222'});
-            }
-            setTimeout(function () {
-              $('#banner').css('display', 'none');
-              $('#point-2').css({backgroundColor: ''});
-            }, 3000);
-          }
-          vr_status = false
+          $('#banner-wrap').css('grid-template-columns','1fr');
+          $('.fullscreen-banner h1').css('font-size','10vw');
         }
       }
-      function ao_vr_on(value1, value2) {
-        $('#point-1').text(value1)
-        $('#point-2').text(value2)
-        $('#point-2').css({
-          backgroundColor: 'orange',
-          borderRadius: '10px',
-          padding: '10px'
-        });
-        if (vr_status == false) {
-          if (data.details == 'ao-request') {
-            $('#banner').css({
-              'background-color': '#3498db',
-              'position': 'absolute',
-              'display': '',
-            });
-            vr_status = true
-          }
-        } else {
-          if (data.details == 'ao-request') {
-            $('#banner').css('display', 'none');
-            $('#point-2').css({backgroundColor: ''});
-          } else if (data.details == 'ao-accept' || data.details == 'ao-decline') {
-            if (data.details == 'ao-accept') {
-              $('#point-2').css({backgroundColor: '#006400'});
-            } else if (data.details == 'ao-decline') {
-              $('#point-2').css({backgroundColor: '#B22222'});
-            }
-            setTimeout(function () {
-              $('#banner').css('display', 'none');
-              $('#point-2').css({backgroundColor: ''});
-            }, 3000);
-          }
-          vr_status = false
+
+      function tryResolve() {
+        const activeCount =
+          (aka_state === 'pending' || aka_state === 'resolved' ? 1 : 0) +
+          (ao_state === 'pending' || ao_state === 'resolved' ? 1 : 0);
+
+        const resolvedCount =
+          (aka_state === 'resolved' ? 1 : 0) +
+          (ao_state === 'resolved' ? 1 : 0);
+
+        if (activeCount === 1 && resolvedCount === 1) {
+          showResolved();
+          return;
+        }
+
+        if (activeCount === 2 && resolvedCount === 2) {
+          showResolved();
+          return;
         }
       }
+
+      function showResolved() {
+        $('#vr-status-msg').css('display','');
+
+        setTimeout(() => {
+          $('#vr-status-msg').css('display','none');
+          aka_state = 'off';
+          ao_state = 'off';
+          $('#point-2').css({backgroundColor:''});
+          $('#point-2-2').css({backgroundColor:''});
+          updateLayout();
+        }, 3000);
+      }
+
+      function aka_vr_on(v1, v2, action) {
+        $('#point-1').text(v1);
+        $('#point-2').text(v2);
+
+        if (action === 'request') {
+          if (aka_state === 'pending') {
+            aka_state = 'off';
+            updateLayout();
+            return;
+          }
+          aka_state = 'pending';
+          $('#banner').css({backgroundColor:'red'});
+          updateLayout();
+          return;
+        }
+
+        if (action === 'accept') {
+          $('#point-2').css({backgroundColor:'#006400'});
+          aka_state = 'resolved';
+          tryResolve();
+          return;
+        }
+
+        if (action === 'decline') {
+          $('#point-2').css({backgroundColor:'#000'});
+          aka_state = 'resolved';
+          tryResolve();
+          return;
+        }
+      }
+
+      function ao_vr_on(v1, v2, action) {
+        $('#point-1-2').text(v1);
+        $('#point-2-2').text(v2);
+
+        if (action === 'request') {
+          if (ao_state === 'pending') {
+            ao_state = 'off';
+            updateLayout();
+            return;
+          }
+          ao_state = 'pending';
+          $('#banner-2').css({backgroundColor:'#3498db'});
+          updateLayout();
+          return;
+        }
+
+        if (action === 'accept') {
+          $('#point-2-2').css({backgroundColor:'#006400'});
+          ao_state = 'resolved';
+          tryResolve();
+          return;
+        }
+
+        if (action === 'decline') {
+          $('#point-2-2').css({backgroundColor:'#000'});
+          ao_state = 'resolved';
+          tryResolve();
+          return;
+        }
+      }
+
+
 
       function aka_banner(score1, score2) {
         $('#banner').css({
             'background-color': 'red',
             'position': 'absolute',
-            'display': ''
+            'display': '',
         });
 
         $('#point-1').text(score1)

@@ -6,6 +6,16 @@
     display: block;
     margin-top: 0;
 }
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu .dropdown-menu {
+  top: 0;
+  left: 100%;
+}
+.dropdown-menu .dropdown-item {
+  font-size: 24px;
+}
 </style>
 {% endblock style %}
 
@@ -370,7 +380,14 @@
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="aka-vr-button">
                                                 <li><button type="button" style="font-size: 20px;" id="aka-request" class="dropdown-item">Request</button></li>
-                                                <li><button type="button" style="font-size: 20px;" id="aka-accept" class="dropdown-item">Accept</button></li>
+                                                <li class="dropdown-submenu">
+                                                    <button type="button" id="aka-accept" class="dropdown-item dropdown-toggle">Accept</button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><button type="button" class="dropdown-item" id="aka-accept-1">Accept +1</button></li>
+                                                        <li><button type="button" class="dropdown-item" id="aka-accept-2">Accept +2</button></li>
+                                                        <li><button type="button" class="dropdown-item" id="aka-accept-3">Accept +3</button></li>
+                                                    </ul>
+                                                </li>
                                                 <li><button type="button" style="font-size: 20px;" id="aka-decline" class="dropdown-item">Decline</button></li>
                                             </ul>
                                         </div>
@@ -392,7 +409,14 @@
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="ao-vr-button">
                                                 <li><button type="button" style="font-size: 20px;" id="ao-request" class="dropdown-item">Request</button></li>
-                                                <li><button type="button" style="font-size: 20px;" id="ao-accept" class="dropdown-item">Accept</button></li>
+                                                <li class="dropdown-submenu">
+                                                    <button type="button" id="ao-accept" class="dropdown-item dropdown-toggle">Accept</button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><button type="button" class="dropdown-item" id="ao-accept-1">Accept +1</button></li>
+                                                        <li><button type="button" class="dropdown-item" id="ao-accept-2">Accept +2</button></li>
+                                                        <li><button type="button" class="dropdown-item" id="ao-accept-3">Accept +3</button></li>
+                                                    </ul>
+                                                </li>
                                                 <li><button type="button" style="font-size: 20px;" id="ao-decline" class="dropdown-item">Decline</button></li>
                                             </ul>
                                         </div>
@@ -423,6 +447,11 @@
 <script>
     $('.select2').select2({
         width: '100%'
+    });
+    $(document).on('click', '.dropdown-submenu > .dropdown-toggle', function(e){
+        $(this).next('.dropdown-menu').toggle();
+        e.stopPropagation();
+        e.preventDefault();
     });
 
     let interval = null;
@@ -551,8 +580,14 @@
     $('#aka-request').on('click', function() {
         kirim_vr('aka-request')
     })
-    $('#aka-accept').on('click', function() {
-        kirim_vr('aka-accept')
+    $('#aka-accept-1').on('click', function() {
+        kirim_vr('aka-accept-1')
+    })
+    $('#aka-accept-2').on('click', function() {
+        kirim_vr('aka-accept-2')
+    })
+    $('#aka-accept-3').on('click', function() {
+        kirim_vr('aka-accept-3')
     })
     $('#aka-decline').on('click', function() {
         kirim_vr('aka-decline')
@@ -562,8 +597,14 @@
     $('#ao-request').on('click', function() {
         kirim_vr('ao-request')
     })
-    $('#ao-accept').on('click', function() {
-        kirim_vr('ao-accept')
+    $('#ao-accept-1').on('click', function() {
+        kirim_vr('ao-accept-1')
+    })
+    $('#ao-accept-2').on('click', function() {
+        kirim_vr('ao-accept-2')
+    })
+    $('#ao-accept-3').on('click', function() {
+        kirim_vr('ao-accept-3')
     })
     $('#ao-decline').on('click', function() {
         kirim_vr('ao-decline')
