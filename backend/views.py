@@ -113,7 +113,7 @@ def message_retriever_control(request, tatami_pk):
         action = request.POST.get('action')
         details = request.POST.get('details')
 
-        group_name = f"cp_{tatami_pk}"
+        group_name = f"admin_control_{tatami_pk}"
         channel_layer = get_channel_layer()
 
         async_to_sync(channel_layer.group_send)(

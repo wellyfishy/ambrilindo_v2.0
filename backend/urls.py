@@ -24,6 +24,5 @@ urlpatterns = [
     path('admin-rekapan/<int:event_pk>', admin_rekapan, name="admin-rekapan"),
     path('scoring-board/<int:tatami_pk>/message-retriever', message_retriever, name="message-retriever"),
     path('jury-panel/<int:tatami_pk>/message-retriever', message_retriever_jury, name="message-retriever-jury"),
-    path('cp/<int:tatami_pk>/message-retriever', message_retriever_control, name="message-retriever-control"),
     path('control-panel/<int:detailbagan_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
 ]
