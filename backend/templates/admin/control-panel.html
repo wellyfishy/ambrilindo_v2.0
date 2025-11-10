@@ -350,6 +350,63 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">
+                            Histori Score Mouse Stick 
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-warning" id="ms-reset" style="font-size: 25px;">Tutup Banner Score X</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="text-align: center;">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="text-align: center;">Timer</th>
+                                    <th scope="col" style="text-align: center;">J1</th>
+                                    <th scope="col" style="text-align: center;">J2</th>
+                                    <th scope="col" style="text-align: center;">J3</th>
+                                    <th scope="col" style="text-align: center;">J4</th>
+                                    <th scope="col" style="text-align: center;">Score Aka</th>
+                                    <th scope="col" style="text-align: center;">Score Ao</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>00:00</td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <span id="j1-aka">-</span>
+                                        /
+                                        <span id="j1-ao">-</span>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <span id="j2-aka">-</span>
+                                        /
+                                        <span id="j2-ao">-</span>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <span id="j3-aka">-</span>
+                                        /
+                                        <span id="j3-ao">-</span>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <span id="j4-aka">-</span>
+                                        /
+                                        <span id="j4-ao">-</span>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <span id="ms-aka">-</span>
+                                    </td>
+                                    <td style="text-align: center; font-size: 20px;">
+                                        <span id="ms-ao">-</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -577,6 +634,17 @@
         });
     })
 
+    $('#ms-reset').on('click', function() {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'reset-banner',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
     $('#aka-request').on('click', function() {
         kirim_vr('aka-request')
     })

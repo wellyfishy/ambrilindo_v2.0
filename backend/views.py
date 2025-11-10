@@ -107,6 +107,27 @@ def message_retriever_admin(request, detailbagan_pk):
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'error': 'Invalid method'}, status=405)
 
+@csrf_exempt
+def message_retriever_control(request, tatami_pk):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        details = request.POST.get('details')
+
+        group_name = f"cp_{tatami_pk}"
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
+        )
+
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
 def logoutfunc(request):
     logout(request)
     return redirect('auth')
