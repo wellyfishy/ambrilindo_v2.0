@@ -44,6 +44,9 @@ def auth(request):
                 messages.error(request, "Event tidak ditemukan.")
                 return redirect('auth')
         else:
+            adm_control = Tatami.objects.filter(event__pk=username, tatami_number=password).first()
+            if adm_control:
+                return redirect('admin-control', tatami_pk=adm_control.pk)
             messages.error(request, "Username atau password salah!")
             return redirect('auth')
         
@@ -52,6 +55,17 @@ def auth(request):
     }
         
     return render(request, 'auth/auth.html', context)
+
+def admin_control(request, tatami_pk):
+    tatami = Tatami.objects.get(pk=tatami_pk)
+    event = tatami.event
+    nama = 'Welly Setia Rahman'
+    context = {
+        'tatami': tatami,
+        'event': event,
+        'nama': nama,
+    }
+    return render(request, 'jury/admin-control.html', context)
 
 def jury_panel(request, tatami_pk):
     jury = Jury.objects.get(user=request.user)

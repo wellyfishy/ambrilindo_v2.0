@@ -499,6 +499,8 @@
 <script>
     // Put the Django variable into a global JS variable
     const tatamiPk = "{{ admin_tatami.tatami.pk }}";
+    let milliseconds = 0;
+    let totalSeconds = 0;
 </script>
 <script src="{% static 'mouse.js' %}"></script>
 <script>
@@ -512,8 +514,6 @@
     });
 
     let interval = null;
-    let milliseconds = 0;
-    let totalSeconds = 0;
     let isRunning = false;
     let tampilkan = false;
 

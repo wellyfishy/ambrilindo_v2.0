@@ -49,6 +49,7 @@ function keySend(keys) {
     console.log("Aka Result:", akaResult);
     console.log("Ao Result:", aoResult);
     const url = `/scoring-board/${tatamiPk}/message-retriever`;
+    const url2 = `/admin-control/${tatamiPk}/message-retriever`;
 
     $.ajax({
         url: url,
@@ -56,6 +57,16 @@ function keySend(keys) {
         data: {
             action: 'mouse',
             details: JSON.stringify([akaResult, aoResult]),
+            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+        },
+    });
+
+    $.ajax({
+        url: url2,
+        type: 'POST',
+        data: {
+            action: 'mouse',
+            details: JSON.stringify([akaResult, aoResult, keys, totalSeconds, milliseconds]),
             csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
         },
     });

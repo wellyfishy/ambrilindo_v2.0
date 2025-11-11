@@ -24,6 +24,29 @@ class ScoreboardConsumer(AsyncWebsocketConsumer):
             "details": event["details"]
         }))
 
+class AdminControlConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.tatami_pk = self.scope['url_route']['kwargs']['tatami_pk']
+        self.group_name = f"admin_control_{self.tatami_pk}"
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def broadcast_command(self, event):
+        await self.send(text_data=json.dumps({
+            "command": event["message"],
+            "details": event["details"]
+        }))
+
 class ControlPanelConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.event_pk = self.scope['url_route']['kwargs']['event_pk']

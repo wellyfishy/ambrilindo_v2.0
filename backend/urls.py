@@ -7,6 +7,7 @@ urlpatterns = [
     path('scoring-board/<int:tatami_pk>', scoring_board, name="scoring-board"),
     path('logout', logoutfunc, name="logout"),
     path('admin-dashboard/<int:event_pk>', admin_dashboard, name="admin-dashboard"),
+    path('admin-control/<int:tatami_pk>', admin_control, name="admin-control"),
     path('admin-dashboard/<int:event_pk>/tambah-bagan/<int:nomor_tanding_pk>', tambah_bagan, name="tambah-bagan"),
     path('admin-dashboard/<int:event_pk>/tambah-bagan/<int:nomor_tanding_pk>/referchange', tambah_bagan_referchange, name="tambah-bagan-referchange"),
     path('admin-dashboard/<int:event_pk>/tambah-bagan/<int:nomor_tanding_pk>/round-robin', tambah_bagan_round_robin, name="tambah-bagan-round-robin"),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('admin-perguruan/<int:event_pk>', admin_perguruan, name="admin-perguruan"),
     path('admin-rekapan/<int:event_pk>', admin_rekapan, name="admin-rekapan"),
     path('scoring-board/<int:tatami_pk>/message-retriever', message_retriever, name="message-retriever"),
+    path('admin-control/<int:tatami_pk>/message-retriever', message_retriever_control, name="message-retriever-control"),
     path('jury-panel/<int:tatami_pk>/message-retriever', message_retriever_jury, name="message-retriever-jury"),
     path('control-panel/<int:detailbagan_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
 ]
