@@ -1,7 +1,8 @@
 let pressedKeys = new Set();
-let timer = null;
+let roundTimer = null;
+const TIMER_DURATION = 3000; // 5 seconds
 
-function keySend(keys) {
+function sendKeyState(keys) {
     const aka_1 = ['a', 'g', 'n', 's'];
     const aka_2 = ['b', 'h', 'm', 't'];
     const aka_3 = ['c', 'i', 'o', 'u'];
@@ -15,7 +16,6 @@ function keySend(keys) {
     const countAka1 = count(aka_1);
     const countAka2 = count(aka_2);
     const countAka3 = count(aka_3);
-
     const countAo1 = count(ao_1);
     const countAo2 = count(ao_2);
     const countAo3 = count(ao_3);
@@ -23,7 +23,6 @@ function keySend(keys) {
     let akaResult = "";
     let aoResult = "";
 
-    // Aka results
     if (countAka3 >= 2) akaResult = "Aka Ippon";
     else if (countAka2 >= 2) akaResult = "Aka Waza-ari";
     else if (countAka1 >= 2) akaResult = "Aka Yuko";
@@ -34,7 +33,6 @@ function keySend(keys) {
     else if (countAka2 === 1 && countAka1 === 1)
         akaResult = "Aka Waza-ari";
 
-    // Ao results
     if (countAo3 >= 2) aoResult = "Ao Ippon";
     else if (countAo2 >= 2) aoResult = "Ao Waza-ari";
     else if (countAo1 >= 2) aoResult = "Ao Yuko";
@@ -45,71 +43,8 @@ function keySend(keys) {
     else if (countAo2 === 1 && countAo1 === 1)
         aoResult = "Ao Waza-ari";
 
-    console.log("Keys pressed:", keys);
-    console.log("Aka Result:", akaResult);
-    console.log("Ao Result:", aoResult);
     const url = `/scoring-board/${tatamiPk}/message-retriever`;
     const url2 = `/admin-control/${tatamiPk}/message-retriever`;
-
-    const tbody = document.querySelector('#ms-table tbody');
-
-    let j1aka = '-', j2aka = '-', j3aka = '-', j4aka = '-';
-    let j1ao = '-', j2ao = '-', j3ao = '-', j4ao = '-';
-
-    if (keys.includes('a')) j1aka = '1';
-    else if (keys.includes('b')) j1aka = '2';
-    else if (keys.includes('c')) j1aka = '3';
-
-    else if (keys.includes('d')) j1ao = '1';
-    else if (keys.includes('e')) j1ao = '2';
-    else if (keys.includes('f')) j1ao = '3';
-
-    if (keys.includes('g')) j2aka = '1';
-    else if (keys.includes('h')) j2aka = '2';
-    else if (keys.includes('i')) j2aka = '3';
-
-    else if (keys.includes('j')) j2ao = '1';
-    else if (keys.includes('k')) j2ao = '2';
-    else if (keys.includes('l')) j2ao = '3';
-
-    if (keys.includes('n')) j3aka = '1';
-    else if (keys.includes('m')) j3aka = '2';
-    else if (keys.includes('o')) j3aka = '3';
-
-    else if (keys.includes('p')) j3ao = '1';
-    else if (keys.includes('q')) j3ao = '2';
-    else if (keys.includes('r')) j3ao = '3';
-
-    if (keys.includes('s')) j4aka = '1';
-    else if (keys.includes('t')) j4aka = '2';
-    else if (keys.includes('u')) j4aka = '3';
-
-    else if (keys.includes('v')) j4ao = '1';
-    else if (keys.includes('w')) j4ao = '2';
-    else if (keys.includes('x')) j4ao = '3';
-
-    var min = Math.floor(totalSeconds / 60);
-    var sec = totalSeconds % 60;
-    if (sec < 10) {
-        sec = `0${sec}`
-    }
-    var ms = milliseconds || 0;
-    if (ms < 10) {
-        ms = `0${ms}`
-    }
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td><span>0${min}</span> : <span>${sec}</span> : <span>${ms}</span></td>
-        <td style="text-align:center;"><b><span style="color: red">${j1aka}</span> / <span style="color: blue">${j2ao}</span></b></td>
-        <td style="text-align:center;"><b><span style="color: red">${j2aka}</span> / <span style="color: blue">${j1ao}</span></b></td>
-        <td style="text-align:center;"><b><span style="color: red">${j3aka}</span> / <span style="color: blue">${j3ao}</span></b></td>
-        <td style="text-align:center;"><b><span style="color: red">${j4aka}</span> / <span style="color: blue">${j4ao}</span></b></td>
-        <td style="text-align:center;"><b><span style="color: red">${akaResult}</span></b></td>
-        <td style="text-align:center;"><b><span style="color: blue">${aoResult}</span></b></td>
-    `;
-    tbody.prepend(tr);
-
 
     $.ajax({
         url: url,
@@ -131,23 +66,10 @@ function keySend(keys) {
         },
     });
 
-    // Clear keys after processing
-    pressedKeys.clear();
-    timer = null; // reset timer
+    console.log(`Sent state: ${keys.join(", ")}`);
 }
 
-function startTimer() {
-    // Only start the timer once
-    if (!timer) {
-        timer = setTimeout(() => {
-            if (pressedKeys.size > 0) {
-                keySend([...pressedKeys]);
-            }
-        }, 1250);
-    }
-}
-
-// Conflict keys dictionary
+// Remove conflicting keys
 const conflictGroups = [
     { a: ['b', 'c', 'd', 'e', 'f'], b: ['a', 'c', 'd', 'e', 'f'], c: ['a', 'b', 'd', 'e', 'f'] },
     { d: ['a', 'b', 'c', 'e', 'f'], e: ['a', 'b', 'c', 'd', 'f'], f: ['a', 'b', 'c', 'd', 'e'] },
@@ -159,26 +81,29 @@ const conflictGroups = [
     { v: ['s', 't', 'u', 'w', 'x'], w: ['s', 't', 'u', 'v', 'x'], x: ['s', 't', 'u', 'v', 'w'] }
 ];
 
-// Key press handler
 document.addEventListener("keydown", (e) => {
     const key = e.key.toLowerCase();
-
-    // Only letters
     if (!/^[a-z]$/.test(key)) return;
 
-    if (!pressedKeys.has(key)) {
-        pressedKeys.add(key);
-
-        // Remove conflicting keys
-        for (const group of conflictGroups) {
-            if (group[key]) {
-                for (const conflictKey of group[key]) {
-                    pressedKeys.delete(conflictKey);
-                }
+    // Add new key and remove conflicts
+    pressedKeys.add(key);
+    for (const group of conflictGroups) {
+        if (group[key]) {
+            for (const conflictKey of group[key]) {
+                pressedKeys.delete(conflictKey);
             }
         }
+    }
 
-        console.log("Current keys:", [...pressedKeys]);
-        startTimer(); // timer starts only once
+    // Send immediately on each press
+    sendKeyState([...pressedKeys]);
+
+    // Start round timer if not running
+    if (!roundTimer) {
+        roundTimer = setTimeout(() => {
+            console.log("Timer expired — clearing keys");
+            pressedKeys.clear();
+            roundTimer = null;
+        }, TIMER_DURATION);
     }
 });
