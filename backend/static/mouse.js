@@ -51,6 +51,66 @@ function keySend(keys) {
     const url = `/scoring-board/${tatamiPk}/message-retriever`;
     const url2 = `/admin-control/${tatamiPk}/message-retriever`;
 
+    const tbody = document.querySelector('#ms-table tbody');
+
+    let j1aka = '-', j2aka = '-', j3aka = '-', j4aka = '-';
+    let j1ao = '-', j2ao = '-', j3ao = '-', j4ao = '-';
+
+    if (keys.includes('a')) j1aka = '1';
+    else if (keys.includes('b')) j1aka = '2';
+    else if (keys.includes('c')) j1aka = '3';
+
+    else if (keys.includes('d')) j1ao = '1';
+    else if (keys.includes('e')) j1ao = '2';
+    else if (keys.includes('f')) j1ao = '3';
+
+    if (keys.includes('g')) j2aka = '1';
+    else if (keys.includes('h')) j2aka = '2';
+    else if (keys.includes('i')) j2aka = '3';
+
+    else if (keys.includes('j')) j2ao = '1';
+    else if (keys.includes('k')) j2ao = '2';
+    else if (keys.includes('l')) j2ao = '3';
+
+    if (keys.includes('n')) j3aka = '1';
+    else if (keys.includes('m')) j3aka = '2';
+    else if (keys.includes('o')) j3aka = '3';
+
+    else if (keys.includes('p')) j3ao = '1';
+    else if (keys.includes('q')) j3ao = '2';
+    else if (keys.includes('r')) j3ao = '3';
+
+    if (keys.includes('s')) j4aka = '1';
+    else if (keys.includes('t')) j4aka = '2';
+    else if (keys.includes('u')) j4aka = '3';
+
+    else if (keys.includes('v')) j4ao = '1';
+    else if (keys.includes('w')) j4ao = '2';
+    else if (keys.includes('x')) j4ao = '3';
+
+    var min = Math.floor(totalSeconds / 60);
+    var sec = totalSeconds % 60;
+    if (sec < 10) {
+        sec = `0${sec}`
+    }
+    var ms = milliseconds || 0;
+    if (ms < 10) {
+        ms = `0${ms}`
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td><span>0${min}</span> : <span>${sec}</span> : <span>${ms}</span></td>
+        <td style="text-align:center;"><b><span style="color: red">${j1aka}</span> / <span style="color: blue">${j2ao}</span></b></td>
+        <td style="text-align:center;"><b><span style="color: red">${j2aka}</span> / <span style="color: blue">${j1ao}</span></b></td>
+        <td style="text-align:center;"><b><span style="color: red">${j3aka}</span> / <span style="color: blue">${j3ao}</span></b></td>
+        <td style="text-align:center;"><b><span style="color: red">${j4aka}</span> / <span style="color: blue">${j4ao}</span></b></td>
+        <td style="text-align:center;"><b><span style="color: red">${akaResult}</span></b></td>
+        <td style="text-align:center;"><b><span style="color: blue">${aoResult}</span></b></td>
+    `;
+    tbody.prepend(tr);
+
+
     $.ajax({
         url: url,
         type: 'POST',

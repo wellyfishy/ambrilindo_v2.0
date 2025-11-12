@@ -207,20 +207,74 @@
       text-align: center;
       font-size: 5vw;
       line-height: 1;
+      flex-direction: column;
     }
 
     .fullscreen-banner #point-2-2 {
       font-size: 4.5vw;
-      margin-top: -5vw;
+      margin-top: -100px;
     }
 
     .fullscreen-banner #point-2 {
       font-size: 4.5vw;
-      margin-top: -0.3em;
+      margin-top: -100px;
+    }
+
+    .fullscreen-banner h1, #aka-flags {
+      display: inline-block;
+    }
+
+    #aka-flags, #ao-flags {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 10px;
+    }
+    #aka-flags img, #ao-flags img {
+      width: 100px; /* adjust size */
+      height: auto;
+    }
+
+    .flag-stroke {
+      display: block;
+      width: 80px;              /* adjust size as needed */
+      margin: 5px auto;         /* center under the score */
+      filter: drop-shadow(0 0 2px white)
+              drop-shadow(0 0 2px white)
+              drop-shadow(0 0 2px white);
+    }
+
+    .judges-container {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      margin-top: 20px;
+    }
+    .judge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .judge-flags {
+      display: flex;
+      gap: 10px;
+    }
+    .judge-flags img {
+      width: 100px;
+      height: auto;
+    }
+    .judge-count {
+      margin-top: 5px;
+      font-size: 5vw;
+      color: white;
     }
   </style>
 </head>
 <body>  
+    <div style="display: none">
+      <img src="{% static 'img/ambrilindo/aka_flag.png' %}" alt="" id="aka_flag">
+      <img src="{% static 'img/ambrilindo/ao_flag.png' %}" alt="" id="ao_flag">
+    </div>
     <div class="container">
       <div id="banner-wrap">
         <div class="fullscreen-banner" id="banner" style="display: none;">
@@ -228,6 +282,7 @@
             <span id="point-1">NULL</span><br>
             <span id="point-2">0 - POINT</span>
           </h1>
+          <div id="aka-judges-container" class="judges-container"></div>
         </div>
 
         <div class="fullscreen-banner" id="banner-2" style="display: none;">
@@ -235,6 +290,7 @@
             <span id="point-1-2">NULL</span><br>
             <span id="point-2-2">0 - POINT</span>
           </h1>
+          <div id="ao-judges-container" class="judges-container"></div>
         </div>
       </div>
 
@@ -308,6 +364,7 @@
   const tatamiPk = {{ tatami.pk }};
   const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
   const socket = new WebSocket(protocol + window.location.host + `/ws/scoring-board/${tatamiPk}`);
+  const socket1 = new WebSocket(protocol + window.location.host + `/ws/admin-control/${tatamiPk}`);
   const warning = new Audio("{% static 'sound/warning.mp3' %}");
   const finish = new Audio("{% static 'sound/finish.mp3' %}");
   let warningVal = false
@@ -338,6 +395,74 @@
   vr_status = false
   let aka_state = 'off';
   let ao_state = 'off';
+
+  socket1.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const details = JSON.parse(data.details);
+    const codes = details[2] || [];
+    let bendera_merah = 0;
+    let bendera_biru = 0;
+
+    codes.forEach(c => {
+      if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
+      if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
+    });
+
+    renderJudges(bendera_merah, bendera_biru);
+  };
+
+  function renderJudges(redCount, blueCount) {
+    const akaContainer = document.getElementById('aka-judges-container');
+    const aoContainer = document.getElementById('ao-judges-container');
+    const akaFlag = document.getElementById('aka_flag').src;
+    const aoFlag = document.getElementById('ao_flag').src;
+
+    akaContainer.innerHTML = '';
+    aoContainer.innerHTML = '';
+
+    // Aka (red)
+    const akaJudgeDiv = document.createElement('div');
+    akaJudgeDiv.classList.add('judge');
+    const akaFlagsDiv = document.createElement('div');
+    akaFlagsDiv.classList.add('judge-flags');
+
+    for (let i = 0; i < redCount; i++) {
+      const img = document.createElement('img');
+      img.src = akaFlag;
+      img.classList.add('flag-stroke');
+      akaFlagsDiv.appendChild(img);
+    }
+
+    const akaCountText = document.createElement('span');
+    akaCountText.classList.add('judge-count');
+    akaCountText.textContent = `${redCount} Judge${redCount > 1 ? 's' : ''}`;
+
+    akaJudgeDiv.appendChild(akaFlagsDiv);
+    akaJudgeDiv.appendChild(akaCountText);
+    akaContainer.appendChild(akaJudgeDiv);
+
+    // Ao (blue)
+    const aoJudgeDiv = document.createElement('div');
+    aoJudgeDiv.classList.add('judge');
+    const aoFlagsDiv = document.createElement('div');
+    aoFlagsDiv.classList.add('judge-flags');
+
+    for (let i = 0; i < blueCount; i++) {
+      const img = document.createElement('img');
+      img.src = aoFlag;
+      img.classList.add('flag-stroke');
+      aoFlagsDiv.appendChild(img);
+    }
+
+    const aoCountText = document.createElement('span');
+    aoCountText.classList.add('judge-count');
+    aoCountText.textContent = `${blueCount} Judge${blueCount > 1 ? 's' : ''}`;
+
+    aoJudgeDiv.appendChild(aoFlagsDiv);
+    aoJudgeDiv.appendChild(aoCountText);
+    aoContainer.appendChild(aoJudgeDiv);
+  }
+
 
   socket.onmessage = function(e) {
       const data = JSON.parse(e.data);

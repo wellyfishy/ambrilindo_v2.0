@@ -59,11 +59,9 @@ def auth(request):
 def admin_control(request, tatami_pk):
     tatami = Tatami.objects.get(pk=tatami_pk)
     event = tatami.event
-    nama = 'Welly Setia Rahman'
     context = {
         'tatami': tatami,
         'event': event,
-        'nama': nama,
     }
     return render(request, 'jury/admin-control.html', context)
 
