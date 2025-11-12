@@ -516,6 +516,15 @@
         var a = arr[0];
         var b = arr[1];
 
+        if (a && b) {
+          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+          $('.fullscreen-banner h1').css('font-size','4vw');
+        } else {
+          reset_banners()
+          $('#banner-wrap').css('grid-template-columns','1fr');
+          $('.fullscreen-banner h1').css('font-size','10vw');
+        }
+
         if (a === 'Aka Yuko') {
           
           $('#point-1').text('1 - POINT');
@@ -552,14 +561,6 @@
           $('#point-1-2').text('3 - POINT');
           $('#point-2-2').text('IPPON');
           $('#banner-2').show().css('background-color','#3498db');
-        }
-
-        if (a && b) {
-          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-          $('.fullscreen-banner h1').css('font-size','4vw');
-        } else {
-          $('#banner-wrap').css('grid-template-columns','1fr');
-          $('.fullscreen-banner h1').css('font-size','10vw');
         }
 
       } else if (data.command == 'reset-banner') {
@@ -613,7 +614,7 @@
       } else if (data.command == 'aka-ippon') {
         aka_score += 3;
         $('#aka-score').text(aka_score)
-        aka_banner('3 - POINT', 'IPOPN')
+        aka_banner('3 - POINT', 'IPPON')
       } else if (data.command == 'aka-score-dec') {
         aka_score--;
         $('#aka-score').text(aka_score)
@@ -888,6 +889,8 @@
       }
 
       function reset() {
+        reset_banners()
+        
         if (data.details.tipe_tanding == '1') {
           document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
             div.classList.add('deactivate');
