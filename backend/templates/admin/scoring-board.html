@@ -493,12 +493,6 @@
     $('#banner').css({ backgroundColor: '', display: 'none' });
     $('#banner-2').css({ backgroundColor: '', display: 'none' });
 
-    $('#banner-wrap').css('grid-template-columns','1fr');
-    $('.fullscreen-banner h1').css('font-size','10vw');
-
-    aka_state = 'off';
-    ao_state = 'off';
-
     resetRenderJudges()
   }
 
@@ -840,11 +834,9 @@
       function aka_banner(score1, score2) {
         reset_banners()
 
-        $('#banner').css({
-            'background-color': 'red',
-            'position': 'absolute',
-            'display': '',
-        });
+        $('#banner').show().css('background-color','red');
+        $('#banner-wrap').css('grid-template-columns','1fr');
+        $('.fullscreen-banner h1').css('font-size','10vw');
 
         $('#point-1').text(score1)
         $('#point-2').text(score2)
@@ -857,14 +849,12 @@
       function ao_banner(score1, score2) {
         reset_banners()
 
-        $('#banner').css({
-            'background-color': '#3498db',
-            'position': 'absolute',
-            'display': '',
-        });
+        $('#banner-2').show().css('background-color','#3498db');
+        $('#banner-wrap').css('grid-template-columns','1fr');
+        $('.fullscreen-banner h1').css('font-size','10vw');
 
-        $('#point-1').text(score1)
-        $('#point-2').text(score2)
+        $('#point-1-2').text(score1)
+        $('#point-2-2').text(score2)
 
         setTimeout(function () {
             reset_banners()
