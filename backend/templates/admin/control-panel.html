@@ -321,6 +321,9 @@
                             Control Panel
                             {% if bagan.tipe_tanding == '1' %}
                             <button type="button" class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
+                            {% else %}
+                            | HANTEI?
+                            <input class="form-check-input" type="checkbox" name="hantei" id="hantei" style="transform: scale(2); margin-left: 10px;">
                             {% endif %}
                         </div>
                         <div class="d-flex align-items-center gap-2">
@@ -629,6 +632,25 @@
             data: {
                 action: 'bendera',
                 details: JSON.stringify([aka_bendera, ao_bendera]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#hantei').on('click', function() {
+        let hantei = 0
+        if ($(this).is(':checked')) {
+            hantei = 1
+        } else {
+            hantei = 0
+        }
+        console.log(hantei)
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'hantei',
+                details: hantei,
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });

@@ -271,6 +271,28 @@
       color: white;
       font-weight: bold;
     }
+
+    #hantei-wrap {
+      display: grid;
+      place-items: center;
+      height: 75vh;
+      width: 100%;
+      position: absolute;
+    }
+
+    .fullscreen-hantei {
+      height: 60vh;
+      width: 80%;
+      background-color: orange;
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 5vw;
+      line-height: 1;
+      flex-direction: column;
+    }
   </style>
 </head>
 <body>  
@@ -294,6 +316,16 @@
             <span id="point-2-2">0 - POINT</span>
           </h1>
           <div id="ao-judges-container" class="judges-container"></div>
+        </div>
+      </div>
+
+      <div id="hantei-wrap">
+        <div class="fullscreen-hantei" id="hantei-banner" style="display: none;">
+          <h1 style="font-weight: bold">
+            <span>HANTEI</span><br>
+            <span style="font-size: 4vw">JUDGES' DECISION</span>
+          </h1>
+          <div id="aka-judges-container" class="judges-container"></div>
         </div>
       </div>
 
@@ -398,6 +430,7 @@
   vr_status = false
   let aka_state = 'off';
   let ao_state = 'off';
+  let hantei = 0
 
   function resetRenderJudges() {
     document.getElementById('aka-judges-container').innerHTML = '';
@@ -413,22 +446,28 @@
     let bendera_merah = 0;
     let bendera_biru = 0;
 
-    if ((['Aka Yuko', 'Aka Waza-ari', 'Aka Ippon']).includes(aka)) {
+    if (hantei == 1) {
       codes.forEach(c => {
         if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
-      })
-    }
-
-    if ((['Ao Yuko', 'Ao Waza-ari', 'Ao Ippon']).includes(ao)) {
-      codes.forEach(c => {
         if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
-      })
+      });
+    } else {
+      if ((['Aka Yuko', 'Aka Waza-ari', 'Aka Ippon']).includes(aka)) {
+        codes.forEach(c => {
+          if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
+        })
+      }
+  
+      if ((['Ao Yuko', 'Ao Waza-ari', 'Ao Ippon']).includes(ao)) {
+        codes.forEach(c => {
+          if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
+        })
+      }
     }
 
     if (bendera_merah != 0 || bendera_biru != 0) {
       renderJudges(bendera_merah, bendera_biru);
-    }    
-
+    }
   };
 
   function renderJudges(redCount, blueCount) {
@@ -481,6 +520,18 @@
     aoJudgeDiv.appendChild(aoFlagsDiv);
     aoJudgeDiv.appendChild(aoCountText);
     aoContainer.appendChild(aoJudgeDiv);
+
+    if (hantei == 1) {
+      $('#point-1').hide()
+      $('#point-2').hide()
+      $('#point-1-2').hide()
+      $('#point-2-2').hide()
+      $('#hantei-banner').hide()
+      $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+      $('#banner').css({ backgroundColor: 'red', display: '' });
+      $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
+      $('.fullscreen-banner h1').css('font-size','4vw');
+    }
   }
 
 
@@ -493,6 +544,9 @@
     $('#banner').css({ backgroundColor: '', display: 'none' });
     $('#banner-2').css({ backgroundColor: '', display: 'none' });
 
+    hantei = 0;
+    $('#hantei-banner').hide()
+
     resetRenderJudges()
   }
 
@@ -502,6 +556,13 @@
 
       if (data.command == 'get_atlet') {
         reset()
+      } else if (data.command == 'hantei') {
+        hantei = data.details;
+        if (hantei == 0) {
+          $('#hantei-banner').hide()
+        } else {
+          $('#hantei-banner').show()
+        }
       } else if (data.command == 'vr') {
         resetRenderJudges()
         if (data.details == 'aka-request') {
@@ -525,10 +586,15 @@
         } else if (data.details == 'ao-decline') {
           ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
         }
-      } else if (data.command === 'mouse') {
+      } else if (data.command === 'mouse' && hantei == 0) {
         var arr = JSON.parse(data.details);
         var a = arr[0];
         var b = arr[1];
+
+        $('#point-1').show()
+        $('#point-2').show()
+        $('#point-1-2').show()
+        $('#point-2-2').show()
 
         if (a === 'Aka Yuko') {
           $('#point-1').text('1 - POINT');
@@ -568,8 +634,7 @@
           $('.fullscreen-banner h1').css('font-size','4vw');
           console.log('a & b')
         } else if (a == "" && b == "") {
-        }
-        else {
+        } else {
           $('#banner-wrap').css('grid-template-columns','1fr');
           $('.fullscreen-banner h1').css('font-size','10vw');
           if (a) {
@@ -580,7 +645,6 @@
             console.log('b')
           }
         }
-        
       } else if (data.command == 'reset-banner') {
         reset_banners()
       } else if (data.command == 'timer-change') {
