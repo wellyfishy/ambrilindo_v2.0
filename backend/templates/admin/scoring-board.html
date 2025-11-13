@@ -399,19 +399,36 @@
   let aka_state = 'off';
   let ao_state = 'off';
 
+  function resetRenderJudges() {
+    document.getElementById('aka-judges-container').innerHTML = '';
+    document.getElementById('ao-judges-container').innerHTML = '';
+  }
+
   socket1.onmessage = function(e) {
     const data = JSON.parse(e.data);
     const details = JSON.parse(data.details);
+    const aka = details[0] || [];
+    const ao = details[1] || [];
     const codes = details[2] || [];
     let bendera_merah = 0;
     let bendera_biru = 0;
 
-    codes.forEach(c => {
-      if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
-      if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
-    });
+    if ((['Aka Yuko', 'Aka Waza-ari', 'Aka Ippon']).includes(aka)) {
+      codes.forEach(c => {
+        if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
+      })
+    }
 
-    renderJudges(bendera_merah, bendera_biru);
+    if ((['Ao Yuko', 'Ao Waza-ari', 'Ao Ippon']).includes(ao)) {
+      codes.forEach(c => {
+        if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
+      })
+    }
+
+    if (bendera_merah != 0 || bendera_biru != 0) {
+      renderJudges(bendera_merah, bendera_biru);
+    }    
+
   };
 
   function renderJudges(redCount, blueCount) {
@@ -467,29 +484,32 @@
   }
 
 
+  function reset_banners() {
+    $('#point-1').text('NULL');
+    $('#point-2').text('0 - POINT');
+    $('#point-1-2').text('NULL');
+    $('#point-2-2').text('0 - POINT');
+
+    $('#banner').css({ backgroundColor: '', display: 'none' });
+    $('#banner-2').css({ backgroundColor: '', display: 'none' });
+
+    $('#banner-wrap').css('grid-template-columns','1fr');
+    $('.fullscreen-banner h1').css('font-size','10vw');
+
+    aka_state = 'off';
+    ao_state = 'off';
+
+    resetRenderJudges()
+  }
+
   socket.onmessage = function(e) {
       const data = JSON.parse(e.data);
       console.log(data.command, data.details)
 
-      function reset_banners() {
-        $('#point-1').text('NULL');
-        $('#point-2').text('0 - POINT');
-        $('#point-1-2').text('NULL');
-        $('#point-2-2').text('0 - POINT');
-
-        $('#banner').css({ backgroundColor: '', display: 'none' });
-        $('#banner-2').css({ backgroundColor: '', display: 'none' });
-
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-
-        aka_state = 'off';
-        ao_state = 'off';
-      }
-
       if (data.command == 'get_atlet') {
         reset()
       } else if (data.command == 'vr') {
+        resetRenderJudges()
         if (data.details == 'aka-request') {
           aka_vr_on('VIDEO REVIEW', 'REQUESTED')
         } else if (data.details == 'aka-accept-1') {
@@ -516,53 +536,57 @@
         var a = arr[0];
         var b = arr[1];
 
-        if (a && b) {
-          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-          $('.fullscreen-banner h1').css('font-size','4vw');
-        } else {
-          reset_banners()
-          $('#banner-wrap').css('grid-template-columns','1fr');
-          $('.fullscreen-banner h1').css('font-size','10vw');
-        }
-
         if (a === 'Aka Yuko') {
-          
           $('#point-1').text('1 - POINT');
           $('#point-2').text('YUKO');
           $('#banner').show().css('background-color','red');
         }
         else if (a === 'Aka Waza-ari') {
-          
           $('#point-1').text('2 - POINT');
           $('#point-2').text('WAZA-ARI');
           $('#banner').show().css('background-color','red');
         }
         else if (a === 'Aka Ippon') {
-          
           $('#point-1').text('3 - POINT');
           $('#point-2').text('IPPON');
           $('#banner').show().css('background-color','red');
         }
-
         if (b === 'Ao Yuko') {
-          
           $('#point-1-2').text('1 - POINT');
           $('#point-2-2').text('YUKO');
           $('#banner-2').show().css('background-color','#3498db');
         }
         else if (b === 'Ao Waza-ari') {
-          
           $('#point-1-2').text('2 - POINT');
           $('#point-2-2').text('WAZA-ARI');
           $('#banner-2').show().css('background-color','#3498db');
         }
         else if (b === 'Ao Ippon') {
-          
           $('#point-1-2').text('3 - POINT');
           $('#point-2-2').text('IPPON');
           $('#banner-2').show().css('background-color','#3498db');
         }
 
+        if (a && b) {
+          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+          $('#banner').css({ backgroundColor: 'red', display: '' });
+          $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
+          $('.fullscreen-banner h1').css('font-size','4vw');
+          console.log('a & b')
+        } else if (a == "" && b == "") {
+        }
+        else {
+          $('#banner-wrap').css('grid-template-columns','1fr');
+          $('.fullscreen-banner h1').css('font-size','10vw');
+          if (a) {
+            $('#banner-2').css({ backgroundColor: '', display: 'none' });
+            console.log('a')
+          } else if (b) {
+            $('#banner').css({ backgroundColor: '', display: 'none' });
+            console.log('b')
+          }
+        }
+        
       } else if (data.command == 'reset-banner') {
         reset_banners()
       } else if (data.command == 'timer-change') {
@@ -813,9 +837,9 @@
         }
       }
 
-
-
       function aka_banner(score1, score2) {
+        reset_banners()
+
         $('#banner').css({
             'background-color': 'red',
             'position': 'absolute',
@@ -831,6 +855,8 @@
       }
 
       function ao_banner(score1, score2) {
+        reset_banners()
+
         $('#banner').css({
             'background-color': '#3498db',
             'position': 'absolute',
@@ -889,8 +915,6 @@
       }
 
       function reset() {
-        reset_banners()
-        
         if (data.details.tipe_tanding == '1') {
           document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
             div.classList.add('deactivate');
@@ -943,6 +967,7 @@
         for (let i = 1; i <= 5; i++) {
           $(`#aoc${i}`).removeClass('active-blue');
         }
+        reset_banners()
       }
   };
 </script>
