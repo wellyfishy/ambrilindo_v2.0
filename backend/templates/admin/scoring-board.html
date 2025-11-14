@@ -293,6 +293,78 @@
       line-height: 1;
       flex-direction: column;
     }
+
+    #ms-check-wrap {
+      display: grid;
+      place-items: center;
+      height: 75vh;
+      width: 100%;
+      position: absolute;
+    }
+
+    .fullscreen-ms-check {
+      height: 75vh;
+      width: 100%;
+      background-color: orange;
+      color: black;
+      font-size: 3vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .fullscreen-ms-check table {
+      width: 100%;
+      height: 100%;
+      border-collapse: collapse;
+    }
+
+    .fullscreen-ms-check td {
+      width: 50%;
+      height: 50%;
+      padding: 0;
+      margin: 0;
+      border: 2px solid black;
+      position: relative;
+    }
+
+    /* Half-cell layout */
+    .cell-half {
+      width: 50%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.3;   /* ensures vertical spacing */
+    }
+
+    .cell-half br {
+      display: block;
+    }
+
+    .cell-half span {
+      display: inline; 
+      vertical-align: middle; 
+    }
+
+    /* Left = red */
+    .cell-half.red {
+      left: 0;
+      background-color: red;
+    }
+
+    /* Right = blue */
+    .cell-half.blue {
+      right: 0;
+      background-color: #3498db;
+    }
+
   </style>
 </head>
 <body>  
@@ -328,6 +400,174 @@
           <div id="aka-judges-container" class="judges-container"></div>
         </div>
       </div>
+
+      <div id="ms-check-wrap">
+        <div class="fullscreen-ms-check" id="ms-check-banner" style="display: none;">
+          <table>
+            <tr>
+              <td>
+                <div class="cell-half red">
+                  <div class="title">Jury 1:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="a" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="b" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="c" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+
+                <div class="cell-half blue">
+                  <div class="title">Jury 1:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="d" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="e" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="f" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="cell-half red">
+                  <div class="title">Jury 2:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="g" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="h" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="i" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+
+                <div class="cell-half blue">
+                  <div class="title">Jury 2:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="j" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="k" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="l" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cell-half red">
+                  <div class="title">Jury 3:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="n" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="m" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="o" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+
+                <div class="cell-half blue">
+                  <div class="title">Jury 3:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="p" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="q" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="r" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="cell-half red">
+                  <div class="title">Jury 4:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="s" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="t" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="u" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+
+                <div class="cell-half blue">
+                  <div class="title">Jury 4:</div>
+
+                  <div class="line">
+                    <span class="num">1</span>
+                    <span id="v" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">2</span>
+                    <span id="w" class="flag" style="display: none">✅</span>
+                  </div>
+
+                  <div class="line">
+                    <span class="num">3</span>
+                    <span id="x" class="flag" style="display: none">✅</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
 
         <div class="player">
             <div class="player-main">
@@ -431,11 +671,20 @@
   let aka_state = 'off';
   let ao_state = 'off';
   let hantei = 0
+  let ms_check = 0
 
   function resetRenderJudges() {
     document.getElementById('aka-judges-container').innerHTML = '';
     document.getElementById('ao-judges-container').innerHTML = '';
   }
+
+  function resetAllFlags() {
+    for (let code = 97; code <= 120; code++) {   // ASCII a(97) → x(120)
+        const id = String.fromCharCode(code);
+        $('#' + id).hide();
+    }
+  }
+
 
   socket1.onmessage = function(e) {
     const data = JSON.parse(e.data);
@@ -450,6 +699,15 @@
       codes.forEach(c => {
         if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
         if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
+      });
+      if (bendera_biru + bendera_merah == 4) {
+        finish.play()
+      }
+    } else if (ms_check == 1) {
+      codes.forEach(c => {
+        if (c >= 'a' && c <= 'x') {
+            $('#' + c).show();
+        }
       });
     } else {
       if ((['Aka Yuko', 'Aka Waza-ari', 'Aka Ippon']).includes(aka)) {
@@ -545,7 +803,9 @@
     $('#banner-2').css({ backgroundColor: '', display: 'none' });
 
     hantei = 0;
+    ms_check = 0;
     $('#hantei-banner').hide()
+    $('#ms-check-banner').hide()
 
     resetRenderJudges()
   }
@@ -562,6 +822,14 @@
           $('#hantei-banner').hide()
         } else {
           $('#hantei-banner').show()
+        }
+      } else if (data.command == 'ms-check') {
+        ms_check = data.details;
+        if (ms_check == 0) {
+          $('#ms-check-banner').hide()
+          resetAllFlags()
+        } else {
+          $('#ms-check-banner').show()
         }
       } else if (data.command == 'vr') {
         resetRenderJudges()
@@ -596,53 +864,57 @@
         $('#point-1-2').show()
         $('#point-2-2').show()
 
-        if (a === 'Aka Yuko') {
-          $('#point-1').text('1 - POINT');
-          $('#point-2').text('YUKO');
-          $('#banner').show().css('background-color','red');
-        }
-        else if (a === 'Aka Waza-ari') {
-          $('#point-1').text('2 - POINT');
-          $('#point-2').text('WAZA-ARI');
-          $('#banner').show().css('background-color','red');
-        }
-        else if (a === 'Aka Ippon') {
-          $('#point-1').text('3 - POINT');
-          $('#point-2').text('IPPON');
-          $('#banner').show().css('background-color','red');
-        }
-        if (b === 'Ao Yuko') {
-          $('#point-1-2').text('1 - POINT');
-          $('#point-2-2').text('YUKO');
-          $('#banner-2').show().css('background-color','#3498db');
-        }
-        else if (b === 'Ao Waza-ari') {
-          $('#point-1-2').text('2 - POINT');
-          $('#point-2-2').text('WAZA-ARI');
-          $('#banner-2').show().css('background-color','#3498db');
-        }
-        else if (b === 'Ao Ippon') {
-          $('#point-1-2').text('3 - POINT');
-          $('#point-2-2').text('IPPON');
-          $('#banner-2').show().css('background-color','#3498db');
-        }
-
-        if (a && b) {
-          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-          $('#banner').css({ backgroundColor: 'red', display: '' });
-          $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
-          $('.fullscreen-banner h1').css('font-size','4vw');
-          console.log('a & b')
-        } else if (a == "" && b == "") {
-        } else {
-          $('#banner-wrap').css('grid-template-columns','1fr');
-          $('.fullscreen-banner h1').css('font-size','10vw');
-          if (a) {
-            $('#banner-2').css({ backgroundColor: '', display: 'none' });
-            console.log('a')
-          } else if (b) {
-            $('#banner').css({ backgroundColor: '', display: 'none' });
-            console.log('b')
+        if (ms_check == 0 && hantei == 0) {
+          if (a === 'Aka Yuko') {
+            $('#point-1').text('1 - POINT');
+            $('#point-2').text('YUKO');
+            $('#banner').show().css('background-color','red');
+          }
+          else if (a === 'Aka Waza-ari') {
+            $('#point-1').text('2 - POINT');
+            $('#point-2').text('WAZA-ARI');
+            $('#banner').show().css('background-color','red');
+          }
+          else if (a === 'Aka Ippon') {
+            $('#point-1').text('3 - POINT');
+            $('#point-2').text('IPPON');
+            $('#banner').show().css('background-color','red');
+          }
+          if (b === 'Ao Yuko') {
+            $('#point-1-2').text('1 - POINT');
+            $('#point-2-2').text('YUKO');
+            $('#banner-2').show().css('background-color','#3498db');
+          }
+          else if (b === 'Ao Waza-ari') {
+            $('#point-1-2').text('2 - POINT');
+            $('#point-2-2').text('WAZA-ARI');
+            $('#banner-2').show().css('background-color','#3498db');
+          }
+          else if (b === 'Ao Ippon') {
+            $('#point-1-2').text('3 - POINT');
+            $('#point-2-2').text('IPPON');
+            $('#banner-2').show().css('background-color','#3498db');
+          }
+  
+          if (a && b) {
+            $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+            $('#banner').css({ backgroundColor: 'red', display: '' });
+            $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
+            $('.fullscreen-banner h1').css('font-size','10vw');
+            finish.play()
+            console.log('a & b')
+          } else if (a == "" && b == "") {
+          } else {
+            $('#banner-wrap').css('grid-template-columns','1fr');
+            $('.fullscreen-banner h1').css('font-size','10vw');
+            finish.play()
+            if (a) {
+              $('#banner-2').css({ backgroundColor: '', display: 'none' });
+              console.log('a')
+            } else if (b) {
+              $('#banner').css({ backgroundColor: '', display: 'none' });
+              console.log('b')
+            }
           }
         }
       } else if (data.command == 'reset-banner') {
@@ -956,6 +1228,9 @@
                 });
               } else {
                 $('#timer').css('color', 'yellow')
+                if (warningVal == true) {
+                  warningVal = false
+                }
               }
               milliseconds--;
             }
