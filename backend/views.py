@@ -151,15 +151,15 @@ def admin_dashboard(request, event_pk):
     
     bagans = Bagan.objects.filter(event=event).order_by('-pk')
     
-    count = 0
-    for bagan in bagans:
-        dbs = DetailBagan.objects.filter(bagan=bagan)
-        for db in dbs:
-            if db.atlet1:
-                count += 1
-            if db.atlet2:
-                count += 1
-    print(count)
+    # count = 0
+    # for bagan in bagans:
+    #     dbs = DetailBagan.objects.filter(bagan=bagan)
+    #     for db in dbs:
+    #         if db.atlet1:
+    #             count += 1
+    #         if db.atlet2:
+    #             count += 1
+    # print(count)
 
     custom_order = [1, 8, 4, 5, 2, 7, 3, 6]
 

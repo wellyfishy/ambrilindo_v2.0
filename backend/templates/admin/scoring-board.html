@@ -724,9 +724,16 @@
       }
     }
 
-    if (bendera_merah != 0 || bendera_biru != 0) {
-      renderJudges(bendera_merah, bendera_biru);
+    if (hantei == 0) {
+      if (bendera_merah != 0 || bendera_biru != 0) {
+        renderJudges(bendera_merah, bendera_biru);
+      }
+    } else if (hantei == 1) {
+      if (bendera_biru + bendera_merah == 4) {
+        renderJudges(bendera_merah, bendera_biru);
+      } 
     }
+    
   };
 
   function renderJudges(redCount, blueCount) {
