@@ -81,6 +81,11 @@
                         <span class="sub-item">Nomor Tanding</span>
                       </a>
                     </li>
+                    <li class="{% if on == 'roster-counter' %}active{% endif %}">
+                      <a href="{% url 'roster-counter' event_pk=event.pk %}">
+                        <span class="sub-item">Roster Counter</span>
+                      </a>
+                    </li>
                     {% if admin_tatami %}
                     <li class="">
                       <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}'); return false;">

@@ -627,6 +627,31 @@ def admin_bagan_detail_round_robin(request, event_pk, bagan_pk):
     }
     return render(request, 'admin/round-robin.html', context)
 
+def roster_counter(request, event_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
+
+
+    for bagan in bagans:
+        dbs = DetailBagan.objects.filter(bagan=bagan)
+        bagan.count = 0
+        for db in dbs:
+            if db.atlet1:
+                bagan.count += 1
+            if db.atlet2:
+                bagan.count += 1
+
+    context = {
+        'on': 'roster-counter',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagans': bagans,
+    }
+
+    return render(request, 'admin/roster-counter.html', context)
+
+
 def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()

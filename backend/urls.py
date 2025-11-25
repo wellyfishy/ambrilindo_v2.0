@@ -19,6 +19,7 @@ urlpatterns = [
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/control-panel/<int:detailbagan_pk>', control_panel, name="control-panel"),
     path('admin-atlet/<int:event_pk>', admin_atlet, name="admin-atlet"),
     path('admin-nomor-tanding/<int:event_pk>', admin_nomor_tanding, name="admin-nomor-tanding"),
+    path('roster-counter/<int:event_pk>', roster_counter, name="roster-counter"),
     path('admin-tatami/<int:event_pk>', admin_tatami, name="admin-tatami"),
     path('admin-utusan/<int:event_pk>', admin_utusan, name="admin-utusan"),
     path('admin-perguruan/<int:event_pk>', admin_perguruan, name="admin-perguruan"),
