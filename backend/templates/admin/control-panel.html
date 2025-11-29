@@ -133,6 +133,8 @@
                         <div class="card-title" style="margin-right: 10px;">
                             Control Panel
                             <button type="button" class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
+                            | Countdown
+                            <input class="form-check-input" type="checkbox" name="countdown" id="countdown" style="transform: scale(2); margin-left: 10px; margin-top: 10px;">
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <select class="form-control" id="timer-choice">
@@ -168,9 +170,6 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">
                             Kata Input
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-primary" id="kata-kirim" style="font-size: 25px;">Kirim</button>
                         </div>
                     </div>
                     <div class="card-body" style="text-align: center;">
@@ -657,6 +656,23 @@
         });
     })
 
+    $('#countdown').on('click', function() {
+        let countdown_val = 0
+        if ($(this).is(':checked')) {
+            countdown_val = 1
+        } else {
+            countdown_val = 0
+        }
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'countdown',
+                details: countdown_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
 
     $('#hantei').on('click', function() {
         let hantei = 0

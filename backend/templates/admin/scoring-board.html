@@ -281,6 +281,14 @@
       position: absolute;
     }
 
+    #countdown-wrap {
+      display: grid;
+      place-items: center;
+      height: 75vh;
+      width: 100%;
+      position: absolute;
+    }
+
     .fullscreen-hantei {
       height: 60vh;
       width: 80%;
@@ -291,6 +299,20 @@
       align-items: center;
       text-align: center;
       font-size: 5vw;
+      line-height: 1;
+      flex-direction: column;
+    }
+
+    .fullscreen-countdown {
+      height: 60vh;
+      width: 80%;
+      background-color: orange;
+      color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 7vw;
       line-height: 1;
       flex-direction: column;
     }
@@ -397,6 +419,15 @@
           <h1 style="font-weight: bold">
             <span>HANTEI</span><br>
             <span style="font-size: 4vw">JUDGES' DECISION</span>
+          </h1>
+          <div id="aka-judges-container" class="judges-container"></div>
+        </div>
+      </div>
+
+      <div id="countdown-wrap">
+        <div class="fullscreen-countdown" id="countdown-banner" style="display: none">
+          <h1 style="font-weight: bold">
+            <span id="cd-seconds">00</span>.<span id="cd-milliseconds" style="font-size: 50%;">00</span>
           </h1>
           <div id="aka-judges-container" class="judges-container"></div>
         </div>
@@ -646,6 +677,37 @@
   let warningVal = false
   {% comment %} audio.play(); {% endcomment %}
 
+  let countdownInterval = null;
+  let msInterval = null;
+
+  function startCountdown() {
+    let totalMs = 35000; // 35 seconds in ms
+
+    const secEl = document.getElementById("cd-seconds");
+    const msEl = document.getElementById("cd-milliseconds");
+
+    // Clear before starting
+    clearInterval(countdownInterval);
+    clearInterval(msInterval);
+
+    // Update every 10ms for smooth milliseconds
+    msInterval = setInterval(() => {
+      totalMs -= 10;
+
+      if (totalMs <= 0) {
+        secEl.textContent = "00";
+        msEl.textContent = "00";
+        clearInterval(msInterval);
+      } else {
+        const seconds = Math.floor(totalMs / 1000);
+        const milliseconds = Math.floor((totalMs % 1000) / 10);
+
+        secEl.textContent = String(seconds).padStart(2, "0");
+        msEl.textContent = String(milliseconds).padStart(2, "0");
+      }
+    }, 10);
+  }
+
   let interval = null;
   let milliseconds = 0;
   let totalSeconds = 0;
@@ -830,6 +892,22 @@
           $('#hantei-banner').hide()
         } else {
           $('#hantei-banner').show()
+        }
+      } else if (data.command == 'countdown') {
+        const banner = document.getElementById("countdown-banner");
+        cd_val = data.details;
+        if (cd_val == 1) {
+          banner.style.display = "";
+          startCountdown();
+        } else {
+          banner.style.display = "none";
+
+          // Stop timers
+          clearInterval(msInterval);
+
+          // Reset UI
+          document.getElementById("cd-seconds").textContent = "00";
+          document.getElementById("cd-milliseconds").textContent = "00";
         }
       } else if (data.command == 'ms-check') {
         ms_check = data.details;
