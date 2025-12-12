@@ -312,7 +312,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      font-size: 7vw;
+      font-size: 12vw;
       line-height: 1;
       flex-direction: column;
     }
@@ -392,11 +392,18 @@
 </head>
 <body>  
     <div style="display: none">
-      <img src="{% static 'img/ambrilindo/aka_flag.png' %}" alt="" id="aka_flag">
       <img src="{% static 'img/ambrilindo/ao_flag.png' %}" alt="" id="ao_flag">
+      <img src="{% static 'img/ambrilindo/aka_flag.png' %}" alt="" id="aka_flag">
     </div>
     <div class="container">
       <div id="banner-wrap">
+        <div class="fullscreen-banner" id="banner-2" style="display: none;">
+          <h1>
+            <span id="point-1-2">NULL</span><br>
+            <span id="point-2-2">0 - POINT</span>
+          </h1>
+          <div id="ao-judges-container" class="judges-container"></div>
+        </div>
         <div class="fullscreen-banner" id="banner" style="display: none;">
           <h1>
             <span id="point-1">NULL</span><br>
@@ -405,13 +412,6 @@
           <div id="aka-judges-container" class="judges-container"></div>
         </div>
 
-        <div class="fullscreen-banner" id="banner-2" style="display: none;">
-          <h1>
-            <span id="point-1-2">NULL</span><br>
-            <span id="point-2-2">0 - POINT</span>
-          </h1>
-          <div id="ao-judges-container" class="judges-container"></div>
-        </div>
       </div>
 
       <div id="hantei-wrap">
@@ -893,11 +893,29 @@
         } else {
           $('#hantei-banner').show()
         }
-      } else if (data.command == 'countdown') {
+      } else if (data.command == 'countdown-aka') {
         const banner = document.getElementById("countdown-banner");
         cd_val = data.details;
         if (cd_val == 1) {
           banner.style.display = "";
+          banner.style.backgroundColor = "red"
+          startCountdown();
+        } else {
+          banner.style.display = "none";
+
+          // Stop timers
+          clearInterval(msInterval);
+
+          // Reset UI
+          document.getElementById("cd-seconds").textContent = "00";
+          document.getElementById("cd-milliseconds").textContent = "00";
+        }
+      } else if (data.command == 'countdown-ao') {
+        const banner = document.getElementById("countdown-banner");
+        cd_val = data.details;
+        if (cd_val == 1) {
+          banner.style.display = "";
+          banner.style.backgroundColor = "#3498db"
           startCountdown();
         } else {
           banner.style.display = "none";
