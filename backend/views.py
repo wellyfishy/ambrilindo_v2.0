@@ -10,6 +10,7 @@ from asgiref.sync import async_to_sync
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from collections import defaultdict
+from itertools import groupby
 
 def auth(request):
     events = Event.objects.all().order_by('-pk')
@@ -192,6 +193,15 @@ def admin_dashboard(request, event_pk):
                         group_model = Utusan
                         group_field = 'utusan'
 
+                    # group_counts = list(
+                    #     group_model.objects.annotate(
+                    #         num_atlet=Count('atlet', filter=Q(**{f'atlet__nomor_tanding': nomor_tanding}))
+                    #     )
+                    #     .filter(num_atlet__gt=0)
+                    #     .order_by('-num_atlet')
+                    #     .values_list('id', 'num_atlet')
+                    # )
+
                     group_counts = list(
                         group_model.objects.annotate(
                             num_atlet=Count('atlet', filter=Q(**{f'atlet__nomor_tanding': nomor_tanding}))
@@ -200,6 +210,16 @@ def admin_dashboard(request, event_pk):
                         .order_by('-num_atlet')
                         .values_list('id', 'num_atlet')
                     )
+                    def shuffle_same_counts(group_counts):
+                        result = []
+                        for count, g in groupby(group_counts, key=lambda x: x[1]):
+                            block = list(g)
+                            if len(block) > 1:
+                                random.shuffle(block)
+                            result.extend(block)
+                        return result
+
+                    group_counts = shuffle_same_counts(group_counts)
 
                     atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
                     group_counts_temp = group_counts
@@ -248,6 +268,7 @@ def admin_dashboard(request, event_pk):
                         group_counts_pool_c = pools[2]
                     if perulangan >= 4:
                         group_counts_pool_d = pools[3]
+
 
                     def assign_atlets_to_pool(atlets, group_counts_pool, field_name):
                         result = []

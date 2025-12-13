@@ -475,11 +475,12 @@ h2 {
 <body>
 <!-- partial:index.partial.html -->
 <div class="container" id="print-wrapper">
-    <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
+    <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="hidden">Kembali</a>
     <form method="POST">
       {% csrf_token %}
       <h1>
-        <input type="text" name="nama_bagan" value="{{ bagan.nama_bagan }}" style="font-size: 30px;">
+        EDIT MODE
+        <input type="text" name="nama_bagan" value="{{ bagan.nama_bagan }}" style="font-size: 30px; width: 50%;">
         <button type="submit" name="submit_type" value="simpan_nama">Simpan</button>
       </h1>
     </form>

@@ -71,24 +71,43 @@
 
     .info {
       flex-grow: 1;
+      min-width: 0;
     }
 
     .name {
-      font-size: 3em;
+      font-size: 6em;
       font-weight: bold;
       color: gold;
+
+      white-space: nowrap;   
+      overflow: hidden;     
+      text-overflow: ellipsis;  
+      
+      text-shadow:
+        -2px -2px 0 #ffffffff,
+        2px -2px 0 #ffffffff,
+        -2px  2px 0 #ffffffff,
+        2px  2px 0 #ffffffff;
     }
 
     .country {
-      font-size: 3em;
+      font-size: 5em;
       color: #ccc;
       font-weight: bold;
+
+      white-space: nowrap;   
+      overflow: hidden;     
+      text-overflow: ellipsis;  
     }
 
     .kata {
-      color: gold;
-      font-size: 3em;
+      color: white;
+      font-size: 6em;
       font-weight: bold;
+
+      white-space: nowrap;   
+      overflow: hidden;     
+      text-overflow: ellipsis;
     }
 
     .aka-vr {
@@ -164,7 +183,7 @@
     }
 
     .time {
-        font-size: 15vh;
+        font-size: 17vh;
         color: white;
         font-weight: bold;
     }
@@ -1358,11 +1377,11 @@
           });
         }
         document.getElementById('aka-vr').style.visibility = 'hidden';
-        if (data.details.atlet_red_vr) {
+        if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {
           document.getElementById('aka-vr').style.visibility = 'visible';
         }
         document.getElementById('ao-vr').style.visibility = 'hidden';
-        if (data.details.atlet_blue_vr) {
+        if (data.details.atlet_blue_vr && data.details.tipe_tanding == '2') {
           document.getElementById('ao-vr').style.visibility = 'visible';
         }
         document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
@@ -1376,6 +1395,13 @@
 
         $('#kata-aka').text(data.details.atlet_red_kata)
         $('#kata-ao').text(data.details.atlet_blue_kata)
+
+        document.getElementById('kata-aka').style.visibility = 'hidden';
+        document.getElementById('kata-ao').style.visibility = 'hidden';
+        if (data.details.tipe_tanding == '1') {
+          document.getElementById('kata-aka').style.visibility = 'visible';
+          document.getElementById('kata-ao').style.visibility = 'visible';
+        }
 
         totalSeconds = 0
         milliseconds = 0

@@ -484,7 +484,11 @@ h2 {
 <body>
 <div class="container" id="print-wrapper">
     <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
-  <h1>({{ bagan.pk }}) {{ bagan.nama_bagan }} <button class="btn btn-success hidden" onclick="window.print()">Print</button></h1>
+  |
+    <a class="hidden" href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}">Edit Mode</a>
+  <h1>({{ bagan.pk }}) {{ bagan.nama_bagan }} 
+    <button class="btn btn-success hidden" onclick="window.print()">Print</button>
+  </h1>
   
   {% if not referchange %}
   <div class="tournament-bracket tournament-bracket--rounded">                                                     
