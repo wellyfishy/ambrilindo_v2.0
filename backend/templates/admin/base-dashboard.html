@@ -38,7 +38,7 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item active">
+              <li class="nav-item {% if on == 'utama' or on == 'atlet' or on == 'tatami' or on == 'nomor-tanding' %}active{% endif %}">
                 <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
@@ -61,6 +61,22 @@
                         <span class="sub-item">Tatami</span>
                       </a>
                     </li>
+                    <li class="{% if on == 'nomor-tanding' %}active{% endif %}">
+                      <a href="{% url 'admin-nomor-tanding' event_pk=event.pk %}">
+                        <span class="sub-item">Nomor Tanding</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item {% if on == 'utusan' or on == 'perguruan' or on == 'rekapan' or on == 'roster-counter' %}active{% endif %}">
+                <a data-bs-toggle="collapse" href="#rekapan" class="collapsed" aria-expanded="false">
+                  <i class="fas fa-home"></i>
+                  <p>Rekapan</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="rekapan">
+                  <ul class="nav nav-collapse">
                     <li class="{% if on == 'utusan' %}active{% endif %}">
                       <a href="{% url 'admin-utusan' event_pk=event.pk %}">
                         <span class="sub-item">Utusan</span>
@@ -76,26 +92,22 @@
                         <span class="sub-item">Rekapan Bagan</span>
                       </a>
                     </li>
-                    <li class="{% if on == 'nomor-tanding' %}active{% endif %}">
-                      <a href="{% url 'admin-nomor-tanding' event_pk=event.pk %}">
-                        <span class="sub-item">Nomor Tanding</span>
-                      </a>
-                    </li>
                     <li class="{% if on == 'roster-counter' %}active{% endif %}">
                       <a href="{% url 'roster-counter' event_pk=event.pk %}">
                         <span class="sub-item">Roster Counter</span>
                       </a>
                     </li>
-                    {% if admin_tatami %}
-                    <li class="">
-                      <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}'); return false;">
-                        <span class="sub-item">Scoring Board</span>
-                      </a>
-                    </li>
-                    {% endif %}
                   </ul>
                 </div>
               </li>
+              {% if admin_tatami %}
+              <li class="nav-item">
+                <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}'); return false;">
+                  <i class="fas fa-home"></i>
+                  <p>Scoring Board</p>
+                </a>
+              </li>
+              {% endif %}
             </ul>
           </div>
         </div>

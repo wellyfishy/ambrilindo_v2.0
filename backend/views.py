@@ -1223,25 +1223,39 @@ def admin_utusan(request, event_pk):
     utusans = Utusan.objects.filter(event=event)
     
     utusan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
+    utusan_winners = []
 
     bagans = Bagan.objects.filter(event=event)
 
     for bagan in bagans:
         if bagan.juara_1 and bagan.juara_1.utusan:
             utusan_medals[bagan.juara_1.utusan.pk]["gold"] += 1
+            utusan_winners.append(({"pk": bagan.juara_1.utusan.pk, "nama_atlet": bagan.juara_1.nama_atlet, "perguruan": bagan.juara_1.perguruan.nama_perguruan, "juara": "1", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_2 and bagan.juara_2.utusan:
             utusan_medals[bagan.juara_2.utusan.pk]["silver"] += 1
+            utusan_winners.append(({"pk": bagan.juara_2.utusan.pk, "nama_atlet": bagan.juara_2.nama_atlet, "perguruan": bagan.juara_2.perguruan.nama_perguruan, "juara": "2", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_3a and bagan.juara_3a.utusan:
             utusan_medals[bagan.juara_3a.utusan.pk]["bronze"] += 1
+            utusan_winners.append(({"pk": bagan.juara_3a.utusan.pk, "nama_atlet": bagan.juara_3a.nama_atlet, "perguruan": bagan.juara_3a.perguruan.nama_perguruan, "juara": "3a", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_3b and bagan.juara_3b.utusan:
             utusan_medals[bagan.juara_3b.utusan.pk]["bronze"] += 1
+            utusan_winners.append(({"pk": bagan.juara_3b.utusan.pk, "nama_atlet": bagan.juara_3b.nama_atlet, "perguruan": bagan.juara_3b.perguruan.nama_perguruan, "juara": "3b", "nama_bagan": bagan.nama_bagan}))
     
     utusans = list(utusans)
+
     utusans.sort(key=lambda u: (
         -utusan_medals[u.pk]["gold"],
         -utusan_medals[u.pk]["silver"],
         -utusan_medals[u.pk]["bronze"],
     ))
+
+    for utusan in utusans:
+        utusan.winners = []
+
+    for winner in utusan_winners:
+        for utusan in utusans:
+            if utusan.pk == winner['pk']:
+                utusan.winners.append(winner)
 
     context = {
         'on': 'utusan',
@@ -1256,18 +1270,23 @@ def admin_perguruan(request, event_pk):
     perguruans = Perguruan.objects.filter(event=event)
     
     perguruan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
+    perguruan_winners = []
 
     bagans = Bagan.objects.filter(event=event)
 
     for bagan in bagans:
         if bagan.juara_1 and bagan.juara_1.perguruan:
             perguruan_medals[bagan.juara_1.perguruan.pk]["gold"] += 1
+            perguruan_winners.append(({"pk": bagan.juara_1.perguruan.pk, "nama_atlet": bagan.juara_1.nama_atlet, "utusan": bagan.juara_1.utusan.nama_utusan, "juara": "1", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_2 and bagan.juara_2.perguruan:
             perguruan_medals[bagan.juara_2.perguruan.pk]["silver"] += 1
+            perguruan_winners.append(({"pk": bagan.juara_2.perguruan.pk, "nama_atlet": bagan.juara_2.nama_atlet, "utusan": bagan.juara_2.utusan.nama_utusan, "juara": "2", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_3a and bagan.juara_3a.perguruan:
             perguruan_medals[bagan.juara_3a.perguruan.pk]["bronze"] += 1
+            perguruan_winners.append(({"pk": bagan.juara_3a.perguruan.pk, "nama_atlet": bagan.juara_3a.nama_atlet, "utusan": bagan.juara_3a.utusan.nama_utusan, "juara": "3a", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_3b and bagan.juara_3b.perguruan:
             perguruan_medals[bagan.juara_3b.perguruan.pk]["bronze"] += 1
+            perguruan_winners.append(({"pk": bagan.juara_3b.perguruan.pk, "nama_atlet": bagan.juara_3b.nama_atlet, "utusan": bagan.juara_3b.utusan.nama_utusan, "juara": "3b", "nama_bagan": bagan.nama_bagan}))
     
     perguruans = list(perguruans)
     perguruans.sort(key=lambda u: (
@@ -1275,6 +1294,15 @@ def admin_perguruan(request, event_pk):
         -perguruan_medals[u.pk]["silver"],
         -perguruan_medals[u.pk]["bronze"],
     ))
+
+    for perguruan in perguruans:
+        perguruan.winners = []
+
+    for winner in perguruan_winners:
+        for perguruan in perguruans:
+            if perguruan.pk == winner['pk']:
+                perguruan.winners.append(winner)
+
 
     context = {
         'on': 'perguruan',

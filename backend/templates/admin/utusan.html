@@ -10,7 +10,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Nomor Tanding Event {{ event.nama_event }}</div>
+                        <div class="card-title" style="margin-right: 10px;">Kumpulan Utusan Pada Event {{ event.nama_event }}</div>
                     </div>
                     
                     <div class="card-body">
@@ -46,6 +46,52 @@
                         </table>
                     </div>
                 </div>
+
+                {% for utusan in utusans %}
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Winner List: {{ utusan.nama_utusan }}</div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                            <th scope="col" style="text-align: center;">No</th>
+                            <th scope="col" style="text-align: center;">Juara 🥇🥈🥉</th>
+                            <th scope="col" style="text-align: center;">Nama</th>
+                            <th scope="col" style="text-align: center;">Perguruan</th>
+                            <th scope="col" style="text-align: center;">Kelas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for winner in utusan.winners %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td style="text-align: center;">
+                                    <b>{% if winner.juara == '1' %}1 🥇
+                                        {% elif winner.juara == '2' %} 2 🥈
+                                        {% elif winner.juara == '3a' or winner.juara == '3b' %} 3 🥉{% endif %}
+                                    </b>
+                                </td>
+                                <td><b>{{ winner.nama_atlet }}</b></td>
+                                <td><b>{{ winner.perguruan }}</b></td>
+                                <td><b>{{ winner.nama_bagan }}</b></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

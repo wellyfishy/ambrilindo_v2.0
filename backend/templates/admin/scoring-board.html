@@ -881,7 +881,6 @@
     }
   }
 
-
   function reset_banners() {
     $('#point-1').text('NULL');
     $('#point-2').text('0 - POINT');
@@ -900,534 +899,533 @@
   }
 
   socket.onmessage = function(e) {
-      const data = JSON.parse(e.data);
-      console.log(data.command, data.details)
+    const data = JSON.parse(e.data);
+    console.log(data.command, data.details)
 
-      if (data.command == 'get_atlet') {
-        reset()
-      } else if (data.command == 'hantei') {
-        hantei = data.details;
-        if (hantei == 0) {
-          $('#hantei-banner').hide()
-        } else {
-          $('#hantei-banner').show()
-        }
-      } else if (data.command == 'countdown-aka') {
-        const banner = document.getElementById("countdown-banner");
-        cd_val = data.details;
-        if (cd_val == 1) {
-          banner.style.display = "";
-          banner.style.backgroundColor = "red"
-          startCountdown();
-        } else {
-          banner.style.display = "none";
-
-          // Stop timers
-          clearInterval(msInterval);
-
-          // Reset UI
-          document.getElementById("cd-seconds").textContent = "00";
-          document.getElementById("cd-milliseconds").textContent = "00";
-        }
-      } else if (data.command == 'countdown-ao') {
-        const banner = document.getElementById("countdown-banner");
-        cd_val = data.details;
-        if (cd_val == 1) {
-          banner.style.display = "";
-          banner.style.backgroundColor = "#3498db"
-          startCountdown();
-        } else {
-          banner.style.display = "none";
-
-          // Stop timers
-          clearInterval(msInterval);
-
-          // Reset UI
-          document.getElementById("cd-seconds").textContent = "00";
-          document.getElementById("cd-milliseconds").textContent = "00";
-        }
-      } else if (data.command == 'ms-check') {
-        ms_check = data.details;
-        if (ms_check == 0) {
-          $('#ms-check-banner').hide()
-          resetAllFlags()
-        } else {
-          $('#ms-check-banner').show()
-        }
-      } else if (data.command == 'vr') {
-        resetRenderJudges()
-        if (data.details == 'aka-request') {
-          aka_vr_on('VIDEO REVIEW', 'REQUESTED')
-        } else if (data.details == 'aka-accept-1') {
-          aka_vr_on('VR +1 POINT', 'ACCEPTED')
-        } else if (data.details == 'aka-accept-2') {
-          aka_vr_on('VR +2 POINT', 'ACCEPTED')
-        } else if (data.details == 'aka-accept-3') {
-          aka_vr_on('VR +3 POINT', 'ACCEPTED')
-        } else if (data.details == 'aka-decline') {
-          aka_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
-        } else if (data.details == 'ao-request') {
-          ao_vr_on('VIDEO REVIEW', 'REQUESTED')
-        } else if (data.details == 'ao-accept-1') {
-          ao_vr_on('VR +1 POINT', 'ACCEPTED')
-        } else if (data.details == 'ao-accept-2') {
-          ao_vr_on('VR +2 POINT', 'ACCEPTED')
-        } else if (data.details == 'ao-accept-3') {
-          ao_vr_on('VR +3 POINT', 'ACCEPTED')
-        } else if (data.details == 'ao-decline') {
-          ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
-        }
-      } else if (data.command === 'mouse' && hantei == 0 && isRunning) {
-        var arr = JSON.parse(data.details);
-        var a = arr[0];
-        var b = arr[1];
-
-        $('#point-1').show()
-        $('#point-2').show()
-        $('#point-1-2').show()
-        $('#point-2-2').show()
-
-        if (ms_check == 0 && hantei == 0) {
-          if (a === 'Aka Yuko') {
-            $('#point-1').text('1 - POINT');
-            $('#point-2').text('YUKO');
-            $('#banner').show().css('background-color','red');
-          }
-          else if (a === 'Aka Waza-ari') {
-            $('#point-1').text('2 - POINT');
-            $('#point-2').text('WAZA-ARI');
-            $('#banner').show().css('background-color','red');
-          }
-          else if (a === 'Aka Ippon') {
-            $('#point-1').text('3 - POINT');
-            $('#point-2').text('IPPON');
-            $('#banner').show().css('background-color','red');
-          }
-          if (b === 'Ao Yuko') {
-            $('#point-1-2').text('1 - POINT');
-            $('#point-2-2').text('YUKO');
-            $('#banner-2').show().css('background-color','#3498db');
-          }
-          else if (b === 'Ao Waza-ari') {
-            $('#point-1-2').text('2 - POINT');
-            $('#point-2-2').text('WAZA-ARI');
-            $('#banner-2').show().css('background-color','#3498db');
-          }
-          else if (b === 'Ao Ippon') {
-            $('#point-1-2').text('3 - POINT');
-            $('#point-2-2').text('IPPON');
-            $('#banner-2').show().css('background-color','#3498db');
-          }
-  
-          if (a && b) {
-            $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-            $('#banner').css({ backgroundColor: 'red', display: '' });
-            $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
-            $('.fullscreen-banner h1').css('font-size','10vw');
-            finish.play()
-            console.log('a & b')
-          } else if (a == "" && b == "") {
-          } else {
-            $('#banner-wrap').css('grid-template-columns','1fr');
-            $('.fullscreen-banner h1').css('font-size','10vw');
-            finish.play()
-            if (a) {
-              $('#banner-2').css({ backgroundColor: '', display: 'none' });
-              console.log('a')
-            } else if (b) {
-              $('#banner').css({ backgroundColor: '', display: 'none' });
-              console.log('b')
-            }
-          }
-        }
-      } else if (data.command == 'reset-banner') {
-        reset_banners()
-      } else if (data.command == 'timer-change') {
-        if (!isRunning) {
-          totalSeconds = data.details;
-          milliseconds = 0;
-          updateDisplay(totalSeconds, milliseconds);
-        }
-      } else if (data.command == 'timer-status') {
-        if (data.details == 'start' || data.details == 'pause') {
-          timer_status()
-        }
-      } else if (data.command == 'timer-increment') {
-        totalSeconds++;
-        updateDisplay(totalSeconds, milliseconds);
-      } else if (data.command == 'timer-decrement') {
-        totalSeconds--;
-        updateDisplay(totalSeconds, milliseconds);
-      } else if (data.command == 'timer-sync') {
-        const detailsArray = JSON.parse(data.details);
-        totalSeconds = detailsArray[0]
-        milliseconds = detailsArray[1]
-        updateDisplay(totalSeconds, milliseconds);
-      } else if (data.command == 'tampilkan-score') {
-        const detailsArray = JSON.parse(data.details);
-        var totalAka = detailsArray[0]
-        var totalAo = detailsArray[1]
-        if (isShowing == false) {
-          $('#aka-score').text(totalAka)
-          $('#ao-score').text(totalAo)
-          isShowing = true
-        } else {
-          $('#aka-score').text('0')
-          $('#ao-score').text('0')
-          isShowing = false
-        }
-      } else if (data.command == 'aka-kata-kirim') {
-        $('#kata-aka').text(data.details)
-      } else if (data.command == 'ao-kata-kirim') {
-        $('#kata-ao').text(data.details)
-      } else if (data.command == 'aka-yuko') {
-        aka_score += 1;
-        $('#aka-score').text(aka_score)
-        aka_banner('1 - POINT', 'YUKO')
-      } else if (data.command == 'aka-wazaari') {
-        aka_score += 2;
-        $('#aka-score').text(aka_score)
-        aka_banner('2 - POINT', 'WAZA-ARI')
-      } else if (data.command == 'aka-ippon') {
-        aka_score += 3;
-        $('#aka-score').text(aka_score)
-        aka_banner('3 - POINT', 'IPPON')
-      } else if (data.command == 'aka-score-dec') {
-        aka_score--;
-        $('#aka-score').text(aka_score)
-      } if (data.command === 'aka-criteria-inc') {
-        aka_criteria++;
-        if (aka_criteria >= 1 && aka_criteria <= 5) {
-          $(`#akac${aka_criteria}`).addClass('active-red');
-          if (aka_criteria == 4) {
-            aka_banner(`HANSOKU CHUI`, 'WARNING')
-          } else if (aka_criteria == 5) {
-            aka_banner(`HANSOKU`, 'PENALTY')
-          } else {
-            aka_banner(`CHUI ${aka_criteria}`, 'WARNING')
-          }
-        }
-      } else if (data.command === 'aka-criteria-dec') {
-        if (aka_criteria >= 1 && aka_criteria <= 5) {
-          $(`#akac${aka_criteria}`).removeClass('active-red');
-        }
-        aka_criteria--;
-      } else if (data.command == 'ao-yuko') {
-        ao_score += 1;
-        $('#ao-score').text(ao_score)
-        ao_banner('1 - POINT', 'YUKO')
-      } else if (data.command == 'ao-wazaari') {
-        ao_score += 2;
-        $('#ao-score').text(ao_score)
-        ao_banner('2 - POINT', 'WAZA-ARI')
-      } else if (data.command == 'ao-ippon') {
-        ao_score += 3;
-        $('#ao-score').text(ao_score)
-        ao_banner('3 - POINT', 'IPPON')
-      } else if (data.command == 'ao-score-dec') {
-        ao_score--;
-        $('#ao-score').text(ao_score)
-      } if (data.command === 'ao-criteria-inc') {
-        ao_criteria++;
-        if (ao_criteria >= 1 && ao_criteria <= 5) {
-          $(`#aoc${ao_criteria}`).addClass('active-blue');
-          if (ao_criteria == 4) {
-            ao_banner(`HANSOKU CHUI`, 'WARNING')
-          } else if (ao_criteria == 5) {
-            ao_banner(`HANSOKU`, 'PENALTY')
-          } else {
-            ao_banner(`CHUI ${ao_criteria}`, 'WARNING')
-          }
-        }
-      } else if (data.command === 'ao-criteria-dec') {
-        if (ao_criteria >= 1 && ao_criteria <= 5) {
-          $(`#aoc${ao_criteria}`).removeClass('active-blue');
-        }
-        ao_criteria--;
-      } else if (data.command == 'senshu') {
-        if (data.details == 'aka-senshu') {
-          $('#aka-senshu').css('visibility', 'visible') 
-        } else if (data.details == 'aka-remove-senshu') {
-          $('#aka-senshu').css('visibility', 'hidden') 
-        } else if (data.details == 'ao-senshu') {
-          $('#ao-senshu').css('visibility', 'visible') 
-        } else if (data.details == 'ao-remove-senshu') {
-          $('#ao-senshu').css('visibility', 'hidden') 
-        }
-      } else if (data.command == 'vr') {
-        if (data.details == 'aka-vr') {
-          $('#aka-vr').css('visibility', 'visible') 
-        } else if (data.details == 'aka-remove-vr') {
-          $('#aka-vr').css('visibility', 'hidden') 
-        } else if (data.details == 'ao-vr') {
-          $('#ao-vr').css('visibility', 'visible') 
-        } else if (data.details == 'ao-remove-vr') {
-          $('#ao-vr').css('visibility', 'hidden') 
-        }
+    if (data.command == 'get_atlet') {
+      reset()
+    } else if (data.command == 'hantei') {
+      hantei = data.details;
+      if (hantei == 0) {
+        $('#hantei-banner').hide()
+      } else {
+        $('#hantei-banner').show()
       }
+    } else if (data.command == 'countdown-aka') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "red"
+        startCountdown();
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-ao') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "#3498db"
+        startCountdown();
+      } else {
+        banner.style.display = "none";
 
-      if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
-      if (data.details === 'aka-accept-1')   aka_vr_on(data.v1, data.v2, 'accept');
-      if (data.details === 'aka-accept-2')   aka_vr_on(data.v1, data.v2, 'accept');
-      if (data.details === 'aka-accept-3')   aka_vr_on(data.v1, data.v2, 'accept');
-      if (data.details === 'aka-decline')  aka_vr_on(data.v1, data.v2, 'decline');
+        // Stop timers
+        clearInterval(msInterval);
 
-      if (data.details === 'ao-request')   ao_vr_on(data.v1, data.v2, 'request');
-      if (data.details === 'ao-accept-1')   ao_vr_on(data.v1, data.v2, 'accept');
-      if (data.details === 'ao-accept-2')   ao_vr_on(data.v1, data.v2, 'accept');
-      if (data.details === 'ao-accept-3')   ao_vr_on(data.v1, data.v2, 'accept');
-      if (data.details === 'ao-decline')   ao_vr_on(data.v1, data.v2, 'decline');
-      
+        // Reset UI
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'ms-check') {
+      ms_check = data.details;
+      if (ms_check == 0) {
+        $('#ms-check-banner').hide()
+        resetAllFlags()
+      } else {
+        $('#ms-check-banner').show()
+      }
+    } else if (data.command == 'vr') {
+      resetRenderJudges()
+      if (data.details == 'aka-request') {
+        aka_vr_on('VIDEO REVIEW', 'REQUESTED')
+      } else if (data.details == 'aka-accept-1') {
+        aka_vr_on('VR +1 POINT', 'ACCEPTED')
+      } else if (data.details == 'aka-accept-2') {
+        aka_vr_on('VR +2 POINT', 'ACCEPTED')
+      } else if (data.details == 'aka-accept-3') {
+        aka_vr_on('VR +3 POINT', 'ACCEPTED')
+      } else if (data.details == 'aka-decline') {
+        aka_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
+      } else if (data.details == 'ao-request') {
+        ao_vr_on('VIDEO REVIEW', 'REQUESTED')
+      } else if (data.details == 'ao-accept-1') {
+        ao_vr_on('VR +1 POINT', 'ACCEPTED')
+      } else if (data.details == 'ao-accept-2') {
+        ao_vr_on('VR +2 POINT', 'ACCEPTED')
+      } else if (data.details == 'ao-accept-3') {
+        ao_vr_on('VR +3 POINT', 'ACCEPTED')
+      } else if (data.details == 'ao-decline') {
+        ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
+      }
+    } else if (data.command === 'mouse' && hantei == 0 && isRunning) {
+      var arr = JSON.parse(data.details);
+      var a = arr[0];
+      var b = arr[1];
 
-      function updateLayout() {
-        const b1 = (aka_state === 'pending');
-        const b2 = (ao_state === 'pending');
+      $('#point-1').show()
+      $('#point-2').show()
+      $('#point-1-2').show()
+      $('#point-2-2').show()
 
-        $('#banner').css('display', b1 ? '' : 'none');
-        $('#banner-2').css('display', b2 ? '' : 'none');
+      if (ms_check == 0 && hantei == 0) {
+        if (a === 'Aka Yuko') {
+          $('#point-1').text('1 - POINT');
+          $('#point-2').text('YUKO');
+          $('#banner').show().css('background-color','red');
+        }
+        else if (a === 'Aka Waza-ari') {
+          $('#point-1').text('2 - POINT');
+          $('#point-2').text('WAZA-ARI');
+          $('#banner').show().css('background-color','red');
+        }
+        else if (a === 'Aka Ippon') {
+          $('#point-1').text('3 - POINT');
+          $('#point-2').text('IPPON');
+          $('#banner').show().css('background-color','red');
+        }
+        if (b === 'Ao Yuko') {
+          $('#point-1-2').text('1 - POINT');
+          $('#point-2-2').text('YUKO');
+          $('#banner-2').show().css('background-color','#3498db');
+        }
+        else if (b === 'Ao Waza-ari') {
+          $('#point-1-2').text('2 - POINT');
+          $('#point-2-2').text('WAZA-ARI');
+          $('#banner-2').show().css('background-color','#3498db');
+        }
+        else if (b === 'Ao Ippon') {
+          $('#point-1-2').text('3 - POINT');
+          $('#point-2-2').text('IPPON');
+          $('#banner-2').show().css('background-color','#3498db');
+        }
 
-        if (b1 && b2) {
+        if (a && b) {
           $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-          $('.fullscreen-banner h1').css('font-size','4vw');
+          $('#banner').css({ backgroundColor: 'red', display: '' });
+          $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
+          $('.fullscreen-banner h1').css('font-size','10vw');
+          finish.play()
+          console.log('a & b')
+        } else if (a == "" && b == "") {
         } else {
           $('#banner-wrap').css('grid-template-columns','1fr');
           $('.fullscreen-banner h1').css('font-size','10vw');
-        }
-      }
-
-      function tryResolve() {
-        const activeCount =
-          (aka_state === 'pending' || aka_state === 'resolved' ? 1 : 0) +
-          (ao_state === 'pending' || ao_state === 'resolved' ? 1 : 0);
-
-        const resolvedCount =
-          (aka_state === 'resolved' ? 1 : 0) +
-          (ao_state === 'resolved' ? 1 : 0);
-
-        if (activeCount === 1 && resolvedCount === 1) {
-          showResolved();
-          return;
-        }
-
-        if (activeCount === 2 && resolvedCount === 2) {
-          showResolved();
-          return;
-        }
-      }
-
-      function showResolved() {
-        $('#vr-status-msg').css('display','');
-
-        setTimeout(() => {
-          $('#vr-status-msg').css('display','none');
-          aka_state = 'off';
-          ao_state = 'off';
-          $('#point-2').css({backgroundColor:''});
-          $('#point-2-2').css({backgroundColor:''});
-          updateLayout();
-        }, 3000);
-      }
-
-      function aka_vr_on(v1, v2, action) {
-        $('#point-1').text(v1);
-        $('#point-2').text(v2);
-
-        if (action === 'request') {
-          if (aka_state === 'pending') {
-            aka_state = 'off';
-            updateLayout();
-            return;
+          finish.play()
+          if (a) {
+            $('#banner-2').css({ backgroundColor: '', display: 'none' });
+            console.log('a')
+          } else if (b) {
+            $('#banner').css({ backgroundColor: '', display: 'none' });
+            console.log('b')
           }
-          aka_state = 'pending';
-          $('#banner').css({backgroundColor:'red'});
-          updateLayout();
-          return;
-        }
-
-        if (action === 'accept') {
-          $('#point-2').css({backgroundColor:'#006400'});
-          aka_state = 'resolved';
-          tryResolve();
-          return;
-        }
-
-        if (action === 'decline') {
-          $('#point-2').css({backgroundColor:'#000'});
-          aka_state = 'resolved';
-          tryResolve();
-          return;
         }
       }
-
-      function ao_vr_on(v1, v2, action) {
-        $('#point-1-2').text(v1);
-        $('#point-2-2').text(v2);
-
-        if (action === 'request') {
-          if (ao_state === 'pending') {
-            ao_state = 'off';
-            updateLayout();
-            return;
-          }
-          ao_state = 'pending';
-          $('#banner-2').css({backgroundColor:'#3498db'});
-          updateLayout();
-          return;
-        }
-
-        if (action === 'accept') {
-          $('#point-2-2').css({backgroundColor:'#006400'});
-          ao_state = 'resolved';
-          tryResolve();
-          return;
-        }
-
-        if (action === 'decline') {
-          $('#point-2-2').css({backgroundColor:'#000'});
-          ao_state = 'resolved';
-          tryResolve();
-          return;
-        }
-      }
-
-      function aka_banner(score1, score2) {
-        reset_banners()
-
-        $('#banner').show().css('background-color','red');
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-
-        $('#point-1').text(score1)
-        $('#point-2').text(score2)
-
-        setTimeout(function () {
-            reset_banners()
-        }, 1000);
-      }
-
-      function ao_banner(score1, score2) {
-        reset_banners()
-
-        $('#banner-2').show().css('background-color','#3498db');
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-
-        $('#point-1-2').text(score1)
-        $('#point-2-2').text(score2)
-
-        setTimeout(function () {
-            reset_banners()
-        }, 1000);
-      }
-
-      function timer_status() {
-        if (!isRunning) {
-          isRunning = true;
-          interval = setInterval(() => {
-            if (milliseconds === 0) {
-                if (totalSeconds === 0) {
-                  clearInterval(interval);
-                  isRunning = false;
-                  $('#timer').css('color', 'white')
-                  finish.play()
-                  return;
-                }
-                totalSeconds--;
-                milliseconds = 99;
-            } else {
-              if (totalSeconds < 15) {
-                if (warningVal == false) {
-                  warning.play()
-                  warningVal = true
-                }
-                $('#timer').css({
-                  'color': 'red',
-                  'text-shadow': `
-                    -1px -1px 0 white,
-                    1px -1px 0 white,
-                    -1px  1px 0 white,
-                    1px  1px 0 white
-                  `
-                });
-              } else {
-                $('#timer').css('color', 'yellow')
-                if (warningVal == true) {
-                  warningVal = false
-                }
-              }
-              milliseconds--;
-            }
-            updateDisplay(totalSeconds, milliseconds);
-          }, 10);
-        } else {
-          isRunning = false;
-          $('#timer').css('color', 'white')
-          clearInterval(interval);
-        }
-      }
-
-      function reset() {
-        if (data.details.tipe_tanding == '1') {
-          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
-            div.classList.add('deactivate');
-          });
-        } else if (data.details.tipe_tanding == '2') {
-          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
-            div.classList.remove('deactivate');
-          });
-        }
-        document.getElementById('aka-vr').style.visibility = 'hidden';
-        if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {
-          document.getElementById('aka-vr').style.visibility = 'visible';
-        }
-        document.getElementById('ao-vr').style.visibility = 'hidden';
-        if (data.details.atlet_blue_vr && data.details.tipe_tanding == '2') {
-          document.getElementById('ao-vr').style.visibility = 'visible';
-        }
-        document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
-        document.getElementById('atlet_red_name').innerText = data.details.atlet_red
-        document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
-        document.getElementById('aka-score').innerText = '0'
-
-        document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
-        document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
-        document.getElementById('ao-score').innerText = '0'
-
-        $('#kata-aka').text(data.details.atlet_red_kata)
-        $('#kata-ao').text(data.details.atlet_blue_kata)
-
-        document.getElementById('kata-aka').style.visibility = 'hidden';
-        document.getElementById('kata-ao').style.visibility = 'hidden';
-        if (data.details.tipe_tanding == '1') {
-          document.getElementById('kata-aka').style.visibility = 'visible';
-          document.getElementById('kata-ao').style.visibility = 'visible';
-        }
-
-        totalSeconds = 0
-        milliseconds = 0
+    } else if (data.command == 'reset-banner') {
+      reset_banners()
+    } else if (data.command == 'timer-change') {
+      if (!isRunning) {
+        totalSeconds = data.details;
+        milliseconds = 0;
         updateDisplay(totalSeconds, milliseconds);
-        warningVal = false
-
-        aka_score = 0
-        ao_score = 0
-        aka_criteria = 0
-        ao_criteria = 0
-
-        isRunning = false;
-        isShowing = false;
-
-        $('#aka-senshu').css('visibility', 'hidden') 
-        $('#ao-senshu').css('visibility', 'hidden') 
-
-        for (let i = 1; i <= 5; i++) {
-          $(`#akac${i}`).removeClass('active-red');
-        }
-
-        for (let i = 1; i <= 5; i++) {
-          $(`#aoc${i}`).removeClass('active-blue');
-        }
-        reset_banners()
       }
+    } else if (data.command == 'timer-status') {
+      if (data.details == 'start' || data.details == 'pause') {
+        timer_status()
+      }
+    } else if (data.command == 'timer-increment') {
+      totalSeconds++;
+      updateDisplay(totalSeconds, milliseconds);
+    } else if (data.command == 'timer-decrement') {
+      totalSeconds--;
+      updateDisplay(totalSeconds, milliseconds);
+    } else if (data.command == 'timer-sync') {
+      const detailsArray = JSON.parse(data.details);
+      totalSeconds = detailsArray[0]
+      milliseconds = detailsArray[1]
+      updateDisplay(totalSeconds, milliseconds);
+    } else if (data.command == 'tampilkan-score') {
+      const detailsArray = JSON.parse(data.details);
+      var totalAka = detailsArray[0]
+      var totalAo = detailsArray[1]
+      if (isShowing == false) {
+        $('#aka-score').text(totalAka)
+        $('#ao-score').text(totalAo)
+        isShowing = true
+      } else {
+        $('#aka-score').text('0')
+        $('#ao-score').text('0')
+        isShowing = false
+      }
+    } else if (data.command == 'aka-kata-kirim') {
+      $('#kata-aka').text(data.details)
+    } else if (data.command == 'ao-kata-kirim') {
+      $('#kata-ao').text(data.details)
+    } else if (data.command == 'aka-yuko') {
+      aka_score += 1;
+      $('#aka-score').text(aka_score)
+      aka_banner('1 - POINT', 'YUKO')
+    } else if (data.command == 'aka-wazaari') {
+      aka_score += 2;
+      $('#aka-score').text(aka_score)
+      aka_banner('2 - POINT', 'WAZA-ARI')
+    } else if (data.command == 'aka-ippon') {
+      aka_score += 3;
+      $('#aka-score').text(aka_score)
+      aka_banner('3 - POINT', 'IPPON')
+    } else if (data.command == 'aka-score-dec') {
+      aka_score--;
+      $('#aka-score').text(aka_score)
+    } 
+    
+    if (data.command === 'aka-criteria-inc') {
+      aka_criteria++;
+      if (aka_criteria >= 1 && aka_criteria <= 5) {
+        $(`#akac${aka_criteria}`).addClass('active-red');
+        if (aka_criteria == 4) {
+          aka_banner(`HANSOKU CHUI`, 'WARNING')
+        } else if (aka_criteria == 5) {
+          aka_banner(`HANSOKU`, 'PENALTY')
+        } else {
+          aka_banner(`CHUI ${aka_criteria}`, 'WARNING')
+        }
+      }
+    } else if (data.command === 'aka-criteria-dec') {
+      if (aka_criteria >= 1 && aka_criteria <= 5) {
+        $(`#akac${aka_criteria}`).removeClass('active-red');
+      }
+      aka_criteria--;
+    } else if (data.command == 'ao-yuko') {
+      ao_score += 1;
+      $('#ao-score').text(ao_score)
+      ao_banner('1 - POINT', 'YUKO')
+    } else if (data.command == 'ao-wazaari') {
+      ao_score += 2;
+      $('#ao-score').text(ao_score)
+      ao_banner('2 - POINT', 'WAZA-ARI')
+    } else if (data.command == 'ao-ippon') {
+      ao_score += 3;
+      $('#ao-score').text(ao_score)
+      ao_banner('3 - POINT', 'IPPON')
+    } else if (data.command == 'ao-score-dec') {
+      ao_score--;
+      $('#ao-score').text(ao_score)
+    } 
+
+    if (data.command === 'ao-criteria-inc') {
+      ao_criteria++;
+      if (ao_criteria >= 1 && ao_criteria <= 5) {
+        $(`#aoc${ao_criteria}`).addClass('active-blue');
+        if (ao_criteria == 4) {
+          ao_banner(`HANSOKU CHUI`, 'WARNING')
+        } else if (ao_criteria == 5) {
+          ao_banner(`HANSOKU`, 'PENALTY')
+        } else {
+          ao_banner(`CHUI ${ao_criteria}`, 'WARNING')
+        }
+      }
+    } else if (data.command === 'ao-criteria-dec') {
+      if (ao_criteria >= 1 && ao_criteria <= 5) {
+        $(`#aoc${ao_criteria}`).removeClass('active-blue');
+      }
+      ao_criteria--;
+    } else if (data.command == 'senshu') {
+      if (data.details == 'aka-senshu') {
+        $('#aka-senshu').css('visibility', 'visible') 
+      } else if (data.details == 'aka-remove-senshu') {
+        $('#aka-senshu').css('visibility', 'hidden') 
+      } else if (data.details == 'ao-senshu') {
+        $('#ao-senshu').css('visibility', 'visible') 
+      } else if (data.details == 'ao-remove-senshu') {
+        $('#ao-senshu').css('visibility', 'hidden') 
+      }
+    } else if (data.command == 'vr') {
+      if (data.details == 'aka-vr') {
+        $('#aka-vr').css('visibility', 'visible') 
+      } else if (data.details == 'aka-remove-vr') {
+        $('#aka-vr').css('visibility', 'hidden') 
+      } else if (data.details == 'ao-vr') {
+        $('#ao-vr').css('visibility', 'visible') 
+      } else if (data.details == 'ao-remove-vr') {
+        $('#ao-vr').css('visibility', 'hidden') 
+      }
+    }
+
+    if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
+    if (data.details === 'aka-accept-1')   aka_vr_on(data.v1, data.v2, 'accept');
+    if (data.details === 'aka-accept-2')   aka_vr_on(data.v1, data.v2, 'accept');
+    if (data.details === 'aka-accept-3')   aka_vr_on(data.v1, data.v2, 'accept');
+    if (data.details === 'aka-decline')  aka_vr_on(data.v1, data.v2, 'decline');
+
+    if (data.details === 'ao-request')   ao_vr_on(data.v1, data.v2, 'request');
+    if (data.details === 'ao-accept-1')   ao_vr_on(data.v1, data.v2, 'accept');
+    if (data.details === 'ao-accept-2')   ao_vr_on(data.v1, data.v2, 'accept');
+    if (data.details === 'ao-accept-3')   ao_vr_on(data.v1, data.v2, 'accept');
+    if (data.details === 'ao-decline')   ao_vr_on(data.v1, data.v2, 'decline');
+    
+    function updateLayout() {
+      const b1 = (aka_state === 'pending');
+      const b2 = (ao_state === 'pending');
+
+      $('#banner').css('display', b1 ? '' : 'none');
+      $('#banner-2').css('display', b2 ? '' : 'none');
+
+      if (b1 && b2) {
+        $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+        $('.fullscreen-banner h1').css('font-size','4vw');
+      } else {
+        $('#banner-wrap').css('grid-template-columns','1fr');
+        $('.fullscreen-banner h1').css('font-size','10vw');
+      }
+    }
+
+    function tryResolve() {
+      const activeCount =
+        (aka_state === 'pending' || aka_state === 'resolved' ? 1 : 0) +
+        (ao_state === 'pending' || ao_state === 'resolved' ? 1 : 0);
+
+      const resolvedCount =
+        (aka_state === 'resolved' ? 1 : 0) +
+        (ao_state === 'resolved' ? 1 : 0);
+
+      if (activeCount === 1 && resolvedCount === 1) {
+        showResolved();
+        return;
+      }
+
+      if (activeCount === 2 && resolvedCount === 2) {
+        showResolved();
+        return;
+      }
+    }
+
+    function showResolved() {
+      $('#vr-status-msg').css('display','');
+
+      setTimeout(() => {
+        $('#vr-status-msg').css('display','none');
+        aka_state = 'off';
+        ao_state = 'off';
+        $('#point-2').css({backgroundColor:''});
+        $('#point-2-2').css({backgroundColor:''});
+        updateLayout();
+      }, 3000);
+    }
+
+    function aka_vr_on(v1, v2, action) {
+      $('#point-1').text(v1);
+      $('#point-2').text(v2);
+
+      if (action === 'request') {
+        if (aka_state === 'pending') {
+          aka_state = 'off';
+          updateLayout();
+          return;
+        }
+        aka_state = 'pending';
+        $('#banner').css({backgroundColor:'red'});
+        updateLayout();
+        return;
+      }
+
+      if (action === 'accept') {
+        $('#point-2').css({backgroundColor:'#006400'});
+        aka_state = 'resolved';
+        tryResolve();
+        return;
+      }
+
+      if (action === 'decline') {
+        $('#point-2').css({backgroundColor:'#000'});
+        aka_state = 'resolved';
+        tryResolve();
+        return;
+      }
+    }
+
+    function ao_vr_on(v1, v2, action) {
+      $('#point-1-2').text(v1);
+      $('#point-2-2').text(v2);
+
+      if (action === 'request') {
+        if (ao_state === 'pending') {
+          ao_state = 'off';
+          updateLayout();
+          return;
+        }
+        ao_state = 'pending';
+        $('#banner-2').css({backgroundColor:'#3498db'});
+        updateLayout();
+        return;
+      }
+
+      if (action === 'accept') {
+        $('#point-2-2').css({backgroundColor:'#006400'});
+        ao_state = 'resolved';
+        tryResolve();
+        return;
+      }
+
+      if (action === 'decline') {
+        $('#point-2-2').css({backgroundColor:'#000'});
+        ao_state = 'resolved';
+        tryResolve();
+        return;
+      }
+    }
+
+    function aka_banner(score1, score2) {
+      reset_banners()
+
+      $('#banner').show().css('background-color','red');
+      $('#banner-wrap').css('grid-template-columns','1fr');
+      $('.fullscreen-banner h1').css('font-size','10vw');
+
+      $('#point-1').text(score1)
+      $('#point-2').text(score2)
+
+      setTimeout(function () {
+          reset_banners()
+      }, 1000);
+    }
+
+    function ao_banner(score1, score2) {
+      reset_banners()
+
+      $('#banner-2').show().css('background-color','#3498db');
+      $('#banner-wrap').css('grid-template-columns','1fr');
+      $('.fullscreen-banner h1').css('font-size','10vw');
+
+      $('#point-1-2').text(score1)
+      $('#point-2-2').text(score2)
+
+      setTimeout(function () {
+          reset_banners()
+      }, 1000);
+    }
+
+    function timer_status() {
+      if (!isRunning) {
+        isRunning = true;
+        interval = setInterval(() => {
+          if (milliseconds === 0) {
+              if (totalSeconds === 0) {
+                clearInterval(interval);
+                isRunning = false;
+                $('#timer').css('color', 'white')
+                finish.play()
+                return;
+              }
+              totalSeconds--;
+              milliseconds = 99;
+          } else {
+            if (totalSeconds < 15) {
+              if (warningVal == false) {
+                warning.play()
+                warningVal = true
+              }
+              $('#timer').css({
+                'color': 'red',
+                'text-shadow': `
+                  -1px -1px 0 white,
+                  1px -1px 0 white,
+                  -1px  1px 0 white,
+                  1px  1px 0 white
+                `
+              });
+            } else {
+              $('#timer').css('color', 'yellow')
+              if (warningVal == true) {
+                warningVal = false
+              }
+            }
+            milliseconds--;
+          }
+          updateDisplay(totalSeconds, milliseconds);
+        }, 10);
+      } else {
+        isRunning = false;
+        $('#timer').css('color', 'white')
+        clearInterval(interval);
+      }
+    }
+
+    function reset() {
+      if (data.details.tipe_tanding == '1') {
+        document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
+          div.classList.add('deactivate');
+        });
+      } else if (data.details.tipe_tanding == '2') {
+        document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
+          div.classList.remove('deactivate');
+        });
+      }
+      document.getElementById('aka-vr').style.visibility = 'hidden';
+      if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {
+        document.getElementById('aka-vr').style.visibility = 'visible';
+      }
+      document.getElementById('ao-vr').style.visibility = 'hidden';
+      if (data.details.atlet_blue_vr && data.details.tipe_tanding == '2') {
+        document.getElementById('ao-vr').style.visibility = 'visible';
+      }
+      document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
+      document.getElementById('atlet_red_name').innerText = data.details.atlet_red
+      document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
+      document.getElementById('aka-score').innerText = '0'
+
+      document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
+      document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
+      document.getElementById('ao-score').innerText = '0'
+
+      $('#kata-aka').text(data.details.atlet_red_kata)
+      $('#kata-ao').text(data.details.atlet_blue_kata)
+
+      document.getElementById('kata-aka').style.visibility = 'hidden';
+      document.getElementById('kata-ao').style.visibility = 'hidden';
+      if (data.details.tipe_tanding == '1') {
+        document.getElementById('kata-aka').style.visibility = 'visible';
+        document.getElementById('kata-ao').style.visibility = 'visible';
+      }
+
+      totalSeconds = 0
+      milliseconds = 0
+      updateDisplay(totalSeconds, milliseconds);
+      warningVal = false
+
+      aka_score = 0
+      ao_score = 0
+      aka_criteria = 0
+      ao_criteria = 0
+
+      isRunning = false;
+      isShowing = false;
+
+      $('#aka-senshu').css('visibility', 'hidden') 
+      $('#ao-senshu').css('visibility', 'hidden') 
+
+      for (let i = 1; i <= 5; i++) {
+        $(`#akac${i}`).removeClass('active-red');
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        $(`#aoc${i}`).removeClass('active-blue');
+      }
+      reset_banners()
+    }
   };
 </script>
 </html>
