@@ -56,14 +56,14 @@
                         <span class="sub-item">Atlet</span>
                       </a>
                     </li>
-                    <li class="{% if on == 'tatami' %}active{% endif %}">
-                      <a href="{% url 'admin-tatami' event_pk=event.pk %}">
-                        <span class="sub-item">Tatami</span>
-                      </a>
-                    </li>
                     <li class="{% if on == 'nomor-tanding' %}active{% endif %}">
                       <a href="{% url 'admin-nomor-tanding' event_pk=event.pk %}">
                         <span class="sub-item">Nomor Tanding</span>
+                      </a>
+                    </li>
+                    <li class="{% if on == 'tatami' %}active{% endif %}">
+                      <a href="{% url 'admin-tatami' event_pk=event.pk %}">
+                        <span class="sub-item">Tatami</span>
                       </a>
                     </li>
                   </ul>

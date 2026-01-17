@@ -1202,6 +1202,7 @@ def admin_atlet(request, event_pk):
 
 def admin_nomor_tanding(request, event_pk):
     event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     nomor_tandings = NomorTanding.objects.filter(event=event).order_by('-pk')
 
     if request.method == 'POST':
@@ -1214,12 +1215,14 @@ def admin_nomor_tanding(request, event_pk):
     context = {
         'on': 'nomor-tanding',
         'event': event,
+        'admin_tatami': admin_tatami,
         'nomor_tandings': nomor_tandings,
     }
     return render(request, 'admin/nomor-tanding.html', context)
 
 def admin_utusan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     utusans = Utusan.objects.filter(event=event)
     
     utusan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
@@ -1262,11 +1265,13 @@ def admin_utusan(request, event_pk):
         'event': event,
         'utusans': utusans,
         'utusan_medals': utusan_medals,
+        'admin_tatami': admin_tatami,
     }
     return render(request, 'admin/utusan.html', context)
 
 def admin_perguruan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     perguruans = Perguruan.objects.filter(event=event)
     
     perguruan_medals = defaultdict(lambda: {"gold": 0, "silver": 0, "bronze": 0})
@@ -1309,16 +1314,19 @@ def admin_perguruan(request, event_pk):
         'event': event,
         'perguruans': perguruans,
         'perguruan_medals': perguruan_medals,
+        'admin_tatami': admin_tatami,
     }
     return render(request, 'admin/perguruan.html', context)
 
 def admin_rekapan(request, event_pk):
     event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
     context = {
         'on': 'rekapan',
         'event': event,
         'bagans': bagans,
+        'admin_tatami': admin_tatami,
     }
     return render(request, 'admin/rekapan.html', context)
 
