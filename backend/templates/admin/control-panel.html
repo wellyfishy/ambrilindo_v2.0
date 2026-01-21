@@ -44,11 +44,11 @@
                             <thead>
                                 <tr>
                                 <th scope="col" style="text-align: center; width: 1000px;">Nama Atlet</th>
-                                <th scope="col" style="text-align: center;">J1</th>
-                                <th scope="col" style="text-align: center;">J2</th>
-                                <th scope="col" style="text-align: center;">J3</th>
-                                <th scope="col" style="text-align: center;">J4</th>
-                                <th scope="col" style="text-align: center;">J5</th>
+                                <th scope="col" id="j1" style="text-align: center; {% if aka_score.score1 != '0.0' and ao_score.score1 != '0.0' %}{% if aka_score.score1 > ao_score.score1 %}background-color: red{% else %}background-color: blue{% endif %}{% endif %}">J1</th>
+                                <th scope="col" id="j2" style="text-align: center; {% if aka_score.score2 != '0.0' and ao_score.score2 != '0.0' %}{% if aka_score.score2 > ao_score.score2 %}background-color: red{% else %}background-color: blue{% endif %}{% endif %}">J2</th>
+                                <th scope="col" id="j3" style="text-align: center; {% if aka_score.score3 != '0.0' and ao_score.score3 != '0.0' %}{% if aka_score.score3 > ao_score.score3 %}background-color: red{% else %}background-color: blue{% endif %}{% endif %}">J3</th>
+                                <th scope="col" id="j4" style="text-align: center; {% if aka_score.score4 != '0.0' and ao_score.score4 != '0.0' %}{% if aka_score.score4 > ao_score.score4 %}background-color: red{% else %}background-color: blue{% endif %}{% endif %}">J4</th>
+                                <th scope="col" id="j5" style="text-align: center; {% if aka_score.score5 != '0.0' and ao_score.score5 != '0.0' %}{% if aka_score.score5 > ao_score.score5 %}background-color: red{% else %}background-color: blue{% endif %}{% endif %}">J5</th>
                                 <th scope="col" style="text-align: center;">Manual</th>
                                 <th scope="col" style="text-align: center;">Total</th>
                                 <th scope="col" style="text-align: center;">Pemenang</th>
@@ -539,7 +539,6 @@
 
 {% block script %}
 <script>
-    // Put the Django variable into a global JS variable
     const tatamiPk = "{{ admin_tatami.tatami.pk }}";
     let milliseconds = 0;
     let totalSeconds = 0;
@@ -605,20 +604,45 @@
                 if (!isNaN(val) && val !== 0) {
                     scores.push(val);
                 }
-            }
+            } 
 
-            if (scores.length >= 3) {
-                scores.sort((a, b) => a - b);
-                const trimmedScores = scores.slice(1, -1);
-                const total = trimmedScores.reduce((a, b) => a + b, 0);
-                console.log(total)
-
-                if (atlet === 'aka') {
-                    $('#totalAka').val(total.toFixed(1));
-                } else {
-                    $('#totalAo').val(total.toFixed(1));
+            var aka_val = parseFloat($('#akaj' + data.command).val())
+            var ao_val = parseFloat($('#aoj' + data.command).val())
+            
+            if (aka_val !== 0 && ao_val !== 0) {
+                if (aka_val > ao_val) {
+                    $('#j' + data.command).css("background-color", "red")
+                } else if (aka_val < ao_val) {
+                    $('#j' + data.command).css("background-color", "blue")
                 }
             }
+
+            if (scores.length >= 5) {
+                aka_score = 0
+                ao_score = 0
+                for (let i = 1; i <= 5; i++) {
+                    var juri = $('#j' + i).css('background-color')
+                    if (juri == "rgb(255, 0, 0)" || juri == "red" ) {
+                        aka_score += 1
+                        $('#totalAka').val(aka_score)
+                    } else if (juri == "rgb(0, 0, 255)" || juri == "blue" ) {
+                        ao_score += 1
+                        $('#totalAo').val(ao_score)
+                    }
+                }
+            }
+
+            // if (scores.length >= 3) {
+            //     scores.sort((a, b) => a - b);
+            //     const trimmedScores = scores.slice(1, -1);
+            //     const total = trimmedScores.reduce((a, b) => a + b, 0);
+            //     console.log(total)
+            //     if (atlet === 'aka') {
+            //         $('#totalAka').val(total.toFixed(1));
+            //     } else {
+            //         $('#totalAo').val(total.toFixed(1));
+            //     }
+            // }
         }
     }
 
