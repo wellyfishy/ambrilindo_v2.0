@@ -3,7 +3,9 @@ from .views import *
 
 urlpatterns = [
     path('', auth, name="auth"),
+    path('get-current-atlets/<int:tatami_pk>', get_current_atlets, name="get-current-atlets"),
     path('jury-panel/<int:tatami_pk>', jury_panel, name="jury-panel"),
+    path('coach-supervisor/<int:tatami_pk>', coach_supervisor, name="coach-supervisor"),
     path('scoring-board/<int:tatami_pk>', scoring_board, name="scoring-board"),
     path('logout', logoutfunc, name="logout"),
     path('admin-dashboard/<int:event_pk>', admin_dashboard, name="admin-dashboard"),

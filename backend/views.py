@@ -45,9 +45,15 @@ def auth(request):
                 messages.error(request, "Event tidak ditemukan.")
                 return redirect('auth')
         else:
-            adm_control = Tatami.objects.filter(event__pk=username, tatami_number=password).first()
-            if adm_control:
-                return redirect('admin-control', tatami_pk=adm_control.pk)
+            if 'c' in username:
+                new_username = username.replace('c', '')
+                coach_supervisor = Tatami.objects.filter(event__pk=new_username, tatami_number=password).first()
+                if coach_supervisor:
+                    return redirect('coach-supervisor', tatami_pk=coach_supervisor.pk)
+            else:
+                adm_control = Tatami.objects.filter(event__pk=username, tatami_number=password).first()
+                if adm_control:
+                    return redirect('admin-control', tatami_pk=adm_control.pk)
             messages.error(request, "Username atau password salah!")
             return redirect('auth')
         
@@ -77,6 +83,14 @@ def jury_panel(request, tatami_pk):
         'tatami': tatami,
     }
     return render(request, 'jury/jury-panel.html', context)
+
+def coach_supervisor(request, tatami_pk):
+    tatami = Tatami.objects.get(pk=tatami_pk)
+
+    context = {
+        'tatami': tatami,
+    }
+    return render(request, 'jury/coach-supervisor.html', context)
 
 @csrf_exempt
 def message_retriever_jury(request, tatami_pk):
@@ -140,6 +154,45 @@ def message_retriever_control(request, tatami_pk):
 
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@csrf_exempt
+def message_retriever_coach_supervisor(request, tatami_pk):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        details = request.POST.get('details')
+
+        group_name = f"coachroom_{tatami_pk}"
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
+        )
+
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+def get_current_atlets(request, tatami_pk):
+    tatami = Tatami.objects.get(pk=tatami_pk)
+    detail_bagan = tatami.detail_bagan
+    data = {
+        'tatami': tatami.pk,
+        'detail_bagan': detail_bagan.pk,
+        'atlet1_nama': detail_bagan.atlet1.nama_atlet,
+        'atlet1_perguruan': detail_bagan.atlet1.perguruan,
+        'atlet1_utusan': detail_bagan.atlet1.utusan,
+        'atlet1_vr': detail_bagan.vr1,
+        'atlet2_nama': detail_bagan.atlet2.nama_atlet,
+        'atlet2_perguruan': detail_bagan.atlet2.perguruan,
+        'atlet2_utusan': detail_bagan.atlet2.utusan,
+        'atlet2_vr': detail_bagan.vr2,
+    }
+
+    return JsonResponse(data)
 
 def logoutfunc(request):
     logout(request)

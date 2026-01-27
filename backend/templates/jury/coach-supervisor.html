@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Supervisor Panel</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/plugins.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/ambrilindo.min.css' %}" />
+    <style>
+        body {
+            background-color:rgb(25, 25, 25);
+            color: gold;
+            font-family: sans-serif;
+        }
+
+        .ambrilindo-logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 80%;
+            height: auto;
+        }
+
+        input.slider-red {
+            width: 80%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input.slider-red::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px;
+            width: 30px;
+            background: red;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -10px;
+        }
+
+        input.slider-red::-webkit-slider-runnable-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        input.slider-red::-moz-range-thumb {
+            height: 30px;
+            width: 30px;
+            background: red;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input.slider-red::-moz-range-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        /* === Disabled state === */
+
+        input.slider-red:disabled::-webkit-slider-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        input.slider-red:disabled::-moz-range-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        input.slider-blue {
+            width: 80%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input.slider-blue::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px;
+            width: 30px;
+            background: blue;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -10px;
+        }
+
+        input.slider-blue::-webkit-slider-runnable-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        input.slider-blue::-moz-range-thumb {
+            height: 30px;
+            width: 30px;
+            background: blue;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input.slider-blue::-moz-range-track {
+            height: 8px;
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        /* === Disabled state === */
+
+        input.slider-blue:disabled::-webkit-slider-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        input.slider-blue:disabled::-moz-range-thumb {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambrilindo-logo">
+        <img class="ambrilindo-logo" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="">
+    </div>
+
+    <div>
+        <h1 style="text-align: center;">Coach Supervisor Tatami {{ tatami.tatami_number }}<a href="" class="btn btn-success">Refresh</a></h1>
+    </div>
+
+    <div style="">
+        <div style="text-align: center; background: linear-gradient(to bottom, rgb(255, 112, 112),rgb(255, 46, 46)); top-left-radius: 10px; border-top-right-radius: 10px;">
+            <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
+                <b>{{ detail_bagan.atlet1.nama_atlet }}</b> <br>
+            </h1>
+        </div>
+        <div style="background-color: white; padding-bottom: 20px; text-align: center;">
+            <br>
+            <button class="btn btn-danger" id="aka1" style="font-size: 30px; font-weight: bold">1</button>
+            <button class="btn btn-danger" id="aka2" style="font-size: 30px; font-weight: bold">2</button>
+            <button class="btn btn-danger" id="aka3" style="font-size: 30px; font-weight: bold">3</button>
+        </div>
+
+        <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
+            <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
+                <b>{{ detail_bagan.atlet2.nama_atlet }}</b> <br>
+            </h1>
+        </div>
+        <div style="background-color: white; padding-bottom: 20px; text-align: center;">
+            <br>
+            <button class="btn btn-primary" id="ao1" style="font-size: 30px; font-weight: bold">1</button>
+            <button class="btn btn-primary" id="ao2" style="font-size: 30px; font-weight: bold">2</button>
+            <button class="btn btn-primary" id="ao3" style="font-size: 30px; font-weight: bold">3</button>
+        </div>
+    </div>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/ambrilindo.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            const tatamiPk = {{ tatami.pk }}
+            var detail_bagan_pk = '' 
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const socket = new WebSocket(protocol + window.location.host + `/ws/coach-supervisor/${tatamiPk}`);
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                console.log(data.command, data.details)
+
+                if (data.command == 'aka-kata-kirim') {
+                    $('#kata-aka').text(data.details)
+                } else if (data.command == 'ao-kata-kirim') {
+                    $('#kata-ao').text(data.details)
+                }
+            }
+
+            $('#aka1').on('click', function () {
+                coach_send('aka', '1')
+            });
+            $('#aka2').on('click', function () {
+                coach_send('aka', '2')
+            });
+            $('#aka3').on('click', function () {
+                coach_send('aka', '3')
+            });
+
+            $('#ao1').on('click', function () {
+                coach_send('ao', '1')
+            });
+            $('#ao2').on('click', function () {
+                coach_send('ao', '2')
+            });
+            $('#ao3').on('click', function () {
+                coach_send('ao', '3')
+            });
+
+            function coach_send(team, val) {
+                
+                $.ajax({
+                    url: '/control-panel/{{ detail_bagan.pk }}/message-retriever',
+                    type: 'POST',
+                    data: {
+                        action: 'coach-supervisor',
+                        details: JSON.stringify([team, val]),
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                });
+            }
+        });
+    </script>
+</body>
+</html>
