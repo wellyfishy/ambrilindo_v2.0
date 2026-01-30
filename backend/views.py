@@ -114,12 +114,12 @@ def message_retriever_jury(request, tatami_pk):
     return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @csrf_exempt
-def message_retriever_admin(request, detailbagan_pk):
+def message_retriever_admin(request, tatami_pk):
     if request.method == 'POST':
         action = request.POST.get('action')
         details = request.POST.get('details')
 
-        group_name = f"control_{detailbagan_pk}"
+        group_name = f"control_{tatami_pk}"
         channel_layer = get_channel_layer()
 
         async_to_sync(channel_layer.group_send)(
@@ -729,6 +729,7 @@ def roster_counter(request, event_pk):
 def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    tatami = admin_tatami.tatami
     bagan = Bagan.objects.get(pk=bagan_pk)
     if bagan.round_robin:
         return redirect('admin-bagan-detail-round-robin', event_pk=event_pk, bagan_pk=bagan_pk)
@@ -781,6 +782,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
         'on': 'utama',
         'event': event,
         'admin_tatami': admin_tatami,
+        'tatami': tatami,
         'bagan': bagan,
         'detail_bagans_round_1': detail_bagans_round_1,
         'detail_bagans_round_2': detail_bagans_round_2,
@@ -1017,8 +1019,9 @@ def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
 
     return render(request, 'admin/edit-detail-bagan.html', context)
 
-def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
+def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
     event = Event.objects.get(pk=event_pk)
+    tatami = Tatami.objects.get(pk=tatami_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
@@ -1148,6 +1151,18 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
         }
     )
 
+    group_name = f"juryroom_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": detail_data,
+        }
+    )
+
     context = {
         'on': 'utama',
         'event': event,
@@ -1156,6 +1171,7 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk):
         'detail_bagan': detail_bagan,
         'aka_score': aka_score_obj,
         'ao_score': ao_score_obj,
+        'tatami': tatami,
     }
 
     return render(request, 'admin/control-panel.html', context)

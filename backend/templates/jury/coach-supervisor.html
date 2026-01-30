@@ -180,30 +180,71 @@
                 }
             }
 
+            let focus_aka = false;
+            let focus_ao = false;
+
             $('#aka1').on('click', function () {
-                coach_send('aka', '1')
+                coach_send('aka', '1');
+
+                focus_aka = !focus_aka; // toggle focus_aka
+
+                $('#aka2, #aka3').prop('disabled', focus_aka);
             });
+
             $('#aka2').on('click', function () {
-                coach_send('aka', '2')
+                coach_send('aka', '2');
+
+                focus_aka = !focus_aka; // toggle focus_aka
+
+                $('#aka1, #aka3').prop('disabled', focus_aka);
             });
+
             $('#aka3').on('click', function () {
-                coach_send('aka', '3')
+                coach_send('aka', '3');
+
+                focus_aka = !focus_aka; // toggle focus_aka
+
+                $('#aka1, #aka2').prop('disabled', focus_aka);
             });
 
             $('#ao1').on('click', function () {
-                coach_send('ao', '1')
+                coach_send('ao', '1');
+
+                focus_ao = !focus_ao; // toggle focus_ao
+
+                $('#ao2, #ao3').prop('disabled', focus_ao);
             });
+
             $('#ao2').on('click', function () {
-                coach_send('ao', '2')
+                coach_send('ao', '2');
+
+                focus_ao = !focus_ao; // toggle focus_ao
+
+                $('#ao1, #ao3').prop('disabled', focus_ao);
             });
+
             $('#ao3').on('click', function () {
-                coach_send('ao', '3')
+                coach_send('ao', '3');
+
+                focus_ao = !focus_ao; // toggle focus_ao
+
+                $('#ao1, #ao2').prop('disabled', focus_ao);
             });
 
             function coach_send(team, val) {
                 
                 $.ajax({
-                    url: '/control-panel/{{ detail_bagan.pk }}/message-retriever',
+                    url: '/scoring-board/{{ tatami.pk }}/message-retriever',
+                    type: 'POST',
+                    data: {
+                        action: 'coach-supervisor',
+                        details: JSON.stringify([team, val]),
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                });
+
+                $.ajax({
+                    url: '/control-panel/{{ tatami.pk }}/message-retriever',
                     type: 'POST',
                     data: {
                         action: 'coach-supervisor',

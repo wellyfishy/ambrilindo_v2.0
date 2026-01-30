@@ -583,7 +583,7 @@
     const baganPk = {{ bagan.pk }}
     const detailbaganPk = {{ detail_bagan.pk }}
     const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const socket = new WebSocket(protocol + window.location.host + `/ws/admin-dashboard/${eventPk}/bagan-detail/${baganPk}/control-panel/${detailbaganPk}`);
+    const socket = new WebSocket(protocol + window.location.host + `/ws/admin-dashboard/${eventPk}/bagan-detail/${baganPk}/control-panel/${detailbaganPk}/tatami/${tatamiPk}`);
 
     socket.onmessage = function(e) {
         const data = JSON.parse(e.data);

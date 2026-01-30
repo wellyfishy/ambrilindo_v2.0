@@ -52,7 +52,8 @@ class ControlPanelConsumer(AsyncWebsocketConsumer):
         self.event_pk = self.scope['url_route']['kwargs']['event_pk']
         self.bagan_pk = self.scope['url_route']['kwargs']['bagan_pk']
         self.detailbagan_pk = self.scope['url_route']['kwargs']['detailbagan_pk']
-        self.group_name = f"control_{self.detailbagan_pk}"
+        self.tatami_pk = self.scope['url_route']['kwargs']['tatami_pk']
+        self.group_name = f"control_{self.tatami_pk}"
 
         await self.channel_layer.group_add(
             self.group_name,

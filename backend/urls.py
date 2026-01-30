@@ -18,7 +18,7 @@ urlpatterns = [
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/edit', edit_admin_bagan_detail, name="edit-admin-bagan-detail"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/hapus', hapus_admin_bagan_detail, name="hapus-admin-bagan-detail"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/edit/<int:detailbagan_pk>', admin_edit_detail_bagan, name="edit-detail-bagan"),
-    path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/control-panel/<int:detailbagan_pk>', control_panel, name="control-panel"),
+    path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/control-panel/<int:detailbagan_pk>/tatami/<int:tatami_pk>/', control_panel, name="control-panel"),
     path('admin-atlet/<int:event_pk>', admin_atlet, name="admin-atlet"),
     path('admin-nomor-tanding/<int:event_pk>', admin_nomor_tanding, name="admin-nomor-tanding"),
     path('roster-counter/<int:event_pk>', roster_counter, name="roster-counter"),
@@ -29,5 +29,5 @@ urlpatterns = [
     path('scoring-board/<int:tatami_pk>/message-retriever', message_retriever, name="message-retriever"),
     path('admin-control/<int:tatami_pk>/message-retriever', message_retriever_control, name="message-retriever-control"),
     path('jury-panel/<int:tatami_pk>/message-retriever', message_retriever_jury, name="message-retriever-jury"),
-    path('control-panel/<int:detailbagan_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
+    path('control-panel/<int:tatami_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
 ]

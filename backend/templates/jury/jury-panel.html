@@ -137,11 +137,11 @@
     <div style="">
         <div style="text-align: center; background: linear-gradient(to bottom, rgb(255, 112, 112),rgb(255, 46, 46)); top-left-radius: 10px; border-top-right-radius: 10px;">
             <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b>{{ detail_bagan.atlet1.nama_atlet }}</b> <br>
+                <b><span id="atlet_red_name">{{ detail_bagan.atlet1.nama_atlet }}</span></b> <br>
                 <span style="color: gold; display: none" id="aka-winner"><b>WINNER</b></span>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                <span id="kata-aka">0 - Blank</span> | {{ detail_bagan.atlet1.perguruan.nama_perguruan }} | {{ detail_bagan.atlet1.utusan.nama_utusan }}
+                <span id="kata-aka">0 - Blank</span> | <span id="atlet_red_perguruan">{{ detail_bagan.atlet1.perguruan.nama_perguruan }}</span> | <span id="atlet_red_utusan">{{ detail_bagan.atlet1.utusan.nama_utusan }}</span>
             </h4>
         </div>
         <div style="background-color: white; padding-bottom: 20px;">
@@ -199,11 +199,11 @@
 
         <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
             <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b>{{ detail_bagan.atlet2.nama_atlet }}</b> <br>
+                <b><span id="atlet_blue_name">{{ detail_bagan.atlet2.nama_atlet }}</span></b> <br>
                 <span style="color: gold; display: none" id="ao-winner"><b>WINNER</b></span>
             </h1>
             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                <span id="kata-ao">0 - Blank</span> | {{ detail_bagan.atlet2.perguruan.nama_perguruan }} | {{ detail_bagan.atlet2.utusan.nama_utusan }}
+                <span id="kata-ao">0 - Blank</span> | <span id="atlet_blue_perguruan">{{ detail_bagan.atlet2.perguruan.nama_perguruan }}</span> | <span id="atlet_blue_utusan">{{ detail_bagan.atlet2.utusan.nama_utusan }}</span>
             </h4>
         </div>
         <div style="background-color: white; padding-bottom: 20px;">
@@ -280,6 +280,27 @@
                     $('#kata-ao').text(data.details)
                 }
 
+                if (data.command == 'get_atlet') {
+                    document.getElementById('atlet_red_name').innerText = data.details.atlet_red
+                    document.getElementById('atlet_red_perguruan').innerText = data.details.atlet_red_perguruan
+                    document.getElementById('atlet_red_utusan').innerText = data.details.atlet_red_utusan
+
+                    document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
+                    document.getElementById('atlet_blue_perguruan').innerText = data.details.atlet_blue_perguruan
+                    document.getElementById('atlet_blue_utusan').innerText = data.details.atlet_blue_utusan
+
+                    $('#akaKirimModalBtn').removeClass('hidden');
+                    $('#akaResetModalBtn').addClass('hidden');
+                    $('.slider-red').prop('disabled', false);
+
+                    $('#aoKirimModalBtn').removeClass('hidden');
+                    $('#aoResetModalBtn').addClass('hidden');
+                    $('.slider-blue').prop('disabled', false);
+
+                    $('#aka-winner').css('display', 'none')
+                    $('#ao-winner').css('display', 'none')
+                }
+
                 if (data.command == 'pemenang') {
                     if (data.details == 'aka') {
                         $('#aka-winner').css('display', 'inline')
@@ -301,7 +322,7 @@
                 $('.slider-red').prop('disabled', true);
                 
                 $.ajax({
-                    url: '/control-panel/{{ detail_bagan.pk }}/message-retriever',
+                    url: '/control-panel/{{ tatami.pk }}/message-retriever',
                     type: 'POST',
                     data: {
                         action: '{{ jury.jury_number }}',
@@ -328,7 +349,7 @@
                 $('.slider-blue').prop('disabled', true);
                 
                 $.ajax({
-                    url: '/control-panel/{{ detail_bagan.pk }}/message-retriever',
+                    url: '/control-panel/{{ tatami.pk }}/message-retriever',
                     type: 'POST',
                     data: {
                         action: '{{ jury.jury_number }}',

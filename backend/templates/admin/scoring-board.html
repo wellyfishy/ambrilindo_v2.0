@@ -910,6 +910,16 @@
       } else {
         $('#hantei-banner').show()
       }
+    } else if (data.command == 'coach-supervisor') {
+      var arr = JSON.parse(data.details);
+      var a = arr[0];
+      var b = arr[1];
+
+      if (a == 'aka') {
+        aka_vr_on('VIDEO REVIEW', 'REQUESTED')
+      } else if (a == 'ao') {
+        ao_vr_on('VIDEO REVIEW', 'REQUESTED')
+      }
     } else if (data.command == 'countdown-aka') {
       const banner = document.getElementById("countdown-banner");
       cd_val = data.details;
@@ -1164,13 +1174,19 @@
       }
     }
 
+    var arr = JSON.parse(data.details);
+    var a = arr[0];
+    var b = arr[1];
+
     if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
+    if (a === 'aka')  aka_vr_on(data.v1, data.v2, 'request');
     if (data.details === 'aka-accept-1')   aka_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'aka-accept-2')   aka_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'aka-accept-3')   aka_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'aka-decline')  aka_vr_on(data.v1, data.v2, 'decline');
 
     if (data.details === 'ao-request')   ao_vr_on(data.v1, data.v2, 'request');
+    if (a === 'ao')  ao_vr_on(data.v1, data.v2, 'request');
     if (data.details === 'ao-accept-1')   ao_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'ao-accept-2')   ao_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'ao-accept-3')   ao_vr_on(data.v1, data.v2, 'accept');
@@ -1383,7 +1399,7 @@
       }
       // document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
       document.getElementById('marquee-text').innerText = data.details.nomor_tanding
-      document.getElementById('atlet_red_name').innerText = data.details.atlet_red
+      
       document.getElementById('atlet_red_name').innerText = data.details.atlet_red
       document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
       document.getElementById('aka-score').innerText = '0'
