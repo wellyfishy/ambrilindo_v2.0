@@ -303,6 +303,178 @@
       position: absolute;
     }
 
+    #kata-score-wrap {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      display: grid;
+      place-items: center;
+      height: 60vh;
+      width: 90%;
+      margin-top: 5vh;
+    }
+
+    .fullscreen-kata-score {
+      width: 95%;
+      height: 70vh;
+      background: #111;
+      display: flex;
+      align-items: center;
+    }
+
+    /* TABLE */
+    .kata-table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    .kata-table td.col-judge,
+    .kata-table td.score,
+    .kata-table td.total,
+    .kata-table td.col-total {
+      border-left: 10px solid orange;
+      border-top: 10px solid orange;
+      border-bottom: 10px solid orange;
+    }
+
+    /* COLUMNS */
+    .col-name {
+      width: 35%;
+      padding-left: 1.5vw;
+    }
+
+    .col-judge {
+      width: 10%;
+      text-align: center;
+      background-color: white;
+    }
+
+    .col-total {
+      width: 12%;
+      text-align: center;
+      background-color: white;
+    }
+
+    /* HEADER */
+    .kata-header td {
+      height: 10vh;
+      font-size: 6vh;
+      font-weight: bold;
+      color: orange;
+      border-bottom: 3px solid white;
+    }
+
+    .kata-header img {
+      width: 6vh;
+    }
+
+    /* ROWS */
+    .kata-row td.col-name {
+      height: 16vh;
+      font-size: 6vh;
+      font-weight: bold;
+      color: white;
+    }
+
+    .kata-row.aka td {
+      color: #ac2222;
+    }
+
+    .kata-row.ao td {
+      color: #35349b;
+    }
+
+    .kata-row td.score,
+    .kata-row td.total {
+      color: black;
+      background-color: white;
+    }
+
+    /* SCORES */
+    .score, .total {
+      text-align: center;
+      text-shadow:
+        -3px -3px 0 white,
+        3px -3px 0 white,
+        -3px  3px 0 white,
+        3px  3px 0 white;
+    }
+
+    .score {
+      font-size: 9vh;        /* ← increase this */
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .total {
+      font-size: 11vh;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    /* NAME TRUNCATION */
+    .name-truncate {
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow:
+        -2px -2px 0 white,
+        2px -2px 0 white,
+        -2px  2px 0 white,
+        2px  2px 0 white;
+    }
+
+    .col-name {
+      text-shadow:
+        -2px -2px 0 white,
+        2px -2px 0 white,
+        -2px  2px 0 white,
+        2px  2px 0 white;
+    }
+
+    .score,
+    .total,
+    .col-judge {
+      opacity: 0;
+    }
+
+    .reveal {
+      animation: scoreReveal 2s ease-out forwards;
+    }
+
+    @keyframes scoreReveal {
+      0% {
+        opacity: 0;
+        transform: scale(1.3);
+        filter: brightness(3) blur(6px);
+        text-shadow:
+          0 0 30px white,
+          0 0 60px white;
+      }
+
+      40% {
+        opacity: 1;
+        transform: scale(1.05);
+        filter: brightness(2);
+        text-shadow:
+          0 0 20px white,
+          0 0 40px white;
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: none;
+        text-shadow:
+          -3px -3px 0 white,
+          3px -3px 0 white,
+          -3px  3px 0 white,
+          3px  3px 0 white;
+      }
+    }
+
     .fullscreen-hantei {
       height: 60vh;
       width: 80%;
@@ -426,6 +598,72 @@
           <div id="aka-judges-container" class="judges-container"></div>
         </div>
 
+      </div>
+
+      <div id="kata-score-wrap" style="display: none;">
+        <div class="fullscreen-kata-score">
+
+          <table class="kata-table">
+            <!-- HEADER -->
+            <tr class="kata-header">
+              <td class="col-name">KATA</td>
+
+              <td class="col-judge">
+                <img id="1-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
+                <img id="1-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
+              </td>
+              <td class="col-judge">
+                <img id="2-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
+                <img id="2-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
+              </td>
+              <td class="col-judge">
+                <img id="3-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
+                <img id="3-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
+              </td>
+              <td class="col-judge">
+                <img id="4-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
+                <img id="4-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
+              </td>
+              <td class="col-judge">
+                <img id="5-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
+                <img id="5-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
+              </td>
+
+              <td class="col-total" style="color: black;">TOTAL</td>
+            </tr>
+
+            <!-- AKA -->
+            <tr class="kata-row aka">
+              <td class="col-name">
+                <div class="name-truncate" id="aka-name">Aka</div>
+              </td>
+
+              <td class="score" id="j1-score-aka">0.0</td>
+              <td class="score" id="j2-score-aka">0.0</td>
+              <td class="score" id="j3-score-aka">0.0</td>
+              <td class="score" id="j4-score-aka">0.0</td>
+              <td class="score" id="j5-score-aka">0.0</td>
+
+              <td class="total" id="total-aka">0</td>
+            </tr>
+
+            <!-- AO -->
+            <tr class="kata-row ao">
+              <td class="col-name">
+                <div class="name-truncate" id="ao-name">Ao</div>
+              </td>
+
+              <td class="score" id="j1-score-ao">0.0</td>
+              <td class="score" id="j2-score-ao">0.0</td>
+              <td class="score" id="j3-score-ao">0.0</td>
+              <td class="score" id="j4-score-ao">0.0</td>
+              <td class="score" id="j5-score-ao">0.0</td>
+
+              <td class="total" id="total-ao">0</td>
+            </tr>
+          </table>
+
+        </div>
       </div>
 
       <div id="hantei-wrap">
@@ -697,6 +935,43 @@
 
   let countdownInterval = null;
   let msInterval = null;
+
+  let revealTimers = [];
+
+  function safeTimeout(fn, delay) {
+    const t = setTimeout(fn, delay);
+    revealTimers.push(t);
+  }
+
+  function hardResetReveal() {
+    // 1️⃣ cancel all timeouts
+    revealTimers.forEach(t => clearTimeout(t));
+    revealTimers = [];
+
+    // 2️⃣ stop animations instantly
+    $('.reveal').each(function () {
+      this.style.animation = 'none';
+      this.offsetHeight; // force reflow
+      this.style.animation = '';
+    });
+
+    // 3️⃣ remove reveal class
+    $('.score, .total, .col-judge').removeClass('reveal');
+  }
+
+  function resetAndReveal(delay = 500) {
+    hardResetReveal();
+
+    for (let i = 1; i <= 5; i++) {
+      const step = (i - 1) * 3;
+
+      safeTimeout(() => $(`#j${i}-score-aka`).addClass('reveal'), (step + 0) * delay);
+      safeTimeout(() => $(`#j${i}-score-ao`).addClass('reveal'),  (step + 1) * delay);
+      safeTimeout(() => $(`.col-judge`).eq(i - 1).addClass('reveal'), (step + 2) * delay);
+    }
+
+    safeTimeout(() => $('.total').addClass('reveal'), 5 * 3 * delay);
+  }
 
   function startCountdown() {
     let totalMs = 35000; // 35 seconds in ms
@@ -1067,17 +1342,54 @@
       totalSeconds = detailsArray[0]
       milliseconds = detailsArray[1]
       updateDisplay(totalSeconds, milliseconds);
+    } else if (data.command == 'bendera') {
+      const detailsArray = JSON.parse(data.details);
+      var totalAka = detailsArray[0]
+      var totalAo = detailsArray[1]
+
+      $('#aka-score').text(totalAka)
+      $('#ao-score').text(totalAo)
+      
     } else if (data.command == 'tampilkan-score') {
       const detailsArray = JSON.parse(data.details);
       var totalAka = detailsArray[0]
       var totalAo = detailsArray[1]
+      var scoresAka = detailsArray[2]
+      var scoresAo = detailsArray[3]
+      
+      
       if (isShowing == false) {
+        warning.play()
         $('#aka-score').text(totalAka)
         $('#ao-score').text(totalAo)
+        $('#kata-score-wrap').css('display', '')
+
+        const order = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < 5; i++) {
+          const srcIndex = order[i];
+
+          if (scoresAka[srcIndex] > scoresAo[srcIndex]) {
+            $(`#${i+1}-judge-aka-flag`).css('display', '')
+            $(`#${i+1}-judge-ao-flag`).css('display', 'none')
+          } else {
+            $(`#${i+1}-judge-aka-flag`).css('display', 'none')
+            $(`#${i+1}-judge-ao-flag`).css('display', '')
+          }
+
+          $(`#j${i + 1}-score-aka`).text(scoresAka[srcIndex]);
+          $(`#j${i + 1}-score-ao`).text(scoresAo[srcIndex]);
+          $('#total-aka').text(totalAka)
+          $('#total-ao').text(totalAo)
+        }
+
+        resetAndReveal(700);
         isShowing = true
       } else {
+        hardResetReveal();
         $('#aka-score').text('0')
         $('#ao-score').text('0')
+        $('#kata-score-wrap').css('display', 'none')
         isShowing = false
       }
     } else if (data.command == 'aka-kata-kirim') {
@@ -1173,10 +1485,12 @@
         $('#ao-vr').css('visibility', 'hidden') 
       }
     }
-
-    var arr = JSON.parse(data.details);
-    var a = arr[0];
-    var b = arr[1];
+    
+    if (a === 'aka' || a === 'ao') {
+      var arr = JSON.parse(data.details);
+      var a = arr[0];
+      var b = arr[1];
+    }
 
     if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
     if (a === 'aka')  aka_vr_on(data.v1, data.v2, 'request');
@@ -1418,29 +1732,43 @@
         document.getElementById('kata-ao').style.visibility = 'visible';
       }
 
+      $('#aka-name').text(data.details.atlet_red)
+      $('#ao-name').text(data.details.atlet_blue)
+      $('#kata-score-wrap').css('display', 'none')
+      for (let i=1; i<=5; i++) {
+        $(`#j${i}-score-aka`).text('0.0')
+        $(`#j${i}-score-ao`).text('0.0')
+        $(`${i}-judge-aka-flag`).css('display', 'none')
+        $(`${i}-judge-ao-flag`).css('display', 'none')
+      }
+      $('#total-aka').text('0')
+      $('#total-ao').text('0')
+      
       totalSeconds = 0
       milliseconds = 0
       updateDisplay(totalSeconds, milliseconds);
       warningVal = false
-
+      
       aka_score = 0
       ao_score = 0
       aka_criteria = 0
       ao_criteria = 0
-
+      
       isRunning = false;
       isShowing = false;
-
+      
       $('#aka-senshu').css('visibility', 'hidden') 
       $('#ao-senshu').css('visibility', 'hidden') 
-
+      
       for (let i = 1; i <= 5; i++) {
         $(`#akac${i}`).removeClass('active-red');
       }
-
+      
       for (let i = 1; i <= 5; i++) {
         $(`#aoc${i}`).removeClass('active-blue');
       }
+
+      hardResetReveal()
       reset_banners()
     }
   };
