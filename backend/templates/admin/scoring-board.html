@@ -304,14 +304,12 @@
     }
 
     #kata-score-wrap {
-      position: absolute;
       inset: 0;
       margin: auto;
       display: grid;
       place-items: center;
-      height: 60vh;
-      width: 90%;
-      margin-top: 5vh;
+      width: 100%;
+      margin-left: -20px;
     }
 
     .fullscreen-kata-score {
@@ -345,7 +343,7 @@
     }
 
     .col-judge {
-      width: 10%;
+      width: 5%;
       text-align: center;
       background-color: white;
     }
@@ -599,7 +597,7 @@
         </div>
 
       </div>
-
+{% comment %} 
       <div id="kata-score-wrap" style="display: none;">
         <div class="fullscreen-kata-score">
 
@@ -664,7 +662,7 @@
           </table>
 
         </div>
-      </div>
+      </div> {% endcomment %}
 
       <div id="hantei-wrap">
         <div class="fullscreen-hantei" id="hantei-banner" style="display: none;">
@@ -879,6 +877,32 @@
             </div>
         </div>
 
+        <div id="kata-score-wrap" style="display: none;">
+          <div class="">
+
+            <table class="kata-table">
+              <!-- AKA -->
+              <tr class="kata-row aka">
+                <td class="score" id="j1-score-aka">0.0</td>
+                <td class="score" id="j2-score-aka">0.0</td>
+                <td class="score" id="j3-score-aka">0.0</td>
+                <td class="score" id="j4-score-aka">0.0</td>
+                <td class="score" id="j5-score-aka">0.0</td>
+              </tr>
+
+              <!-- AO -->
+              <tr class="kata-row ao">
+                <td class="score" id="j1-score-ao">0.0</td>
+                <td class="score" id="j2-score-ao">0.0</td>
+                <td class="score" id="j3-score-ao">0.0</td>
+                <td class="score" id="j4-score-ao">0.0</td>
+                <td class="score" id="j5-score-ao">0.0</td>
+              </tr>
+          </table>
+
+        </div>
+      </div>
+
         <div class="player">
             <div class="player-main">
                 <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
@@ -956,21 +980,20 @@
     });
 
     // 3️⃣ remove reveal class
-    $('.score, .total, .col-judge').removeClass('reveal');
+    $('.score, .aka-score, .ao-score').removeClass('reveal');
   }
 
   function resetAndReveal(delay = 500) {
     hardResetReveal();
 
     for (let i = 1; i <= 5; i++) {
-      const step = (i - 1) * 3;
+      const step = (i - 1) * 2;
 
       safeTimeout(() => $(`#j${i}-score-aka`).addClass('reveal'), (step + 0) * delay);
       safeTimeout(() => $(`#j${i}-score-ao`).addClass('reveal'),  (step + 1) * delay);
-      safeTimeout(() => $(`.col-judge`).eq(i - 1).addClass('reveal'), (step + 2) * delay);
     }
 
-    safeTimeout(() => $('.total').addClass('reveal'), 5 * 3 * delay);
+    safeTimeout(() => $('.aka-score, .ao-score').addClass('reveal'), 5 * 2 * delay);
   }
 
   function startCountdown() {
@@ -1360,8 +1383,6 @@
       
       if (isShowing == false) {
         warning.play()
-        $('#aka-score').text(totalAka)
-        $('#ao-score').text(totalAo)
         $('#kata-score-wrap').css('display', '')
 
         const order = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
@@ -1370,20 +1391,22 @@
           const srcIndex = order[i];
 
           if (scoresAka[srcIndex] > scoresAo[srcIndex]) {
-            $(`#${i+1}-judge-aka-flag`).css('display', '')
-            $(`#${i+1}-judge-ao-flag`).css('display', 'none')
+            $(`#j${i + 1}-score-aka`).css('background-color', 'red')
+            $(`#j${i + 1}-score-ao`).css('background-color', 'white')
           } else {
-            $(`#${i+1}-judge-aka-flag`).css('display', 'none')
-            $(`#${i+1}-judge-ao-flag`).css('display', '')
+            $(`#j${i + 1}-score-aka`).css('background-color', 'white')
+            $(`#j${i + 1}-score-ao`).css('background-color', 'blue')
           }
 
           $(`#j${i + 1}-score-aka`).text(scoresAka[srcIndex]);
           $(`#j${i + 1}-score-ao`).text(scoresAo[srcIndex]);
-          $('#total-aka').text(totalAka)
-          $('#total-ao').text(totalAo)
+          $('#aka-score').css('opacity', '0')
+          $('#ao-score').css('opacity', '0')
+          $('#aka-score').text(totalAka)
+          $('#ao-score').text(totalAo)
         }
 
-        resetAndReveal(700);
+        resetAndReveal(500);
         isShowing = true
       } else {
         hardResetReveal();
