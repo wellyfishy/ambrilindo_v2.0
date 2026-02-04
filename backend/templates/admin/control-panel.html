@@ -132,12 +132,13 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title d-flex align-items-center flex-wrap gap-3">
                             <!-- Tampilkan Score Button -->
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    id="tampilkan-score"
-                                    style="font-size: inherit;
-                                        {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">
-                                Tampilkan Score
+                            <button type="button" class="btn btn-secondary btn-sm" id="tampilkan-score" style="font-size: inherit;
+                                {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button type="button" class="btn btn-black btn-sm" id="tampilkan-score-simple" style="font-size: inherit;
+                                {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">
+                                <i class="fas fa-eye"></i>
                             </button>
 
                             <span class="text-muted">|</span>
@@ -464,6 +465,7 @@
                                 <tr>
                                 <th scope="col" style="text-align: center;;">Info</th>
                                 <th scope="col" style="text-align: center;">VR Info</th>
+                                <th scope="col" style="text-align: center;">Request</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -494,6 +496,9 @@
                                         <button class="btn btn-light" disabled>Unavailable</button>
                                         {% endif %}
                                     </td>
+                                    <td>
+                                        <b><span style="font-size: 20px;" id="aka-requested">-</span></b>
+                                    </td>
                                 </tr>
 
                                 <tr>
@@ -522,6 +527,9 @@
                                         {% else %}
                                         <button class="btn btn-light" disabled>Unavailable</button>
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        <b><span style="font-size: 20px;" id="ao-requested">-</span></b>
                                     </td>
                                 </tr>
                             </tbody>
@@ -589,60 +597,73 @@
         const data = JSON.parse(e.data);
         console.log(data.command, data.details)
 
-        const detailsArray = JSON.parse(data.details);
-        const atlet = detailsArray[0];
-        const score = detailsArray[1];
+        if (data.command >= '1' && data.command <= '5') {
+            const detailsArray = JSON.parse(data.details);
+            const atlet = detailsArray[0];
+            const score = detailsArray[1];
 
-        if ((atlet === 'aka' || atlet === 'ao') && data.command >= '1' && data.command <= '5') {
-            const prefix = atlet === 'aka' ? '#akaj' : '#aoj';
-            const inputId = prefix + data.command;
-            $(inputId).val(score);
+            if (atlet === 'aka' || atlet === 'ao') {
 
-            let scores = [];
-            for (let i = 1; i <= 5; i++) {
-                const val = parseFloat($(prefix + i).val());
-                if (!isNaN(val) && val !== 0) {
-                    scores.push(val);
-                }
-            } 
+                const prefix = atlet === 'aka' ? '#akaj' : '#aoj';
+                const inputId = prefix + data.command;
+                $(inputId).val(score);
 
-            var aka_val = parseFloat($('#akaj' + data.command).val())
-            var ao_val = parseFloat($('#aoj' + data.command).val())
-            
-            if (aka_val !== 0 && ao_val !== 0) {
-                if (aka_val > ao_val) {
-                    $('#j' + data.command).css("background-color", "red")
-                } else if (aka_val < ao_val) {
-                    $('#j' + data.command).css("background-color", "blue")
-                }
-            }
-
-            if (scores.length >= 5) {
-                aka_score = 0
-                ao_score = 0
+                let scores = [];
                 for (let i = 1; i <= 5; i++) {
-                    var juri = $('#j' + i).css('background-color')
-                    if (juri == "rgb(255, 0, 0)" || juri == "red" ) {
-                        aka_score += 1
-                        $('#totalAka').val(aka_score)
-                    } else if (juri == "rgb(0, 0, 255)" || juri == "blue" ) {
-                        ao_score += 1
-                        $('#totalAo').val(ao_score)
+                    const val = parseFloat($(prefix + i).val());
+                    if (!isNaN(val) && val !== 0) {
+                        scores.push(val);
+                    }
+                } 
+
+                var aka_val = parseFloat($('#akaj' + data.command).val())
+                var ao_val = parseFloat($('#aoj' + data.command).val())
+                
+                if (aka_val !== 0 && ao_val !== 0) {
+                    if (aka_val > ao_val) {
+                        $('#j' + data.command).css("background-color", "red")
+                    } else if (aka_val < ao_val) {
+                        $('#j' + data.command).css("background-color", "blue")
                     }
                 }
-            }
 
-            // if (scores.length >= 3) {
-            //     scores.sort((a, b) => a - b);
-            //     const trimmedScores = scores.slice(1, -1);
-            //     const total = trimmedScores.reduce((a, b) => a + b, 0);
-            //     console.log(total)
-            //     if (atlet === 'aka') {
-            //         $('#totalAka').val(total.toFixed(1));
-            //     } else {
-            //         $('#totalAo').val(total.toFixed(1));
-            //     }
-            // }
+                if (scores.length >= 5) {
+                    aka_score = 0
+                    ao_score = 0
+                    for (let i = 1; i <= 5; i++) {
+                        var juri = $('#j' + i).css('background-color')
+                        if (juri == "rgb(255, 0, 0)" || juri == "red" ) {
+                            aka_score += 1
+                            $('#totalAka').val(aka_score)
+                        } else if (juri == "rgb(0, 0, 255)" || juri == "blue" ) {
+                            ao_score += 1
+                            $('#totalAo').val(ao_score)
+                        }
+                    }
+                }
+
+                // if (scores.length >= 3) {
+                //     scores.sort((a, b) => a - b);
+                //     const trimmedScores = scores.slice(1, -1);
+                //     const total = trimmedScores.reduce((a, b) => a + b, 0);
+                //     console.log(total)
+                //     if (atlet === 'aka') {
+                //         $('#totalAka').val(total.toFixed(1));
+                //     } else {
+                //         $('#totalAo').val(total.toFixed(1));
+                //     }
+                // }
+            }
+        } else if (data.command == 'coach-supervisor') {
+            const detailsArray = JSON.parse(data.details);
+            const atlet = detailsArray[0];
+            const score = detailsArray[1];
+
+            if (atlet == 'aka') {
+                $('#aka-requested').text(score)
+            } else if (atlet == 'ao') {
+                $('#ao-requested').text(score)
+            }
         }
     }
 
@@ -786,37 +807,57 @@
     })
     $('#aka-request').on('click', function() {
         kirim_vr('aka-request')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
     })
     $('#aka-accept-1').on('click', function() {
         kirim_vr('aka-accept-1')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
     })
     $('#aka-accept-2').on('click', function() {
         kirim_vr('aka-accept-2')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
     })
     $('#aka-accept-3').on('click', function() {
         kirim_vr('aka-accept-3')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
     })
     $('#aka-decline').on('click', function() {
         kirim_vr('aka-decline')
         $('#aka-vr').prop('checked', false)
         kirim_vr('aka-remove-vr')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '0')
     })
     $('#ao-request').on('click', function() {
         kirim_vr('ao-request')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
     })
     $('#ao-accept-1').on('click', function() {
         kirim_vr('ao-accept-1')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
     })
     $('#ao-accept-2').on('click', function() {
         kirim_vr('ao-accept-2')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
     })
     $('#ao-accept-3').on('click', function() {
         kirim_vr('ao-accept-3')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
     })
     $('#ao-decline').on('click', function() {
         kirim_vr('ao-decline')
         $('#ao-vr').prop('checked', false)
         kirim_vr('ao-remove-vr')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '0')
     })
     $('#aka-vr').on('change', function() {
         if ($(this).is(':checked')) {
@@ -832,6 +873,18 @@
             kirim_vr('ao-remove-vr')
         }
     })
+
+    function kirim_status_vr(value1, value2) {
+        $.ajax({
+            url: '/coach-supervisor/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'vr_status',
+                details: JSON.stringify([value1, value2]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    }
 
     function kirim_vr(vr_value) {
         $.ajax({
@@ -1000,10 +1053,10 @@
 
     $('#tampilkan-score').on('click', function() {
         if (tampilkan == false) {
-            $('#tampilkan-score').text('Sembunyikan Score')
+            $('#tampilkan-score').html('<i class="fas fa-eye-slash"></i>')
             tampilkan = true
         } else {
-            $('#tampilkan-score').text('Tampilkan Score')
+            $('#tampilkan-score').html('<i class="fas fa-eye"></i>')
             tampilkan = false
         }
         let scoreAka = $('#totalAka').val();
@@ -1023,6 +1076,28 @@
             data: {
                 action: 'tampilkan-score',
                 details: JSON.stringify([scoreAka, scoreAo, scoresAka, scoresAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#tampilkan-score-simple').on('click', function() {
+        if (tampilkan == false) {
+            $('#tampilkan-score-simple').html('<i class="fas fa-eye-slash"></i>')
+            tampilkan = true
+        } else {
+            tampilkan = false
+            $('#tampilkan-score-simple').html('<i class="fas fa-eye"></i>')
+        }
+        let scoreAka = $('#totalAka').val();
+        let scoreAo = $('#totalAo').val();
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'tampilkan-score-simple',
+                details: JSON.stringify([scoreAka, scoreAo]),
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
         });

@@ -30,4 +30,5 @@ urlpatterns = [
     path('admin-control/<int:tatami_pk>/message-retriever', message_retriever_control, name="message-retriever-control"),
     path('jury-panel/<int:tatami_pk>/message-retriever', message_retriever_jury, name="message-retriever-jury"),
     path('control-panel/<int:tatami_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
+    path('coach-supervisor/<int:tatami_pk>/message-retriever', message_retriever_coach_supervisor, name="message-retriever-coach-supervisor"),
 ]
