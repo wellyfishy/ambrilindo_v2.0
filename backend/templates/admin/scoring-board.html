@@ -63,7 +63,7 @@
     }
 
     .flag {
-      width: 200px;
+      width: 300px;
       height: auto;
 
       margin-right: 20px;
@@ -486,6 +486,95 @@
       line-height: 1;
       flex-direction: column;
     }
+    
+    #transition-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .fullscreen-transition {
+      position: fixed;
+      inset: 0;
+    }
+
+    /* slices */
+    .slice {
+      position: absolute;              /* 🔑 REQUIRED */
+      left: 0;
+      width: 100%;
+      height: 20.2vh;                  /* slight overlap */
+      
+      background-image: url("{% static 'img/ambrilindo/ambrilindo_3d(before).png' %}");
+      background-size: 100% 501%;      /* overdraw */
+      background-repeat: no-repeat;
+
+      transform: translateX(100%) translateZ(0);
+      filter: blur(14px) brightness(1.4);
+      box-shadow: 0 0 60px rgba(255,255,255,0.35);
+
+      animation:
+        enterRight 0.9s cubic-bezier(.4,0,.2,1) forwards,
+        exitLeft   0.9s cubic-bezier(.4,0,.2,1) forwards;
+    }
+
+    /* stagger timing */
+    .slice:nth-child(1) { animation-delay: 0s,   1.6s; }
+    .slice:nth-child(2) { animation-delay: 0.12s,1.72s; }
+    .slice:nth-child(3) { animation-delay: 0.24s,1.84s; }
+    .slice:nth-child(4) { animation-delay: 0.36s,1.96s; }
+    .slice:nth-child(5) { animation-delay: 0.48s,2.08s; }
+
+    /* vertical placement + background alignment */
+    .slice:nth-child(1) { top: 0vh;  background-position: 0%   0%; }
+    .slice:nth-child(2) { top: 20vh; background-position: 0%  25%; }
+    .slice:nth-child(3) { top: 40vh; background-position: 0%  50%; }
+    .slice:nth-child(4) { top: 60vh; background-position: 0%  75%; }
+    .slice:nth-child(5) { top: 80vh; background-position: 0% 100%; }
+
+
+    /* ENTRY */
+    @keyframes enterRight {
+      0% {
+        transform: translateX(100%);
+        filter: blur(18px) brightness(1.6);
+        box-shadow: 0 0 80px rgba(255,255,255,0.45);
+      }
+
+      70% {
+        transform: translateX(0);
+        filter: blur(6px) brightness(1.2);
+        box-shadow: 0 0 30px rgba(255,255,255,0.25);
+      }
+
+      100% {
+        transform: translateX(0);
+        filter: blur(0) brightness(1);
+        box-shadow: none;
+      }
+    }
+
+    /* EXIT */
+    @keyframes exitLeft {
+      0% {
+        transform: translateX(0);
+        filter: blur(0) brightness(1);
+        box-shadow: none;
+      }
+
+      30% {
+        filter: blur(6px) brightness(1.2);
+        box-shadow: 0 0 30px rgba(255,255,255,0.25);
+      }
+
+      100% {
+        transform: translateX(-120%);
+        filter: blur(20px) brightness(1.6);
+        box-shadow: 0 0 90px rgba(255,255,255,0.5);
+      }
+    }
 
     .fullscreen-countdown {
       height: 60vh;
@@ -597,72 +686,6 @@
         </div>
 
       </div>
-{% comment %} 
-      <div id="kata-score-wrap" style="display: none;">
-        <div class="fullscreen-kata-score">
-
-          <table class="kata-table">
-            <!-- HEADER -->
-            <tr class="kata-header">
-              <td class="col-name">KATA</td>
-
-              <td class="col-judge">
-                <img id="1-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
-                <img id="1-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
-              </td>
-              <td class="col-judge">
-                <img id="2-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
-                <img id="2-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
-              </td>
-              <td class="col-judge">
-                <img id="3-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
-                <img id="3-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
-              </td>
-              <td class="col-judge">
-                <img id="4-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
-                <img id="4-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
-              </td>
-              <td class="col-judge">
-                <img id="5-judge-aka-flag" src="{% static 'img/ambrilindo/red_circle.png' %}" style="display: none">
-                <img id="5-judge-ao-flag" src="{% static 'img/ambrilindo/blue_circle.png' %}" style="display: none">
-              </td>
-
-              <td class="col-total" style="color: black;">TOTAL</td>
-            </tr>
-
-            <!-- AKA -->
-            <tr class="kata-row aka">
-              <td class="col-name">
-                <div class="name-truncate" id="aka-name">Aka</div>
-              </td>
-
-              <td class="score" id="j1-score-aka">0.0</td>
-              <td class="score" id="j2-score-aka">0.0</td>
-              <td class="score" id="j3-score-aka">0.0</td>
-              <td class="score" id="j4-score-aka">0.0</td>
-              <td class="score" id="j5-score-aka">0.0</td>
-
-              <td class="total" id="total-aka">0</td>
-            </tr>
-
-            <!-- AO -->
-            <tr class="kata-row ao">
-              <td class="col-name">
-                <div class="name-truncate" id="ao-name">Ao</div>
-              </td>
-
-              <td class="score" id="j1-score-ao">0.0</td>
-              <td class="score" id="j2-score-ao">0.0</td>
-              <td class="score" id="j3-score-ao">0.0</td>
-              <td class="score" id="j4-score-ao">0.0</td>
-              <td class="score" id="j5-score-ao">0.0</td>
-
-              <td class="total" id="total-ao">0</td>
-            </tr>
-          </table>
-
-        </div>
-      </div> {% endcomment %}
 
       <div id="hantei-wrap">
         <div class="fullscreen-hantei" id="hantei-banner" style="display: none;">
@@ -673,6 +696,8 @@
           <div id="aka-judges-container" class="judges-container"></div>
         </div>
       </div>
+
+      <div id="transition-wrap"></div>
 
       <div id="countdown-wrap">
         <div class="fullscreen-countdown" id="countdown-banner" style="display: none">
@@ -853,7 +878,7 @@
 
         <div class="player">
             <div class="player-main">
-                <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
+                <img class="flag" src="{% static 'img/ambrilindo/idn-flag.png' %}" alt="Forki">
                 <div class="info">
                     <div class="name" id="atlet_red_name">-</div>
                     <div class="country" id="atlet_red_country">-</div>
@@ -905,7 +930,7 @@
 
         <div class="player">
             <div class="player-main">
-                <img class="flag" src="{% static 'img/ambrilindo/forki-logo.png' %}" alt="Forki">
+                <img class="flag" src="{% static 'img/ambrilindo/idn-flag.png' %}" alt="Forki">
                 <div class="info">
                     <div class="name" id="atlet_blue_name">-</div>
                     <div class="country" id="atlet_blue_country">-</div>
@@ -961,6 +986,27 @@
   let msInterval = null;
 
   let revealTimers = [];
+
+  let isTransitioning = false;
+
+  function playTransition() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    const wrap = $('#transition-wrap');
+    wrap.empty();
+
+    const transition = $('<div class="fullscreen-transition"></div>');
+    for (let i = 0; i < 5; i++) {
+      transition.append('<div class="slice"></div>');
+    }
+    wrap.append(transition);
+
+    setTimeout(() => {
+      wrap.empty();
+      isTransitioning = false;
+    }, 3000);
+  }
 
   function safeTimeout(fn, delay) {
     const t = setTimeout(fn, delay);
@@ -1201,6 +1247,10 @@
 
     if (data.command == 'get_atlet') {
       reset()
+      if (data.details.tipe_tanding == '2') {
+        $('#aka-score').css('opacity', '1')
+        $('#ao-score').css('opacity', '1')
+      }
     } else if (data.command == 'hantei') {
       hantei = data.details;
       if (hantei == 0) {
@@ -1734,82 +1784,85 @@
     }
 
     function reset() {
-      if (data.details.tipe_tanding == '1') {
-        document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
-          div.classList.add('deactivate');
-        });
-      } else if (data.details.tipe_tanding == '2') {
-        document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
-          div.classList.remove('deactivate');
-        });
-      }
-      document.getElementById('aka-vr').style.visibility = 'hidden';
-      if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {
-        document.getElementById('aka-vr').style.visibility = 'visible';
-      }
-      document.getElementById('ao-vr').style.visibility = 'hidden';
-      if (data.details.atlet_blue_vr && data.details.tipe_tanding == '2') {
-        document.getElementById('ao-vr').style.visibility = 'visible';
-      }
-      // document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
-      document.getElementById('marquee-text').innerText = data.details.nomor_tanding
-      
-      document.getElementById('atlet_red_name').innerText = data.details.atlet_red
-      document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
-      document.getElementById('aka-score').innerText = '0'
-
-      document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
-      document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
-      document.getElementById('ao-score').innerText = '0'
-
-      $('#kata-aka').text(data.details.atlet_red_kata)
-      $('#kata-ao').text(data.details.atlet_blue_kata)
-
-      document.getElementById('kata-aka').style.visibility = 'hidden';
-      document.getElementById('kata-ao').style.visibility = 'hidden';
-      if (data.details.tipe_tanding == '1') {
-        document.getElementById('kata-aka').style.visibility = 'visible';
-        document.getElementById('kata-ao').style.visibility = 'visible';
-      }
-
-      $('#aka-name').text(data.details.atlet_red)
-      $('#ao-name').text(data.details.atlet_blue)
-      $('#kata-score-wrap').css('display', 'none')
-      for (let i=1; i<=5; i++) {
-        $(`#j${i}-score-aka`).text('0.0')
-        $(`#j${i}-score-ao`).text('0.0')
-        $(`${i}-judge-aka-flag`).css('display', 'none')
-        $(`${i}-judge-ao-flag`).css('display', 'none')
-      }
-      $('#total-aka').text('0')
-      $('#total-ao').text('0')
-      
-      totalSeconds = 0
-      milliseconds = 0
-      updateDisplay(totalSeconds, milliseconds);
-      warningVal = false
-      
-      aka_score = 0
-      ao_score = 0
-      aka_criteria = 0
-      ao_criteria = 0
-      
-      isRunning = false;
-      isShowing = false;
-      
-      $('#aka-senshu').css('visibility', 'hidden') 
-      $('#ao-senshu').css('visibility', 'hidden') 
-      
-      for (let i = 1; i <= 5; i++) {
-        $(`#akac${i}`).removeClass('active-red');
-      }
-      
-      for (let i = 1; i <= 5; i++) {
-        $(`#aoc${i}`).removeClass('active-blue');
-      }
-
-      hardResetReveal()
-      reset_banners()
+      playTransition();
+      setTimeout(() => {
+        if (data.details.tipe_tanding == '1') {
+          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
+            div.classList.add('deactivate');
+          });
+        } else if (data.details.tipe_tanding == '2') {
+          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
+            div.classList.remove('deactivate');
+          });
+        }
+        document.getElementById('aka-vr').style.visibility = 'hidden';
+        if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {
+          document.getElementById('aka-vr').style.visibility = 'visible';
+        }
+        document.getElementById('ao-vr').style.visibility = 'hidden';
+        if (data.details.atlet_blue_vr && data.details.tipe_tanding == '2') {
+          document.getElementById('ao-vr').style.visibility = 'visible';
+        }
+        // document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
+        document.getElementById('marquee-text').innerText = data.details.nomor_tanding
+        
+        document.getElementById('atlet_red_name').innerText = data.details.atlet_red
+        document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
+        document.getElementById('aka-score').innerText = '0'
+  
+        document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
+        document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
+        document.getElementById('ao-score').innerText = '0'
+  
+        $('#kata-aka').text(data.details.atlet_red_kata)
+        $('#kata-ao').text(data.details.atlet_blue_kata)
+  
+        document.getElementById('kata-aka').style.visibility = 'hidden';
+        document.getElementById('kata-ao').style.visibility = 'hidden';
+        if (data.details.tipe_tanding == '1') {
+          document.getElementById('kata-aka').style.visibility = 'visible';
+          document.getElementById('kata-ao').style.visibility = 'visible';
+        }
+  
+        $('#aka-name').text(data.details.atlet_red)
+        $('#ao-name').text(data.details.atlet_blue)
+        $('#kata-score-wrap').css('display', 'none')
+        for (let i=1; i<=5; i++) {
+          $(`#j${i}-score-aka`).text('0.0')
+          $(`#j${i}-score-ao`).text('0.0')
+          $(`${i}-judge-aka-flag`).css('display', 'none')
+          $(`${i}-judge-ao-flag`).css('display', 'none')
+        }
+        $('#total-aka').text('0')
+        $('#total-ao').text('0')
+        
+        totalSeconds = 0
+        milliseconds = 0
+        updateDisplay(totalSeconds, milliseconds);
+        warningVal = false
+        
+        aka_score = 0
+        ao_score = 0
+        aka_criteria = 0
+        ao_criteria = 0
+        
+        isRunning = false;
+        isShowing = false;
+        
+        $('#aka-senshu').css('visibility', 'hidden') 
+        $('#ao-senshu').css('visibility', 'hidden') 
+        
+        for (let i = 1; i <= 5; i++) {
+          $(`#akac${i}`).removeClass('active-red');
+        }
+        
+        for (let i = 1; i <= 5; i++) {
+          $(`#aoc${i}`).removeClass('active-blue');
+        }
+  
+        hardResetReveal()
+        reset_banners()
+      }, 1000);
     }
   };
 </script>
