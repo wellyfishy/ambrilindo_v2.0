@@ -72,7 +72,7 @@
               </li>
               <li class="nav-item {% if on == 'utusan' or on == 'perguruan' or on == 'rekapan' or on == 'roster-counter' %}active{% endif %}">
                 <a data-bs-toggle="collapse" href="#rekapan" class="collapsed" aria-expanded="false">
-                  <i class="fas fa-home"></i>
+                  <i class="fas fa-book"></i>
                   <p>Rekapan</p>
                   <span class="caret"></span>
                 </a>
@@ -104,7 +104,7 @@
               {% if admin_tatami %}
               <li class="nav-item">
                 <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}'); return false;">
-                  <i class="fas fa-home"></i>
+                  <i class="fas fa-braille"></i>
                   <p>Scoring Board</p>
                 </a>
               </li>
