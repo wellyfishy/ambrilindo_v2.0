@@ -146,7 +146,16 @@
                 <button class="btn btn-danger" id="aka2" style="font-size: 50px; font-weight: bold; margin-left: 20px">2</button>
                 <button class="btn btn-danger" id="aka3" style="font-size: 50px; font-weight: bold; margin-left: 20px">3</button>
             </div>
+            <div style="background: linear-gradient(to top, rgb(255, 112, 112),rgb(255, 46, 46)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
+                <div style="text-align: center;">
+                    <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
+                    <b>REQUESTED:</b> 
+                    <span id="requested-aka">-</span>
+                </h1>
+                </div>
+            </div>
         </div>
+
 
         <div id="ao-banner">
             <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
@@ -163,6 +172,14 @@
                 <button class="btn btn-primary" id="ao1" style="font-size: 50px; font-weight: bold">1</button>
                 <button class="btn btn-primary" id="ao2" style="font-size: 50px; font-weight: bold; margin-left: 20px">2</button>
                 <button class="btn btn-primary" id="ao3" style="font-size: 50px; font-weight: bold; margin-left: 20px">3</button>
+            </div>
+            <div style="background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
+                <div style="text-align: center;">
+                    <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
+                    <b>REQUESTED:</b> 
+                    <span id="requested-ao">-</span>
+                </h1>
+                </div>
             </div>
         </div>
     </div>
@@ -197,29 +214,37 @@
 
                     if (player == 'aka') {
                         if (status == '1') {
+                            $('#requested-aka').text('-')
                             $('#aka1, #aka2, #aka3').prop('disabled', false);
                             $('#aka1, #aka2, #aka3').blur()
                         } else {
+                            $('#requested-aka').text('-')
                             $('#aka1, #aka2, #aka3').prop('disabled', true);
                         }
                     }
                     if (player == 'ao') {
                         if (status == '1') {
+                            $('#requested-ao').text('-')
                             $('#ao1, #ao2, #ao3').prop('disabled', false);
                             $('#ao1, #ao2, #ao3').blur()
                         } else {
+                            $('#requested-ao').text('-')
                             $('#ao1, #ao2, #ao3').prop('disabled', true);
                         }
                     }
                 } else if (data.command == 'get_atlet') {
                     if (data.details[0] == true) {
+                        $('#requested-aka').text('-')
                         $('#aka1, #aka2, #aka3').prop('disabled', false);
                     } else {
+                        $('#requested-aka').text('-')
                         $('#aka1, #aka2, #aka3').prop('disabled', true);
                     }
                     if (data.details[1] == true) {
+                        $('#requested-ao').text('-')
                         $('#ao1, #ao2, #ao3').prop('disabled', false);
                     } else {
+                        $('#requested-ao').text('-')
                         $('#ao1, #ao2, #ao3').prop('disabled', true);
                     }
                 }
@@ -245,51 +270,37 @@
 
             $('#aka1').on('click', function () {
                 coach_send('aka', '1');
-
-                focus_aka = !focus_aka; // toggle focus_aka
-
-                $('#aka2, #aka3').prop('disabled', focus_aka);
+                aka_disabled(1)
             });
-
             $('#aka2').on('click', function () {
                 coach_send('aka', '2');
-
-                focus_aka = !focus_aka; // toggle focus_aka
-
-                $('#aka1, #aka3').prop('disabled', focus_aka);
+                aka_disabled(2)
             });
-
             $('#aka3').on('click', function () {
                 coach_send('aka', '3');
-
-                focus_aka = !focus_aka; // toggle focus_aka
-
-                $('#aka1, #aka2').prop('disabled', focus_aka);
+                aka_disabled(3)
             });
-
             $('#ao1').on('click', function () {
                 coach_send('ao', '1');
-
-                focus_ao = !focus_ao; // toggle focus_ao
-
-                $('#ao2, #ao3').prop('disabled', focus_ao);
+                ao_disabled(1)
             });
-
             $('#ao2').on('click', function () {
                 coach_send('ao', '2');
-
-                focus_ao = !focus_ao; // toggle focus_ao
-
-                $('#ao1, #ao3').prop('disabled', focus_ao);
+                ao_disabled(2)
             });
-
             $('#ao3').on('click', function () {
                 coach_send('ao', '3');
-
-                focus_ao = !focus_ao; // toggle focus_ao
-
-                $('#ao1, #ao2').prop('disabled', focus_ao);
+                ao_disabled(3)
             });
+
+            function aka_disabled(val) {
+                $('#aka1, #aka2, #aka3').prop('disabled', true);
+                $('#requested-aka').text(val)
+            }
+            function ao_disabled(val) {
+                $('#ao1, #ao2, #ao3').prop('disabled', true);
+                $('#requested-ao').text(val)
+            }
 
             function coach_send(team, val) {
                 

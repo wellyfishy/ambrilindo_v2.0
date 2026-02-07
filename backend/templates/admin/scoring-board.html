@@ -1245,6 +1245,22 @@
     const data = JSON.parse(e.data);
     console.log(data.command, data.details)
 
+    function updateLayout() {
+      const b1 = (aka_state === 'pending');
+      const b2 = (ao_state === 'pending');
+
+      $('#banner').css('display', b1 ? '' : 'none');
+      $('#banner-2').css('display', b2 ? '' : 'none');
+
+      if (b1 && b2) {
+        $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+        $('.fullscreen-banner h1').css('font-size','4vw');
+      } else {
+        $('#banner-wrap').css('grid-template-columns','1fr');
+        $('.fullscreen-banner h1').css('font-size','10vw');
+      }
+    }
+
     if (data.command == 'get_atlet') {
       reset()
       if (data.details.tipe_tanding == '2') {
@@ -1263,11 +1279,14 @@
       var a = arr[0];
       var b = arr[1];
 
-      if (a == 'aka') {
-        aka_vr_on('VIDEO REVIEW', 'REQUESTED')
-      } else if (a == 'ao') {
-        ao_vr_on('VIDEO REVIEW', 'REQUESTED')
+      if (a == 'aka' && aka_state == 'off') {
+        aka_vr_on('VIDEO REVIEW', 'REQUESTED', 'request')
+        document.getElementById('aka-judges-container').innerHTML = '';
+      } else if (a == 'ao' && ao_state == 'off') {
+        ao_vr_on('VIDEO REVIEW', 'REQUESTED', 'request')
+        document.getElementById('ao-judges-container').innerHTML = '';
       }
+
     } else if (data.command == 'countdown-aka') {
       const banner = document.getElementById("countdown-banner");
       cd_val = data.details;
@@ -1344,53 +1363,57 @@
           $('#point-1').text('1 - POINT');
           $('#point-2').text('YUKO');
           $('#banner').show().css('background-color','red');
+          aka_state = 'pending'
         }
         else if (a === 'Aka Waza-ari') {
           $('#point-1').text('2 - POINT');
           $('#point-2').text('WAZA-ARI');
           $('#banner').show().css('background-color','red');
+          aka_state = 'pending'
         }
         else if (a === 'Aka Ippon') {
           $('#point-1').text('3 - POINT');
           $('#point-2').text('IPPON');
           $('#banner').show().css('background-color','red');
+          aka_state = 'pending'
         }
         if (b === 'Ao Yuko') {
           $('#point-1-2').text('1 - POINT');
           $('#point-2-2').text('YUKO');
           $('#banner-2').show().css('background-color','#3498db');
+          ao_state = 'pending'
         }
         else if (b === 'Ao Waza-ari') {
           $('#point-1-2').text('2 - POINT');
           $('#point-2-2').text('WAZA-ARI');
           $('#banner-2').show().css('background-color','#3498db');
+          ao_state = 'pending'
         }
         else if (b === 'Ao Ippon') {
           $('#point-1-2').text('3 - POINT');
           $('#point-2-2').text('IPPON');
           $('#banner-2').show().css('background-color','#3498db');
+          ao_state = 'pending'
         }
 
-        if (a && b) {
-          $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-          $('#banner').css({ backgroundColor: 'red', display: '' });
-          $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
-          $('.fullscreen-banner h1').css('font-size','10vw');
-          finish.play()
-          console.log('a & b')
-        } else if (a == "" && b == "") {
-        } else {
-          $('#banner-wrap').css('grid-template-columns','1fr');
-          $('.fullscreen-banner h1').css('font-size','10vw');
-          finish.play()
-          if (a) {
-            $('#banner-2').css({ backgroundColor: '', display: 'none' });
-            console.log('a')
-          } else if (b) {
-            $('#banner').css({ backgroundColor: '', display: 'none' });
-            console.log('b')
-          }
-        }
+        updateLayout()
+        // if (a && b) {
+        //   $('#banner-wrap').css('grid-template-columns','1fr 1fr');
+        //   $('#banner').css({ backgroundColor: 'red', display: '' });
+        //   $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
+        //   $('.fullscreen-banner h1').css('font-size','10vw');
+        //   finish.play()
+        // } else if (a == "" && b == "") {
+        // } else {
+        //   $('#banner-wrap').css('grid-template-columns','1fr');
+        //   $('.fullscreen-banner h1').css('font-size','10vw');
+        //   finish.play()
+        //   if (a) {
+        //     $('#banner-2').css({ backgroundColor: '', display: 'none' });
+        //   } else if (b) {
+        //     $('#banner').css({ backgroundColor: '', display: 'none' });
+        //   }
+        // }
       }
     } else if (data.command == 'reset-banner') {
       reset_banners()
@@ -1446,7 +1469,6 @@
       var totalAo = detailsArray[1]
       var scoresAka = detailsArray[2]
       var scoresAo = detailsArray[3]
-      
       
       if (isShowing == false) {
         warning.play()
@@ -1583,34 +1605,16 @@
     }
 
     if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
-    if (a === 'aka')  aka_vr_on(data.v1, data.v2, 'request');
     if (data.details === 'aka-accept-1')   aka_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'aka-accept-2')   aka_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'aka-accept-3')   aka_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'aka-decline')  aka_vr_on(data.v1, data.v2, 'decline');
 
     if (data.details === 'ao-request')   ao_vr_on(data.v1, data.v2, 'request');
-    if (a === 'ao')  ao_vr_on(data.v1, data.v2, 'request');
     if (data.details === 'ao-accept-1')   ao_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'ao-accept-2')   ao_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'ao-accept-3')   ao_vr_on(data.v1, data.v2, 'accept');
     if (data.details === 'ao-decline')   ao_vr_on(data.v1, data.v2, 'decline');
-    
-    function updateLayout() {
-      const b1 = (aka_state === 'pending');
-      const b2 = (ao_state === 'pending');
-
-      $('#banner').css('display', b1 ? '' : 'none');
-      $('#banner-2').css('display', b2 ? '' : 'none');
-
-      if (b1 && b2) {
-        $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-        $('.fullscreen-banner h1').css('font-size','4vw');
-      } else {
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-      }
-    }
 
     function tryResolve() {
       const activeCount =
@@ -1708,32 +1712,38 @@
     }
 
     function aka_banner(score1, score2) {
-      reset_banners()
-
-      $('#banner').show().css('background-color','red');
-      $('#banner-wrap').css('grid-template-columns','1fr');
-      $('.fullscreen-banner h1').css('font-size','10vw');
-
       $('#point-1').text(score1)
       $('#point-2').text(score2)
 
-      setTimeout(function () {
-          reset_banners()
+      $('#banner').show().css('background-color','red');
+      $('#banner-2').css('display', 'none');
+      $('#banner-wrap').css('grid-template-columns','1fr');
+      $('.fullscreen-banner h1').css('font-size','10vw');
+
+      if (aka_state == 'pending') {
+        aka_state = 'off'
+      }
+
+       setTimeout(function () {
+          updateLayout()
       }, 1000);
     }
 
     function ao_banner(score1, score2) {
-      reset_banners()
+      $('#point-1-2').text(score1)
+      $('#point-2-2').text(score2)
 
+      $('#banner').css('display', 'none');
       $('#banner-2').show().css('background-color','#3498db');
       $('#banner-wrap').css('grid-template-columns','1fr');
       $('.fullscreen-banner h1').css('font-size','10vw');
 
-      $('#point-1-2').text(score1)
-      $('#point-2-2').text(score2)
+      if (ao_state == 'pending') {
+        ao_state = 'off'
+      }
 
-      setTimeout(function () {
-          reset_banners()
+       setTimeout(function () {
+          updateLayout()
       }, 1000);
     }
 
