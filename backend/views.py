@@ -1137,7 +1137,7 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         "atlet_blue_vr": detail_bagan.vr2 if detail_bagan.vr2 else None,
         "tipe_tanding": bagan.tipe_tanding,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding,
-    }
+    } 
 
     group_name = f"scoring_{admin_tatami.tatami.pk}"
     channel_layer = get_channel_layer()
@@ -1160,6 +1160,18 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
             "type": "broadcast_command",
             "message": "get_atlet",
             "details": detail_data,
+        }
+    )
+
+    group_name = f"coachroom_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": [detail_bagan.vr1, detail_bagan.vr2],
         }
     )
 

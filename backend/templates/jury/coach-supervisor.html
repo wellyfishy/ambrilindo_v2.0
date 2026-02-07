@@ -211,6 +211,17 @@
                             $('#ao1, #ao2, #ao3').prop('disabled', true);
                         }
                     }
+                } else if (data.command == 'get_atlet') {
+                    if (data.details[0] == true) {
+                        $('#aka1, #aka2, #aka3').prop('disabled', false);
+                    } else {
+                        $('#aka1, #aka2, #aka3').prop('disabled', true);
+                    }
+                    if (data.details[1] == true) {
+                        $('#ao1, #ao2, #ao3').prop('disabled', false);
+                    } else {
+                        $('#ao1, #ao2, #ao3').prop('disabled', true);
+                    }
                 }
             }
 
