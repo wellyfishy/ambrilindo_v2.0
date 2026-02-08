@@ -151,6 +151,7 @@
                     <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
                     <b>REQUESTED:</b> 
                     <span id="requested-aka">-</span>
+                    <button class="btn btn-success" style="font-weight: bold; display: none" id="revisi-aka">REVISI</button>
                 </h1>
                 </div>
             </div>
@@ -178,6 +179,7 @@
                     <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
                     <b>REQUESTED:</b> 
                     <span id="requested-ao">-</span>
+                    <button class="btn btn-success" style="font-weight: bold; display: none" id="revisi-ao">REVISI</button>
                 </h1>
                 </div>
             </div>
@@ -215,40 +217,62 @@
                     if (player == 'aka') {
                         if (status == '1') {
                             $('#requested-aka').text('-')
+                            $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
                             $('#aka1, #aka2, #aka3').prop('disabled', false);
                             $('#aka1, #aka2, #aka3').blur()
                         } else {
                             $('#requested-aka').text('-')
+                            $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
                             $('#aka1, #aka2, #aka3').prop('disabled', true);
                         }
                     }
                     if (player == 'ao') {
                         if (status == '1') {
                             $('#requested-ao').text('-')
+                            $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
                             $('#ao1, #ao2, #ao3').prop('disabled', false);
                             $('#ao1, #ao2, #ao3').blur()
                         } else {
                             $('#requested-ao').text('-')
+                            $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
                             $('#ao1, #ao2, #ao3').prop('disabled', true);
                         }
                     }
                 } else if (data.command == 'get_atlet') {
                     if (data.details[0] == true) {
                         $('#requested-aka').text('-')
+                        $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
                         $('#aka1, #aka2, #aka3').prop('disabled', false);
                     } else {
                         $('#requested-aka').text('-')
+                        $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
                         $('#aka1, #aka2, #aka3').prop('disabled', true);
                     }
                     if (data.details[1] == true) {
                         $('#requested-ao').text('-')
+                        $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
                         $('#ao1, #ao2, #ao3').prop('disabled', false);
                     } else {
                         $('#requested-ao').text('-')
+                        $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
                         $('#ao1, #ao2, #ao3').prop('disabled', true);
                     }
                 }
             }
+
+            $('#revisi-aka').on('click', function() {
+                $('#requested-aka').text('-')
+                $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
+                $('#aka1, #aka2, #aka3').prop('disabled', false);
+                coach_send('aka', '1')
+            })
+
+            $('#revisi-ao').on('click', function() {
+                $('#requested-ao').text('-')
+                $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
+                $('#ao1, #ao2, #ao3').prop('disabled', false);
+                coach_send('ao', '1')
+            })
 
             let focus_aka = false;
             let focus_ao = false;
@@ -269,26 +293,32 @@
             });
 
             $('#aka1').on('click', function () {
+                $('#aka1').removeClass('btn-danger').addClass('btn-dark')
                 coach_send('aka', '1');
                 aka_disabled(1)
             });
             $('#aka2').on('click', function () {
+                $('#aka2').removeClass('btn-danger').addClass('btn-dark')
                 coach_send('aka', '2');
                 aka_disabled(2)
             });
             $('#aka3').on('click', function () {
+                $('#aka3').removeClass('btn-danger').addClass('btn-dark')
                 coach_send('aka', '3');
                 aka_disabled(3)
             });
             $('#ao1').on('click', function () {
+                $('#ao1').removeClass('btn-primary').addClass('btn-dark')
                 coach_send('ao', '1');
                 ao_disabled(1)
             });
             $('#ao2').on('click', function () {
+                $('#ao2').removeClass('btn-primary').addClass('btn-dark')
                 coach_send('ao', '2');
                 ao_disabled(2)
             });
             $('#ao3').on('click', function () {
+                $('#ao3').removeClass('btn-primary').addClass('btn-dark')
                 coach_send('ao', '3');
                 ao_disabled(3)
             });

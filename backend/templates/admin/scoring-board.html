@@ -1279,6 +1279,7 @@
       var a = arr[0];
       var b = arr[1];
 
+      warning.play()
       if (a == 'aka' && aka_state == 'off') {
         aka_vr_on('VIDEO REVIEW', 'REQUESTED', 'request')
         document.getElementById('aka-judges-container').innerHTML = '';
@@ -1395,25 +1396,11 @@
           $('#banner-2').show().css('background-color','#3498db');
           ao_state = 'pending'
         }
-
+      
         updateLayout()
-        // if (a && b) {
-        //   $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-        //   $('#banner').css({ backgroundColor: 'red', display: '' });
-        //   $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
-        //   $('.fullscreen-banner h1').css('font-size','10vw');
-        //   finish.play()
-        // } else if (a == "" && b == "") {
-        // } else {
-        //   $('#banner-wrap').css('grid-template-columns','1fr');
-        //   $('.fullscreen-banner h1').css('font-size','10vw');
-        //   finish.play()
-        //   if (a) {
-        //     $('#banner-2').css({ backgroundColor: '', display: 'none' });
-        //   } else if (b) {
-        //     $('#banner').css({ backgroundColor: '', display: 'none' });
-        //   }
-        // }
+         if (a || b) {
+          finish.play()
+         }
       }
     } else if (data.command == 'reset-banner') {
       reset_banners()
