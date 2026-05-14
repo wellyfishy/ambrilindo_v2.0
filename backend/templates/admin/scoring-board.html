@@ -1281,10 +1281,10 @@
 
       warning.play()
       if (a == 'aka' && aka_state == 'off') {
-        aka_vr_on('VIDEO REVIEW', 'REQUESTED', 'request')
+        aka_vr_on('VIDEO REVIEW', `${b} POINT REQUESTED`, 'request')
         document.getElementById('aka-judges-container').innerHTML = '';
       } else if (a == 'ao' && ao_state == 'off') {
-        ao_vr_on('VIDEO REVIEW', 'REQUESTED', 'request')
+        ao_vr_on('VIDEO REVIEW', `${b} POINT REQUESTED`, 'request')
         document.getElementById('ao-judges-container').innerHTML = '';
       }
 
