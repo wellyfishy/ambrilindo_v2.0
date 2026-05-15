@@ -1283,9 +1283,16 @@
       if (a == 'aka' && aka_state == 'off') {
         aka_vr_on('VIDEO REVIEW', `${b} POINT REQUESTED`, 'request')
         document.getElementById('aka-judges-container').innerHTML = '';
-      } else if (a == 'ao' && ao_state == 'off') {
+      } else if (a == 'aka' && aka_state == 'pending') {
+        $('#point-1').text('VIDEO REVIEW');
+        $('#point-2').text(`${b} POINT REQUESTED`);
+      }
+      if (a == 'ao' && ao_state == 'off') {
         ao_vr_on('VIDEO REVIEW', `${b} POINT REQUESTED`, 'request')
         document.getElementById('ao-judges-container').innerHTML = '';
+      } else if (a == 'ao' && aka_state == 'pending') {
+        $('#point-1-2').text('VIDEO REVIEW');
+        $('#point-2-2').text(`${b} POINT REQUESTED`);
       }
 
     } else if (data.command == 'countdown-aka') {

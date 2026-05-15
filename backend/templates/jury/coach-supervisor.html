@@ -218,7 +218,6 @@
                         if (status == '1') {
                             $('#requested-aka').text('-')
                             $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
-                            $('#aka1, #aka2, #aka3').prop('disabled', false);
                             $('#aka1, #aka2, #aka3').blur()
                         } else {
                             $('#requested-aka').text('-')
@@ -230,7 +229,6 @@
                         if (status == '1') {
                             $('#requested-ao').text('-')
                             $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
-                            $('#ao1, #ao2, #ao3').prop('disabled', false);
                             $('#ao1, #ao2, #ao3').blur()
                         } else {
                             $('#requested-ao').text('-')
@@ -293,34 +291,22 @@
             });
 
             $('#aka1').on('click', function () {
-                $('#aka1').removeClass('btn-danger').addClass('btn-dark')
                 coach_send('aka', '1');
-                aka_disabled(1)
             });
             $('#aka2').on('click', function () {
-                $('#aka2').removeClass('btn-danger').addClass('btn-dark')
                 coach_send('aka', '2');
-                aka_disabled(2)
             });
             $('#aka3').on('click', function () {
-                $('#aka3').removeClass('btn-danger').addClass('btn-dark')
                 coach_send('aka', '3');
-                aka_disabled(3)
             });
             $('#ao1').on('click', function () {
-                $('#ao1').removeClass('btn-primary').addClass('btn-dark')
                 coach_send('ao', '1');
-                ao_disabled(1)
             });
             $('#ao2').on('click', function () {
-                $('#ao2').removeClass('btn-primary').addClass('btn-dark')
                 coach_send('ao', '2');
-                ao_disabled(2)
             });
             $('#ao3').on('click', function () {
-                $('#ao3').removeClass('btn-primary').addClass('btn-dark')
                 coach_send('ao', '3');
-                ao_disabled(3)
             });
 
             function aka_disabled(val) {
