@@ -1,0 +1,1024 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block style %}
+<style>
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu .dropdown-menu {
+  top: 0;
+  left: 100%;
+}
+.dropdown-menu .dropdown-item {
+  font-size: 24px;
+}
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="container">
+    <form method="POST">
+    {% csrf_token %}
+    <div class="page-inner">
+        <div class="page-header">
+            <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
+                <b>Kembali</b>
+            </a>
+            <button type="submit" name="submit_type" value="kumite-simpan" class="btn btn-success" style="margin-left: 5px;"><b>Simpan & Keluar</b></button>
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;"><b style="color: red;">{{ detail_bagan.atlet1.nama_atlet }}</b></div>
+                        <div></div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                <th scope="col" style="text-align: center;">Nama Atlet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in team_aka %}
+                                <tr>
+                                    <td style="font-size: 1.65rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <b><span style="color: red">{{ a.nama_atlet }}</span></b>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header" style="display: flex; align-items: center;">
+                        <div class="card-title" style="flex-grow: 1; text-align: center;"><b>STATUS</b></div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                <th></th>
+                                <th scope="col" style="text-align: center;">ACTIONS</th>
+                                <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in team_aka %}
+                                <tr>
+                                    <td>
+                                        
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn btn-primary" style="font-size: 1.25rem; padding: 0.25rem 0.5rem;">Start</button>
+                                    </td>
+                                    <td>
+                                        
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px; text-align: right;"><b style="color: blue">{{ detail_bagan.atlet2.nama_atlet }}</b></div>
+                        <div></div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped mt-3">
+                            <thead>
+                                <tr>
+                                <th scope="col" style="text-align: center;">Nama Atlet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in team_ao %}
+                                <tr>
+                                    <td style="font-size: 1.65rem; text-align: right; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <b><span style="color: blue">{{ a.nama_atlet }}</span></b>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">
+                            Control Panel
+                            {% if bagan.tipe_tanding == '1' %}
+                            <button type="button" class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
+                            {% else %}
+                            | Check Mouse
+                            <input class="form-check-input" type="checkbox" name="ms-check" id="ms-check" style="transform: scale(2); margin-left: 10px;">
+                            | HANTEI?
+                            <input class="form-check-input" type="checkbox" name="hantei" id="hantei" style="transform: scale(2); margin-left: 10px;">
+                            {% endif %}
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <select class="form-control" id="timer-choice">
+                                <option value="0" selected>00:00</option>
+                                <option value="30">00:30</option>
+                                <option value="60">01:00</option>
+                                <option value="90">01:30</option>
+                                <option value="120">02:00</option>
+                                <option value="150">02:30</option>
+                                <option value="180">03:00</option>
+                                <option value="210">03:30</option>
+                                <option value="240">04:00</option>
+                                <option value="270">04:30</option>
+                                <option value="300">05:00</option>
+                            </select>
+                            <button type="button" class="btn btn-primary" id="start-timer" style="font-size: 25px;">Start</button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="text-align: center;">
+                        <p style="font-weight: bold; font-size: 50px;">
+                            <button type="button" id="timer-decrement" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">-</button>
+                            <span id="minutes">00</span>:
+                            <span id="seconds">00</span>:
+                            <span id="milliseconds">00</span>
+                            <button type="button" id="timer-increment" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">+</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="card-title" style="margin-right: 10px;">
+                                VR Request
+                            </div>
+                        </div>
+                        <div class="card-body" style="text-align: center;">
+                            <table class="table table-striped mt-3">
+                                <thead>
+                                    <tr>
+                                    <th scope="col" style="text-align: center;;">Info</th>
+                                    <th scope="col" style="text-align: center;">VR Info</th>
+                                    <th scope="col" style="text-align: center;">Request</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <b><span style="font-size: 20px; color: red">Aka</span></b>
+                                        </td>
+                                        <td style="text-align: center; font-size: 20px;">
+                                            {% if detail_bagan.vr1 %}
+                                            <div class="dropdown" style="display: inline-block;">
+                                                <button type="button" class="btn btn-success dropdown-toggle" id="aka-vr-button">
+                                                    +
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="aka-vr-button">
+                                                    <li><button type="button" style="font-size: 20px;" id="aka-request" class="dropdown-item">Request</button></li>
+                                                    <li class="dropdown-submenu">
+                                                        <button type="button" id="aka-accept" class="dropdown-item dropdown-toggle">Accept</button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button type="button" class="dropdown-item" id="aka-accept-1">Accept +1</button></li>
+                                                            <li><button type="button" class="dropdown-item" id="aka-accept-2">Accept +2</button></li>
+                                                            <li><button type="button" class="dropdown-item" id="aka-accept-3">Accept +3</button></li>
+                                                        </ul>
+                                                    </li>
+                                                    <li><button type="button" style="font-size: 20px;" id="aka-decline" class="dropdown-item">Decline</button></li>
+                                                </ul>
+                                            </div>
+                                            {% else %}
+                                            <button class="btn btn-light" disabled>Unavailable</button>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <b><span style="font-size: 20px;" id="aka-requested">-</span></b>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <b><span style="font-size: 20px; color: blue">Ao</span></b>
+                                        </td>
+                                        <td style="text-align: center; font-size: 20px;">
+                                            {% if detail_bagan.vr2 %}
+                                            <div class="dropdown" style="display: inline-block;">
+                                                <button type="button" class="btn btn-success dropdown-toggle" id="ao-vr-button">
+                                                    +
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="ao-vr-button">
+                                                    <li><button type="button" style="font-size: 20px;" id="ao-request" class="dropdown-item">Request</button></li>
+                                                    <li class="dropdown-submenu">
+                                                        <button type="button" id="ao-accept" class="dropdown-item dropdown-toggle">Accept</button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><button type="button" class="dropdown-item" id="ao-accept-1">Accept +1</button></li>
+                                                            <li><button type="button" class="dropdown-item" id="ao-accept-2">Accept +2</button></li>
+                                                            <li><button type="button" class="dropdown-item" id="ao-accept-3">Accept +3</button></li>
+                                                        </ul>
+                                                    </li>
+                                                    <li><button type="button" style="font-size: 20px;" id="ao-decline" class="dropdown-item">Decline</button></li>
+                                                </ul>
+                                            </div>
+                                            {% else %}
+                                            <button class="btn btn-light" disabled>Unavailable</button>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <b><span style="font-size: 20px;" id="ao-requested">-</span></b>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<input type="hidden" id="tipe-tanding" value="{{ bagan.tipe_tanding }}">
+{% endblock content %}
+
+{% block script %}
+<script>
+    const tatamiPk = "{{ admin_tatami.tatami.pk }}";
+    let milliseconds = 0;
+    let totalSeconds = 0;
+</script>
+<script src="{% static 'mouse.js' %}"></script>
+<script>
+    $('.select2').select2({
+        width: '100%'
+    });
+    $(document).on('click', '.dropdown-submenu > .dropdown-toggle', function(e){
+        $(this).next('.dropdown-menu').toggle();
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    let interval = null;
+    let isRunning = false;
+    let tampilkan = false;
+
+    const tipeTanding = $('#tipe-tanding').val()
+
+    let aka_score = 0 
+    let ao_score = 0 
+
+    let aka_criteria = 0
+    let ao_criteria = 0
+
+    const kataAka = document.getElementById('kata-aka');
+    const kataAo = document.getElementById('kata-ao');
+
+    function updateDisplay(seconds, ms) {
+        if (seconds >= 0) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = ((seconds % 60) + 60) % 60;
+            $('#minutes').text(String(minutes).padStart(2, '0'));
+            $('#seconds').text(String(secs).padStart(2, '0'));
+            $('#milliseconds').text(String(ms).padStart(2, '0'));
+        } 
+    }
+
+    const eventPk = {{ event.pk }}
+    const baganPk = {{ bagan.pk }}
+    const detailbaganPk = {{ detail_bagan.pk }}
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const socket = new WebSocket(protocol + window.location.host + `/ws/admin-dashboard/${eventPk}/bagan-detail/${baganPk}/control-panel/${detailbaganPk}/tatami/${tatamiPk}`);
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data.command, data.details)
+
+        if (data.command >= '1' && data.command <= '5') {
+            const detailsArray = JSON.parse(data.details);
+            const atlet = detailsArray[0];
+            const score = detailsArray[1];
+
+            if (atlet === 'aka' || atlet === 'ao') {
+
+                const prefix = atlet === 'aka' ? '#akaj' : '#aoj';
+                const inputId = prefix + data.command;
+                $(inputId).val(score);
+
+                let scores = [];
+                for (let i = 1; i <= 5; i++) {
+                    const val = parseFloat($(prefix + i).val());
+                    if (!isNaN(val) && val !== 0) {
+                        scores.push(val);
+                    }
+                } 
+
+                var aka_val = parseFloat($('#akaj' + data.command).val())
+                var ao_val = parseFloat($('#aoj' + data.command).val())
+                
+                if (aka_val !== 0 && ao_val !== 0) {
+                    if (aka_val > ao_val) {
+                        $('#j' + data.command).css("background-color", "red")
+                    } else if (aka_val < ao_val) {
+                        $('#j' + data.command).css("background-color", "blue")
+                    }
+                }
+
+                if (scores.length >= 5) {
+                    aka_score = 0
+                    ao_score = 0
+                    for (let i = 1; i <= 5; i++) {
+                        var juri = $('#j' + i).css('background-color')
+                        if (juri == "rgb(255, 0, 0)" || juri == "red" ) {
+                            aka_score += 1
+                            $('#totalAka').val(aka_score)
+                        } else if (juri == "rgb(0, 0, 255)" || juri == "blue" ) {
+                            ao_score += 1
+                            $('#totalAo').val(ao_score)
+                        }
+                    }
+                }
+
+                // if (scores.length >= 3) {
+                //     scores.sort((a, b) => a - b);
+                //     const trimmedScores = scores.slice(1, -1);
+                //     const total = trimmedScores.reduce((a, b) => a + b, 0);
+                //     console.log(total)
+                //     if (atlet === 'aka') {
+                //         $('#totalAka').val(total.toFixed(1));
+                //     } else {
+                //         $('#totalAo').val(total.toFixed(1));
+                //     }
+                // }
+            }
+        } else if (data.command == 'coach-supervisor') {
+            const detailsArray = JSON.parse(data.details);
+            const atlet = detailsArray[0];
+            const score = detailsArray[1];
+
+            if (atlet == 'aka') {
+                $('#aka-requested').text(score)
+            } else if (atlet == 'ao') {
+                $('#ao-requested').text(score)
+            }
+        }
+    }
+
+    $('input[name="pemenang"]').on('change', function() {
+        const selectedValue = $(this).val();
+        let scoreAka = $('#totalAka').val();
+        let scoreAo = $('#totalAo').val();
+        $.ajax({
+            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'pemenang',
+                details: selectedValue,
+                // details: JSON.stringify([selectedValue, scoreAka, scoreAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    });
+
+    $('#aka-bendera').on('change', function() {
+        $('#totalAka').val($(this).val())
+        if ($(this).val() == '0') {
+            $('#ao-bendera').val('5')
+            $('#totalAo').val('5')
+        } else if ($(this).val() == '1') {
+            $('#ao-bendera').val('4')
+            $('#totalAo').val('4')
+        } else if ($(this).val() == '2') {
+            $('#ao-bendera').val('3')
+            $('#totalAo').val('3')
+        } else if ($(this).val() == '3') {
+            $('#ao-bendera').val('2')
+            $('#totalAo').val('2')
+        } else if ($(this).val() == '4') {
+            $('#ao-bendera').val('1')
+            $('#totalAo').val('1')
+        } else if ($(this).val() == '5') {
+            $('#ao-bendera').val('0')
+            $('#totalAo').val('0')
+        } else if ($(this).val() == '-') {
+            $('#ao-bendera').val('0')
+            $('#totalAo').val('0.0')
+            $('#totalAka').val('0.0')
+        }
+        var aka_bendera = $(this).val()
+        var ao_bendera = $('#ao-bendera').val()
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'bendera',
+                details: JSON.stringify([aka_bendera, ao_bendera]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#ms-check').on('click', function() {
+        let ms_check = 0
+        if ($(this).is(':checked')) {
+            ms_check = 1
+        } else {
+            ms_check = 0
+        }
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ms-check',
+                details: ms_check,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#countdown').on('click', function() {
+        let countdown_val = 0
+        if ($(this).is(':checked')) {
+            countdown_val = 1
+        } else {
+            countdown_val = 0
+        }
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'countdown-aka',
+                details: countdown_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#countdown1').on('click', function() {
+        let countdown_val = 0
+        if ($(this).is(':checked')) {
+            countdown_val = 1
+        } else {
+            countdown_val = 0
+        }
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'countdown-ao',
+                details: countdown_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#hantei').on('click', function() {
+        let hantei = 0
+        if ($(this).is(':checked')) {
+            hantei = 1
+        } else {
+            hantei = 0
+        }
+        console.log(hantei)
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'hantei',
+                details: hantei,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#ms-reset').on('click', function() {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'reset-banner',
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+    $('#aka-request').on('click', function() {
+        kirim_vr('aka-request')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
+    })
+    $('#aka-accept-1').on('click', function() {
+        kirim_vr('aka-accept-1')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
+    })
+    $('#aka-accept-2').on('click', function() {
+        kirim_vr('aka-accept-2')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
+    })
+    $('#aka-accept-3').on('click', function() {
+        kirim_vr('aka-accept-3')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '1')
+    })
+    $('#aka-decline').on('click', function() {
+        kirim_vr('aka-decline')
+        $('#aka-vr').prop('checked', false)
+        kirim_vr('aka-remove-vr')
+        $('#aka-requested').text('-')
+        kirim_status_vr('aka', '0')
+    })
+    $('#ao-request').on('click', function() {
+        kirim_vr('ao-request')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
+    })
+    $('#ao-accept-1').on('click', function() {
+        kirim_vr('ao-accept-1')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
+    })
+    $('#ao-accept-2').on('click', function() {
+        kirim_vr('ao-accept-2')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
+    })
+    $('#ao-accept-3').on('click', function() {
+        kirim_vr('ao-accept-3')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '1')
+    })
+    $('#ao-decline').on('click', function() {
+        kirim_vr('ao-decline')
+        $('#ao-vr').prop('checked', false)
+        kirim_vr('ao-remove-vr')
+        $('#ao-requested').text('-')
+        kirim_status_vr('ao', '0')
+    })
+    $('#aka-vr').on('change', function() {
+        if ($(this).is(':checked')) {
+            kirim_vr('aka-vr')
+        } else {
+            kirim_vr('aka-remove-vr')
+        }
+    })
+    $('#ao-vr').on('change', function() {
+        if ($(this).is(':checked')) {
+            kirim_vr('ao-vr')
+        } else {
+            kirim_vr('ao-remove-vr')
+        }
+    })
+
+    function kirim_status_vr(value1, value2) {
+        $.ajax({
+            url: '/coach-supervisor/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'vr_status',
+                details: JSON.stringify([value1, value2]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    }
+
+    function kirim_vr(vr_value) {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'vr',
+                details: vr_value,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    }
+
+    $('#aka-senshu').on('change', function() {
+        if ($(this).is(':checked')) {
+            kirim_senshu('aka-senshu')
+        } else {
+            kirim_senshu('aka-remove-senshu')
+        }
+    })
+
+    $('#ao-senshu').on('change', function() {
+        if ($(this).is(':checked')) {
+            kirim_senshu('ao-senshu')
+        } else {
+            kirim_senshu('ao-remove-senshu')
+        }
+    })
+
+    function kirim_senshu(senshu_value) {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'senshu',
+                details: senshu_value,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    }
+
+    $('#aka-score-dec').on('click', function() {
+        if (aka_score != 0) {
+            aka_score--;
+            score('aka-score-dec')
+        }
+        $('#aka-score').val(aka_score)
+    })
+    $('#aka-yuko').on('click', function() {
+        aka_score += 1;
+        score('aka-yuko')
+        $('#aka-score').val(aka_score)
+    })
+    $('#aka-wazaari').on('click', function() {
+        aka_score += 2;
+        score('aka-wazaari')
+        $('#aka-score').val(aka_score)
+    })
+    $('#aka-ippon').on('click', function() {
+        aka_score += 3;
+        score('aka-ippon')
+        $('#aka-score').val(aka_score)
+    })
+    $('#aka-criteria-dec').on('click', function() {
+        if (aka_criteria != 0) {
+            aka_criteria--;
+            score('aka-criteria-dec')
+        }
+        $('#aka-criteria').val(aka_criteria)
+    })
+    $('#aka-criteria-inc').on('click', function() {
+        aka_criteria++;
+        score('aka-criteria-inc')
+        $('#aka-criteria').val(aka_criteria)
+    })
+    $('#ao-score-dec').on('click', function() {
+        if (ao_score != 0) {
+            ao_score--;
+            score('ao-score-dec')
+        }
+        $('#ao-score').val(ao_score)
+    })
+    $('#ao-yuko').on('click', function() {
+        ao_score += 1;
+        score('ao-yuko')
+        $('#ao-score').val(ao_score)
+    })
+    $('#ao-wazaari').on('click', function() {
+        ao_score += 2;
+        score('ao-wazaari')
+        $('#ao-score').val(ao_score)
+    })
+    $('#ao-ippon').on('click', function() {
+        ao_score += 3;
+        score('ao-ippon')
+        $('#ao-score').val(ao_score)
+    })
+    $('#ao-criteria-dec').on('click', function() {
+        if (ao_criteria != 0) {
+            ao_criteria--;
+            score('ao-criteria-dec')
+        }
+        $('#ao-criteria').val(ao_criteria)
+    })
+    $('#ao-criteria-inc').on('click', function() {
+        ao_criteria++;
+        score('ao-criteria-inc')
+        $('#ao-criteria').val(ao_criteria)
+    })
+
+    function score(value) {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: value,
+                details: '',
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    } 
+
+    $('#kata-aka').on('change', function() {
+        kata_val = $('#kata-aka').val()
+        $.ajax({
+            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'aka-kata-kirim',
+                details: kata_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+         });
+         $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'aka-kata-kirim',
+                details: kata_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+         });
+    })
+
+    $('#kata-ao').on('change', function() {
+        kata_val = $('#kata-ao').val()
+        $.ajax({
+            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-kata-kirim',
+                details: kata_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+         });
+         $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'ao-kata-kirim',
+                details: kata_val,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+         });
+    })
+
+    $('#tampilkan-score').on('click', function() {
+        if (tampilkan == false) {
+            $('#tampilkan-score').html('<i class="fas fa-eye-slash"></i>')
+            tampilkan = true
+        } else {
+            $('#tampilkan-score').html('<i class="fas fa-eye"></i>')
+            tampilkan = false
+        }
+        let scoreAka = $('#totalAka').val();
+        let scoreAo = $('#totalAo').val();
+
+        let scoresAka = []
+        let scoresAo = []
+
+        for (let i=1; i <= 5; i++) {
+            scoresAka.push($(`#akaj${i}`).val())
+            scoresAo.push($(`#aoj${i}`).val())
+        }
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'tampilkan-score',
+                details: JSON.stringify([scoreAka, scoreAo, scoresAka, scoresAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#tampilkan-score-simple').on('click', function() {
+        if (tampilkan == false) {
+            $('#tampilkan-score-simple').html('<i class="fas fa-eye-slash"></i>')
+            tampilkan = true
+        } else {
+            tampilkan = false
+            $('#tampilkan-score-simple').html('<i class="fas fa-eye"></i>')
+        }
+        let scoreAka = $('#totalAka').val();
+        let scoreAo = $('#totalAo').val();
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'tampilkan-score-simple',
+                details: JSON.stringify([scoreAka, scoreAo]),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    })
+
+    $('#timer-increment').on('click', function() {
+        totalSeconds++;
+        updateDisplay(totalSeconds, milliseconds);
+        timer_func('timer-increment', '')
+    })
+    $('#timer-decrement').on('click', function() {
+        totalSeconds--;
+        updateDisplay(totalSeconds, milliseconds);
+        timer_func('timer-decrement', '')
+    })
+    $('#timer-choice').on('change', function () {
+        if (!isRunning) {
+            totalSeconds = parseInt($(this).val());
+            milliseconds = 0;
+            updateDisplay(totalSeconds, milliseconds);
+            timer_func('timer-change', totalSeconds)
+        }
+    });
+
+    function timer_func(value1, value2) {
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: value1,
+                details: value2,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+    }
+
+    $('#start-timer').on('click', function () {
+        const status = isRunning ? 'pause' : 'start';
+
+        $.ajax({
+            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            type: 'POST',
+            data: {
+                action: 'timer-status',
+                details: status,
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+        });
+
+        if (status == 'pause') {
+            $.ajax({
+                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                type: 'POST',
+                data: {
+                    action: 'timer-sync',
+                    details: JSON.stringify([totalSeconds, milliseconds]),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                },
+            });
+        }
+
+        if (!isRunning) {
+            isRunning = true;
+            $(this).text('Pause').removeClass('btn-primary').addClass('btn-danger');
+
+            interval = setInterval(() => {
+                if (milliseconds === 0) {
+                    if (totalSeconds === 0) {
+                        clearInterval(interval);
+                        isRunning = false;
+                        $('#start-timer').text('Start').removeClass('btn-danger').addClass('btn-primary');
+                        return;
+                    }
+                    totalSeconds--;
+                    milliseconds = 99;
+                } else {
+                    milliseconds--;
+                }
+                updateDisplay(totalSeconds, milliseconds);
+            }, 10);
+        } else {
+            isRunning = false;
+            clearInterval(interval);
+            $(this).text('Start').removeClass('btn-danger').addClass('btn-primary');
+        }
+    });
+
+    const kataList = [
+        "Blank",
+        "Anan",
+        "Anan Dai",
+        "Ananko",
+        "Aoyagi",
+        "Bassai",
+        "Bassai Dai",
+        "Bassai Sho",
+        "Chatanyara Kusanku",
+        "Chibana No Kushanku",
+        "Chinte",
+        "Chinto",
+        "Enpi",
+        "Fukyugata Ichi",
+        "Fukvugata Ni",
+        "Gankaku",
+        "Garyu",
+        "Gekisai (Geksai) 1",
+        "Gekisai (Geksai) 2",
+        "Gojushiho",
+        "Gojushiho Dai",
+        "Gojushiho Sho",
+        "Hakucho",
+        "Hangetsu",
+        "Haufa (Haffa)",
+        "Heian Shodan",
+        "Heian Nidan",
+        "Heian Sandan",
+        "Heian Yondan",
+        "Heian Godan",
+        "Heiku",
+        "Ishimine Bassai",
+        "Itosu Rohai Shodan",
+        "Itosu Rohai Nidan",
+        "Itosu Rohai Sandan",
+        "Jiin",
+        "Jion",
+        "Jitte",
+        "Juroku",
+        "Kanchin",
+        "Kanku Dai",
+        "Kanku Sho",
+        "Kanshu",
+        "Kishimoto No Kushanku",
+        "Kousoukun",
+        "Kousoukun Dai",
+        "Kousoukun Sho",
+        "Kururunfa",
+        "Kusanku",
+        "Kyan No Chinto",
+        "Kyan No Wanshu",
+        "Matsukaze",
+        "Matsumura Bassai",
+        "Matsumura Rohai",
+        "Meikyo",
+        "Myojo",
+        "Naifanchin Shodan",
+        "Naifanchin Nidan",
+        "Naifanchin Sandan",
+        "Naihanchi",
+        "Nijushiho",
+        "Nipaipo",
+        "Niseishi",
+        "Ohan",
+        "Ohan Dai",
+        "Oyadomari No Passai",
+        "Pachu",
+        "Paiku",
+        "Papuren",
+        "Passai",
+        "Pinan Shodan",
+        "Pinan Nidan",
+        "Pinan Sandan",
+        "Pinan Yondan",
+        "Pinan Godan",
+        "Rohai",
+        "Saifa",
+        "Sanchin",
+        "Sansai",
+        "Sanseiru",
+        "Sanseni",
+        "Seichin",
+        "Seienchin (Seiyunchin)",
+        "Seipai",
+        "Seiryu",
+        "Seishan",
+        "Seisan (Sesan)",
+        "Shiho Kousoukun",
+        "Shinpa",
+        "Shinsei",
+        "Shisochin",
+        "Sochin",
+        "Suparinpei",
+        "Tekki Shodan",
+        "Tekki Nidan",
+        "Tekki Sandan",
+        "Tensho",
+        "Tomari Bassai",
+        "Unshu",
+        "Unsu",
+        "Useishi",
+        "Wankan",
+        "Wanshu"
+    ];
+
+    var kata_aka = '{{ detail_bagan.kata1 }}';
+    var kata_ao = '{{ detail_bagan.kata2 }}';
+    
+    if (tipeTanding == '1') {
+        function populateSelect(selectElement, selectedValue) {
+            kataList.forEach((kata, index) => {
+                const option = document.createElement('option');
+                option.value = `${index} - ${kata}`;
+                option.textContent = `${index} - ${kata}`;
+
+                // Set selected if this option matches the value from the DB
+                if (option.value === selectedValue) {
+                    option.selected = true;
+                }
+
+                selectElement.appendChild(option);
+            });
+        }
+
+        populateSelect(kataAka, kata_aka);
+        populateSelect(kataAo, kata_ao);
+    }
+</script>
+{% endblock script %}

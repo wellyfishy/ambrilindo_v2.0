@@ -41,7 +41,7 @@ class Atlet(models.Model):
 
     def __str__(self):
         return f'{self.event} - {self.nama_atlet}'
-    
+        
 class Bagan(models.Model):
     TIPE = [
         ('1', 'Kata'),

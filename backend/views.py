@@ -274,7 +274,20 @@ def admin_dashboard(request, event_pk):
 
                     group_counts = shuffle_same_counts(group_counts)
 
-                    atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
+                    atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding).filter(
+                        # Path 1: Categories that ARE Kumite Beregu
+                        (
+                            Q(nomor_tanding__nama_nomor_tanding__icontains='kumite') & 
+                            Q(nomor_tanding__nama_nomor_tanding__icontains='beregu') &
+                            Q(nama_atlet__icontains='team')
+                        ) 
+                        | 
+                        # Path 2: Categories that ARE NOT Kumite Beregu
+                        ~(
+                            Q(nomor_tanding__nama_nomor_tanding__icontains='kumite') & 
+                            Q(nomor_tanding__nama_nomor_tanding__icontains='beregu')
+                        )
+                    ))
                     group_counts_temp = group_counts
 
                     def split_count_balanced(total, parts, start_index=0):
@@ -724,7 +737,6 @@ def roster_counter(request, event_pk):
     }
 
     return render(request, 'admin/roster-counter.html', context)
-
 
 def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
@@ -1187,6 +1199,180 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
     }
 
     return render(request, 'admin/control-panel.html', context)
+
+def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
+    event = Event.objects.get(pk=event_pk)
+    tatami = Tatami.objects.get(pk=tatami_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagan = Bagan.objects.get(pk=bagan_pk)
+    detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
+    aka_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=0).first()
+    ao_score_obj = Score.objects.filter(detail_bagan=detail_bagan, atlet=1).first()
+
+    detail_bagan.save()
+
+    if not aka_score_obj:
+        aka_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=0)
+    if not ao_score_obj:
+        ao_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=1)
+
+    tatami = admin_tatami.tatami
+    tatami.detail_bagan = detail_bagan
+    tatami.save()
+
+    team_aka = Atlet.objects.filter(utusan=detail_bagan.atlet1.utusan, nomor_tanding=detail_bagan.atlet1.nomor_tanding).exclude(nama_atlet__icontains='team')
+    team_ao = Atlet.objects.filter(utusan=detail_bagan.atlet2.utusan, nomor_tanding=detail_bagan.atlet2.nomor_tanding).exclude(nama_atlet__icontains='team')
+
+    if request.method == 'POST':
+        pemenang = request.POST.get('pemenang')
+        if request.POST.get('submit_type') == 'kata-simpan':
+            aka_scores = request.POST.getlist('akaScores')
+            ao_scores = request.POST.getlist('aoScores')
+            total_aka = request.POST.get('totalAka')
+            total_ao = request.POST.get('totalAo')
+            kata_aka = request.POST.get('kata-aka')
+            kata_ao = request.POST.get('kata-ao')
+
+            score_fields = ['score1', 'score2', 'score3', 'score4', 'score5']
+        
+            for i, field in enumerate(score_fields):
+                if i < len(aka_scores):
+                    setattr(aka_score_obj, field, aka_scores[i])
+            
+            for i, field in enumerate(score_fields):
+                if i < len(ao_scores):
+                    setattr(ao_score_obj, field, ao_scores[i])
+            
+            aka_score_obj.save()
+            ao_score_obj.save()
+
+            detail_bagan.score1 = total_aka
+            detail_bagan.score2 = total_ao
+            detail_bagan.kata1 = kata_aka
+            detail_bagan.kata2 = kata_ao
+        
+        elif request.POST.get('submit_type') == 'kumite-simpan':
+            aka_score = request.POST.get('akaScore')
+            ao_score = request.POST.get('aoScore')
+            aka_vr = bool(request.POST.get('aka-vr'))
+            ao_vr = bool(request.POST.get('ao-vr'))
+
+            detail_bagan.score1 = aka_score
+            detail_bagan.score2 = ao_score
+
+            detail_bagan.vr1 = aka_vr
+            detail_bagan.vr2 = ao_vr
+        
+        if pemenang == 'aka':
+            detail_bagan.pemenang = '1'
+        elif pemenang == 'ao':
+            detail_bagan.pemenang = '2'
+        else:
+            detail_bagan.pemenang = '3'
+
+        detail_bagan.selesai = True
+        detail_bagan.save()
+        
+        if not bagan.round_robin:
+            next_round_number = detail_bagan.round + 1
+            next_round_urutan = (detail_bagan.urutan + 1) // 2
+            detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
+
+            if detailbagan_next_round:
+                if pemenang == 'aka':
+                    winner_atlet = detail_bagan.atlet1
+                    detail_bagan.pemenang = '1'
+                elif pemenang == 'ao':
+                    winner_atlet = detail_bagan.atlet2
+                    detail_bagan.pemenang = '2'
+                else:
+                    winner_atlet = None
+                    detail_bagan.pemenang = '3'
+
+                if winner_atlet:
+                    if detail_bagan.urutan % 2 == 1:
+                        detailbagan_next_round.atlet1 = winner_atlet
+                        if detail_bagan.vr1 and pemenang == 'aka':
+                            detailbagan_next_round.vr1 = True
+                        elif detail_bagan.vr2 and pemenang == 'ao':
+                            detailbagan_next_round.vr1 = True
+                    else:
+                        detailbagan_next_round.atlet2 = winner_atlet
+                        if detail_bagan.vr1 and pemenang == 'aka':
+                            detailbagan_next_round.vr2 = True
+                        elif detail_bagan.vr2 and pemenang == 'ao':
+                            detailbagan_next_round.vr2 = True
+
+                detail_bagan.save()
+                detailbagan_next_round.save()
+
+        return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+
+    detail_data = {
+        "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
+        "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 else None,
+        "atlet_red_utusan": detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 else None,
+        "atlet_red_kata": detail_bagan.kata1 if detail_bagan.kata1 else None,
+        "atlet_red_vr": detail_bagan.vr1 if detail_bagan.vr1 else None,
+        "atlet_blue": detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else None,
+        "atlet_blue_perguruan": detail_bagan.atlet2.perguruan.nama_perguruan if detail_bagan.atlet2 else None,
+        "atlet_blue_utusan": detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
+        "atlet_blue_kata": detail_bagan.kata2 if detail_bagan.kata2 else None,
+        "atlet_blue_vr": detail_bagan.vr2 if detail_bagan.vr2 else None,
+        "tipe_tanding": bagan.tipe_tanding,
+        "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding,
+    } 
+
+    group_name = f"scoring_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": detail_data,
+        }
+    )
+
+    group_name = f"juryroom_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": detail_data,
+        }
+    )
+
+    group_name = f"coachroom_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": [detail_bagan.vr1, detail_bagan.vr2],
+        }
+    )
+
+    context = {
+        'on': 'utama',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagan': bagan,
+        'detail_bagan': detail_bagan,
+        'aka_score': aka_score_obj,
+        'ao_score': ao_score_obj,
+        'tatami': tatami,
+        'team_aka': team_aka,
+        'team_ao': team_ao,
+    }
+
+    return render(request, 'admin/control-panel-team.html', context)
 
 @csrf_exempt
 def message_retriever(request, tatami_pk):
