@@ -81,9 +81,16 @@ class DetailBagan(models.Model):
     pemenang = models.CharField(null=True, blank=True, max_length=50, choices=TIPE_PEMENANG)
     hantei = models.BooleanField(default=False)
     selesai = models.BooleanField(default=False)
+    team = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.pk} - {self.round} - {self.urutan}'
+    
+class Matchup(models.Model):
+    bagan = models.ForeignKey(Bagan, null=True, blank=True, on_delete=models.CASCADE)
+    detail_bagan = models.ForeignKey(DetailBagan, null=True, blank=True, on_delete=models.SET_NULL, related_name='detail_bagan')
+    db = models.ForeignKey(DetailBagan, null=True, blank=True, on_delete=models.SET_NULL, related_name='db')
+    round = models.IntegerField()
     
 class Score(models.Model):
     detail_bagan = models.ForeignKey(DetailBagan, on_delete=models.CASCADE, null=True, blank=True)

@@ -1097,6 +1097,7 @@
   let ao_state = 'off';
   let hantei = 0
   let ms_check = 0
+  let resolveTimeout = null; // ← add this at the top with your other variables
 
   function resetRenderJudges() {
     document.getElementById('aka-judges-container').innerHTML = '';
@@ -1275,26 +1276,39 @@
         $('#hantei-banner').show()
       }
     } else if (data.command == 'coach-supervisor') {
-      var arr = JSON.parse(data.details);
-      var a = arr[0];
-      var b = arr[1];
+        var arr = JSON.parse(data.details);
+        var a = arr[0];
+        var b = arr[1];
 
-      warning.play()
-      if (a == 'aka' && aka_state == 'off') {
-        aka_vr_on('VIDEO REVIEW', `${b} POINT REQUESTED`, 'request')
-        document.getElementById('aka-judges-container').innerHTML = '';
-      } else if (a == 'aka' && aka_state == 'pending') {
-        $('#point-1').text('VIDEO REVIEW');
-        $('#point-2').text(`${b} POINT REQUESTED`);
-      }
-      if (a == 'ao' && ao_state == 'off') {
-        ao_vr_on('VIDEO REVIEW', `${b} POINT REQUESTED`, 'request')
-        document.getElementById('ao-judges-container').innerHTML = '';
-      } else if (a == 'ao' && aka_state == 'pending') {
-        $('#point-1-2').text('VIDEO REVIEW');
-        $('#point-2-2').text(`${b} POINT REQUESTED`);
-      }
+        warning.play()
 
+        if (a == 'aka') {
+            // ← ADD THIS CHECK: block VR if aka already has a confirmed score showing
+            if (aka_state === 'pending' && 
+                ['1 - POINT','2 - POINT','3 - POINT'].includes($('#point-1').text())) {
+                // do nothing — a real score is already on the red banner
+            } else if (aka_state == 'off') {
+                aka_vr_on(`${b} POINT REQUESTED`, 'VIDEO REVIEW', 'request')
+                document.getElementById('aka-judges-container').innerHTML = '';
+            } else if (aka_state == 'pending') {
+                $('#point-1').text('VIDEO REVIEW');
+                $('#point-2').text(`${b} POINT REQUESTED`);
+            }
+        }
+
+        if (a == 'ao') {
+            // ← ADD THIS CHECK: block VR if ao already has a confirmed score showing
+            if (ao_state === 'pending' && 
+                ['1 - POINT','2 - POINT','3 - POINT'].includes($('#point-1-2').text())) {
+                // do nothing — a real score is already on the blue banner
+            } else if (ao_state == 'off') {
+                ao_vr_on(`${b} POINT REQUESTED`, 'VIDEO REVIEW', 'request')
+                document.getElementById('ao-judges-container').innerHTML = '';
+            } else if (ao_state == 'pending') {
+                $('#point-1-2').text('VIDEO REVIEW');
+                $('#point-2-2').text(`${b} POINT REQUESTED`);
+            }
+        }
     } else if (data.command == 'countdown-aka') {
       const banner = document.getElementById("countdown-banner");
       cd_val = data.details;
@@ -1357,59 +1371,64 @@
         ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
       }
     } else if (data.command === 'mouse' && hantei == 0 && isRunning) {
-      var arr = JSON.parse(data.details);
-      var a = arr[0];
-      var b = arr[1];
+    var arr = JSON.parse(data.details);
+    var a = arr[0];  // akaResult
+    var b = arr[1];  // aoResult
 
-      $('#point-1').show()
-      $('#point-2').show()
-      $('#point-1-2').show()
-      $('#point-2-2').show()
-
-      if (ms_check == 0 && hantei == 0) {
+    if (ms_check == 0 && hantei == 0) {
+        // ── AKA side ──
         if (a === 'Aka Yuko') {
-          $('#point-1').text('1 - POINT');
-          $('#point-2').text('YUKO');
-          $('#banner').show().css('background-color','red');
-          aka_state = 'pending'
+            $('#point-1').text('1 - POINT');
+            $('#point-2').text('YUKO');
+            $('#banner').show().css('background-color', 'red');
+            aka_state = 'pending';
+        } else if (a === 'Aka Waza-ari') {
+            $('#point-1').text('2 - POINT');
+            $('#point-2').text('WAZA-ARI');
+            $('#banner').show().css('background-color', 'red');
+            aka_state = 'pending';
+        } else if (a === 'Aka Ippon') {
+            $('#point-1').text('3 - POINT');
+            $('#point-2').text('IPPON');
+            $('#banner').show().css('background-color', 'red');
+            aka_state = 'pending';
+        } else {
+            // ← ADD THIS: jury changed mind, no aka result
+            $('#banner').hide();
+            aka_state = 'off';
+            document.getElementById('aka-judges-container').innerHTML = '';
         }
-        else if (a === 'Aka Waza-ari') {
-          $('#point-1').text('2 - POINT');
-          $('#point-2').text('WAZA-ARI');
-          $('#banner').show().css('background-color','red');
-          aka_state = 'pending'
-        }
-        else if (a === 'Aka Ippon') {
-          $('#point-1').text('3 - POINT');
-          $('#point-2').text('IPPON');
-          $('#banner').show().css('background-color','red');
-          aka_state = 'pending'
-        }
+
+        // ── AO side ──
         if (b === 'Ao Yuko') {
-          $('#point-1-2').text('1 - POINT');
-          $('#point-2-2').text('YUKO');
-          $('#banner-2').show().css('background-color','#3498db');
-          ao_state = 'pending'
+            $('#point-1-2').text('1 - POINT');
+            $('#point-2-2').text('YUKO');
+            $('#banner-2').show().css('background-color', '#3498db');
+            ao_state = 'pending';
+        } else if (b === 'Ao Waza-ari') {
+            $('#point-1-2').text('2 - POINT');
+            $('#point-2-2').text('WAZA-ARI');
+            $('#banner-2').show().css('background-color', '#3498db');
+            ao_state = 'pending';
+        } else if (b === 'Ao Ippon') {
+            $('#point-1-2').text('3 - POINT');
+            $('#point-2-2').text('IPPON');
+            $('#banner-2').show().css('background-color', '#3498db');
+            ao_state = 'pending';
+        } else {
+            // ← ADD THIS: jury changed mind, no ao result
+            $('#banner-2').hide();
+            ao_state = 'off';
+            document.getElementById('ao-judges-container').innerHTML = '';
         }
-        else if (b === 'Ao Waza-ari') {
-          $('#point-1-2').text('2 - POINT');
-          $('#point-2-2').text('WAZA-ARI');
-          $('#banner-2').show().css('background-color','#3498db');
-          ao_state = 'pending'
+
+        updateLayout();
+
+        if (a || b) {
+            finish.play();
         }
-        else if (b === 'Ao Ippon') {
-          $('#point-1-2').text('3 - POINT');
-          $('#point-2-2').text('IPPON');
-          $('#banner-2').show().css('background-color','#3498db');
-          ao_state = 'pending'
-        }
-      
-        updateLayout()
-         if (a || b) {
-          finish.play()
-         }
-      }
-    } else if (data.command == 'reset-banner') {
+    }
+} else if (data.command == 'reset-banner') {
       reset_banners()
     } else if (data.command == 'timer-change') {
       if (!isRunning) {
@@ -1611,36 +1630,54 @@
     if (data.details === 'ao-decline')   ao_vr_on(data.v1, data.v2, 'decline');
 
     function tryResolve() {
-      const activeCount =
+    const activeCount =
         (aka_state === 'pending' || aka_state === 'resolved' ? 1 : 0) +
         (ao_state === 'pending' || ao_state === 'resolved' ? 1 : 0);
 
-      const resolvedCount =
+    const resolvedCount =
         (aka_state === 'resolved' ? 1 : 0) +
         (ao_state === 'resolved' ? 1 : 0);
 
-      if (activeCount === 1 && resolvedCount === 1) {
-        showResolved();
-        return;
-      }
+    console.log('tryResolve called — aka_state:', aka_state, '| ao_state:', ao_state, '| activeCount:', activeCount, '| resolvedCount:', resolvedCount);
 
-      if (activeCount === 2 && resolvedCount === 2) {
+    if (activeCount > 0 && activeCount === resolvedCount) {
+        console.log('showResolved firing')
         showResolved();
-        return;
-      }
     }
+}
+
+    
 
     function showResolved() {
-      $('#vr-status-msg').css('display','');
+        $('#vr-status-msg').css('display','');
 
-      setTimeout(() => {
-        $('#vr-status-msg').css('display','none');
-        aka_state = 'off';
-        ao_state = 'off';
-        $('#point-2').css({backgroundColor:''});
-        $('#point-2-2').css({backgroundColor:''});
-        updateLayout();
-      }, 3000);
+        // ← cancel any previous pending resolve
+        if (resolveTimeout) {
+            clearTimeout(resolveTimeout);
+            resolveTimeout = null;
+        }
+
+        resolveTimeout = setTimeout(() => {
+            // ← only reset if nothing new has taken over the banner
+            if (aka_state === 'resolved' || aka_state === 'off') {
+                aka_state = 'off';
+                $('#point-1').text('NULL');
+                $('#point-2').text('0 - POINT');
+                $('#point-2').css({backgroundColor: ''});
+                $('#banner').hide();
+            }
+            if (ao_state === 'resolved' || ao_state === 'off') {
+                ao_state = 'off';
+                $('#point-1-2').text('NULL');
+                $('#point-2-2').text('0 - POINT');
+                $('#point-2-2').css({backgroundColor: ''});
+                $('#banner-2').hide();
+            }
+
+            $('#vr-status-msg').css('display','none');
+            resolveTimeout = null;
+            updateLayout();
+        }, 3000);
     }
 
     function aka_vr_on(v1, v2, action) {
@@ -1667,11 +1704,12 @@
       }
 
       if (action === 'decline') {
+        console.log('decline called for', v1, '— current aka_state:', aka_state, 'ao_state:', ao_state);
         $('#point-2').css({backgroundColor:'#000'});
         aka_state = 'resolved';
         tryResolve();
         return;
-      }
+    }
     }
 
     function ao_vr_on(v1, v2, action) {
@@ -1706,39 +1744,43 @@
     }
 
     function aka_banner(score1, score2) {
-      $('#point-1').text(score1)
-      $('#point-2').text(score2)
+        $('#point-2').css({backgroundColor: ''});
+        $('#point-2-2').css({backgroundColor: ''});
+        
+        $('#point-1').text(score1)
+        $('#point-2').text(score2)
 
-      $('#banner').show().css('background-color','red');
-      $('#banner-2').css('display', 'none');
-      $('#banner-wrap').css('grid-template-columns','1fr');
-      $('.fullscreen-banner h1').css('font-size','10vw');
+        $('#banner').show().css('background-color','red');
+        $('#banner-2').css('display', 'none');
+        $('#banner-wrap').css('grid-template-columns','1fr');
+        $('.fullscreen-banner h1').css('font-size','10vw');
 
-      if (aka_state == 'pending') {
-        aka_state = 'off'
-      }
+        // ← was: if (aka_state == 'pending') { aka_state = 'off' }
+        aka_state = 'off';
 
-       setTimeout(function () {
-          updateLayout()
-      }, 1000);
+        setTimeout(function () {
+            updateLayout()
+        }, 1000);
     }
 
     function ao_banner(score1, score2) {
-      $('#point-1-2').text(score1)
-      $('#point-2-2').text(score2)
+        $('#point-2').css({backgroundColor: ''});
+        $('#point-2-2').css({backgroundColor: ''});
 
-      $('#banner').css('display', 'none');
-      $('#banner-2').show().css('background-color','#3498db');
-      $('#banner-wrap').css('grid-template-columns','1fr');
-      $('.fullscreen-banner h1').css('font-size','10vw');
+        $('#point-1-2').text(score1)
+        $('#point-2-2').text(score2)
 
-      if (ao_state == 'pending') {
-        ao_state = 'off'
-      }
+        $('#banner').css('display', 'none');
+        $('#banner-2').show().css('background-color','#3498db');
+        $('#banner-wrap').css('grid-template-columns','1fr');
+        $('.fullscreen-banner h1').css('font-size','10vw');
 
-       setTimeout(function () {
-          updateLayout()
-      }, 1000);
+        // ← was: if (ao_state == 'pending') { ao_state = 'off' }
+        ao_state = 'off';
+
+        setTimeout(function () {
+            updateLayout()
+        }, 1000);
     }
 
     function timer_status() {

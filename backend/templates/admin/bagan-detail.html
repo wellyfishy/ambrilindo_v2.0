@@ -599,7 +599,11 @@ h2 {
         </li>
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            {% if detail_bagan|contains_team %}
+            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
+            {% else %}
             <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
+            {% endif %}
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -623,7 +627,11 @@ h2 {
         {% for detail_bagan in detail_bagans_round_4 %}
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            {% if detail_bagan|contains_team %}
+            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
+            {% else %}
             <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
+            {% endif %}
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
@@ -638,7 +646,11 @@ h2 {
         </li>
         <li class="tournament-bracket__item">
           <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
+            {% if detail_bagan|contains_team %}
+            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
+            {% else %}
             <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
+            {% endif %}
             <table class="tournament-bracket__table">
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
