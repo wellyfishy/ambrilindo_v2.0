@@ -74,6 +74,8 @@ class DetailBagan(models.Model):
     atlet2 = models.ForeignKey(Atlet, null=True, blank=True, on_delete=models.SET_NULL, related_name="atlet2")
     score1 = models.CharField(max_length=10, null=True, blank=True)
     score2 = models.CharField(max_length=10, null=True, blank=True)
+    scorekecil1 = models.CharField(max_length=10, null=True, blank=True)
+    scorekecil2 = models.CharField(max_length=10, null=True, blank=True)
     vr1 = models.BooleanField(default=False)
     vr2 = models.BooleanField(default=False)
     kata1 = models.CharField(max_length=50, null=True, blank=True, default='0 - Blank')

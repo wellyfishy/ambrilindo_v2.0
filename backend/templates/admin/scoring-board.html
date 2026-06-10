@@ -111,7 +111,7 @@
     }
 
     .aka-vr {
-      width: 7%;
+      width: 5%;
       margin-right: 3vw;
     } 
 
@@ -122,23 +122,18 @@
       font-size: 14em;
       font-weight: bold;
       color: red;
-      margin-right: 100px;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
     }
 
     .aka-senshu {
       font-size: 7.5em;
-      font-weight: bold;
       color: red;
-      margin-right: 100px;
-      margin-left: -50px;
-      padding-right: -50px;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
       visibility: hidden
     }
 
     .ao-vr {
-      width: 7%;
+      width: 5%;
       margin-right: 3vw;
     } 
 
@@ -149,16 +144,12 @@
       font-size: 14em;
       font-weight: bold;
       color: blue;
-      margin-right: 100px;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
     }
 
     .ao-senshu {
       font-size: 7.5em;
-      font-weight: bold;
       color: blue;
-      margin-right: 100px;
-      margin-left: -50px;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
       visibility: hidden;
     }
@@ -885,12 +876,15 @@
                     <div class="kata" id="kata-aka">0 - Blank</div>
                 </div>
                 <img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" class="aka-vr" id="aka-vr">
-                <div class="aka-score" id="aka-score">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-right: 50px;">
+                  <div class="aka-score" id="aka-score">
+                    0
+                  </div>
+                  <span class="aka-senshu" id="aka-senshu" style="font-size: 30px; color: gold; border-radius: 10px; letter-spacing: 4px; background-color: red; padding: 2px 12px; margin-top: -10px;">SENSHU</span>
+                </div>
+                <div class="aka-score" id="aka-big-score" style="font-size: 130px; color: gold; margin-right: -10px;">
                   0
                 </div>
-                <span class="aka-senshu" id="aka-senshu">
-                  o
-                </span>
             </div>
             
             <div class="criteria-row" name="criteria">
@@ -937,12 +931,15 @@
                     <div class="kata" id="kata-ao">0 - Blank</div>
                 </div>
                 <img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" class="ao-vr" id="ao-vr">
-                <div class="ao-score" id="ao-score">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-right: 50px;">
+                  <div class="ao-score" id="ao-score">
+                    0
+                  </div>
+                  <span class="ao-senshu" id="ao-senshu" style="font-size: 30px; color: gold; border-radius: 10px; letter-spacing: 4px; background-color: blue; padding: 2px 12px; margin-top: -10px;">SENSHU</span>
+                </div>
+                <div class="ao-score" id="ao-big-score" style="font-size: 130px; color: gold; margin-right: -10px;">
                   0
                 </div>
-                <span class="ao-senshu" id="ao-senshu">
-                  o
-                </span>
             </div>
             <div class="criteria-row" name="criteria">
                 <div class="criteria" id="aoc1">C1</div>
@@ -1840,6 +1837,17 @@
           document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
             div.classList.remove('deactivate');
           });
+        }
+        if (!data.details.team) {
+          document.getElementById('aka-big-score').style.display = 'none';
+          document.getElementById('ao-big-score').style.display = 'none';
+          document.getElementById('aka-big-score').innerText = '0';
+          document.getElementById('aka-big-score').innerText = '0';
+        } else {
+          document.getElementById('aka-big-score').style.display = 'block';
+          document.getElementById('ao-big-score').style.display = 'block';
+          document.getElementById('aka-big-score').innerText = data.details.total_aka_score;
+          document.getElementById('ao-big-score').innerText = data.details.total_ao_score;
         }
         document.getElementById('aka-vr').style.visibility = 'hidden';
         if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {

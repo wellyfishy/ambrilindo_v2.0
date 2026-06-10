@@ -1051,6 +1051,20 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
     tatami.detail_bagan = detail_bagan
     tatami.save()
 
+    total_aka_score = 0
+    total_ao_score = 0
+
+    mu = Matchup.objects.filter(db=detail_bagan).first()
+
+    if 'KUMITE BEREGU' in bagan.nama_bagan and mu:
+        for matchup in Matchup.objects.filter(bagan=bagan, detail_bagan=mu.detail_bagan):
+            if matchup.db.pemenang == '1':
+                total_aka_score += 1
+            elif matchup.db.pemenang == '2':
+                total_ao_score += 1
+    
+    print(total_aka_score, total_ao_score)
+
     if request.method == 'POST':
         pemenang = request.POST.get('pemenang')
         if request.POST.get('submit_type') == 'kata-simpan':
@@ -1148,6 +1162,9 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         "atlet_blue_kata": detail_bagan.kata2 if detail_bagan.kata2 else None,
         "atlet_blue_vr": detail_bagan.vr2 if detail_bagan.vr2 else None,
         "tipe_tanding": bagan.tipe_tanding,
+        "team": True if 'KUMITE BEREGU' in bagan.nama_bagan else None,
+        "total_aka_score": total_aka_score,
+        "total_ao_score": total_ao_score,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding,
     } 
 
@@ -1217,11 +1234,17 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
     matchups = Matchup.objects.filter(bagan=bagan, detail_bagan=detail_bagan).order_by('round')
     team_aka_score = 0
     team_ao_score = 0 
+    team_aka_lil_score = 0
+    team_ao_lil_score = 0
+
     for matchup in matchups:
+        team_aka_lil_score += int(matchup.db.score1) if matchup.db.score1 else 0
+        team_ao_lil_score += int(matchup.db.score2) if matchup.db.score2 else 0
         if matchup.db.pemenang == '1':
             team_aka_score += 1
         elif matchup.db.pemenang == '2':
             team_ao_score += 1 
+    
 
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'save':
@@ -1274,9 +1297,18 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 detail_bagan.pemenang = '1'
             elif team_ao_score > team_aka_score:
                 detail_bagan.pemenang = '2'
+            elif team_aka_lil_score > team_ao_lil_score:
+                detail_bagan.pemenang = '1'
+            elif team_ao_lil_score > team_aka_lil_score:
+                detail_bagan.pemenang = '2'
             else:
                 detail_bagan.pemenang = '3'
 
+
+            detail_bagan.score1 = team_aka_score
+            detail_bagan.score2 = team_ao_score
+            detail_bagan.scorekecil1 = team_aka_lil_score
+            detail_bagan.scorekecil2 = team_ao_lil_score
             detail_bagan.selesai = True
             detail_bagan.save()
             
@@ -1287,10 +1319,12 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
             if detailbagan_next_round:
                 if team_aka_score > team_ao_score:
                     winner_atlet = detail_bagan.atlet1
-                    detail_bagan.pemenang = '1'
                 elif team_ao_score > team_aka_score:
                     winner_atlet = detail_bagan.atlet2
-                    detail_bagan.pemenang = '2'
+                elif team_aka_lil_score > team_ao_lil_score:
+                    winner_atlet = detail_bagan.atlet1
+                elif team_ao_lil_score > team_aka_lil_score:
+                    winner_atlet = detail_bagan.atlet2
                 else:
                     winner_atlet = None
                     detail_bagan.pemenang = '3'
@@ -1298,15 +1332,15 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 if winner_atlet:
                     if detail_bagan.urutan % 2 == 1:
                         detailbagan_next_round.atlet1 = winner_atlet
-                        if detail_bagan.vr1 and team_aka_score > team_ao_score:
+                        if detail_bagan.vr1 and detail_bagan.pemenang == '1':
                             detailbagan_next_round.vr1 = True
-                        elif detail_bagan.vr2 and team_ao_score > team_aka_score:
+                        elif detail_bagan.vr2 and detail_bagan.pemenang == '2':
                             detailbagan_next_round.vr1 = True
                     else:
                         detailbagan_next_round.atlet2 = winner_atlet
-                        if detail_bagan.vr1 and team_aka_score > team_ao_score:
+                        if detail_bagan.vr1 and detail_bagan.pemenang == '1':
                             detailbagan_next_round.vr2 = True
-                        elif detail_bagan.vr2 and team_ao_score > team_aka_score:
+                        elif detail_bagan.vr2 and detail_bagan.pemenang == '2':
                             detailbagan_next_round.vr2 = True
 
                 detail_bagan.save()
@@ -1328,6 +1362,8 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         'matchups': matchups,
         'team_aka_score': team_aka_score,
         'team_ao_score': team_ao_score,
+        'team_aka_lil_score': team_aka_lil_score,
+        'team_ao_lil_score': team_ao_lil_score,
     }
 
     return render(request, 'admin/control-panel-team.html', context)
