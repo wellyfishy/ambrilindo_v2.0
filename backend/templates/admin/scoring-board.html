@@ -126,10 +126,10 @@
     }
 
     .aka-senshu {
-      font-size: 7.5em;
-      color: red;
-      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-      visibility: hidden
+      background-color: red;
+      border-radius: 12px;
+      box-shadow: 0 0 0 20px red;
+      color: white;
     }
 
     .ao-vr {
@@ -143,15 +143,15 @@
       gap: 0.3em; /* space between o and number */
       font-size: 14em;
       font-weight: bold;
-      color: blue;
+      color: #4653c7;
       text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
     }
 
     .ao-senshu {
-      font-size: 7.5em;
-      color: blue;
-      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-      visibility: hidden;
+      background-color: #4653c7;
+      border-radius: 12px;
+      box-shadow: 0 0 0 20px #4653c7;
+      color: white;
     }
 
     .footer {
@@ -371,7 +371,7 @@
     }
 
     .kata-row.ao td {
-      color: #35349b;
+      color: #4653c7;
     }
 
     .kata-row td.score,
@@ -877,10 +877,11 @@
                 </div>
                 <img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" class="aka-vr" id="aka-vr">
                 <div style="display: flex; flex-direction: column; align-items: center; margin-right: 50px;">
-                  <div class="aka-score" id="aka-score">
-                    0
+                  <div id="aka-senshu-wrapper" style="border-radius: 12px;">
+                    <div class="aka-score" id="aka-score">
+                      0
+                    </div>
                   </div>
-                  <span class="aka-senshu" id="aka-senshu" style="font-size: 30px; color: gold; border-radius: 10px; letter-spacing: 4px; background-color: red; padding: 2px 12px; margin-top: -10px;">SENSHU</span>
                 </div>
                 <div class="aka-score" id="aka-big-score" style="font-size: 130px; color: gold; margin-right: -10px;">
                   0
@@ -932,10 +933,11 @@
                 </div>
                 <img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" class="ao-vr" id="ao-vr">
                 <div style="display: flex; flex-direction: column; align-items: center; margin-right: 50px;">
-                  <div class="ao-score" id="ao-score">
-                    0
+                  <div id="ao-senshu-wrapper" style="border-radius: 12px;">
+                    <div class="ao-score" id="ao-score">
+                      0
+                    </div>
                   </div>
-                  <span class="ao-senshu" id="ao-senshu" style="font-size: 30px; color: gold; border-radius: 10px; letter-spacing: 4px; background-color: blue; padding: 2px 12px; margin-top: -10px;">SENSHU</span>
                 </div>
                 <div class="ao-score" id="ao-big-score" style="font-size: 130px; color: gold; margin-right: -10px;">
                   0
@@ -1588,13 +1590,17 @@
       ao_criteria--;
     } else if (data.command == 'senshu') {
       if (data.details == 'aka-senshu') {
-        $('#aka-senshu').css('visibility', 'visible') 
+        $('#aka-score').addClass('aka-senshu');
+        $('#aka-senshu-wrapper').addClass('aka-senshu');
       } else if (data.details == 'aka-remove-senshu') {
-        $('#aka-senshu').css('visibility', 'hidden') 
+        $('#aka-score').removeClass('aka-senshu');
+        $('#aka-senshu-wrapper').removeClass('aka-senshu');
       } else if (data.details == 'ao-senshu') {
-        $('#ao-senshu').css('visibility', 'visible') 
+        $('#ao-score').addClass('ao-senshu');
+        $('#ao-senshu-wrapper').addClass('ao-senshu');
       } else if (data.details == 'ao-remove-senshu') {
-        $('#ao-senshu').css('visibility', 'hidden') 
+        $('#ao-score').removeClass('ao-senshu');
+        $('#ao-senshu-wrapper').removeClass('ao-senshu');
       }
     } else if (data.command == 'vr') {
       if (data.details == 'aka-vr') {
@@ -1903,8 +1909,10 @@
         isRunning = false;
         isShowing = false;
         
-        $('#aka-senshu').css('visibility', 'hidden') 
-        $('#ao-senshu').css('visibility', 'hidden') 
+        $('#aka-score').removeClass('aka-senshu');
+        $('#aka-senshu-wrapper').removeClass('aka-senshu');
+        $('#ao-score').removeClass('ao-senshu');
+        $('#ao-senshu-wrapper').removeClass('ao-senshu');
         
         for (let i = 1; i <= 5; i++) {
           $(`#akac${i}`).removeClass('active-red');
