@@ -1041,8 +1041,8 @@
     safeTimeout(() => $('.aka-score, .ao-score').addClass('reveal'), 5 * 2 * delay);
   }
 
-  function startCountdown() {
-    let totalMs = 35000; // 35 seconds in ms
+  function startCountdown(ms) {
+    let totalMs = ms; // 35 seconds in ms
 
     const secEl = document.getElementById("cd-seconds");
     const msEl = document.getElementById("cd-milliseconds");
@@ -1314,7 +1314,7 @@
       if (cd_val == 1) {
         banner.style.display = "";
         banner.style.backgroundColor = "red"
-        startCountdown();
+        startCountdown(35000);
       } else {
         banner.style.display = "none";
         clearInterval(msInterval);
@@ -1327,7 +1327,7 @@
       if (cd_val == 1) {
         banner.style.display = "";
         banner.style.backgroundColor = "#3498db"
-        startCountdown();
+        startCountdown(35000);
       } else {
         banner.style.display = "none";
 
@@ -1335,6 +1335,84 @@
         clearInterval(msInterval);
 
         // Reset UI
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-1-aka') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "red"
+        startCountdown(60000);
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-2-aka') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "red"
+        startCountdown(120000);
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-3-aka') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "red"
+        startCountdown(180000);
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-1-ao') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "#3498db"
+        startCountdown(60000);
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-2-ao') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "#3498db"
+        startCountdown(120000);
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
+        document.getElementById("cd-seconds").textContent = "00";
+        document.getElementById("cd-milliseconds").textContent = "00";
+      }
+    } else if (data.command == 'countdown-3-ao') {
+      const banner = document.getElementById("countdown-banner");
+      cd_val = data.details;
+      if (cd_val == 1) {
+        banner.style.display = "";
+        banner.style.backgroundColor = "#3498db"
+        startCountdown(180000);
+      } else {
+        banner.style.display = "none";
+        clearInterval(msInterval);
         document.getElementById("cd-seconds").textContent = "00";
         document.getElementById("cd-milliseconds").textContent = "00";
       }
