@@ -23,6 +23,9 @@
                         <div class="card-title" style="margin-right: 10px;">Kumpulan Bagan Event {{ event.nama_event }}</div>
                         <div>
                             <div class="dropdown">
+                                <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#exportBaganModal">
+                                    Export For Realtime
+                                </a>
                                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Buat Bagan
                                 </button>
@@ -31,6 +34,36 @@
                                     <li><a href="#" class="dropdown-item" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal">Drawing Bagan</a></li>
                                     <li><a href="#" class="dropdown-item" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#bobBaganModal">Bagan BOB</a></li>
                                 </ul>
+                            </div>
+
+                            <div class="modal fade" id="exportBaganModal" tabindex="-1" aria-labelledby="exportBaganModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title">Export Bagan</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="event_pk">Event PK</label>
+                                                <input type="text" class="form-control">
+                                                <label for="bagan_pk">Bagan (Pilih satu atau lebih).</label>
+                                                <select class="form-select select2" id="export_bagan_pk" name="bagan_pk" multiple>
+                                                    <option value="semua">SEMUA BAGAN</option>
+                                                    {% for bagan in bagans %}
+                                                    <option value="{{ bagan.pk }}">{{ bagan.nama_bagan }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="export_bagan" class="btn btn-primary">Export</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="modal fade" id="tambahBaganModal" tabindex="-1" aria-labelledby="tambahBaganModal" aria-hidden="true">

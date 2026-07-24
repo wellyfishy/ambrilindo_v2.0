@@ -6,10 +6,9 @@ class Admin(models.Model):
 
 class Event(models.Model):
     nama_event = models.CharField(max_length=150, null=True, blank=True)
-    sedang_berjalan = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.nama_event} - {self.sedang_berjalan}'
+        return f'{self.nama_event}'
 
 class NomorTanding(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)

@@ -229,7 +229,24 @@ def admin_dashboard(request, event_pk):
                     }
 
     if request.method == 'POST':
-        if request.POST.get('submit_type') == 'drawing_bagan' or request.POST.get('bob_bagan'):
+        if request.POST.get('submit_type') == 'export_bagan':
+            event_pk = request.POST.get('event_pk')
+            bagan_pks = request.POST.getlist('bagan_pk')
+
+            if 'semua' in bagan_pks:
+                bagan_pks = Bagan.objects.filter(event=event).values_list('pk', flat=True)
+
+            for bagan_pk in bagan_pks:
+                bagan = Bagan.objects.filter(pk=bagan_pk).first()
+                dbs = DetailBagan.objects.filter(bagan=bagan)
+                for db in dbs:
+                    nama1 = db.atlet1.nama_atlet if db.atlet1 else None
+                    nama2 = db.atlet2.nama_atlet if db.atlet2 else None
+                    print(f'{event_pk}|{bagan.nama_bagan}|{bagan.pk}|{db.pk}|{db.round}|{db.urutan}|{nama1}|{nama2}')
+
+            return redirect('admin-dashboard', event_pk=event.pk)
+
+        elif request.POST.get('submit_type') == 'drawing_bagan' or request.POST.get('bob_bagan'):
             nomor_tanding_pks = request.POST.getlist('nomor_tanding_pk')
             tipe_shuffle = request.POST.get('shuffle_type')
             if 'semua' in nomor_tanding_pks:
