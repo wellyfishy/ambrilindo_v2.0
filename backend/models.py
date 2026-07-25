@@ -83,6 +83,7 @@ class DetailBagan(models.Model):
     hantei = models.BooleanField(default=False)
     selesai = models.BooleanField(default=False)
     team = models.BooleanField(default=False)
+    kode = models.CharField(unique=True, null=True, blank=True, max_length=50)
 
     def __str__(self):
         return f'{self.pk} - {self.round} - {self.urutan}'

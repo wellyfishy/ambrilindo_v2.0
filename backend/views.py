@@ -12,6 +12,10 @@ from django.http import JsonResponse
 from collections import defaultdict
 from itertools import groupby
 
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from django.http import HttpResponse
+
 def auth(request):
     events = Event.objects.all().order_by('-pk')
 
@@ -236,15 +240,47 @@ def admin_dashboard(request, event_pk):
             if 'semua' in bagan_pks:
                 bagan_pks = Bagan.objects.filter(event=event).values_list('pk', flat=True)
 
+            wb = Workbook()
+            ws = wb.active
+            ws.title = 'Bagan Export'
+
+            headers = ['Event PK', 'Nama Bagan', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Atlet 2']
+            ws.append(headers)
+
+            # bold header row
+            for cell in ws[1]:
+                cell.font = Font(bold=True)
+
             for bagan_pk in bagan_pks:
                 bagan = Bagan.objects.filter(pk=bagan_pk).first()
+                if not bagan:
+                    continue
                 dbs = DetailBagan.objects.filter(bagan=bagan)
                 for db in dbs:
                     nama1 = db.atlet1.nama_atlet if db.atlet1 else None
                     nama2 = db.atlet2.nama_atlet if db.atlet2 else None
-                    print(f'{event_pk}|{bagan.nama_bagan}|{bagan.pk}|{db.pk}|{db.round}|{db.urutan}|{nama1}|{nama2}')
+                    ws.append([
+                        event_pk,
+                        bagan.nama_bagan,
+                        bagan.pk,
+                        db.pk,
+                        db.round,
+                        db.urutan,
+                        nama1,
+                        nama2,
+                    ])
 
-            return redirect('admin-dashboard', event_pk=event.pk)
+            # auto-size columns roughly
+            for col_cells in ws.columns:
+                length = max(len(str(cell.value)) if cell.value is not None else 0 for cell in col_cells)
+                ws.column_dimensions[col_cells[0].column_letter].width = length + 2
+
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="bagan_export_{event_pk}.xlsx"'
+            wb.save(response)
+            return response
 
         elif request.POST.get('submit_type') == 'drawing_bagan' or request.POST.get('bob_bagan'):
             nomor_tanding_pks = request.POST.getlist('nomor_tanding_pk')
