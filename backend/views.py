@@ -11,6 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from collections import defaultdict
 from itertools import groupby
+import json
+from django.views.decorators.http import require_POST
+from .utils import send_to_hosted
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
@@ -234,7 +237,6 @@ def admin_dashboard(request, event_pk):
 
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'export_bagan':
-            event_pk = request.POST.get('event_pk')
             bagan_pks = request.POST.getlist('bagan_pk')
 
             if 'semua' in bagan_pks:
@@ -244,7 +246,7 @@ def admin_dashboard(request, event_pk):
             ws = wb.active
             ws.title = 'Bagan Export'
 
-            headers = ['Event PK', 'Nama Bagan', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Atlet 2']
+            headers = ['Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Atlet 2', 'Tipe Tanding', 'Pool']
             ws.append(headers)
 
             # bold header row
@@ -260,14 +262,16 @@ def admin_dashboard(request, event_pk):
                     nama1 = db.atlet1.nama_atlet if db.atlet1 else None
                     nama2 = db.atlet2.nama_atlet if db.atlet2 else None
                     ws.append([
-                        event_pk,
                         bagan.nama_bagan,
+                        bagan.nomor_tanding.nama_nomor_tanding,
                         bagan.pk,
                         db.pk,
                         db.round,
                         db.urutan,
                         nama1,
                         nama2,
+                        bagan.tipe_tanding,
+                        bagan.pool,
                     ])
 
             # auto-size columns roughly
@@ -1692,3 +1696,38 @@ def scoring_board(request, tatami_pk):
         'tatami': tatami,
     }
     return render(request, 'admin/scoring-board.html', context)
+
+@require_POST
+def notify_bagan_running(request, detailbagan_pk):
+    detail_bagan = DetailBagan.objects.filter(pk=detailbagan_pk).first()
+    if not detail_bagan:
+        return JsonResponse({'success': False, 'message': 'DetailBagan tidak ditemukan'}, status=404)
+
+    payload = {
+        'status': 'running',
+        'detail_bagan_id': detail_bagan.pk,
+        'bagan_id': detail_bagan.bagan.pk,
+        'round': detail_bagan.round,
+        'urutan': detail_bagan.urutan,
+        'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+        'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+    }
+    success, result = send_to_hosted(payload, endpoint='api/status/')
+    return JsonResponse({'success': success, 'message': result})
+
+
+@require_POST
+def send_bagan_result(request, detailbagan_pk):
+    detail_bagan = DetailBagan.objects.filter(pk=detailbagan_pk).first()
+    if not detail_bagan:
+        return JsonResponse({'success': False, 'message': 'DetailBagan tidak ditemukan'}, status=404)
+
+    payload = {
+        'status': 'finished',
+        'detail_bagan_id': detail_bagan.pk,
+        'pemenang': detail_bagan.pemenang,
+        'score1': detail_bagan.score1,
+        'score2': detail_bagan.score2,
+    }
+    success, result = send_to_hosted(payload, endpoint='api/result/')
+    return JsonResponse({'success': success, 'message': result})

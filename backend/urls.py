@@ -32,4 +32,8 @@ urlpatterns = [
     path('jury-panel/<int:tatami_pk>/message-retriever', message_retriever_jury, name="message-retriever-jury"),
     path('control-panel/<int:tatami_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
     path('coach-supervisor/<int:tatami_pk>/message-retriever', message_retriever_coach_supervisor, name="message-retriever-coach-supervisor"),
+
+    # API
+    path('api/notify-running/<int:detailbagan_pk>/', notify_bagan_running, name='notify-bagan-running'),
+    path('api/send-result/<int:detailbagan_pk>/', send_bagan_result, name='send-bagan-result'),
 ]

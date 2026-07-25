@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-eg7u8gz&(jxh^s01scsm9&pt^o@64r6&m28av0a_)ya_g*6p#s'
+
+HOSTED_BASE_URL = os.getenv('HOSTED_BASE_URL', 'http://localhost:8001')
+HOSTED_API_TOKEN = os.getenv('HOSTED_API_TOKEN')
+
+if not HOSTED_API_TOKEN:
+    raise ImproperlyConfigured('HOSTED_API_TOKEN environment variable is not set.')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
