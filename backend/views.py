@@ -246,7 +246,7 @@ def admin_dashboard(request, event_pk):
             ws = wb.active
             ws.title = 'Bagan Export'
 
-            headers = ['Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Atlet 2', 'Tipe Tanding', 'Pool']
+            headers = ['Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Atlet 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2']
             ws.append(headers)
 
             # bold header row
@@ -272,6 +272,8 @@ def admin_dashboard(request, event_pk):
                         nama2,
                         bagan.tipe_tanding,
                         bagan.pool,
+                        db.vr1,
+                        db.vr2,
                     ])
 
             # auto-size columns roughly
@@ -1119,8 +1121,6 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 total_aka_score += 1
             elif matchup.db.pemenang == '2':
                 total_ao_score += 1
-    
-    print(total_aka_score, total_ao_score)
 
     if request.method == 'POST':
         pemenang = request.POST.get('pemenang')
@@ -1171,6 +1171,8 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
         detail_bagan.selesai = True
         detail_bagan.save()
+
+        winner_atlet = None
         
         if not bagan.round_robin or not detail_bagan.team:
             next_round_number = detail_bagan.round + 1
@@ -1204,6 +1206,30 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
                 detail_bagan.save()
                 detailbagan_next_round.save()
+
+        payload = {
+            'status': 'finished',
+            'round': detail_bagan.round,
+            'urutan': detail_bagan.urutan,
+            'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+            'pemenang': pemenang,
+            'score_aka': detail_bagan.score1,
+            'score_ao': detail_bagan.score2,
+            'vr1': detail_bagan.vr1,
+            'vr2': detail_bagan.vr2,
+            'next_vr1': detailbagan_next_round.vr1,
+            'next_vr2': detailbagan_next_round.vr2,
+            'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
+            'next_kode_realtime': f'{detailbagan_next_round.bagan.pk}-{detailbagan_next_round.pk}',
+            'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+        }
+        success, result = send_to_hosted(payload, endpoint='api/result/')
+
+        if not success:
+            messages.warning(
+                request,
+                f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
+            )
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 

@@ -31,7 +31,7 @@
     </div>
     
     <!-- separate from the main save form -->
-    <button id="send-result-btn" type="button" style="margin-left: 30px;" disabled>Kirim Hasil ke Server</button>
+    <button id="send-result-btn" type="button" style="margin-left: 30px;">Kirim Hasil ke Server</button>
     <span id="result-loading" style="display:none;">⏳ Mengirim hasil...</span>
     <span id="result-success" style="display:none;">✅ Hasil terkirim</span>
     <span id="result-error" style="display:none;">
@@ -272,8 +272,15 @@
             <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-danger">
                 <b>Kembali</b>
             </a>
-            <button type="submit" name="submit_type" value="kumite-simpan" class="btn btn-success" style="margin-left: 5px;"><b>Simpan & Keluar</b></button>
-          <h3 class="fw-bold mb-3"></h3>
+            <button type="submit" class="btn btn-success" id="simpan-keluar-btn" style="margin-left: 5px;">
+                <span id="simpan-btn-text"><b>Simpan & Keluar</b></span>
+                <span id="simpan-btn-spinner" style="display:none;">
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    Menyimpan...
+                </span>
+            </button>
+            <input type="hidden" name="submit_type" value="kumite-simpan">
+            <h3 class="fw-bold mb-3"></h3>
         </div>
         <div class="row">
             <div class="col-md-12">
@@ -638,6 +645,14 @@
     }
     const csrftoken = getCookie('csrftoken');
     const detailBaganPk = {{ detail_bagan.pk }};
+
+    document.querySelector('form').addEventListener('submit', function () {
+        const btn = document.getElementById('simpan-keluar-btn');
+        document.getElementById('simpan-btn-text').style.display = 'none';
+        document.getElementById('simpan-btn-spinner').style.display = 'inline';
+        btn.disabled = true;
+        // no preventDefault() — let the form submit normally, page will navigate/redirect
+    });
 
     function postJSON(url) {
         return fetch(url, {
