@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 
 class Admin(models.Model):
@@ -56,9 +56,34 @@ class Bagan(models.Model):
     juara_3b = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3b", null=True, blank=True)
     round_robin = models.BooleanField(default=False)
     pool = models.IntegerField(default=1)
+    kode = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return f'{self.nama_bagan}'
+
+    def save(self, *args, **kwargs):
+        if not self.kode and self.event_id:
+            with transaction.atomic():
+                existing_codes = (
+                    Bagan.objects
+                    .select_for_update()
+                    .filter(event=self.event)
+                    .exclude(kode__isnull=True)
+                    .exclude(kode='')
+                    .values_list('kode', flat=True)
+                )
+
+                max_num = 0
+                for code in existing_codes:
+                    try:
+                        num = int(code)
+                        max_num = max(max_num, num)
+                    except ValueError:
+                        continue  # skip any non-numeric legacy kode values
+
+                self.kode = str(max_num + 1).zfill(3)
+
+        super().save(*args, **kwargs)
     
 class DetailBagan(models.Model):
     TIPE_PEMENANG = [

@@ -114,7 +114,7 @@
                                                 <select class="form-select select2" id="nomor_tanding_pk" name="nomor_tanding_pk" multiple>
                                                     <option value="semua">SEMUA NOMOR TANDING</option>
                                                     {% for nomor_tanding in nomor_tandings %}
-                                                    <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                                    <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }} ({{ nomor_tanding.jumlat_atlet }})</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -145,16 +145,19 @@
                                         {% csrf_token %}
                                         <div class="modal-body">
                                             <div class="form-group">
+                                                <label for="nama_nomor_tanding">Judul Nomor Tanding & Bagan BOB.</label>
+                                                <input class="form-control" type="text" name="nama_bob">
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="bagan_pk">Bagan (Pilih satu atau lebih).</label>
                                                 <select class="form-select select2" id="bagan_pk" name="bagan_pk" multiple>
-                                                    <option value="semua">SEMUA BAGAN</option>
                                                     {% for bagan in bagans %}
                                                     <option value="{{ bagan.pk }}">{{ bagan.nama_bagan }}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="bagan_pk">Tipe Shuffle.</label>
+                                                <label for="shuffle">Tipe Shuffle.</label>
                                                 <select class="form-select" name="shuffle_type">
                                                     <option value="perguruan">Perguruan</option>
                                                     <option value="kontingen">Utusan</option>
@@ -192,7 +195,7 @@
                             {% for bagan in bagans %}
                             <tr>
                                 <td style="text-align: center;">{{ forloop.counter }}</td>
-                                <td><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.pk }}) {{ bagan.nama_bagan }}</b></td>
+                                <td><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.kode }}) {{ bagan.nama_bagan }}</b></td>
                                 <td style="text-align: center;">
                                     <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-primary">Edit</a>
                                     <!-- Trigger button -->
