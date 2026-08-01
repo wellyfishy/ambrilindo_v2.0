@@ -33,6 +33,17 @@ urlpatterns = [
     path('control-panel/<int:tatami_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
     path('coach-supervisor/<int:tatami_pk>/message-retriever', message_retriever_coach_supervisor, name="message-retriever-coach-supervisor"),
 
+    # Roster Maker
+    path('event/<int:event_pk>/timetable/', timetable_editor, name='timetable-editor'),
+    path('event/<int:event_pk>/timetable/save/', timetable_save, name='timetable-save'),
+    path('event/<int:event_pk>/timetable/add-tatami/', add_tatami, name='timetable-add-tatami'),
+    path('event/<int:event_pk>/timetable/delete-tatami/<int:tatami_pk>/', delete_tatami, name='timetable-delete-tatami'),
+    path('event/<int:event_pk>/timetable/add-day/', add_day, name='timetable-add-day'),
+    path('event/<int:event_pk>/timetable/delete-day/<int:day_pk>/', delete_day, name='timetable-delete-day'),
+    path('event/<int:event_pk>/timetable/kop-surat/', kop_surat_get, name='timetable-kop-surat-get'),
+    path('event/<int:event_pk>/timetable/kop-surat/save/', kop_surat_save, name='timetable-kop-surat-save'),
+    path('event/<int:event_pk>/timetable/keterangan/save/', keterangan_save, name='timetable-keterangan-save'),
+
     # API
     path('api/notify-running/<int:detailbagan_pk>/', notify_bagan_running, name='notify-bagan-running'),
     path('api/send-result/<int:detailbagan_pk>/', send_bagan_result, name='send-bagan-result'),

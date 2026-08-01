@@ -21,6 +21,14 @@
 
 {% block content %}
 <div class="container">
+    <div id="status-indicator" style="margin-top: 30px; margin-left: 30px;">
+        <span id="status-loading">⏳ Mengirim status...</span>
+        <span id="status-success" style="display:none;">✅ Status terkirim</span>
+        <span id="status-error" style="display:none;">
+            ❌ Gagal mengirim status.
+            <button id="retry-status-btn" class="btn btn-warning" style="padding: 0; color: white" type="button">Coba lagi</button>
+        </span>
+    </div>
     <form method="POST">
     {% csrf_token %}
     <div class="page-inner">
@@ -122,6 +130,42 @@
 
 {% block script %}
 <script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        const csrftoken = getCookie('csrftoken');
+        const detailBaganPk = {{ detail_bagan.pk }};  // adjust to whatever pk this page actually has in context
+
+        function postJSON(url) {
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+                },
+        }).then(res => res.json());
+    }
+
+    function setState(prefix, state) {
+        document.getElementById(`${prefix}-loading`).style.display = state === 'loading' ? 'inline' : 'none';
+        document.getElementById(`${prefix}-success`).style.display = state === 'success' ? 'inline' : 'none';
+        document.getElementById(`${prefix}-error`).style.display = state === 'error' ? 'inline' : 'none';
+    }
+
+    function notifyRunning() {
+        setState('status', 'loading');
+        postJSON(`/api/notify-running/${detailBaganPk}/`)
+            .then(data => setState('status', data.success ? 'success' : 'error'))
+            .catch(() => setState('status', 'error'));
+    }
+
+    document.getElementById('retry-status-btn').addEventListener('click', notifyRunning);
+
+    window.addEventListener('DOMContentLoaded', notifyRunning);
+
+    {% comment %} --------------------------------------------------------------  {% endcomment %}
     const editControls = document.getElementById('edit-controls');
     const editToggle = document.getElementById('edit-toggle');
 

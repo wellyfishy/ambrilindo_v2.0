@@ -1,5 +1,5 @@
-from django.db import models, transaction
-from django.contrib.auth.models import User
+from django.db import models, transaction # type: ignore
+from django.contrib.auth.models import User # type: ignore
 
 class Admin(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
@@ -155,5 +155,47 @@ class Jury(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
+
+class TimetableDay(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='timetable_days')
+    order = models.PositiveIntegerField(default=0)
+    tanggal = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['order']
+
+class TimetableRow(models.Model):
+    ROW_TYPE = [
+        ('slot', 'Slot Waktu'),
+        ('label', 'Label / Break'),
+    ]
+    day = models.ForeignKey(TimetableDay, on_delete=models.CASCADE, related_name='rows', null=True, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    row_type = models.CharField(max_length=10, choices=ROW_TYPE, default='slot')
+    time_label = models.CharField(max_length=50, blank=True)
+    label_text = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        ordering = ['order']
+
+class TimetableCell(models.Model):
+    row = models.ForeignKey(TimetableRow, on_delete=models.CASCADE, related_name='cells')
+    tatami = models.ForeignKey(Tatami, on_delete=models.CASCADE)
+    nomor_tanding = models.ForeignKey(NomorTanding, on_delete=models.SET_NULL, null=True, blank=True)
+    custom_text = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        unique_together = ('row', 'tatami')
+
+class KopSurat(models.Model):
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='kop_surat')
+    logo = models.ImageField(upload_to='kop_surat_logos/', null=True, blank=True)
+    nama_organisasi = models.CharField(max_length=200, blank=True)
+    alamat = models.CharField(max_length=300, blank=True)
+    kontak = models.CharField(max_length=200, blank=True)
+
+class EventKeterangan(models.Model):
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='keterangan')
+    text = models.TextField(blank=True)
 
 

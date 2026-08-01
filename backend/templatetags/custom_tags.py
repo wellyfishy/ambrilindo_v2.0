@@ -18,3 +18,7 @@ def contains_team(detail_bagan):
                 'team' in detail_bagan.atlet2.nama_atlet.lower())
     
     return check_aka or check_ao
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key) if dictionary else None

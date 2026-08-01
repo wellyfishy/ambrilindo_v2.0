@@ -25,19 +25,10 @@
       <span id="status-loading">⏳ Mengirim status...</span>
       <span id="status-success" style="display:none;">✅ Status terkirim</span>
       <span id="status-error" style="display:none;">
-        ❌ Gagal mengirim status.
+        ❌ Gagal mengirim status {% if detail_bagan.round == 10 %}(Abaikan jika kumite beregu){% endif %}.
         <button id="retry-status-btn" class="btn btn-warning" style="padding: 0; color: white" type="button">Coba lagi</button>
       </span>
     </div>
-    
-    <!-- separate from the main save form -->
-    <button id="send-result-btn" type="button" style="margin-left: 30px;">Kirim Hasil ke Server</button>
-    <span id="result-loading" style="display:none;">⏳ Mengirim hasil...</span>
-    <span id="result-success" style="display:none;">✅ Hasil terkirim</span>
-    <span id="result-error" style="display:none;">
-      ❌ Gagal mengirim hasil.
-      <button id="retry-result-btn" type="button">Coba lagi</button>
-    </span>
 {% if bagan.tipe_tanding == '1' %}
     <form method="POST">
     {% csrf_token %}
@@ -678,16 +669,7 @@
             .catch(() => setState('status', 'error'));
     }
 
-    function sendResult() {
-        setState('result', 'loading');
-        postJSON(`/api/send-result/${detailBaganPk}/`)
-            .then(data => setState('result', data.success ? 'success' : 'error'))
-            .catch(() => setState('result', 'error'));
-    }
-
     document.getElementById('retry-status-btn').addEventListener('click', notifyRunning);
-    document.getElementById('send-result-btn').addEventListener('click', sendResult);
-    document.getElementById('retry-result-btn').addEventListener('click', sendResult);
 
     // fire automatically when the page loads (this is the "GET" behavior)
     window.addEventListener('DOMContentLoaded', notifyRunning);

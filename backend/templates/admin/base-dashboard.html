@@ -98,6 +98,11 @@
                         <span class="sub-item">Roster Counter</span>
                       </a>
                     </li>
+                    <li class="{% if on == 'roster-maker' %}active{% endif %}">
+                      <a href="{% url 'timetable-editor' event_pk=event.pk %}">
+                        <span class="sub-item">Roster Maker</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>

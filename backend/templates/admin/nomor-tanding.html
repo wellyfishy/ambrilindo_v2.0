@@ -58,14 +58,18 @@
                         </thead>
                         <tbody>
                             {% for nomor_tanding in nomor_tandings %}
-                            <tr>
-                                <td style="text-align: center;">{{ forloop.counter }}</td>
-                                <td><b>{{ nomor_tanding.nama_nomor_tanding }}</b></td>
-                                <td style="text-align: center;">
-                                    <button class="btn btn-warning">Edit</button>
-                                    <button class="btn btn-danger">Hapus</button>
-                                </td>
-                            </tr>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="nomor_tanding_pk" value="{{ nomor_tanding.pk }}">
+                                <tr>
+                                    <td style="text-align: center;">{{ forloop.counter }}</td>
+                                    <td><b>{{ nomor_tanding.nama_nomor_tanding }}</b></td>
+                                    <td style="text-align: center;">
+                                        <button class="btn btn-warning">Edit</button>
+                                        <button type="submit" name="submit_type" value="hapus" class="btn btn-danger">Hapus</button>
+                                    </td>
+                                </tr>
+                            </form>
                             {% endfor %}
                         </tbody>
                         </table>

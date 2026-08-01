@@ -249,7 +249,7 @@ def admin_dashboard(request, event_pk):
             ws = wb.active
             ws.title = 'Bagan Export'
 
-            headers = ['Kode', 'Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Atlet 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2']
+            headers = ['Kode', 'Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Perguruan 1', 'Perwakilan 1', 'Atlet 2', 'Perguruan 2', 'Perwakilan 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2']
             ws.append(headers)
 
             # bold header row
@@ -263,7 +263,11 @@ def admin_dashboard(request, event_pk):
                 dbs = DetailBagan.objects.filter(bagan=bagan)
                 for db in dbs:
                     nama1 = db.atlet1.nama_atlet if db.atlet1 else None
+                    perguruan1 = db.atlet1.perguruan.nama_perguruan if db.atlet1 else None
+                    perwakilan1 = db.atlet1.utusan.nama_utusan if db.atlet1 else None
                     nama2 = db.atlet2.nama_atlet if db.atlet2 else None
+                    perguruan2 = db.atlet2.perguruan.nama_perguruan if db.atlet2 else None
+                    perwakilan2 = db.atlet2.utusan.nama_utusan if db.atlet2 else None
                     ws.append([
                         bagan.kode,
                         bagan.nama_bagan,
@@ -273,7 +277,11 @@ def admin_dashboard(request, event_pk):
                         db.round,
                         db.urutan,
                         nama1,
+                        perguruan1,
+                        perwakilan1,
                         nama2,
+                        perguruan2,
+                        perwakilan2,
                         bagan.tipe_tanding,
                         bagan.pool,
                         db.vr1,
@@ -321,6 +329,17 @@ def admin_dashboard(request, event_pk):
                 event=event,
                 nama_nomor_tanding=nama_bob,
             )
+
+            bob_atlets = []
+            for atlet in atlets_temp_all:
+                new_atlet = Atlet.objects.get(pk=atlet.pk)
+                new_atlet.pk = None
+                new_atlet.id = None
+                new_atlet.nomor_tanding = nomor_tanding
+                new_atlet.save()
+                bob_atlets.append(new_atlet)
+
+            atlets_temp_all = bob_atlets
 
             # count atletes per group, straight from the python list (no DB filter by nomor_tanding needed)
             group_counts_counter = Counter(
@@ -1143,29 +1162,30 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 detail_bagan.save()
                 detailbagan_next_round.save()
 
-        payload = {
-            'status': 'finished',
-            'round': detail_bagan.round,
-            'urutan': detail_bagan.urutan,
-            'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
-            'pemenang': pemenang,
-            'score_aka': detail_bagan.score1,
-            'score_ao': detail_bagan.score2,
-            'vr1': detail_bagan.vr1,
-            'vr2': detail_bagan.vr2,
-            'next_vr1': detailbagan_next_round.vr1,
-            'next_vr2': detailbagan_next_round.vr2,
-            'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
-            'next_kode_realtime': f'{detailbagan_next_round.bagan.pk}-{detailbagan_next_round.pk}',
-            'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
-        }
-        success, result = send_to_hosted(payload, endpoint='api/result/')
+        if detail_bagan.round != 10:
+            payload = {
+                'status': 'finished',
+                'round': detail_bagan.round,
+                'urutan': detail_bagan.urutan,
+                'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+                'pemenang': pemenang,
+                'score_aka': detail_bagan.score1,
+                'score_ao': detail_bagan.score2,
+                'vr1': detail_bagan.vr1,
+                'vr2': detail_bagan.vr2,
+                'next_vr1': detailbagan_next_round.vr1,
+                'next_vr2': detailbagan_next_round.vr2,
+                'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
+                'next_kode_realtime': f'{detailbagan_next_round.bagan.pk}-{detailbagan_next_round.pk}',
+                'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+            }
+            success, result = send_to_hosted(payload, endpoint='api/result/')
 
-        if not success:
-            messages.warning(
-                request,
-                f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
-            )
+            if not success:
+                messages.warning(
+                    request,
+                    f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
+                )
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
@@ -1264,10 +1284,8 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         elif matchup.db.pemenang == '2':
             team_ao_score += 1 
     
-
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'save':
-            print('asdawdajk')
             i = 1
             while True:
                 aka = request.POST.get(f'aka_{i}')
@@ -1366,7 +1384,40 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 detail_bagan.save()
                 detailbagan_next_round.save()
 
-                return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+                if winner_atlet == detail_bagan.atlet1:
+                    pemenang = 'aka'
+                elif winner_atlet == detail_bagan.atlet2:
+                    pemenang = 'ao'
+                else:
+                    pemenang = '3'
+
+                payload = {
+                    'status': 'finished',
+                    'pemenang': pemenang,
+                    'round': detail_bagan.round,
+                    'urutan': detail_bagan.urutan,
+                    'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+                    'score_aka': detail_bagan.score1,
+                    'score_ao': detail_bagan.score2,
+                    'lil_score_aka': detail_bagan.scorekecil1,
+                    'lil_score_ao': detail_bagan.scorekecil2,
+                    'vr1': detail_bagan.vr1,
+                    'vr2': detail_bagan.vr2,
+                    'next_vr1': detailbagan_next_round.vr1,
+                    'next_vr2': detailbagan_next_round.vr2,
+                    'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
+                    'next_kode_realtime': f'{detailbagan_next_round.bagan.pk}-{detailbagan_next_round.pk}',
+                    'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+                }
+                success, result = send_to_hosted(payload, endpoint='api/result/')
+
+                if not success:
+                    messages.warning(
+                        request,
+                        f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
+                    )
+
+            return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
             
         return redirect("control-panel-team", event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk, tatami_pk=tatami_pk)
 
@@ -1490,6 +1541,9 @@ def admin_nomor_tanding(request, event_pk):
         if request.POST.get('submit_type') == 'tambah_nomor_tanding':
             nama_nomor_tanding = request.POST.get('nomor_tanding').strip().upper()
             new_nomor_tanding = NomorTanding.objects.create(event=event, nama_nomor_tanding=nama_nomor_tanding)
+        elif request.POST.get('submit_type') == 'hapus':
+            nomor_tanding_pk = request.POST.get('nomor_tanding_pk')
+            NomorTanding.objects.get(pk=nomor_tanding_pk).delete()
 
         return redirect('admin-nomor-tanding', event_pk=event_pk)
     
@@ -1677,7 +1731,8 @@ def notify_bagan_running(request, detailbagan_pk):
         'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
         'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
     }
-    success, result = send_to_hosted(payload, endpoint='api/status/')
+    if detail_bagan.round != 10:
+        success, result = send_to_hosted(payload, endpoint='api/status/')
     return JsonResponse({'success': success, 'message': result})
 
 
@@ -1707,6 +1762,12 @@ AGE_ORDER = [
     'junior',
     'senior',
 ]
+AGE_LABELS = {
+    'pra usia dini': 'Pra Usia Dini', 'usia dini': 'Usia Dini',
+    'pra pemula': 'Pra Pemula', 'pemula': 'Pemula',
+    'kadet': 'Kadet', 'junior': 'Junior', 'senior': 'Senior',
+}
+
 def get_age_index(name):
     name_lower = name.lower()
     for i, age in enumerate(AGE_ORDER):
@@ -1923,7 +1984,6 @@ def _advance_round_3_to_4(bagan):
         detail_bagan.save()
         new_detail_bagan.save()
 
-
 def build_full_bracket(event, nomor_tanding, nama_bagan, pool, group_counts, atlets_temp, group_field, custom_order, atlet_assignment1):
     """Runs the entire pipeline for one Bagan (one pool or the whole category) and returns (bagan, round5_detail_bagan)."""
     bagan = create_bagan_and_seed(event, nomor_tanding, nama_bagan, pool, group_counts, atlets_temp, group_field, custom_order, atlet_assignment1)
@@ -1932,3 +1992,194 @@ def build_full_bracket(event, nomor_tanding, nama_bagan, pool, group_counts, atl
     _advance_round_3_to_4(bagan)
     round_5 = DetailBagan.objects.create(bagan=bagan, round=5, urutan=1)
     return bagan, round_5
+
+def get_age_group(name):
+    name_lower = (name or '').lower()
+    for age in AGE_ORDER:
+        if age in name_lower:
+            return AGE_LABELS[age]
+    return 'Lainnya'
+
+INDO_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+               'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+def format_day_label(day):
+    day_number = day.order + 1
+    if day.tanggal:
+        t = day.tanggal
+        return f"Day {day_number}, {t.day} {INDO_MONTHS[t.month - 1]} {t.year}"
+    return f"Day {day_number}"
+
+def timetable_editor(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    tatamis = Tatami.objects.filter(event=event).order_by('tatami_number')
+
+    days = TimetableDay.objects.filter(event=event).prefetch_related('rows__cells')
+
+    if not days.exists():
+        first_day = TimetableDay.objects.create(event=event, order=0)
+        days = TimetableDay.objects.filter(event=event).prefetch_related('rows__cells')
+
+    atlet_counts = dict(
+        Atlet.objects.filter(nomor_tanding__event=event)
+        .values('nomor_tanding').annotate(cnt=Count('id'))
+        .values_list('nomor_tanding', 'cnt')
+    )
+    nomor_tanding_qs = NomorTanding.objects.filter(event=event).order_by('nama_nomor_tanding')
+    nt_with_group = [
+        {'pk': nt.pk, 'nama': nt.nama_nomor_tanding, 'age_group': get_age_group(nt.nama_nomor_tanding),
+         'atlet_count': atlet_counts.get(nt.pk, 0)}
+        for nt in nomor_tanding_qs
+    ]
+    ordered_labels = [AGE_LABELS[a] for a in AGE_ORDER] + ['Lainnya']
+    age_groups = [g for g in ordered_labels if any(nt['age_group'] == g for nt in nt_with_group)]
+
+    days_data = []
+    for day in days:
+        cell_map = {row.id: {c.tatami_id: c for c in row.cells.all()} for row in day.rows.all()}
+        days_data.append({
+            'pk': day.pk,
+            'label': format_day_label(day),
+            'tanggal': day.tanggal.isoformat() if day.tanggal else '',
+            'rows': day.rows.all(),
+            'cell_map': cell_map,
+        })
+
+    kop, _ = KopSurat.objects.get_or_create(event=event)
+    kop_surat_data = {
+        'logo_url': kop.logo.url if kop.logo else '',
+        'nama_organisasi': kop.nama_organisasi,
+        'alamat': kop.alamat,
+        'kontak': kop.kontak,
+    }
+
+    keterangan, _ = EventKeterangan.objects.get_or_create(event=event)
+
+    context = {
+        'event': event, 'on': 'roster-maker', 'tatamis': tatamis,
+        'days_data': days_data, 'nt_with_group': nt_with_group, 'age_groups': age_groups,
+        'kop_surat': kop_surat_data,
+        'atlet_counts': atlet_counts, 'keterangan_text': keterangan.text
+    }
+    return render(request, 'admin/timetable_editor.html', context)
+
+
+@require_POST
+def add_day(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    next_order = TimetableDay.objects.filter(event=event).count()
+    day = TimetableDay.objects.create(event=event, order=next_order)
+    return JsonResponse({'success': True, 'id': day.pk, 'order': day.order, 'label': format_day_label(day)})
+
+
+@require_POST
+def delete_day(request, event_pk, day_pk):
+    day = get_object_or_404(TimetableDay, pk=day_pk, event_id=event_pk)
+    day.delete()
+    return JsonResponse({'success': True})
+
+
+@require_POST
+def timetable_save(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    with transaction.atomic():
+        for day_data in data.get('days', []):
+            day = TimetableDay.objects.filter(pk=day_data.get('day_pk'), event=event).first()
+            if not day:
+                continue
+
+            tanggal = day_data.get('tanggal') or None
+            day.tanggal = tanggal
+            day.save()
+
+            TimetableRow.objects.filter(day=day).delete()
+
+            for order, row_data in enumerate(day_data.get('rows', [])):
+                row = TimetableRow.objects.create(
+                    day=day, order=order,
+                    row_type=row_data.get('row_type', 'slot'),
+                    time_label=row_data.get('time_label', ''),
+                    label_text=row_data.get('label_text', ''),
+                )
+                if row.row_type == 'slot':
+                    for cell_data in row_data.get('cells', []):
+                        tatami_id = cell_data.get('tatami_id')
+                        if not tatami_id:
+                            continue
+                        TimetableCell.objects.create(
+                            row=row, tatami_id=tatami_id,
+                            nomor_tanding_id=cell_data.get('nomor_tanding_id') or None,
+                            custom_text=cell_data.get('custom_text', ''),
+                        )
+
+    return JsonResponse({'success': True})
+
+@require_POST
+def add_tatami(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    tatami_number = data.get('tatami_number')
+    if not tatami_number:
+        return JsonResponse({'success': False, 'message': 'tatami_number is required'}, status=400)
+
+    tatami = Tatami.objects.create(event=event, tatami_number=tatami_number)
+    return JsonResponse({'success': True, 'id': tatami.pk, 'tatami_number': tatami.tatami_number})
+
+@require_POST
+def delete_tatami(request, event_pk, tatami_pk):
+    tatami = get_object_or_404(Tatami, pk=tatami_pk, event_id=event_pk)
+    tatami.delete()  # cascades to TimetableCell rows referencing it
+    return JsonResponse({'success': True})
+
+def kop_surat_get(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    kop, _ = KopSurat.objects.get_or_create(event=event)
+    return JsonResponse({
+        'success': True,
+        'logo_url': kop.logo.url if kop.logo else '',
+        'nama_organisasi': kop.nama_organisasi,
+        'alamat': kop.alamat,
+        'kontak': kop.kontak,
+    })
+
+@require_POST
+def kop_surat_save(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    kop, _ = KopSurat.objects.get_or_create(event=event)
+
+    kop.nama_organisasi = request.POST.get('nama_organisasi', '')
+    kop.alamat = request.POST.get('alamat', '')
+    kop.kontak = request.POST.get('kontak', '')
+
+    if request.FILES.get('logo'):
+        kop.logo = request.FILES['logo']
+
+    kop.save()
+    return JsonResponse({
+        'success': True,
+        'logo_url': kop.logo.url if kop.logo else '',
+    })
+
+@require_POST
+def keterangan_save(request, event_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    keterangan, _ = EventKeterangan.objects.get_or_create(event=event)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    keterangan.text = data.get('text', '')
+    keterangan.save()
+    return JsonResponse({'success': True})
