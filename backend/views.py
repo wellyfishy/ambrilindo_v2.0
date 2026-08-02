@@ -580,24 +580,10 @@ def admin_dashboard(request, event_pk):
                     # --- Final bagan, once per category, only if it got split into pools ---
                     final_bagan = None
                     if perulangan > 1:
-                        final_bagan = Bagan.objects.create(
-                            event=event,
-                            nomor_tanding=nomor_tanding,
-                            nama_bagan=f'{nomor_tanding.nama_nomor_tanding} - Final',
-                            pool=0,
+                        final_bagan, final_round_5 = build_full_bracket(
+                            event, nomor_tanding, f'{nomor_tanding.nama_nomor_tanding} - Final', 0,
+                            [], [], group_field, custom_order, atlet_assignment1
                         )
-                        if 'KATA' in nomor_tanding.nama_nomor_tanding:
-                            final_bagan.tipe_tanding = '1'
-                        elif 'KUMITE' in nomor_tanding.nama_nomor_tanding:
-                            final_bagan.tipe_tanding = '2'
-                        final_bagan.save()
-
-                        if perulangan == 2:
-                            DetailBagan.objects.create(bagan=final_bagan, round=1, urutan=1)
-                        elif perulangan == 4:
-                            DetailBagan.objects.create(bagan=final_bagan, round=1, urutan=1)
-                            DetailBagan.objects.create(bagan=final_bagan, round=1, urutan=2)
-                            DetailBagan.objects.create(bagan=final_bagan, round=2, urutan=1)
 
                     # --- Build each pool's bracket using the shared function ---
                     POOL_LETTERS = ['A', 'B', 'C', 'D']
