@@ -399,6 +399,7 @@
                                         <th data-tatami-id="{{ tatami.pk }}">
                                             <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
                                                 <span>Tatami {{ tatami.tatami_number }}</span>
+                                                <a href="{% url 'timetable-bulk-print' event_pk=event.pk day_pk=day.pk tatami_pk=tatami.pk %}" title="Print bagan di kolom ini" style="text-decoration:none;">🖨️</a>
                                                 <button class="remove-tatami-btn" type="button" data-tatami-id="{{ tatami.pk }}">✕</button>
                                             </div>
                                         </th>

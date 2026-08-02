@@ -44,6 +44,8 @@ urlpatterns = [
     path('event/<int:event_pk>/timetable/kop-surat/save/', kop_surat_save, name='timetable-kop-surat-save'),
     path('event/<int:event_pk>/timetable/keterangan/save/', keterangan_save, name='timetable-keterangan-save'),
 
+    path('event/<int:event_pk>/timetable/bulk-print/<int:day_pk>/<int:tatami_pk>/', bulk_print_bagan, name='timetable-bulk-print'),
+
     # API
     path('api/notify-running/<int:detailbagan_pk>/', notify_bagan_running, name='notify-bagan-running'),
     path('api/send-result/<int:detailbagan_pk>/', send_bagan_result, name='send-bagan-result'),

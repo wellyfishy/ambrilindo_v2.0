@@ -8,7 +8,7 @@ import random # type: ignore
 from channels.layers import get_channel_layer # type: ignore
 from asgiref.sync import async_to_sync # type: ignore
 from django.views.decorators.csrf import csrf_exempt # type: ignore
-from django.http import JsonResponse # type: ignore
+from django.http import JsonResponse, HttpResponse # type: ignore
 from collections import defaultdict # type: ignore
 from itertools import groupby # type: ignore
 import json # type: ignore
@@ -16,9 +16,20 @@ from django.views.decorators.http import require_POST # type: ignore
 from .utils import send_to_hosted 
 from openpyxl import Workbook # type: ignore
 from openpyxl.styles import Font # type: ignore
-from django.http import HttpResponse # type: ignore
 from collections import Counter
 import re
+
+import io
+from django.conf import settings # type: ignore
+from playwright.sync_api import sync_playwright # type: ignore
+
+from pypdf import PdfWriter, PdfReader # type: ignore
+from django.urls import reverse # type: ignore
+
+import sys
+import asyncio
+import concurrent.futures
+
 
 def auth(request):
     events = Event.objects.all().order_by('-pk')
@@ -733,6 +744,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
     detail_bagans_round_4 = DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan')
     detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
+
 
     if 'REFERCHANGE' in bagan.nama_bagan:
         referchange = True
@@ -2183,3 +2195,95 @@ def keterangan_save(request, event_pk):
     keterangan.text = data.get('text', '')
     keterangan.save()
     return JsonResponse({'success': True})
+
+def get_ordered_bagans_for_tatami(day, tatami):
+    rows = (
+        TimetableRow.objects
+        .filter(day=day, row_type='slot')
+        .order_by('order')
+        .prefetch_related('cells')
+    )
+
+    seen_nt_ids = []
+    for row in rows:
+        cell = row.cells.filter(tatami=tatami).first()
+        if cell and cell.nomor_tanding_id and cell.nomor_tanding_id not in seen_nt_ids:
+            seen_nt_ids.append(cell.nomor_tanding_id)
+
+    ordered_bagans = []
+    for nt_id in seen_nt_ids:
+        # a single nomor_tanding can have multiple Bagan objects (Pool A/B/C/D + Final)
+        bagans = list(Bagan.objects.filter(nomor_tanding_id=nt_id, event=day.event))
+        bagans.sort(key=lambda b: (1 if b.pool == 0 else 0, b.nama_bagan or ''))
+        ordered_bagans.extend(bagans)
+
+    return ordered_bagans
+
+def _render_pdf_worker(session_cookie_name, session_cookie_value, base_url, target_url):
+    if sys.platform.startswith('win'):
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        context = browser.new_context()
+
+        if session_cookie_value:
+            context.add_cookies([{
+                'name': session_cookie_name,
+                'value': session_cookie_value,
+                'url': base_url,
+            }])
+
+        page = context.new_page()
+        page.goto(target_url, wait_until='networkidle')
+        pdf_bytes = page.pdf(
+            format='A4',
+            landscape=True,
+            print_background=True,
+            margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
+        )
+        browser.close()
+        return pdf_bytes
+
+
+def render_authenticated_page_to_pdf(request, url):
+    session_cookie_value = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
+    base_url = request.build_absolute_uri('/')
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(
+            _render_pdf_worker,
+            settings.SESSION_COOKIE_NAME,
+            session_cookie_value,
+            base_url,
+            url,
+        )
+        return future.result()
+    
+def bulk_print_bagan(request, event_pk, day_pk, tatami_pk):
+    event = get_object_or_404(Event, pk=event_pk)
+    day = get_object_or_404(TimetableDay, pk=day_pk, event=event)
+    tatami = get_object_or_404(Tatami, pk=tatami_pk, event=event)
+
+    bagans = get_ordered_bagans_for_tatami(day, tatami)
+    if not bagans:
+        return HttpResponse('Tidak ada bagan terjadwal di tatami ini.', status=404)
+
+    writer = PdfWriter()
+    for bagan in bagans:
+        url = request.build_absolute_uri(
+            reverse('admin-bagan-detail', kwargs={'event_pk': event.pk, 'bagan_pk': bagan.pk}) + '?print=1'
+        )
+        pdf_bytes = render_authenticated_page_to_pdf(request, url)
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        for page in reader.pages:
+            writer.add_page(page)
+
+    buffer = io.BytesIO()
+    writer.write(buffer)
+    buffer.seek(0)
+
+    filename = f"Day{day.order + 1}_Tatami_{tatami.tatami_number}.pdf"
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
