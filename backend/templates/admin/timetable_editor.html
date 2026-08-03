@@ -71,6 +71,16 @@
         }
         .nt-chip:active { cursor: grabbing; }
 
+        .nt-chip.nt-chip-used {
+            background: #f0f1f4;
+            border-color: #dcdfe6;
+            color: #9096a3;
+        }
+        .nt-chip.nt-chip-used:hover {
+            box-shadow: none;
+            transform: none;
+        }
+
         .nt-sidebar-toggle {
             position: fixed;
             top: 22px;
@@ -497,6 +507,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const KETERANGAN_SAVE_URL = "{% url 'timetable-keterangan-save' event_pk=event.pk %}";
     const keteranganInput = document.getElementById('keterangan-input');
 
+    function updateChipUsedState() {
+        const usedIds = new Set();
+        document.querySelectorAll('.tt-cell[data-nt-id]').forEach(cell => {
+            if (cell.dataset.ntId) usedIds.add(cell.dataset.ntId);
+        });
+
+        document.querySelectorAll('.nt-chip').forEach(chip => {
+            chip.classList.toggle('nt-chip-used', usedIds.has(chip.dataset.ntId));
+        });
+    }
+
+    updateChipUsedState();
+
     keteranganInput.addEventListener('blur', () => {
         fetch(KETERANGAN_SAVE_URL, {
             method: 'POST',
@@ -668,11 +691,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const startDate = parseTimeToDate(startPart);
         const endDate = new Date(startDate.getTime() + rowMax * 60000);
         timeInput.value = `${formatTime(startDate)} - ${formatTime(endDate)}`;
+
+        updateChipUsedState();
     });
 
     daysContainer.addEventListener('input', e => {
         if (e.target.classList.contains('cell-content')) {
             delete e.target.closest('.tt-cell').dataset.ntId;
+            updateChipUsedState();
         }
     });
 
@@ -731,6 +757,7 @@ document.addEventListener('DOMContentLoaded', function () {
     daysContainer.addEventListener('click', e => {
         if (e.target.classList.contains('remove-row-btn')) {
             e.target.closest('tr').remove();
+            updateChipUsedState();
         }
     });
 
@@ -872,6 +899,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (!data.success) { alert('Gagal menghapus hari.'); return; }
                 block.remove();
+                updateChipUsedState();
             })
             .catch(() => alert('Gagal menghapus hari.'));
     });

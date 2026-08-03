@@ -224,7 +224,7 @@ def admin_dashboard(request, event_pk):
     for nt in nomor_tandings:
         nt.jumlat_atlet = Atlet.objects.filter(nomor_tanding=nt).count()
     
-    bagans = Bagan.objects.filter(event=event).order_by('-pk')
+    bagans = Bagan.objects.filter(event=event).order_by('-kode')
     
     # count = 0
     # for bagan in bagans:
@@ -1029,6 +1029,22 @@ def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
             else:
                 detail_bagan.atlet2 = None
             detail_bagan.save()
+
+            payload = {
+                'status': 'edit',
+                'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+                'atlet_aka': detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
+                'atlet_ao': detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else None,
+                'utusan_aka': detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 else None,
+                'utusan_ao': detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
+            }
+            success, result = send_to_hosted(payload, endpoint='api/edit-bagan/')
+    
+            if not success:
+                messages.warning(
+                    request,
+                    f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
+                )
         
         return redirect('edit-detail-bagan', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
 
