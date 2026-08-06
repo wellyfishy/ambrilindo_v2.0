@@ -33,6 +33,8 @@ urlpatterns = [
     path('control-panel/<int:tatami_pk>/message-retriever', message_retriever_admin, name="message-retriever-admin"),
     path('coach-supervisor/<int:tatami_pk>/message-retriever', message_retriever_coach_supervisor, name="message-retriever-coach-supervisor"),
 
+    path('admin-dashboard/<int:event_pk>/control-panel/tatami/<int:tatami_pk>/', control_panel_fest, name="control-panel-fest"),
+
     # Roster Maker
     path('event/<int:event_pk>/timetable/', timetable_editor, name='timetable-editor'),
     path('event/<int:event_pk>/timetable/save/', timetable_save, name='timetable-save'),

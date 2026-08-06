@@ -1270,6 +1270,53 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
     return render(request, 'admin/control-panel.html', context)
 
+def control_panel_fest(request, event_pk, tatami_pk):
+    event = Event.objects.get(pk=event_pk)
+    tatami = Tatami.objects.get(pk=tatami_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+
+    total_aka_score = 0
+    total_ao_score = 0
+
+    detail_data = {
+        "atlet_red": "Aka",
+        "atlet_red_perguruan": "-",
+        "atlet_red_utusan": "-",
+        "atlet_red_kata": "-",
+        "atlet_red_vr": None,
+        "atlet_blue": "Ao",
+        "atlet_blue_perguruan": "-",
+        "atlet_blue_utusan": "-",
+        "atlet_blue_kata": "-",
+        "atlet_blue_vr": None,
+        "tipe_tanding": "2",
+        "team": None,
+        "total_aka_score": total_aka_score,
+        "total_ao_score": total_ao_score,
+        "nomor_tanding": "Festival",
+    } 
+
+    group_name = f"scoring_{admin_tatami.tatami.pk}"
+    channel_layer = get_channel_layer()
+
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "broadcast_command",
+            "message": "get_atlet",
+            "details": detail_data,
+        }
+    )
+
+    context = {
+        'on': 'fest',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'tatami': tatami,
+    }
+
+    return render(request, 'admin/control-panel-fest.html', context)
+
 def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
     event = Event.objects.get(pk=event_pk)
     tatami = Tatami.objects.get(pk=tatami_pk)
