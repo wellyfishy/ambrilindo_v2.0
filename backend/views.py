@@ -1715,13 +1715,53 @@ def admin_perguruan(request, event_pk):
     return render(request, 'admin/perguruan.html', context)
 
 def admin_rekapan(request, event_pk):
-    event = Event.objects.get(pk=event_pk)
+    event = get_object_or_404(Event, pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
-    bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
+    days = TimetableDay.objects.filter(event=event).order_by('order')
+
+    days_for_filter = [{'pk': d.pk, 'label': format_day_label(d)} for d in days]
+
+    selected_day_ids = request.GET.getlist('day')
+    if not selected_day_ids:
+        # no filter applied yet (first visit) -> default to showing everything
+        selected_day_ids = [str(d.pk) for d in days]
+    selected_set = set(selected_day_ids)
+
+    # map: nomor_tanding_id -> set of day_ids it's scheduled on, via the timetable
+    nt_day_map = {}
+    cells = (
+        TimetableCell.objects
+        .filter(row__day__event=event, nomor_tanding__isnull=False)
+        .select_related('row__day')
+    )
+    for cell in cells:
+        nt_day_map.setdefault(cell.nomor_tanding_id, set()).add(str(cell.row.day_id))
+
+    all_bagans = (
+        Bagan.objects.filter(event=event)
+        .select_related(
+            'juara_1__perguruan', 'juara_1__utusan',
+            'juara_2__perguruan', 'juara_2__utusan',
+            'juara_3a__perguruan', 'juara_3a__utusan',
+            'juara_3b__perguruan', 'juara_3b__utusan',
+        ).order_by('kode')
+    )
+
+    bagans = []
+    for b in all_bagans:
+        scheduled_days = nt_day_map.get(b.nomor_tanding_id)
+        if not scheduled_days:
+            # category isn't placed on the timetable at all yet -> always show,
+            # so nothing silently disappears just because scheduling hasn't happened
+            bagans.append(b)
+        elif scheduled_days & selected_set:
+            bagans.append(b)
+
     context = {
-        'on': 'rekapan',
         'event': event,
         'bagans': bagans,
+        'days_for_filter': days_for_filter,
+        'selected_day_ids': selected_set,
         'admin_tatami': admin_tatami,
     }
     return render(request, 'admin/rekapan.html', context)

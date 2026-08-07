@@ -12,7 +12,7 @@
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">Rekapan Event {{ event.nama_event }}</div>
                     </div>
-                    
+
                     <div class="card-body">
                         {% if messages %}
                             {% for message in messages %}
@@ -22,7 +22,25 @@
                                 </div>
                             {% endfor %}
                         {% endif %}
+
+                        {% if days_for_filter %}
+                        <form method="get" style="margin-bottom: 20px; padding: 14px 16px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px;">
+                                <strong style="font-size: 13px; color: #555;">Filter Hari:</strong>
+                                {% for day in days_for_filter %}
+                                <label style="font-size: 13px; display: flex; align-items: center; gap: 5px; margin: 0;">
+                                    <input type="checkbox" name="day" value="{{ day.pk }}" {% if day.pk|stringformat:"s" in selected_day_ids %}checked{% endif %}>
+                                    {{ day.label }}
+                                </label>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
+                                <a href="?{% for day in days_for_filter %}day={{ day.pk }}&{% endfor %}" class="btn btn-outline-secondary btn-sm">Pilih Semua</a>
+                            </div>
+                        </form>
+                        {% endif %}
+
                         <table class="table table-striped mt-3">
+                            <!-- unchanged table below -->
                             <thead>
                                 <tr>
                                 <th scope="col" style="text-align: center; vertical-align: middle;" rowspan="2">No</th>
@@ -41,7 +59,7 @@
                                 {% with bg=forloop.counter|divisibleby:2|yesno:"table-light," %}
                                 <tr>
                                     <td rowspan="5" style="text-align: center;">{{ forloop.counter }}</td>
-                                    <td rowspan="5"><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.pk }}) {{ bagan.nama_bagan }}</b></a></td>
+                                    <td rowspan="5"><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.kode }}) {{ bagan.nama_bagan }}</b></a></td>
                                 </tr>
                                 <tr>
                                     <td style="text-align: center;"><b>1</b></td>
