@@ -87,6 +87,7 @@ def admin_control(request, tatami_pk):
     event = tatami.event
     context = {
         'tatami': tatami,
+        'on': 'control',
         'event': event,
     }
     return render(request, 'jury/admin-control.html', context)
