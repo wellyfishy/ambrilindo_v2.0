@@ -261,7 +261,7 @@ def admin_dashboard(request, event_pk):
             ws = wb.active
             ws.title = 'Bagan Export'
 
-            headers = ['Kode', 'Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Perguruan 1', 'Perwakilan 1', 'Atlet 2', 'Perguruan 2', 'Perwakilan 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2']
+            headers = ['Kode', 'Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Perguruan 1', 'Perwakilan 1', 'Atlet 2', 'Perguruan 2', 'Perwakilan 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2', 'Score 1', 'Score 2', 'Status Selesai', 'Pemenang']
             ws.append(headers)
 
             # bold header row
@@ -298,6 +298,10 @@ def admin_dashboard(request, event_pk):
                         bagan.pool,
                         db.vr1,
                         db.vr2,
+                        db.score1,
+                        db.score2,
+                        db.selesai,
+                        db.pemenang,
                     ])
 
             # auto-size columns roughly
