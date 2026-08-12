@@ -77,7 +77,7 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item {% if on == 'utusan' or on == 'perguruan' or on == 'rekapan' or on == 'roster-counter' %}active{% endif %}">
+              <li class="nav-item {% if on == 'summary' or on == 'utusan' or on == 'perguruan' or on == 'rekapan' or on == 'roster-counter' or on == 'roster-maker' %}active{% endif %}">
                 <a data-bs-toggle="collapse" href="#rekapan" class="collapsed" aria-expanded="false">
                   <i class="fas fa-book"></i>
                   <p>Rekapan</p>
@@ -85,6 +85,11 @@
                 </a>
                 <div class="collapse" id="rekapan">
                   <ul class="nav nav-collapse">
+                    <li class="{% if on == 'summary' %}active{% endif %}">
+                      <a href="{% url 'summary' event_pk=event.pk %}">
+                        <span class="sub-item">Summary</span>
+                      </a>
+                    </li>
                     <li class="{% if on == 'utusan' %}active{% endif %}">
                       <a href="{% url 'admin-utusan' event_pk=event.pk %}">
                         <span class="sub-item">Utusan</span>

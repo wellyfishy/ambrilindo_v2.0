@@ -1,0 +1,181 @@
+{% extends "admin/base-dashboard.html" %} {% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+          <h3 class="fw-bold mb-3"></h3>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="card-title" style="margin-right: 10px;">Atlet Event {{ event.nama_event }}</div>
+                        <div>
+                            <a href="" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahAtletModal">Tambah Atlet</a>
+                            <div class="modal fade" id="tambahAtletModal" tabindex="-1" aria-labelledby="tambahAtletModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title">Tambah Atlet</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="nama_atlet">Nama Atlet</label>
+                                                <input type="text" class="form-control" id="nama_atlet" name="nama_atlet">
+                                                <small class="form-text text-muted">Akan auto uppercase.</b></small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="perguruan">Perguruan</label>
+                                                <select class="form-control" id="perguruan" name="perguruan">
+                                                    {% for perguruan in perguruans %}
+                                                        <option value="{{ perguruan.pk }}">{{ perguruan.nama_perguruan }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="utusan">Utusan</label>
+                                                <select class="form-control" id="utusan" name="utusan">
+                                                    {% for utusan in utusans %}
+                                                        <option value="{{ utusan.pk }}">{{ utusan.nama_utusan }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="nomor_tanding">Nomor Tanding</label>
+                                                <select class="form-control" id="nomor_tanding" name="nomor_tanding">
+                                                    {% for nomor_tanding in nomor_tandings %}
+                                                        <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="tambah_atlet" class="btn btn-primary">Tambah</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#importAtletModal">Import Atlet</a>
+                            <div class="modal fade" id="importAtletModal" tabindex="-1" aria-labelledby="importAtletModal" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">Import Atlet</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="excel_atlet">File Excel</label>
+                                                <input type="file" class="form-control" id="excel_atlet" name="excel_atlet" accept=".xls,.xlsx">
+                                                <small class="form-text text-muted">Hanya menerima file excel dengan format berikut: <br><b>(Nama Atlet/Perguruan/Utusan/Nomor Tanding)</b></small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" name="submit_type" value="import_atlet" class="btn btn-primary">Import</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex align-items-center">
+                                        <h5 class="card-title mb-0">Tabel Data Summary 
+                                            {% comment %} <a href="{% url 'export_summary_excel' event_pk=event.pk %}" class="btn btn-success">
+                                                <i class="bi bi-file-earmark-excel"></i> Export to Excel
+                                            </a> {% endcomment %}
+                                        </h5>
+                                        <div class="ms-auto" id="sum-search"></div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-zoom-wrapper">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered text-center align-middle">
+                                                    <thead>
+                                                        <tr>
+                                                            <th rowspan="3">No</th>
+                                                            <th rowspan="3">Utusan</th>
+                                                            <th colspan="8" class="bg-info" style="color: black">TOURNAMENT</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th colspan="2" class="bg-info" style="color: black">PUTRA</th>
+                                                            <th colspan="2" class="bg-info" style="color: black">PUTRI</th>
+                                                            <th colspan="2" class="bg-info" style="color: black">REGU</th>
+                                                            <th colspan="2" class="bg-info" style="color: black">TOTAL</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Peserta</th>
+                                                            <th>Reg IDR</th>
+                                                            <th>Peserta</th>
+                                                            <th>Reg IDR</th>
+                                                            <th>Regu</th>
+                                                            <th>Reg IDR</th>
+                                                            <th>Peserta</th>
+                                                            <th>Reg IDR</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for utusan in all_utusan %}
+                                                        <tr>
+                                                            <td>{{ forloop.counter }}</td>
+                                                            <td>{{ utusan.nama_utusan }}</td>
+                                                            <td>{{ utusan.total_tournament_putra }}</td>
+                                                            <td>Rp. {{ utusan.total_tournament_reg_putra }}</td>
+                                                            <td>{{ utusan.total_tournament_putri }}</td>
+                                                            <td>Rp. {{ utusan.total_tournament_reg_putri }}</td>
+                                                            <td>{{ utusan.total_tournament_beregu }}</td>
+                                                            <td>Rp. {{ utusan.total_tournament_reg_beregu }}</td>
+                                                            <td>{{ utusan.total_tournament }}</td>
+                                                            <td>Rp. {{ utusan.total_tournament_reg }}</td>
+                                                            <td>{{ utusan.total_peserta }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                        <tr>
+                                                            <td colspan="2" style="text-align: center; background-color: gray; color: white;"><b>TOTAL</b></td>
+                                                            <td style="text-align: center;"><b>{{ global_totals.total_peserta_tournament_putra }}</b></td>
+                                                            <td style="text-align: center;"><b>Rp. {{ global_totals.total_registrasi_tournament_putra }}</b></td>
+                                                            <td style="text-align: center;"><b>{{ global_totals.total_peserta_tournament_putri }}</b></td>
+                                                            <td style="text-align: center;"><b>Rp. {{ global_totals.total_registrasi_tournament_putri }}</b></td>
+                                                            <td style="text-align: center;"><b>{{ global_totals.total_peserta_tournament_beregu }}</b></td>
+                                                            <td style="text-align: center;"><b>Rp. {{ global_totals.total_registrasi_tournament_beregu }}</b></td>
+                                                            <td style="text-align: center;"><b>{{ global_totals.total_peserta_tournament }}</b></td>
+                                                            <td style="text-align: center;"><b>Rp. {{ global_totals.total_registrasi_tournament }}</b></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}

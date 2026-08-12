@@ -722,6 +722,110 @@ def roster_counter(request, event_pk):
 
     return render(request, 'admin/roster-counter.html', context)
 
+def summary(request, event_pk):
+    event = Event.objects.get(pk=event_pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
+
+    all_utusans = Utusan.objects.filter(event=event)
+
+    def format_rupiah(value):
+        return f"{value:,}".replace(",", ".")
+    
+    total_counts = defaultdict(int)
+
+    for utusan in all_utusans:
+        atlet_list = utusan.atlet.all()
+        utusan_totals = defaultdict(int)
+
+        for atlet in atlet_list:
+            if not atlet.nomor_tanding:
+                continue 
+
+            nama = atlet.nomor_tanding.nama_nomor_tanding.upper()
+
+            if 'TOURNAMENT' in nama and not 'BEREGU' in nama:
+                if 'PUTRA' in nama:
+                    utusan_totals['tournament_putra'] += 1
+                    utusan_totals['tournament_reg_putra'] += 300000
+                elif 'PUTRI' in nama:
+                    utusan_totals['tournament_putri'] += 1
+                    utusan_totals['tournament_reg_putri'] += 300000
+            elif 'TOURNAMENT' in nama and 'BEREGU' in nama and 'CS' in atlet.nama_atlet:
+                utusan_totals['tournament_beregu'] += 1
+                utusan_totals['tournament_reg_beregu'] += 350000
+
+        # Assign individual totals
+        utusan.total_tournament_putra = utusan_totals['tournament_putra']
+        utusan.total_tournament_putri = utusan_totals['tournament_putri']
+        utusan.total_tournament_beregu = utusan_totals['tournament_beregu']
+
+        utusan.total_tournament = utusan.total_tournament_putra + utusan.total_tournament_putri + utusan.total_tournament_beregu
+
+        utusan.total_tournament_reg_putra = utusan_totals['tournament_reg_putra']
+        utusan.total_tournament_reg_putri = utusan_totals['tournament_reg_putri']
+        utusan.total_tournament_reg_beregu = utusan_totals['tournament_reg_beregu']
+
+        utusan.total_tournament_reg = utusan.total_tournament_reg_putra + utusan.total_tournament_reg_putri + utusan.total_tournament_reg_beregu
+
+        # Update global counters
+        for key, val in utusan_totals.items():
+            total_counts[key] += val
+
+        total_counts['peserta'] += utusan.total_tournament
+        total_counts['reg'] += utusan.total_tournament_reg
+
+        # Format values
+        utusan.total_tournament_reg_putra = format_rupiah(utusan.total_tournament_reg_putra)
+        utusan.total_tournament_reg_putri = format_rupiah(utusan.total_tournament_reg_putri)
+        utusan.total_tournament_reg_beregu = format_rupiah(utusan.total_tournament_reg_beregu)
+        utusan.total_tournament_reg = format_rupiah(utusan.total_tournament_reg)
+
+    # Sort by total peserta ascending
+    all_utusans = sorted(all_utusans, key=lambda u: u.total_tournament, reverse=True)
+
+    # Format global registration counters
+    formatted_totals = {
+        key: format_rupiah(val)
+        for key, val in total_counts.items()
+        if 'reg' in key
+    }
+
+    total_biaya_kontingen = sum(
+        0 for utusan in all_utusans
+    )
+
+    global_totals = {
+        # Tournament
+        'total_peserta_tournament_putra': total_counts['tournament_putra'],
+        'total_peserta_tournament_putri': total_counts['tournament_putri'],
+        'total_peserta_tournament_beregu': total_counts['tournament_beregu'],
+        'total_registrasi_tournament_putra': formatted_totals.get('tournament_reg_putra', '0'),
+        'total_registrasi_tournament_putri': formatted_totals.get('tournament_reg_putri', '0'),
+        'total_registrasi_tournament_beregu': formatted_totals.get('tournament_reg_beregu', '0'),
+        'total_peserta_tournament': total_counts['tournament_putra'] + total_counts['tournament_putri'] + total_counts['tournament_beregu'],
+        'total_registrasi_tournament': format_rupiah(
+            total_counts['tournament_reg_putra'] + total_counts['tournament_reg_putri'] + total_counts['tournament_reg_beregu']
+        ),
+
+        # Grand Total
+        'total_peserta': total_counts['peserta'],
+        'total_biaya_kontingen': format_rupiah(total_biaya_kontingen),
+        'total_registrasi': format_rupiah(total_counts['reg'] + total_biaya_kontingen),
+    }
+
+    context = {
+        'on': 'roster-counter',
+        'event': event,
+        'admin_tatami': admin_tatami,
+        'bagans': bagans,
+        'all_utusan': all_utusans,
+        'formatted_totals': formatted_totals,
+        'global_totals': global_totals,
+    }
+
+    return render(request, 'admin/summary.html', context)
+
 def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()

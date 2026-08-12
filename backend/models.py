@@ -35,7 +35,7 @@ class Atlet(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_atlet = models.CharField(max_length=50, null=True, blank=True)
     perguruan = models.ForeignKey(Perguruan, null=True, blank=True, on_delete=models.SET_NULL)
-    utusan = models.ForeignKey(Utusan, null=True, blank=True, on_delete=models.SET_NULL)
+    utusan = models.ForeignKey(Utusan, on_delete=models.SET_NULL, null=True, blank=True, related_name='atlet')
     nomor_tanding = models.ForeignKey(NomorTanding, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):

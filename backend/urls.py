@@ -27,6 +27,7 @@ urlpatterns = [
     path('admin-utusan/<int:event_pk>', admin_utusan, name="admin-utusan"),
     path('admin-perguruan/<int:event_pk>', admin_perguruan, name="admin-perguruan"),
     path('admin-rekapan/<int:event_pk>', admin_rekapan, name="admin-rekapan"),
+    path('summary/<int:event_pk>', summary, name="summary"),
     path('scoring-board/<int:tatami_pk>/message-retriever', message_retriever, name="message-retriever"),
     path('admin-control/<int:tatami_pk>/message-retriever', message_retriever_control, name="message-retriever-control"),
     path('jury-panel/<int:tatami_pk>/message-retriever', message_retriever_jury, name="message-retriever-jury"),
