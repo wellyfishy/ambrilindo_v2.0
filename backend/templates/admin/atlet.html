@@ -10,9 +10,14 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Atlet Event {{ event.nama_event }}</div>
+                        <div class="card-title" style="margin-right: 10px;">
+                            Atlet Event {{ event.nama_event }}
+                            <input type="text" id="atlet-search-input" class="form-control" placeholder="Cari nama, NIK, perguruan, utusan, atau nomor tanding..." style="width: 600px;">
+                            <small class="form-text text-muted" id="atlet-search-count"></small>
+                        </div>
+                            
                         <div>
-                            <a href="" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahAtletModal">Tambah Atlet</a>
+                            <a href="#" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahAtletModal">Tambah Atlet</a>
                             <div class="modal fade" id="tambahAtletModal" tabindex="-1" aria-labelledby="tambahAtletModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -26,7 +31,11 @@
                                             <div class="form-group">
                                                 <label for="nama_atlet">Nama Atlet</label>
                                                 <input type="text" class="form-control" id="nama_atlet" name="nama_atlet">
-                                                <small class="form-text text-muted">Akan auto uppercase.</b></small>
+                                                <small class="form-text text-muted">Akan auto uppercase.</small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="nik">NIK</label>
+                                                <input type="text" class="form-control" id="nik" name="nik" maxlength="16" inputmode="numeric">
                                             </div>
                                             <div class="form-group">
                                                 <label for="perguruan">Perguruan</label>
@@ -45,7 +54,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            
+
                                             <div class="form-group">
                                                 <label for="nomor_tanding">Nomor Tanding</label>
                                                 <select class="form-control" id="nomor_tanding" name="nomor_tanding">
@@ -76,7 +85,7 @@
                                             <div class="form-group">
                                                 <label for="excel_atlet">File Excel</label>
                                                 <input type="file" class="form-control" id="excel_atlet" name="excel_atlet" accept=".xls,.xlsx">
-                                                <small class="form-text text-muted">Hanya menerima file excel dengan format berikut: <br><b>(Nama Atlet/Perguruan/Utusan/Nomor Tanding)</b></small>
+                                                <small class="form-text text-muted">Hanya menerima file excel dengan format berikut: <br><b>(Nama Atlet/NIK/Perguruan/Utusan/Nomor Tanding)</b></small>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -88,7 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card-body">
                         {% if messages %}
                             {% for message in messages %}
@@ -103,19 +112,34 @@
                             <tr>
                             <th scope="col" style="text-align: center;">No</th>
                             <th scope="col" style="text-align: center;">Nama Atlet</th>
+                            <th scope="col" style="text-align: center;">NIK</th>
                             <th scope="col" style="text-align: center;">Perguruan</th>
                             <th scope="col" style="text-align: center;">Utusan</th>
                             <th scope="col" style="text-align: center;">Nomor Tanding</th>
+                            <th scope="col" style="text-align: center;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for atlet in atlets %}
-                            <tr>
+                            <tr id="atlet-row-{{ atlet.pk }}" data-search="{{ atlet.nama_atlet }} {{ atlet.nik }} {{ atlet.perguruan.nama_perguruan }} {{ atlet.utusan.nama_utusan }} {{ atlet.nomor_tanding.nama_nomor_tanding }}">
                                 <td>{{ forloop.counter }}</td>
-                                <td style="text-align: center;"><b>{{ atlet.nama_atlet }}</b></td>
-                                <td style="text-align: center;"><b>{{ atlet.perguruan.nama_perguruan }}</b></td>
-                                <td style="text-align: center;"><b>{{ atlet.utusan.nama_utusan }}</b></td>
-                                <td style="text-align: center;"><b>{{ atlet.nomor_tanding.nama_nomor_tanding }}</b></td>
+                                <td style="text-align: center;"><b class="atlet-nama-display">{{ atlet.nama_atlet }}</b></td>
+                                <td style="text-align: center;"><b class="atlet-nama-display">{{ atlet.nik }}</b></td>
+                                <td style="text-align: center;"><b class="atlet-perguruan-display">{{ atlet.perguruan.nama_perguruan }}</b></td>
+                                <td style="text-align: center;"><b class="atlet-utusan-display">{{ atlet.utusan.nama_utusan }}</b></td>
+                                <td style="text-align: center;"><b class="atlet-nomor-tanding-display">{{ atlet.nomor_tanding.nama_nomor_tanding }}</b></td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn btn-warning edit-atlet-btn" style="font-size: inherit; padding: 5px 10px;"
+                                            data-bs-toggle="modal" data-bs-target="#editAtletModal"
+                                            data-atlet-id="{{ atlet.pk }}"
+                                            data-nama="{{ atlet.nama_atlet }}"
+                                            data-nik="{{ atlet.nik|default:'' }}"
+                                            data-perguruan-id="{{ atlet.perguruan.pk|default:'' }}"
+                                            data-utusan-id="{{ atlet.utusan.pk|default:'' }}"
+                                            data-nomor-tanding-id="{{ atlet.nomor_tanding.pk|default:'' }}">
+                                        Edit
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -125,6 +149,175 @@
             </div>
         </div>
     </div>
-    
+    <div class="modal fade" id="editAtletModal" tabindex="-1" aria-labelledby="editAtletModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="editAtletModalLabel">Edit Atlet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editAtletForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit-atlet-id" name="atlet_id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="edit-nama-atlet">Nama Atlet</label>
+                            <input type="text" class="form-control" id="edit-nama-atlet" name="nama_atlet">
+                            <small class="form-text text-muted">Akan auto uppercase.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-nik">NIK</label>
+                            <input type="text" class="form-control" id="edit-nik" name="nik" maxlength="16" inputmode="numeric">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-perguruan">Perguruan</label>
+                            <select class="form-control" id="edit-perguruan" name="perguruan">
+                                {% for perguruan in perguruans %}
+                                    <option value="{{ perguruan.pk }}">{{ perguruan.nama_perguruan }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-utusan">Utusan</label>
+                            <select class="form-control" id="edit-utusan" name="utusan">
+                                {% for utusan in utusans %}
+                                    <option value="{{ utusan.pk }}">{{ utusan.nama_utusan }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-nomor-tanding">Nomor Tanding</label>
+                            <select class="form-control" id="edit-nomor-tanding" name="nomor_tanding">
+                                {% for nomor_tanding in nomor_tandings %}
+                                    <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div id="edit-atlet-error" class="text-danger" style="display:none; margin-top: 8px; font-size: 13px;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="edit-atlet-submit-btn">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
+{% block script %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    document.querySelectorAll('.edit-atlet-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const atletId = btn.dataset.atletId;
+            document.getElementById('edit-atlet-id').value = atletId;
+            document.getElementById('edit-nama-atlet').value = btn.dataset.nama;
+            document.getElementById('edit-perguruan').value = btn.dataset.perguruanId;
+            document.getElementById('edit-utusan').value = btn.dataset.utusanId;
+            document.getElementById('edit-nomor-tanding').value = btn.dataset.nomorTandingId;
+            document.getElementById('edit-atlet-error').style.display = 'none';
+
+            // fetch NIK separately, only when the modal actually opens
+            document.getElementById('edit-nik').value = 'Memuat...';
+            fetch(`/atlet/${atletId}/nik/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(res => res.json())
+                .then(data => { document.getElementById('edit-nik').value = data.nik || ''; })
+                .catch(() => { document.getElementById('edit-nik').value = ''; });
+        });
+    });
+
+    document.getElementById('editAtletForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('edit-atlet-submit-btn');
+        const errorEl = document.getElementById('edit-atlet-error');
+        errorEl.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Menyimpan...';
+
+        const formData = new FormData(this);
+
+        fetch("{% url 'edit-atlet-ajax' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData,
+        })
+            .then(res => res.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan';
+
+                if (!data.success) {
+                    errorEl.textContent = data.message || 'Gagal menyimpan perubahan.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                const row = document.getElementById(`atlet-row-${data.atlet_id}`);
+                if (row) {
+                    row.querySelector('.atlet-nama-display').textContent = data.nama_atlet;
+                    const nikDisplay = row.querySelector('.atlet-nik-display');
+                    if (nikDisplay) nikDisplay.textContent = data.nik || '-';
+                    row.querySelector('.atlet-perguruan-display').textContent = data.perguruan_nama;
+                    row.querySelector('.atlet-utusan-display').textContent = data.utusan_nama;
+                    row.querySelector('.atlet-nomor-tanding-display').textContent = data.nomor_tanding_nama;
+
+                    const editBtn = row.querySelector('.edit-atlet-btn');
+                    editBtn.dataset.nama = data.nama_atlet;
+                    editBtn.dataset.nik = data.nik || '';
+                    editBtn.dataset.perguruanId = data.perguruan_id;
+                    editBtn.dataset.utusanId = data.utusan_id;
+                    editBtn.dataset.nomorTandingId = data.nomor_tanding_id;
+                }
+
+                const modalEl = document.getElementById('editAtletModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+            })
+            .catch(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan';
+                errorEl.textContent = 'Terjadi kesalahan jaringan.';
+                errorEl.style.display = 'block';
+            });
+    });
+
+    function fuzzyMatch(needle, haystack) {
+        needle = needle.toLowerCase();
+        haystack = haystack.toLowerCase();
+        let ni = 0;
+        for (let hi = 0; hi < haystack.length && ni < needle.length; hi++) {
+            if (haystack[hi] === needle[ni]) ni++;
+        }
+        return ni === needle.length;
+    }
+
+    const searchInput = document.getElementById('atlet-search-input');
+    const searchCount = document.getElementById('atlet-search-count');
+    const allRows = document.querySelectorAll('tbody tr[data-search]');
+
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+        let visibleCount = 0;
+
+        allRows.forEach(row => {
+            const haystack = row.dataset.search;
+            const matches = query === '' || fuzzyMatch(query, haystack);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+
+        searchCount.textContent = query
+            ? `Menampilkan ${visibleCount} dari ${allRows.length} atlet`
+            : '';
+    });
+});
+</script>
+{% endblock script %}

@@ -1676,15 +1676,15 @@ def admin_atlet(request, event_pk):
                 messages.error(request, f"Gagal mengimport file: {str(e)}")
         
         elif request.POST.get('submit_type') == 'tambah_atlet':
-            nama_atlet = request.POST.get('nama_atlet')
-            perguruan_pk = request.POST.get('perguruan')
-            perguruan = Perguruan.objects.get(pk=perguruan_pk)
-            utusan_pk = request.POST.get('utusan')
-            utusan = Utusan.objects.get(pk=utusan_pk)
-            nomor_tanding_pk = request.POST.get('nomor_tanding')
-            nomor_tanding = NomorTanding.objects.get(pk=nomor_tanding_pk)
-
-            Atlet.objects.create(event=event, nama_atlet=nama_atlet, perguruan=perguruan, utusan=utusan, nomor_tanding=nomor_tanding)
+            nik = request.POST.get('nik', '').strip()
+            Atlet.objects.create(
+                event=event,
+                nama_atlet=request.POST.get('nama_atlet', '').strip().upper(),
+                nik=nik,
+                perguruan_id=request.POST.get('perguruan') or None,
+                utusan_id=request.POST.get('utusan') or None,
+                nomor_tanding_id=request.POST.get('nomor_tanding') or None,
+            )
 
             messages.success(request, "Berhasil menambahkan atlet.")
             
@@ -1701,6 +1701,41 @@ def admin_atlet(request, event_pk):
     }
 
     return render(request, 'admin/atlet.html', context)
+
+@require_POST
+def edit_atlet_ajax(request):
+    atlet_id = request.POST.get('atlet_id')
+    atlet = Atlet.objects.filter(pk=atlet_id).first()
+    if not atlet:
+        return JsonResponse({'success': False, 'message': 'Atlet tidak ditemukan.'}, status=404)
+
+    nama_atlet = request.POST.get('nama_atlet', '').strip().upper()
+    if not nama_atlet:
+        return JsonResponse({'success': False, 'message': 'Nama atlet wajib diisi.'}, status=400)
+
+    atlet.nama_atlet = nama_atlet
+    atlet.nik = request.POST.get('nik', '').strip()
+    atlet.perguruan_id = request.POST.get('perguruan') or None
+    atlet.utusan_id = request.POST.get('utusan') or None
+    atlet.nomor_tanding_id = request.POST.get('nomor_tanding') or None
+    atlet.save()
+
+    return JsonResponse({
+        'success': True,
+        'atlet_id': atlet.pk,
+        'nama_atlet': atlet.nama_atlet,
+        'nik': atlet.nik,
+        'perguruan_id': atlet.perguruan_id or '',
+        'perguruan_nama': atlet.perguruan.nama_perguruan if atlet.perguruan else '',
+        'utusan_id': atlet.utusan_id or '',
+        'utusan_nama': atlet.utusan.nama_utusan if atlet.utusan else '',
+        'nomor_tanding_id': atlet.nomor_tanding_id or '',
+        'nomor_tanding_nama': atlet.nomor_tanding.nama_nomor_tanding if atlet.nomor_tanding else '',
+    })
+
+def get_atlet_nik(request, atlet_pk):
+    atlet = get_object_or_404(Atlet, pk=atlet_pk)
+    return JsonResponse({'nik': atlet.nik})
 
 def admin_nomor_tanding(request, event_pk):
     event = Event.objects.get(pk=event_pk)

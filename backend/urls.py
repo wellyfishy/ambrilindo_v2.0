@@ -20,7 +20,12 @@ urlpatterns = [
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/edit/<int:detailbagan_pk>', admin_edit_detail_bagan, name="edit-detail-bagan"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/control-panel/<int:detailbagan_pk>/tatami/<int:tatami_pk>/', control_panel, name="control-panel"),
     path('admin-dashboard/<int:event_pk>/bagan-detail/<int:bagan_pk>/control-panel/<int:detailbagan_pk>/tatami/<int:tatami_pk>/team', control_panel_team, name="control-panel-team"),
+
+    # Atlet Modules
     path('admin-atlet/<int:event_pk>', admin_atlet, name="admin-atlet"),
+    path('atlet/edit-ajax/', edit_atlet_ajax, name='edit-atlet-ajax'),
+    path('atlet/<int:atlet_pk>/nik/', get_atlet_nik, name='get-atlet-nik'),
+
     path('admin-nomor-tanding/<int:event_pk>', admin_nomor_tanding, name="admin-nomor-tanding"),
     path('roster-counter/<int:event_pk>', roster_counter, name="roster-counter"),
     path('admin-tatami/<int:event_pk>', admin_tatami, name="admin-tatami"),

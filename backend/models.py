@@ -32,6 +32,7 @@ class Utusan(models.Model):
         return f'{self.event} - {self.nama_utusan}'
     
 class Atlet(models.Model):
+    nik = models.CharField(max_length=50, null=True, blank=True)
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_atlet = models.CharField(max_length=50, null=True, blank=True)
     perguruan = models.ForeignKey(Perguruan, null=True, blank=True, on_delete=models.SET_NULL)
