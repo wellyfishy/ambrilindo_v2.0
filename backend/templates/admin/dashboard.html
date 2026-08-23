@@ -4,9 +4,31 @@
 <style>
 .select2-container--default .select2-selection--multiple {
     min-height: 38px;
-    max-height: 100px;  /* allow expansion */
+    max-height: 100px;
     overflow-y: auto;
 }
+
+.bagan-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.bagan-toolbar input[type="text"] {
+    flex: 1 1 240px;
+    max-width: 340px;
+}
+.bagan-toolbar select {
+    flex: 0 0 auto;
+    min-width: 160px;
+}
+#bagan-result-count {
+    font-size: 12.5px;
+    color: #888;
+    margin-left: 4px;
+}
+tr.bagan-row-hidden { display: none; }
 </style>
 {% endblock style %}
 
@@ -17,7 +39,7 @@
           <h3 class="fw-bold mb-3"></h3>
         </div>
         <div class="row">
-            <div class="col-md-12"> 
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">Kumpulan Bagan Event {{ event.nama_event }}</div>
@@ -63,7 +85,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="modal fade" id="tambahBaganModal" tabindex="-1" aria-labelledby="tambahBaganModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -98,7 +120,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="modal fade" id="drawingBaganModal" tabindex="-1" aria-labelledby="drawingBaganModal" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -173,7 +195,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card-body">
                         {% if messages %}
                             {% for message in messages %}
@@ -183,6 +205,23 @@
                                 </div>
                             {% endfor %}
                         {% endif %}
+
+                        <div class="bagan-toolbar">
+                            <input type="text" id="bagan-search-input" class="form-control" placeholder="Cari nama atau kode bagan...">
+                            <select id="bagan-tipe-filter" class="form-select">
+                                <option value="">Semua Tipe</option>
+                                <option value="1">Kata</option>
+                                <option value="2">Kumite</option>
+                            </select>
+                            <select id="bagan-pool-filter" class="form-select">
+                                <option value="">Semua Pool</option>
+                                <option value="final">Final</option>
+                                <option value="pool">Pool</option>
+                                <option value="tunggal">Tunggal (Tanpa Pool)</option>
+                            </select>
+                            <span id="bagan-result-count"></span>
+                        </div>
+
                         <table class="table table-striped mt-3">
                         <thead>
                             <tr>
@@ -191,17 +230,17 @@
                             <th scope="col" style="text-align: center;">MISC</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="bagan-table-body">
                             {% for bagan in bagans %}
-                            <tr>
+                            <tr data-search="{{ bagan.kode }} {{ bagan.nama_bagan }}"
+                                data-tipe="{{ bagan.tipe_tanding }}"
+                                data-pool-kind="{% if bagan.pool == 0 %}final{% elif bagan.pool > 1 %}pool{% else %}tunggal{% endif %}">
                                 <td style="text-align: center;">{{ forloop.counter }}</td>
-                                <td><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.kode }}) {{ bagan.nama_bagan }}</b></td>
+                                <td><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.kode }}) {{ bagan.nama_bagan }}</b></a></td>
                                 <td style="text-align: center;">
                                     <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-primary">Edit</a>
-                                    <!-- Trigger button -->
                                     <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#hapusModal{{ bagan.pk }}">Hapus</a>
 
-                                    <!-- Modal -->
                                     <div class="modal fade" id="hapusModal{{ bagan.pk }}" tabindex="-1" aria-labelledby="hapusModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
@@ -224,12 +263,15 @@
                             {% endfor %}
                         </tbody>
                         </table>
+                        <div id="bagan-empty-state" style="display:none; text-align:center; padding: 30px; color: #999;">
+                            Tidak ada bagan yang cocok dengan pencarian/filter.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
 </div>
 {% endblock content %}
 
@@ -240,7 +282,52 @@
         $modal.find('.select2').select2({
             dropdownParent: $modal,
             width: '100%'
+        });
     });
-});
+
+    document.addEventListener('DOMContentLoaded', function () {
+        function fuzzyMatch(needle, haystack) {
+            needle = needle.toLowerCase();
+            haystack = haystack.toLowerCase();
+            let ni = 0;
+            for (let hi = 0; hi < haystack.length && ni < needle.length; hi++) {
+                if (haystack[hi] === needle[ni]) ni++;
+            }
+            return ni === needle.length;
+        }
+
+        const searchInput = document.getElementById('bagan-search-input');
+        const tipeFilter = document.getElementById('bagan-tipe-filter');
+        const poolFilter = document.getElementById('bagan-pool-filter');
+        const resultCount = document.getElementById('bagan-result-count');
+        const emptyState = document.getElementById('bagan-empty-state');
+        const rows = document.querySelectorAll('#bagan-table-body tr[data-search]');
+
+        function applyFilters() {
+            const query = searchInput.value.trim();
+            const tipeValue = tipeFilter.value;
+            const poolValue = poolFilter.value;
+            let visible = 0;
+
+            rows.forEach(row => {
+                const matchesSearch = query === '' || fuzzyMatch(query, row.dataset.search);
+                const matchesTipe = tipeValue === '' || row.dataset.tipe === tipeValue;
+                const matchesPool = poolValue === '' || row.dataset.poolKind === poolValue;
+                const show = matchesSearch && matchesTipe && matchesPool;
+
+                row.classList.toggle('bagan-row-hidden', !show);
+                if (show) visible++;
+            });
+
+            resultCount.textContent = (query || tipeValue || poolValue)
+                ? `${visible} dari ${rows.length} bagan`
+                : '';
+            emptyState.style.display = visible === 0 ? 'block' : 'none';
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+        tipeFilter.addEventListener('change', applyFilters);
+        poolFilter.addEventListener('change', applyFilters);
+    });
 </script>
 {% endblock script %}

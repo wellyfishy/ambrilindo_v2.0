@@ -32,54 +32,75 @@ import concurrent.futures
 
 
 def auth(request):
+    if request.user.is_authenticated:
+        role = getattr(request.user, 'role', None)
+        if role:
+            if role.role_type in ('admin', 'admin_tatami'):
+                return redirect('admin-dashboard', event_pk=role.event_id)
+            elif role.role_type == 'jury':
+                return redirect('jury-panel', tatami_pk=role.tatami_id)
+        # authenticated but no valid role somehow — safest is to log them out and let them log back in
+        logout(request)
+        return redirect('auth')
+    
     events = Event.objects.all().order_by('-pk')
 
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
         event_pk = request.POST.get('event_pk')
 
         user = authenticate(request, username=username, password=password)
-        if user is not None:
-            try:
-                event = Event.objects.get(pk=event_pk)
-                admin_tatami = AdminTatami.objects.filter(user=user, event=event).first()
-                admin = Admin.objects.filter(user=user).first()
-                if admin_tatami:
-                    login(request, user)
-                    return redirect('admin-dashboard', event_pk=event_pk)
-                elif admin:
-                    login(request, user)
-                    return redirect('admin-dashboard', event_pk=event_pk)
-                else:
-                    jury = Jury.objects.filter(event=event, user=user).first()
-                    if jury:
-                        login(request, user)
-                        return redirect('jury-panel', tatami_pk=jury.tatami.pk)
-                    else:
-                        messages.error(request, "Anda tidak terdaftar sebagai Admin atau Juri untuk event ini.")
-                        return redirect('auth')
 
-            except Event.DoesNotExist:
-                messages.error(request, "Event tidak ditemukan.")
+        if user is not None:
+            event = get_object_or_404(Event, pk=event_pk)
+            role = getattr(user, 'role', None)
+
+            if not role:
+                messages.error(request, "Akun ini tidak memiliki peran yang valid.")
                 return redirect('auth')
-        else:
-            if 'c' in username:
-                new_username = username.replace('c', '')
-                coach_supervisor = Tatami.objects.filter(event__pk=new_username, tatami_number=password).first()
-                if coach_supervisor:
-                    return redirect('coach-supervisor', tatami_pk=coach_supervisor.pk)
+
+            if role.role_type == 'admin':
+                login(request, user)
+                return redirect('admin-dashboard', event_pk=event.pk)
+
+            elif role.role_type == 'admin_tatami':
+                if role.event_id != event.pk:
+                    messages.error(request, "Anda tidak terdaftar sebagai Admin Tatami untuk event ini.")
+                    return redirect('auth')
+                login(request, user)
+                return redirect('admin-dashboard', event_pk=event.pk)
+
+            elif role.role_type == 'jury':
+                if role.event_id != event.pk:
+                    messages.error(request, "Anda tidak terdaftar sebagai Juri untuk event ini.")
+                    return redirect('auth')
+                login(request, user)
+                return redirect('jury-panel', tatami_pk=role.tatami_id)
+
             else:
-                adm_control = Tatami.objects.filter(event__pk=username, tatami_number=password).first()
-                if adm_control:
-                    return redirect('admin-control', tatami_pk=adm_control.pk)
-            messages.error(request, "Username atau password salah!")
-            return redirect('auth')
-        
-    context = {
-        'events': events
-    }
-        
+                messages.error(request, "Peran akun tidak dikenali.")
+                return redirect('auth')
+
+        # --- Admin Control / Coach Sup: shared view-only access, no User account ---
+        if username.startswith('c'):
+            new_username = username[1:]
+            tatami = Tatami.objects.filter(event__pk=new_username, tatami_number=password).first()
+            if tatami:
+                request.session['view_only_role'] = 'coach_sup'
+                request.session['view_only_tatami_pk'] = tatami.pk
+                return redirect('coach-supervisor', tatami_pk=tatami.pk)
+        else:
+            tatami = Tatami.objects.filter(event__pk=username, tatami_number=password).first()
+            if tatami:
+                request.session['view_only_role'] = 'admin_control'
+                request.session['view_only_tatami_pk'] = tatami.pk
+                return redirect('admin-control', tatami_pk=tatami.pk)
+
+        messages.error(request, "Username atau password salah!")
+        return redirect('auth')
+
+    context = {'events': events}
     return render(request, 'auth/auth.html', context)
 
 def admin_control(request, tatami_pk):
@@ -1930,6 +1951,7 @@ def admin_tatami(request, event_pk):
                 new_jury = Jury.objects.create(event=event, tatami=new_tatami, user=user, jury_number=i)
 
             messages.success(request, f"Sukses menambahkan tatami {new_tatami}!")
+            
             return redirect('admin-tatami', event_pk=event_pk)
         elif request.POST.get('submit_type') == 'hapus_tatami':
             tatami = Tatami.objects.filter(pk=request.POST.get('tatami_pk')).first()

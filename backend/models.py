@@ -1,6 +1,7 @@
 from django.db import models, transaction # type: ignore
 from django.contrib.auth.models import User # type: ignore
 
+
 class Admin(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
 
@@ -139,6 +140,18 @@ class Tatami(models.Model):
 
     def __str__(self):
         return f'Tatami - {self.tatami_number}'
+
+class Role(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('admin_tatami', 'Admin Tatami'),
+        ('jury', 'Jury'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='role')
+    role_type = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
+    tatami = models.ForeignKey(Tatami, null=True, blank=True, on_delete=models.CASCADE)
+    jury_number = models.IntegerField(null=True, blank=True)
 
 class AdminTatami(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
