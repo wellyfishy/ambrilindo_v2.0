@@ -337,9 +337,9 @@
                   </ul>
                 </div>
               </li>
-              {% if admin_tatami %}
+              {% if role.role_type == 'admin_tatami' %}
               <li class="nav-item">
-                <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=admin_tatami.tatami.pk %}'); return false;">
+                <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=role.tatami.pk %}'); return false;">
                   <i class="fas fa-braille"></i>
                   <p>Scoring Board</p>
                 </a>

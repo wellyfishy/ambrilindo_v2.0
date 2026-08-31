@@ -241,7 +241,7 @@ def logoutfunc(request):
 
 def admin_dashboard(request, event_pk):
     event = Event.objects.get(pk=event_pk)
-    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
+    role = Role.objects.get(user=request.user)
     nomor_tandings = NomorTanding.objects.filter(event=event)
     for nt in nomor_tandings:
         nt.jumlat_atlet = Atlet.objects.filter(nomor_tanding=nt).count()
@@ -649,7 +649,7 @@ def admin_dashboard(request, event_pk):
     context = {
         'on': 'utama',
         'event': event,
-        'admin_tatami': admin_tatami,
+        'role': role,
         'nomor_tandings': nomor_tandings,
         'bagans': bagans,
     }
@@ -1944,11 +1944,12 @@ def admin_tatami(request, event_pk):
             new_tatami = Tatami.objects.create(event=event, tatami_number=next_number)
 
             user = User.objects.create_user(username=f'admtatami{next_number}e{event_pk}', password=f'admtatami{next_number}e{event_pk}')
-            new_admtatami = AdminTatami.objects.create(event=event, tatami=new_tatami, user=user)
+            new_admtatami = Role.objects.create(event=event, tatami=new_tatami, user=user, role_type='admin_tatami')
+            # new_admtatami = AdminTatami.objects.create(event=event, tatami=new_tatami, user=user)
 
             for i in range(1, 8):
                 user = User.objects.create_user(username=f'j{i}t{next_number}e{event_pk}', password=f'j{i}t{next_number}e{event_pk}')
-                new_jury = Jury.objects.create(event=event, tatami=new_tatami, user=user, jury_number=i)
+                new_jury = Role.objects.create(event=event, tatami=new_tatami, user=user, jury_number=i, role_type='jury')
 
             messages.success(request, f"Sukses menambahkan tatami {new_tatami}!")
             
