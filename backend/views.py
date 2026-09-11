@@ -13,7 +13,7 @@ from collections import defaultdict # type: ignore
 from itertools import groupby # type: ignore
 import json # type: ignore
 from django.views.decorators.http import require_POST # type: ignore
-from .utils import send_to_hosted 
+from .utils import send_to_hosted, send_to_hosted_async, get_kode_realtime 
 from openpyxl import Workbook # type: ignore
 from openpyxl.styles import Font # type: ignore
 from collections import Counter
@@ -282,7 +282,7 @@ def admin_dashboard(request, event_pk):
             ws = wb.active
             ws.title = 'Bagan Export'
 
-            headers = ['Kode', 'Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Perguruan 1', 'Perwakilan 1', 'Atlet 2', 'Perguruan 2', 'Perwakilan 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2', 'Score 1', 'Score 2', 'Status Selesai', 'Pemenang']
+            headers = ['Kode', 'Nama Bagan', 'Nama Nomor Tanding', 'Bagan PK', 'Detail PK', 'Round', 'Urutan', 'Atlet 1', 'Perguruan 1', 'Perwakilan 1', 'Atlet 2', 'Perguruan 2', 'Perwakilan 2', 'Tipe Tanding', 'Pool', 'VR 1', 'VR 2', 'Score 1', 'Score 2', 'Status Selesai', 'Pemenang', 'Kode Realtime']
             ws.append(headers)
 
             # bold header row
@@ -323,6 +323,7 @@ def admin_dashboard(request, event_pk):
                         db.score2,
                         db.selesai,
                         db.pemenang,
+                        get_kode_realtime(db),
                     ])
 
             # auto-size columns roughly
@@ -916,19 +917,13 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
 
         payload = {
             'status': 'finished',
-            'kode_realtime': f'{detail_bagan_round_5.bagan.pk}-{detail_bagan_round_5.pk}',
+            'kode_realtime': get_kode_realtime(detail_bagan_round_5),
             'juara_1': bagan.juara_1.nama_atlet if bagan.juara_1 else None,
             'juara_2': bagan.juara_2.nama_atlet if bagan.juara_2 else None,
             'juara_3a': bagan.juara_3a.nama_atlet if bagan.juara_3a else None,
             'juara_3b': bagan.juara_3b.nama_atlet if bagan.juara_3b else None,
         }
-        success, result = send_to_hosted(payload, endpoint='api/final-result/')
-
-        if not success:
-            messages.warning(
-                request,
-                f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
-            )
+        send_to_hosted_async(payload, endpoint='api/final-result/')
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
@@ -1162,19 +1157,13 @@ def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
 
             payload = {
                 'status': 'edit',
-                'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+                'kode_realtime': get_kode_realtime(detail_bagan),
                 'atlet_aka': detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
                 'atlet_ao': detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else None,
                 'utusan_aka': detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 else None,
                 'utusan_ao': detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
             }
-            success, result = send_to_hosted(payload, endpoint='api/edit-bagan/')
-    
-            if not success:
-                messages.warning(
-                    request,
-                    f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
-                )
+            send_to_hosted_async(payload, endpoint='api/edit-bagan/')
         
         return redirect('edit-detail-bagan', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
 
@@ -1273,6 +1262,7 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
         winner_atlet = None
         
+        target_slot = None
         if not bagan.round_robin or not detail_bagan.team:
             next_round_number = detail_bagan.round + 1
             next_round_urutan = (detail_bagan.urutan + 1) // 2
@@ -1292,12 +1282,14 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 if winner_atlet:
                     if detail_bagan.urutan % 2 == 1:
                         detailbagan_next_round.atlet1 = winner_atlet
+                        target_slot = 'atlet1'
                         if detail_bagan.vr1 and pemenang == 'aka':
                             detailbagan_next_round.vr1 = True
                         elif detail_bagan.vr2 and pemenang == 'ao':
                             detailbagan_next_round.vr1 = True
                     else:
                         detailbagan_next_round.atlet2 = winner_atlet
+                        target_slot = 'atlet2'
                         if detail_bagan.vr1 and pemenang == 'aka':
                             detailbagan_next_round.vr2 = True
                         elif detail_bagan.vr2 and pemenang == 'ao':
@@ -1311,25 +1303,20 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 'status': 'finished',
                 'round': detail_bagan.round,
                 'urutan': detail_bagan.urutan,
-                'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+                'kode_realtime': get_kode_realtime(detail_bagan),
                 'pemenang': pemenang,
+                'target_slot': target_slot,
                 'score_aka': detail_bagan.score1,
                 'score_ao': detail_bagan.score2,
                 'vr1': detail_bagan.vr1,
                 'vr2': detail_bagan.vr2,
-                'next_vr1': detailbagan_next_round.vr1,
-                'next_vr2': detailbagan_next_round.vr2,
+                'next_vr1': detailbagan_next_round.vr1 if detailbagan_next_round else False,
+                'next_vr2': detailbagan_next_round.vr2 if detailbagan_next_round else False,
                 'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
-                'next_kode_realtime': f'{detailbagan_next_round.bagan.pk}-{detailbagan_next_round.pk}',
-                'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+                'next_kode_realtime': get_kode_realtime(detailbagan_next_round) if detailbagan_next_round else None,
+                'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number if Tatami.objects.filter(detail_bagan=detail_bagan).first() else '',
             }
-            success, result = send_to_hosted(payload, endpoint='api/result/')
-
-            if not success:
-                messages.warning(
-                    request,
-                    f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
-                )
+            send_to_hosted_async(payload, endpoint='api/result/')
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
@@ -1558,15 +1545,18 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                     winner_atlet = None
                     detail_bagan.pemenang = '3'
 
+                target_slot = None
                 if winner_atlet:
                     if detail_bagan.urutan % 2 == 1:
                         detailbagan_next_round.atlet1 = winner_atlet
+                        target_slot = 'atlet1'
                         if detail_bagan.vr1 and detail_bagan.pemenang == '1':
                             detailbagan_next_round.vr1 = True
                         elif detail_bagan.vr2 and detail_bagan.pemenang == '2':
                             detailbagan_next_round.vr1 = True
                     else:
                         detailbagan_next_round.atlet2 = winner_atlet
+                        target_slot = 'atlet2'
                         if detail_bagan.vr1 and detail_bagan.pemenang == '1':
                             detailbagan_next_round.vr2 = True
                         elif detail_bagan.vr2 and detail_bagan.pemenang == '2':
@@ -1585,28 +1575,23 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 payload = {
                     'status': 'finished',
                     'pemenang': pemenang,
+                    'target_slot': target_slot,
                     'round': detail_bagan.round,
                     'urutan': detail_bagan.urutan,
-                    'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
+                    'kode_realtime': get_kode_realtime(detail_bagan),
                     'score_aka': detail_bagan.score1,
                     'score_ao': detail_bagan.score2,
                     'lil_score_aka': detail_bagan.scorekecil1,
                     'lil_score_ao': detail_bagan.scorekecil2,
                     'vr1': detail_bagan.vr1,
                     'vr2': detail_bagan.vr2,
-                    'next_vr1': detailbagan_next_round.vr1,
-                    'next_vr2': detailbagan_next_round.vr2,
+                    'next_vr1': detailbagan_next_round.vr1 if detailbagan_next_round else False,
+                    'next_vr2': detailbagan_next_round.vr2 if detailbagan_next_round else False,
                     'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
-                    'next_kode_realtime': f'{detailbagan_next_round.bagan.pk}-{detailbagan_next_round.pk}',
-                    'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+                    'next_kode_realtime': get_kode_realtime(detailbagan_next_round) if detailbagan_next_round else None,
+                    'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number if Tatami.objects.filter(detail_bagan=detail_bagan).first() else '',
                 }
-                success, result = send_to_hosted(payload, endpoint='api/result/')
-
-                if not success:
-                    messages.warning(
-                        request,
-                        f'Hasil berhasil disimpan secara lokal, tapi gagal mengirim ke server: {result}'
-                    )
+                send_to_hosted_async(payload, endpoint='api/result/')
 
             return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
             
@@ -1996,12 +1981,12 @@ def notify_bagan_running(request, detailbagan_pk):
         'urutan': detail_bagan.urutan,
         'vr1': detail_bagan.vr1,
         'vr2': detail_bagan.vr2,
-        'kode_realtime': f'{detail_bagan.bagan.pk}-{detail_bagan.pk}',
-        'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number,
+        'kode_realtime': get_kode_realtime(detail_bagan),
+        'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number if Tatami.objects.filter(detail_bagan=detail_bagan).first() else '',
     }
     if detail_bagan.round != 10:
-        success, result = send_to_hosted(payload, endpoint='api/status/')
-    return JsonResponse({'success': success, 'message': result})
+        send_to_hosted_async(payload, endpoint='api/status/')
+    return JsonResponse({'success': True, 'message': 'Status queued for sync'})
 
 
 @require_POST
@@ -2013,12 +1998,13 @@ def send_bagan_result(request, detailbagan_pk):
     payload = {
         'status': 'finished',
         'detail_bagan_id': detail_bagan.pk,
+        'kode_realtime': get_kode_realtime(detail_bagan),
         'pemenang': detail_bagan.pemenang,
         'score1': detail_bagan.score1,
         'score2': detail_bagan.score2,
     }
-    success, result = send_to_hosted(payload, endpoint='api/result/')
-    return JsonResponse({'success': success, 'message': result})
+    send_to_hosted_async(payload, endpoint='api/result/')
+    return JsonResponse({'success': True, 'message': 'Result queued for sync'})
 
 # SORT ------------------------------------------------
 AGE_ORDER = [
@@ -2543,3 +2529,28 @@ def bulk_print_bagan(request, event_pk, day_pk, tatami_pk):
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+def sync_queue_status(request):
+    """Mengembalikan informasi status antrean sinkronisasi live FIFO."""
+    pending_count = SyncQueue.objects.filter(status='pending').count()
+    failed_count = SyncQueue.objects.filter(status='failed').count()
+    processing_count = SyncQueue.objects.filter(status='processing').count()
+    last_failed = SyncQueue.objects.filter(status='failed').order_by('-updated_at').first()
+
+    data = {
+        'pending_count': pending_count,
+        'failed_count': failed_count,
+        'processing_count': processing_count,
+        'total_unsynced': pending_count + failed_count + processing_count,
+        'last_error': last_failed.last_error if last_failed else None,
+        'last_failed_endpoint': last_failed.endpoint if last_failed else None,
+        'last_failed_retries': last_failed.retry_count if last_failed else 0,
+    }
+    return JsonResponse(data)
+
+@require_POST
+def sync_queue_retry(request):
+    """Memicu pengiriman ulang antrean tertunda secara manual."""
+    from .utils import trigger_sync_queue
+    trigger_sync_queue()
+    return JsonResponse({'success': True, 'message': 'Proses pengiriman antrean dipicu.'})

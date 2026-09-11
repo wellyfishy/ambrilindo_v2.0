@@ -57,4 +57,6 @@ urlpatterns = [
     # API
     path('api/notify-running/<int:detailbagan_pk>/', notify_bagan_running, name='notify-bagan-running'),
     path('api/send-result/<int:detailbagan_pk>/', send_bagan_result, name='send-bagan-result'),
+    path('api/sync-queue/status/', sync_queue_status, name='sync-queue-status'),
+    path('api/sync-queue/retry/', sync_queue_retry, name='sync-queue-retry'),
 ]

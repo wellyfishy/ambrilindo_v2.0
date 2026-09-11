@@ -1,3 +1,4 @@
+import uuid
 from django.db import models, transaction # type: ignore
 from django.contrib.auth.models import User # type: ignore
 
@@ -7,6 +8,19 @@ class Admin(models.Model):
 
 class Event(models.Model):
     nama_event = models.CharField(max_length=150, null=True, blank=True)
+    kode_event = models.CharField(max_length=50, null=True, blank=True)
+
+    @property
+    def event_code(self):
+        if not self.kode_event:
+            self.kode_event = f"EV{self.pk}-{uuid.uuid4().hex[:6].upper()}"
+            Event.objects.filter(pk=self.pk).update(kode_event=self.kode_event)
+        return self.kode_event
+
+    def save(self, *args, **kwargs):
+        if not self.kode_event:
+            self.kode_event = f"EV{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.nama_event}'
@@ -211,5 +225,27 @@ class KopSurat(models.Model):
 class EventKeterangan(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='keterangan')
     text = models.TextField(blank=True)
+
+class SyncQueue(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('synced', 'Synced'),
+        ('failed', 'Failed'),
+    ]
+    endpoint = models.CharField(max_length=100)
+    payload = models.JSONField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    retry_count = models.IntegerField(default=0)
+    last_error = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"SyncQueue #{self.pk} - {self.endpoint} ({self.status})"
+
 
 
