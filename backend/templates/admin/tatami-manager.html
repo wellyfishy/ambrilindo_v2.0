@@ -1,0 +1,1947 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tatami Manager &bull; Tatami {{ selected_tatami.tatami_number|default:"-" }} &bull; {{ event.nama_event }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome from local static -->
+    <link rel="stylesheet" href="{% static 'icons/fontawesome-free/css/all.min.css' %}">
+
+    <style>
+        :root {
+            --bg-body: #08080a;
+            --bg-card: #111217;
+            --bg-card-hover: #161822;
+            --bg-card-dim: #0d0e12;
+            --bg-input: #0c0d12;
+            --border-color: #22242c;
+            --border-hover: #343743;
+            --border-highlight: #10b981;
+
+            /* Accent Colors */
+            --red-core: #e52525;
+            --red-glow: rgba(229, 37, 37, 0.35);
+            --red-bg: rgba(229, 37, 37, 0.1);
+            --red-border: rgba(229, 37, 37, 0.3);
+
+            --blue-core: #2563eb;
+            --blue-glow: rgba(37, 99, 235, 0.35);
+            --blue-bg: rgba(37, 99, 235, 0.1);
+            --blue-border: rgba(37, 99, 235, 0.3);
+
+            --green-core: #10b981;
+            --green-glow: rgba(16, 185, 129, 0.25);
+            --green-bg: rgba(16, 185, 129, 0.1);
+            --green-border: rgba(16, 185, 129, 0.4);
+
+            --amber-core: #f59e0b;
+            --amber-bg: rgba(245, 158, 11, 0.1);
+            --amber-border: rgba(245, 158, 11, 0.4);
+
+            --purple-core: #8b5cf6;
+            --purple-bg: rgba(139, 92, 246, 0.1);
+
+            /* Typography */
+            --text-primary: #f8fafc;
+            --text-secondary: #9ca3af;
+            --text-muted: #64748b;
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 36px 36px;
+            padding-bottom: 40px;
+        }
+
+        /* Top Navbar */
+        .lo-navbar {
+            background: rgba(17, 18, 23, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 18px;
+        }
+
+        .navbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tatami-badge {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #e52525, #b91c1c);
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 2px 10px var(--red-glow);
+            white-space: nowrap;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 320px;
+        }
+
+        .lo-role-tag {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+        }
+
+        .stat-pill strong {
+            color: var(--text-primary);
+        }
+
+        /* WebSocket Live Status Pill (LO Style) */
+        .ws-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            transition: var(--transition);
+        }
+
+        .ws-status-pill.disconnected {
+            border-color: rgba(229, 37, 37, 0.3);
+            background: rgba(229, 37, 37, 0.1);
+            color: #f87171;
+        }
+
+        .ws-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #34d399;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+        }
+
+        .ws-status-pill.disconnected .ws-dot {
+            background-color: #f87171;
+            box-shadow: 0 0 6px var(--red-glow);
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .btn-action {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-action:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+            color: #ffffff;
+        }
+
+        .btn-action.btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .btn-action.btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+
+        .btn-action.btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-color: #fbbf24;
+            color: #000000;
+        }
+
+        .btn-action.btn-danger-outline {
+            background: transparent;
+            border-color: var(--red-border);
+            color: #f87171;
+        }
+
+        .btn-action.btn-danger-outline:hover {
+            background: var(--red-bg);
+            border-color: var(--red-core);
+            color: #ffffff;
+        }
+
+        /* Container */
+        .main-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px 18px;
+            flex: 1;
+        }
+
+        /* Alert notifications */
+        .alert-wrap {
+            margin-bottom: 14px;
+        }
+        .alert-box {
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .alert-box.success {
+            background: var(--green-bg);
+            border: 1px solid var(--green-border);
+            color: #6ee7b7;
+        }
+        .alert-box.error {
+            background: var(--red-bg);
+            border: 1px solid var(--red-border);
+            color: #fca5a5;
+        }
+        .alert-box.warning {
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-border);
+            color: #fcd34d;
+        }
+
+        /* Tatami Selector Bar */
+        .tatami-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .tatami-bar-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 0 8px;
+            white-space: nowrap;
+        }
+
+        .tatami-tab {
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .tatami-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-color);
+        }
+
+        .tatami-tab.active {
+            background: linear-gradient(135deg, rgba(229, 37, 37, 0.2), rgba(229, 37, 37, 0.35));
+            border-color: var(--red-core);
+            color: #ffffff;
+            box-shadow: 0 0 10px var(--red-glow);
+        }
+
+        .tatami-tab .count-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #cbd5e1;
+        }
+
+        .tatami-tab.active .count-badge {
+            background: var(--red-core);
+            color: #ffffff;
+        }
+
+        /* Active Match & Conflict Strip */
+        .match-strip {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .match-strip-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .match-strip-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .match-strip-athletes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .athlete-chip {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .athlete-chip.aka {
+            background: var(--red-bg);
+            border: 1px solid var(--red-border);
+        }
+
+        .athlete-chip.ao {
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-border);
+        }
+
+        .athlete-chip-name {
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: 0.01em;
+        }
+
+        .athlete-chip.aka .athlete-chip-name {
+            color: #fca5a5;
+        }
+
+        .athlete-chip.ao .athlete-chip-name {
+            color: #93c5fd;
+        }
+
+        .athlete-chip-club {
+            font-size: 13.5px;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .conflict-warning-banner {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid var(--amber-border);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #fde047;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 2-Column Layout */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 960px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+            .match-strip-athletes {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-body {
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        /* Filter Chips */
+        .filter-chips {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .chip-btn {
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .chip-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        .chip-btn.active {
+            background: #2563eb;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        /* Search input */
+        .search-box {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px 8px 34px;
+            font-size: 12.5px;
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Assigned Referee Cards (Left Column) */
+        .assigned-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .assigned-card:hover {
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .assigned-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .assigned-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .assigned-tags {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .role-pill {
+            font-family: 'Oswald', sans-serif;
+            font-size: 12.5px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            padding: 3px 10px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .role-pill.referee {
+            background: var(--red-bg);
+            border: 1px solid var(--red-border);
+            color: #fca5a5;
+        }
+
+        .role-pill.judge {
+            background: var(--blue-bg);
+            border: 1px solid var(--blue-border);
+            color: #93c5fd;
+        }
+
+        .role-pill.manager {
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-border);
+            color: #fde047;
+        }
+
+        .role-pill.kansa {
+            background: var(--purple-bg);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: #c4b5fd;
+        }
+
+        .role-pill.pool {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+        }
+
+        .role-pill.wasit_2 {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fde047;
+        }
+
+        .kab-kota-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            color: #38bdf8;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .perguruan-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+        }
+
+        .license-tag {
+            font-size: 10.5px;
+            color: var(--text-muted);
+        }
+
+        .conflict-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-border);
+            color: #fde047;
+        }
+
+        .assigned-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon-danger {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-icon-danger:hover {
+            background: var(--red-bg);
+            border-color: var(--red-border);
+            color: #f87171;
+        }
+
+        .select-posisi {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--radius-sm);
+            color: #f8fafc;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 5px 10px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Referee Pool Cards (Right Column) */
+        .wasit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 620px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .wasit-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .wasit-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .wasit-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        /* RULE: HIGHLIGHTED TIER 1 - Standby Priority (Beda Perguruan & Kota) */
+        .wasit-card.priority-standby {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.16));
+            border: 1.5px solid #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .wasit-card.priority-standby:hover {
+            border-color: #34d399;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+        }
+
+        /* RULE: HIGHLIGHTED TIER 2 - Other Tatami Priority (Beda Perguruan & Bisa Pinjam) */
+        .wasit-card.priority-other-tatami {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(6, 182, 212, 0.18));
+            border: 1.5px solid #06b6d4;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.28);
+        }
+
+        .wasit-card.priority-other-tatami:hover {
+            border-color: #22d3ee;
+            box-shadow: 0 0 16px rgba(6, 182, 212, 0.45);
+        }
+
+        /* RULE: HIGHLIGHTED TIER 3 - Already Assigned on THIS Tatami */
+        .wasit-card.assigned-here {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.07), rgba(59, 130, 246, 0.14));
+            border: 1.5px solid #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .wasit-card.assigned-here:hover {
+            border-color: #60a5fa;
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.35);
+        }
+
+        /* Backward compat */
+        .wasit-card.highlighted {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.12));
+            border: 1.5px solid var(--green-core);
+            box-shadow: 0 0 12px var(--green-glow);
+        }
+
+        /* RULE: NOT HIGHLIGHTED (Used / Already Assigned) */
+        .wasit-card.used {
+            opacity: 0.65;
+            background: var(--bg-card-dim);
+            border-color: var(--border-color);
+        }
+
+        .wasit-card.used:hover {
+            opacity: 0.95;
+        }
+
+        /* RULE: Conflict with match */
+        .wasit-card.conflict-match {
+            border-color: var(--amber-core);
+            background: rgba(245, 158, 11, 0.04);
+        }
+
+        .wasit-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .wasit-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .wasit-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .rec-badge {
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rec-badge.badge-success {
+            background: var(--green-core);
+            color: #042f2e;
+        }
+
+        .rec-badge.badge-lendable {
+            background: #06b6d4;
+            color: #083344;
+        }
+
+        .rec-badge.badge-primary {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        .rec-badge.badge-warning {
+            background: var(--amber-core);
+            color: #451a03;
+        }
+
+        .rec-badge.badge-dark {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border: 1px solid var(--border-color);
+        }
+
+        .rec-badge.badge-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+        }
+
+        .wasit-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .kab-kota-tag {
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(148, 163, 184, 0.12);
+            color: #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Quick assign form inline */
+        .assign-form-inline {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-assign {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #10b981;
+            background: #10b981;
+            color: #042f2e;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-assign:hover {
+            background: #34d399;
+            border-color: #34d399;
+        }
+
+        .btn-lend {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid #06b6d4;
+            background: #06b6d4;
+            color: #083344;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-lend:hover {
+            background: #22d3ee;
+            border-color: #22d3ee;
+        }
+
+        .btn-reassign {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        /* Toast Notifications */
+        .toast-notify {
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+        }
+        .toast-notify.success { background: #059669; border: 1px solid #10b981; }
+        .toast-notify.error { background: #dc2626; border: 1px solid #ef4444; }
+        .toast-notify.info { background: #2563eb; border: 1px solid #3b82f6; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .btn-reassign:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        /* Empty state */
+        .empty-placeholder {
+            padding: 30px 16px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Minimalist Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-window {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            animation: modalIn 0.15s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 13px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #3b82f6;
+        }
+
+        .modal-footer {
+            padding: 12px 18px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-window.modal-lg {
+            max-width: 820px;
+        }
+
+        .match-picker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .match-select-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            transition: var(--transition);
+        }
+
+        .match-select-card:hover {
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .match-select-card.active-match-card {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.06);
+        }
+
+        .match-select-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .match-select-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .match-select-category {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .match-select-badge {
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        .match-select-athletes {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        .match-select-vs {
+            font-family: 'Oswald', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .match-select-atlet {
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .match-select-atlet.aka {
+            color: #fca5a5;
+        }
+
+        .match-select-atlet.ao {
+            color: #93c5fd;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation (LO style) -->
+    <nav class="lo-navbar">
+        <div class="navbar-inner">
+            <div class="brand-info">
+                <span class="tatami-badge">TATAMI {{ selected_tatami.tatami_number|default:"-" }}</span>
+                <div class="event-meta">
+                    <span class="event-name" title="{{ event.nama_event }}">{{ event.nama_event }}</span>
+                    <span class="lo-role-tag">
+                        <i class="fas fa-user-shield text-warning"></i>
+                        Tatami Manager &bull; Wasit Allocation Console
+                    </span>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <!-- WebSocket Live Sync Status (LO style) -->
+                <div class="ws-status-pill disconnected" id="wsPill" title="Status sinkronisasi real-time via WebSocket">
+                    <div class="ws-dot"></div>
+                    <span id="wsText">Connecting...</span>
+                </div>
+
+                <div class="stat-pill" title="Status penugasan wasit">
+                    <i class="fas fa-users text-info"></i>
+                    <span><strong id="navbarAssignedCount">{{ metrics.assigned_wasit }}</strong>/<span id="navbarTotalCount">{{ metrics.total_wasit }}</span> Bertugas</span>
+                    <span style="opacity: 0.4;">|</span>
+                    <span class="text-success"><strong id="navbarAvailableCount">{{ metrics.available_wasit }}</strong> Standby</span>
+                </div>
+
+                {% if is_admin %}
+                <button type="button" class="btn-action btn-primary" onclick="openModal('tambahWasitModal')">
+                    <i class="fas fa-plus"></i> Tambah Wasit
+                </button>
+
+                <button type="button" class="btn-action" onclick="openModal('importWasitModal')">
+                    <i class="fas fa-file-excel text-success"></i> Import Excel
+                </button>
+                {% else %}
+                <div class="stat-pill" style="border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); color: #93c5fd;">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Tatami Manager</span>
+                </div>
+                {% endif %}
+
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn-action" title="Kembali ke Dashboard Utama">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+                {% endif %}
+                <a href="{% url 'auth' %}?logout=1" class="btn-action btn-danger-outline" title="Keluar / Ganti Arena">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="main-container">
+
+        <!-- Notification Alerts -->
+        {% if messages %}
+            <div class="alert-wrap">
+                {% for message in messages %}
+                    <div class="alert-box {{ message.tags }}">
+                        <div>
+                            {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>{% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                            <span style="margin-left: 6px;">{{ message }}</span>
+                        </div>
+                        <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; cursor:pointer;">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Horizontal Tatami Selector Strip -->
+        <div class="tatami-bar">
+            <span class="tatami-bar-title"><i class="fas fa-tv"></i> ARENA:</span>
+            {% for t in tatamis %}
+                <a href="?tatami={{ t.pk }}" class="tatami-tab {% if selected_tatami and selected_tatami.pk == t.pk %}active{% endif %}">
+                    <span>Tatami {{ t.tatami_number }}</span>
+                    <span class="count-badge">{{ t.assigned_count }}</span>
+                </a>
+            {% empty %}
+                <span style="font-size: 12px; color: var(--text-muted); padding: 4px 8px;">Belum ada tatami yang dibuat untuk event ini.</span>
+            {% endfor %}
+        </div>
+
+        {% if selected_tatami %}
+            <!-- Active Match & Conflict Diagnostic Strip -->
+            <div class="match-strip">
+                <div class="match-strip-header">
+                    <div class="match-strip-title">
+                        <i class="fas fa-fist-raised text-danger"></i>
+                        <span>PARTAI BERJALAN &bull; TATAMI {{ selected_tatami.tatami_number }}</span>
+                    </div>
+
+                    <div id="activeMatchMetaWrapper" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span id="currentMatchCategory" style="font-size: 15px; font-weight: 800; color: #ffffff;">
+                            {% if active_match and active_match.bagan and active_match.bagan.nomor_tanding %}
+                                {{ active_match.bagan.nomor_tanding.nama_nomor_tanding }}
+                            {% endif %}
+                        </span>
+                        <span id="currentMatchRoundUrutan" style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 6px; background: rgba(255,255,255,0.08); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); {% if not active_match %}display: none;{% endif %}">
+                            {% if active_match %}Babak {{ active_match.round }} &bull; Partai {{ active_match.urutan }}{% endif %}
+                        </span>
+                        <span id="noActiveMatchBadge" style="font-size: 13px; color: var(--text-muted); {% if active_match %}display: none;{% endif %}">
+                            <i class="fas fa-clock"></i> Menunggu Pertandingan Dimulai
+                        </span>
+                    </div>
+                </div>
+
+                <div class="match-strip-athletes" id="activeMatchAthletesContainer" style="{% if not active_match %}display: none;{% endif %}">
+                    <div class="athlete-chip aka">
+                        <div>
+                            <span style="font-size: 10px; font-weight: 800; color: #ef4444; letter-spacing: 0.05em; display: block;">AKA (MERAH)</span>
+                            <span class="athlete-chip-name" id="currentMatchAkaName">{{ active_match.atlet1.nama_atlet|default:"-" }}</span>
+                        </div>
+                        <span class="athlete-chip-club" id="currentMatchAkaClub">
+                            {% if active_match.atlet1 and active_match.atlet1.perguruan %}
+                                <strong style="color: #ffffff; background: #dc2626; font-weight: 800; padding: 2px 10px; border-radius: 4px; font-size: 12px; letter-spacing: 0.02em; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">{{ active_match.atlet1.perguruan.nama_perguruan }}</strong>
+                            {% elif active_match.atlet1 and active_match.atlet1.utusan %}
+                                <strong style="color: #ffffff; background: #dc2626; font-weight: 800; padding: 2px 10px; border-radius: 4px; font-size: 12px; letter-spacing: 0.02em; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">{{ active_match.atlet1.utusan.nama_utusan }}</strong>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="athlete-chip ao">
+                        <div>
+                            <span style="font-size: 10px; font-weight: 800; color: #3b82f6; letter-spacing: 0.05em; display: block;">AO (BIRU)</span>
+                            <span class="athlete-chip-name" id="currentMatchAoName">{{ active_match.atlet2.nama_atlet|default:"-" }}</span>
+                        </div>
+                        <span class="athlete-chip-club" id="currentMatchAoClub">
+                            {% if active_match.atlet2 and active_match.atlet2.perguruan %}
+                                <strong style="color: #ffffff; background: #2563eb; font-weight: 800; padding: 2px 10px; border-radius: 4px; font-size: 12px; letter-spacing: 0.02em; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">{{ active_match.atlet2.perguruan.nama_perguruan }}</strong>
+                            {% elif active_match.atlet2 and active_match.atlet2.utusan %}
+                                <strong style="color: #ffffff; background: #2563eb; font-weight: 800; padding: 2px 10px; border-radius: 4px; font-size: 12px; letter-spacing: 0.02em; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">{{ active_match.atlet2.utusan.nama_utusan }}</strong>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Partai Berikutnya (Both athletes verified ready - Pure Teller) -->
+                {% if next_match %}
+                    <div class="next-match-preview" style="margin-top: 10px; padding: 10px 16px; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 12px;">
+                        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(59, 130, 246, 0.2); color: #93c5fd; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.4); display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-step-forward"></i> Partai Berikutnya
+                        </span>
+
+                        <span style="font-size: 13px; font-weight: 700; color: #f8fafc; background: rgba(255, 255, 255, 0.06); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                            Babak {{ next_match.round }} &bull; Partai {{ next_match.urutan }}
+                        </span>
+
+                        <div style="display: inline-flex; align-items: center; gap: 10px; font-size: 13px; flex-wrap: wrap;">
+                            <!-- AKA -->
+                            <span style="display: inline-flex; align-items: center; gap: 6px;">
+                                <span style="color: #fca5a5; font-weight: 700;">[AKA] {{ next_match.atlet1.nama_atlet }}</span>
+                                <strong style="color: #ffffff; background: #dc2626; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 11.5px; letter-spacing: 0.02em; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                                    {{ next_match.atlet1.perguruan.nama_perguruan|default:next_match.atlet1.utusan.nama_utusan|default:'-' }}
+                                </strong>
+                            </span>
+
+                            <strong style="color: var(--text-muted); font-size: 12px; margin: 0 4px;">VS</strong>
+
+                            <!-- AO -->
+                            <span style="display: inline-flex; align-items: center; gap: 6px;">
+                                <span style="color: #93c5fd; font-weight: 700;">[AO] {{ next_match.atlet2.nama_atlet }}</span>
+                                <strong style="color: #ffffff; background: #2563eb; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 11.5px; letter-spacing: 0.02em; box-shadow: 0 1px 3px rgba(0,0,0,0.4);">
+                                    {{ next_match.atlet2.perguruan.nama_perguruan|default:next_match.atlet2.utusan.nama_utusan|default:'-' }}
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Conflict warnings -->
+                {% if duplicate_perguruans %}
+                    <div class="conflict-warning-banner">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span><strong>Perhatian:</strong> Terdapat lebih dari 1 wasit dari perguruan yang sama (<strong>{{ duplicate_perguruans|join:", " }}</strong>) pada panel Tatami {{ selected_tatami.tatami_number }}. Disarankan diversifikasi perguruan.</span>
+                    </div>
+                {% endif %}
+                {% if duplicate_kab_kota %}
+                    <div class="conflict-warning-banner" style="margin-top: 8px; background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.3); color: #fde047;">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><strong>Perhatian:</strong> Terdapat lebih dari 1 wasit dari Kab/Kota yang sama (<strong>{{ duplicate_kab_kota|join:", " }}</strong>) pada panel Tatami {{ selected_tatami.tatami_number }}. Disarankan diversifikasi asal daerah.</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- 2-Column Workspace -->
+            <div class="workspace-grid">
+
+                <!-- Left Column: Current Tatami Panel (Officiating Crew) -->
+                <div class="section-box">
+                    <div class="section-header">
+                        <div class="section-title" style="flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-clipboard-check text-success"></i>
+                                <span>PANEL TATAMI {{ selected_tatami.tatami_number }}</span>
+                                <span id="panelCountBadge" style="font-size: 12px; font-weight: 700; color: #10b981; padding: 2px 8px; border-radius: 999px; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3);">
+                                    {{ current_tatami_assignments|length }} / {{ panel_rule.required_positions|length }} Wasit
+                                </span>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd;">
+                                <i class="fas fa-layer-group"></i> {{ panel_rule.format_name }}
+                            </span>
+                        </div>
+                        <div class="section-actions">
+                            <form method="POST" class="ajax-form" style="display: inline;" onsubmit="return confirm('Auto-susun panel wasit dengan perguruan & kab/kota berbeda serta tanpa konflik untuk Tatami {{ selected_tatami.tatami_number }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                                <input type="hidden" name="submit_type" value="auto_assign_panel">
+                                <button type="submit" class="btn-action btn-warning" title="Otomatis susun wasit sesuai format kategori ini">
+                                    <i class="fas fa-user-check"></i> Auto-Susun Panel
+                                </button>
+                            </form>
+                            {% if current_tatami_assignments %}
+                            <form method="POST" class="ajax-form" style="display: inline;" onsubmit="return confirm('Kosongkan semua penugasan wasit di Tatami {{ selected_tatami.tatami_number }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                                <input type="hidden" name="submit_type" value="kosongkan_tatami">
+                                <button type="submit" class="btn-action btn-danger-outline" title="Kosongkan panel tatami ini">
+                                    <i class="fas fa-trash-alt"></i> Kosongkan
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="section-body" id="tatamiPanelContainer">
+                        {% include "admin/partials/tatami_panel_list.html" %}
+                    </div>
+                </div>
+
+                <!-- Right Column: Referee Selection & Pool -->
+                <div class="section-box">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-users text-primary"></i>
+                            <span>POOL WASIT EVENT</span>
+                        </div>
+                        <div class="section-actions" style="display: flex; align-items: center; gap: 6px;">
+                            <a href="{% url 'admin-wasit' event_pk=event.pk %}" class="btn-action" style="font-size: 12px; padding: 5px 12px; text-decoration: none; color: #93c5fd; border-color: rgba(59, 130, 246, 0.4);" title="Kelola Master Wasit (Tambah Wasit, Import Excel, dll)">
+                                <i class="fas fa-cog"></i> Kelola Wasit Admin
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="section-body">
+                        <!-- Search & Filter Controls -->
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="wasitSearchInput" class="search-input" placeholder="Cari nama wasit, perguruan, kab/kota, atau lisensi..." onkeyup="filterWasitList()">
+                        </div>
+
+                        <!-- Filter Chips -->
+                        <div class="filter-chips">
+                            <button type="button" class="chip-btn active" data-filter="all" onclick="setWasitFilter('all', this)">
+                                Semua (<span id="chipCountAll">{{ pool_wasits|length }}</span>)
+                            </button>
+                            <button type="button" class="chip-btn" data-filter="priority" onclick="setWasitFilter('priority', this)" title="Prioritas 1 & 2: Beda Perguruan & Standby">
+                                ★ Prioritas 1 & 2 (<span id="chipCountPriority">{{ metrics.recommended_wasit }}</span>)
+                            </button>
+                            <button type="button" class="chip-btn" data-filter="pool-here" onclick="setWasitFilter('pool-here', this)" title="Wasit di Pool Tatami Ini">
+                                Pool Tatami Ini (<span id="chipCountPoolHere">{{ metrics.same_tatami_pool_count }}</span>)
+                            </button>
+                            <button type="button" class="chip-btn" data-filter="pool-other" onclick="setWasitFilter('pool-other', this)" title="Wasit Standby dari Tatami Lain (Bisa Pinjam)">
+                                Pool Tatami Lain (<span id="chipCountPoolOther">{{ metrics.other_tatami_pool_count }}</span>)
+                            </button>
+                            <button type="button" class="chip-btn" data-filter="available" onclick="setWasitFilter('available', this)" title="Semua Wasit yang Sedang Standby">
+                                Standby (<span id="chipCountAvailable">{{ metrics.available_wasit }}</span>)
+                            </button>
+                            <button type="button" class="chip-btn" data-filter="assigned-here" onclick="setWasitFilter('assigned-here', this)" title="Wasit yang Sedang Bertugas di Panel Tatami Ini">
+                                Panel Tatami Ini (<span id="chipCountHere">{{ current_tatami_assignments|length }}</span>)
+                            </button>
+                        </div>
+
+                        <!-- Wasit List -->
+                        <div class="wasit-list" id="wasitPoolContainer">
+                            {% include "admin/partials/wasit_pool_list.html" %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% else %}
+            <div class="empty-placeholder" style="padding: 60px 20px;">
+                <i class="fas fa-tv" style="font-size: 48px; opacity: 0.3;"></i>
+                <h4 style="color: var(--text-primary); font-family: 'Oswald', sans-serif;">PILIH ARENA TATAMI</h4>
+                <p style="color: var(--text-muted); font-size: 13px;">Silakan pilih salah satu arena tatami di atas untuk mengelola penugasan wasit.</p>
+            </div>
+        {% endif %}
+
+    </main>
+
+    <!-- Modal: Tambah Wasit Baru -->
+    <div class="modal-overlay" id="tambahWasitModal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <span class="modal-title"><i class="fas fa-user-plus text-primary"></i> Tambah Wasit Baru</span>
+                <button type="button" class="modal-close" onclick="closeModal('tambahWasitModal')">&times;</button>
+            </div>
+            <form method="POST" class="ajax-form" id="tambahWasitForm">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="tambah_wasit">
+                <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="newWasitName">Nama Wasit / Juri *</label>
+                        <input type="text" id="newWasitName" name="nama_wasit" class="form-control" required placeholder="Contoh: Sensei Budi Santoso">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newWasitPerguruan">Perguruan (Afiliasi)</label>
+                        <select id="newWasitPerguruan" name="perguruan" class="form-control">
+                            <option value="">-- Non-Perguruan / Pengprov / PB --</option>
+                            {% for perg in perguruans %}
+                                <option value="{{ perg.pk }}">{{ perg.nama_perguruan }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newWasitKabKota">Asal Kab / Kota</label>
+                        <input type="text" id="newWasitKabKota" name="kab_kota" class="form-control" placeholder="Contoh: Kota Bandung, Kab. Bogor">
+                    </div>
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label class="form-label" for="newWasitLisensi">Tingkat Lisensi</label>
+                            <input type="text" id="newWasitLisensi" name="lisensi" class="form-control" placeholder="Contoh: Wasit A Nasional">
+                        </div>
+                        <div>
+                            <label class="form-label" for="newWasitNoLisensi">Nomor Lisensi</label>
+                            <input type="text" id="newWasitNoLisensi" name="no_lisensi" class="form-control" placeholder="Nomor lisensi / sertifikat">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newWasitPosisi">Penugasan Awal</label>
+                        <select id="newWasitPosisi" name="posisi" class="form-control">
+                            <option value="pool">Standby di Pool Wasit (Belum Ditugaskan)</option>
+                            {% for code, label in posisi_choices %}
+                                {% if code != 'pool' %}
+                                    <option value="{{ code }}">Langsung Tugaskan ke Tatami {{ selected_tatami.tatami_number }} sebagai {{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" onclick="closeModal('tambahWasitModal')">Batal</button>
+                    <button type="submit" class="btn-action btn-primary"><i class="fas fa-save"></i> Simpan Wasit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Import Data Wasit Excel -->
+    <div class="modal-overlay" id="importWasitModal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <span class="modal-title"><i class="fas fa-file-excel text-success"></i> Import Data Wasit Excel</span>
+                <button type="button" class="modal-close" onclick="closeModal('importWasitModal')">&times;</button>
+            </div>
+            <form method="POST" action="{% url 'admin-wasit' event_pk=event.pk %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="import_wasit_excel">
+                <div class="modal-body">
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+                        Unggah file Excel (<strong>.xlsx</strong>) atau <strong>.csv</strong> berisi daftar wasit untuk event ini.
+                    </p>
+                    <div style="font-size: 11.5px; color: var(--text-muted); background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                        <strong>Format Kolom Excel:</strong><br>
+                        Kolom 1: <code>Nama Wasit</code> (Wajib)<br>
+                        Kolom 2: <code>Perguruan</code> (Opsional)<br>
+                        Kolom 3: <code>Kab / Kota</code> (Opsional)<br>
+                        Kolom 4: <code>Tingkat Lisensi</code> (Opsional)<br>
+                        Kolom 5: <code>Nomor Lisensi</code> (Opsional)<br>
+                        Kolom 6: <code>Nomor Tatami</code> (Opsional, contoh: 1, 2)<br>
+                        Kolom 7: <code>Posisi</code> (Opsional: referee, judge1, judge2, tatami_manager, dll)
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="excelWasitFile">Pilih File Spreadsheet *</label>
+                        <input type="file" id="excelWasitFile" name="excel_wasit" accept=".xlsx, .xls, .csv" required class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" onclick="closeModal('importWasitModal')">Batal</button>
+                    <button type="submit" class="btn-action btn-primary"><i class="fas fa-upload"></i> Unggah & Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notification Container for AJAX Updates -->
+    <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
+    <!-- Scripts -->
+    <script>
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notify ${type}`;
+            
+            let icon = 'fa-info-circle';
+            if (type === 'success') icon = 'fa-check-circle';
+            else if (type === 'error') icon = 'fa-exclamation-triangle';
+
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Search and filter logic for referee pool
+        let currentFilter = 'all';
+
+        function setWasitFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            filterWasitList();
+        }
+
+        function filterWasitList() {
+            const query = (document.getElementById('wasitSearchInput')?.value || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('#wasitPoolContainer .wasit-card');
+
+            cards.forEach(card => {
+                const isUsed = card.getAttribute('data-used') === 'true';
+                const isAssignedHere = card.getAttribute('data-assigned-here') === 'true';
+                const priority = parseInt(card.getAttribute('data-priority') || '8');
+                const highlightType = card.getAttribute('data-highlight-type') || '';
+                const name = card.getAttribute('data-name') || '';
+                const perguruan = card.getAttribute('data-perguruan') || '';
+                const kabKota = card.getAttribute('data-kab-kota') || '';
+                const lisensi = card.getAttribute('data-lisensi') || '';
+
+                // 1. Text search match
+                const matchesQuery = !query || name.includes(query) || perguruan.includes(query) || kabKota.includes(query) || lisensi.includes(query);
+
+                // 2. Filter chip match
+                let matchesFilter = true;
+                if (currentFilter === 'priority') {
+                    matchesFilter = (priority === 1 || priority === 2);
+                } else if (currentFilter === 'pool-here') {
+                    const inPoolHere = card.getAttribute('data-in-pool-here') === 'true';
+                    matchesFilter = inPoolHere;
+                } else if (currentFilter === 'pool-other') {
+                    matchesFilter = (priority === 2 || priority === 5);
+                } else if (currentFilter === 'available') {
+                    matchesFilter = (!isUsed);
+                } else if (currentFilter === 'assigned-here') {
+                    matchesFilter = isAssignedHere;
+                }
+
+                if (matchesQuery && matchesFilter) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+
+        // --- Modal System Handlers ---
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('active');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // --- AJAX Form Submission Engine (Pure AJAX, Zero Refreshes) ---
+        let isAjaxSubmitting = false;
+
+        async function submitAjaxForm(form, customSubmitType = null) {
+            if (isAjaxSubmitting) return;
+            isAjaxSubmitting = true;
+
+            const formData = new FormData(form);
+            if (customSubmitType) {
+                formData.set('submit_type', customSubmitType);
+            }
+            formData.set('ajax', '1');
+
+            try {
+                showToast('Menyimpan perubahan...', 'info');
+
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.message || `Gagal memproses (HTTP ${response.status})`);
+                }
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    if (data.reload) {
+                        showToast(data.message || 'Data diperbarui. Memuat ulang...', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
+                        return;
+                    }
+
+                    if (data.panel_html) {
+                        const panelContainer = document.getElementById('tatamiPanelContainer');
+                        if (panelContainer) panelContainer.innerHTML = data.panel_html;
+                    }
+                    if (data.pool_html) {
+                        const poolContainer = document.getElementById('wasitPoolContainer');
+                        if (poolContainer) {
+                            poolContainer.innerHTML = data.pool_html;
+                            filterWasitList();
+                        }
+                    }
+
+                    // Update live metrics & counters
+                    if (data.metrics) {
+                        const assignedEl = document.getElementById('navbarAssignedCount');
+                        const totalEl = document.getElementById('navbarTotalCount');
+                        const availEl = document.getElementById('navbarAvailableCount');
+                        if (assignedEl) assignedEl.textContent = data.metrics.assigned_wasit;
+                        if (totalEl) totalEl.textContent = data.metrics.total_wasit;
+                        if (availEl) availEl.textContent = data.metrics.available_wasit;
+
+                        const chipAll = document.getElementById('chipCountAll');
+                        const chipPrio = document.getElementById('chipCountPriority');
+                        const chipAvail = document.getElementById('chipCountAvailable');
+                        const chipHere = document.getElementById('chipCountHere');
+                        const chipPoolHere = document.getElementById('chipCountPoolHere');
+                        const chipPoolOther = document.getElementById('chipCountPoolOther');
+                        if (chipAll) chipAll.textContent = data.metrics.total_wasit;
+                        if (chipPrio) chipPrio.textContent = data.metrics.recommended_wasit;
+                        if (chipAvail) chipAvail.textContent = data.metrics.available_wasit;
+                        if (chipHere && data.assigned_count !== undefined) chipHere.textContent = data.assigned_count;
+                        if (chipPoolHere && data.metrics.same_tatami_pool_count !== undefined) chipPoolHere.textContent = data.metrics.same_tatami_pool_count;
+                        if (chipPoolOther && data.metrics.other_tatami_pool_count !== undefined) chipPoolOther.textContent = data.metrics.other_tatami_pool_count;
+                    }
+
+                    if (data.assigned_count !== undefined && data.required_count !== undefined) {
+                        const badge = document.getElementById('panelCountBadge');
+                        if (badge) badge.textContent = `${data.assigned_count} / ${data.required_count} Wasit`;
+                        
+                        const activeTabBadge = document.querySelector('.tatami-tab.active .count-badge');
+                        if (activeTabBadge) activeTabBadge.textContent = data.assigned_count;
+                    }
+
+                    // Close modal if form was inside one
+                    const modal = form.closest('.modal-overlay');
+                    if (modal) {
+                        modal.classList.remove('active');
+                        form.reset();
+                    }
+
+                    showToast(data.message || 'Data berhasil diperbarui!', 'success');
+                } else {
+                    showToast(data.message || 'Terjadi kesalahan saat memproses data', 'error');
+                }
+            } catch (err) {
+                console.error('[AJAX Error]:', err);
+                showToast(err.message || 'Koneksi ke server bermasalah', 'error');
+            } finally {
+                isAjaxSubmitting = false;
+            }
+        }
+
+        // Global Event Delegation for AJAX forms
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form && (form.classList.contains('ajax-form') || form.closest('#tatamiPanelContainer') || form.closest('#wasitPoolContainer') || form.querySelector('[name="submit_type"]'))) {
+                // If form is multipart or file upload, let standard submit happen (e.g. excel import)
+                if (form.getAttribute('enctype') === 'multipart/form-data') {
+                    return;
+                }
+                e.preventDefault();
+                const submitter = e.submitter;
+                const customType = submitter && submitter.getAttribute('name') === 'submit_type' ? submitter.value : null;
+                submitAjaxForm(form, customType);
+            }
+        });
+
+        // Quick role changer on select change inside panel
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('ajax-role-select')) {
+                const form = e.target.closest('form');
+                if (form) {
+                    submitAjaxForm(form);
+                }
+            }
+        });
+
+        // --- WebSocket Real-Time Sync (LO Paradigm) ---
+        const tatamiPk = "{{ selected_tatami.pk }}";
+        let currentMatchPk = "{{ active_match.pk|default:'' }}";
+        let socket = null;
+        const reconnectInterval = 2500;
+
+        function handleRealtimeMatchUpdate(d) {
+            if (!d) return;
+
+            const hasActiveMatch = Boolean(d.match_pk);
+            const catEl = document.getElementById('currentMatchCategory');
+            const ruEl = document.getElementById('currentMatchRoundUrutan');
+            const noMatchEl = document.getElementById('noActiveMatchBadge');
+            const athletesEl = document.getElementById('activeMatchAthletesContainer');
+            const akaName = document.getElementById('currentMatchAkaName');
+            const akaClub = document.getElementById('currentMatchAkaClub');
+            const aoName = document.getElementById('currentMatchAoName');
+            const aoClub = document.getElementById('currentMatchAoClub');
+
+            // If match PK changed externally (or was started from empty, or reset to empty), reload to refresh dynamic panel rules and referee conflicts!
+            if (d.match_pk && String(d.match_pk) !== String(currentMatchPk)) {
+                window.location.reload();
+                return;
+            }
+            if (!d.match_pk && currentMatchPk) {
+                window.location.reload();
+                return;
+            }
+
+            if (hasActiveMatch) {
+                if (catEl) catEl.textContent = d.nomor_tanding || '';
+                if (ruEl) {
+                    ruEl.style.display = 'inline-block';
+                    ruEl.innerHTML = `Babak ${d.round || '-'} &bull; Partai ${d.urutan || '-'}`;
+                }
+                if (noMatchEl) noMatchEl.style.display = 'none';
+                if (athletesEl) athletesEl.style.display = 'grid';
+                if (akaName) akaName.textContent = d.atlet_red || '-';
+                if (akaClub) akaClub.textContent = (d.atlet_red_perguruan && d.atlet_red_perguruan !== '-') ? d.atlet_red_perguruan : (d.atlet_red_utusan || '-');
+                if (aoName) aoName.textContent = d.atlet_blue || '-';
+                if (aoClub) aoClub.textContent = (d.atlet_blue_perguruan && d.atlet_blue_perguruan !== '-') ? d.atlet_blue_perguruan : (d.atlet_blue_utusan || '-');
+            } else {
+                if (catEl) catEl.textContent = '';
+                if (ruEl) ruEl.style.display = 'none';
+                if (noMatchEl) noMatchEl.style.display = 'inline-block';
+                if (athletesEl) athletesEl.style.display = 'none';
+            }
+        }
+
+        function initWebSocket() {
+            if (!tatamiPk) return;
+
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const wsUrl = protocol + window.location.host + `/ws/tatami-manager/${tatamiPk}`;
+
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = function() {
+                console.log('[TatamiManager WebSocket] Connected to Tatami', tatamiPk);
+                const pill = document.getElementById('wsPill');
+                const txt = document.getElementById('wsText');
+                if (pill) pill.classList.remove('disconnected');
+                if (txt) txt.textContent = 'Live Sync';
+            };
+
+            socket.onclose = function() {
+                console.warn('[TatamiManager WebSocket] Disconnected. Reconnecting in', reconnectInterval, 'ms');
+                const pill = document.getElementById('wsPill');
+                const txt = document.getElementById('wsText');
+                if (pill) pill.classList.add('disconnected');
+                if (txt) txt.textContent = 'Reconnecting...';
+                setTimeout(initWebSocket, reconnectInterval);
+            };
+
+            socket.onerror = function(err) {
+                console.error('[TatamiManager WebSocket] Error:', err);
+                socket.close();
+            };
+
+            socket.onmessage = function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    console.log('[TatamiManager WebSocket] Received:', data);
+
+                    if (data.command === 'get_atlet') {
+                        handleRealtimeMatchUpdate(data.details);
+                    }
+                } catch (err) {
+                    console.error('[TatamiManager WebSocket] Parsing error:', err);
+                }
+            };
+        }
+
+        // Initialize WebSocket on DOM load
+        window.addEventListener('DOMContentLoaded', function() {
+            initWebSocket();
+        });
+    </script>
+</body>
+</html>

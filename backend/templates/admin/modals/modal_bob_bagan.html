@@ -1,0 +1,41 @@
+<!-- 8. BOB Bagan Modal -->
+<div class="modal fade" id="bobBaganModal" tabindex="-1" aria-labelledby="bobBaganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bobBaganModalLabel"><i class="fas fa-trophy me-2 text-danger"></i>Drawing Bagan Best of the Best (BOB)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="nama_bob" class="form-label">Judul Nomor Tanding &amp; Bagan BOB:</label>
+                        <input class="form-control" type="text" id="nama_bob" name="nama_bob" placeholder="Contoh: BEST OF THE BEST KATA SENIOR PUTRA" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="bob_bagan_pk" class="form-label">Pilih Bagan Sumber (Juara 1 akan diikutsertakan):</label>
+                        <select class="form-select select2" id="bob_bagan_pk" name="bagan_pk" multiple style="width: 100%;">
+                            {% for bagan in bagans %}
+                            <option value="{{ bagan.pk }}">{{ bagan.nama_bagan }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="bob_shuffle_type" class="form-label">Tipe Pemisahan (Shuffle):</label>
+                        <select class="form-select" id="bob_shuffle_type" name="shuffle_type">
+                            <option value="perguruan">Perguruan</option>
+                            <option value="kontingen">Kontingen / Utusan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="bob_bagan" class="btn btn-primary">
+                        <i class="fas fa-trophy me-1"></i> Buat Bagan BOB
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+<!-- 6. Tambah Bagan Modal -->
+<div class="modal fade" id="tambahBaganModal" tabindex="-1" aria-labelledby="tambahBaganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tambahBaganModalLabel"><i class="fas fa-plus-circle me-2 text-primary"></i>Tambah Bagan Satuan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="nomor_tanding_pk" class="form-label">Nomor Tanding:</label>
+                        <select class="form-select select2" id="nomor_tanding_pk" name="nomor_tanding_pk" required style="width: 100%;">
+                            {% for nomor_tanding in nomor_tandings %}
+                            <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }} ({{ nomor_tanding.jumlat_atlet }} atlet)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="tipe" class="form-label">Tipe Bagan:</label>
+                        <select class="form-select" id="tipe" name="tipe">
+                            <option value="normal">Normal (Bagan Gugur Standar)</option>
+                            <option value="referchange">Referchange</option>
+                            <option value="round_robin">Round Robin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="tambah_bagan" class="btn btn-primary">
+                        <i class="fas fa-check me-1"></i> Lanjutkan Buat Bagan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

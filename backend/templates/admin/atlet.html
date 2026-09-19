@@ -3,200 +3,469 @@
 {% block content %}
 <div class="container">
     <div class="page-inner">
-        <div class="page-header">
-          <h3 class="fw-bold mb-3"></h3>
+        <!-- Page Header -->
+        <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);">
+                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: var(--text-secondary); text-decoration: none;">Dashboard</a></li>
+                    <li><span style="opacity: 0.5;">/</span></li>
+                    <li style="color: var(--text-primary); font-weight: 600;">Data Atlet</li>
+                </ul>
+                <h3 class="fw-bold mb-1" style="color: #ffffff; font-family: 'Oswald', sans-serif; letter-spacing: 0.02em;">
+                    MANAJEMEN DATA ATLET
+                </h3>
+                <p class="text-muted mb-0" style="font-size: 13px;">
+                    Kelola data peserta, verifikasi NIK, kontingen, perguruan, dan kategori tanding untuk event <strong>{{ event.nama_event }}</strong>.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <form method="POST" style="display: inline;" onsubmit="return confirm('Tarik data atlet untuk Event Web:\n[#{{ event_mapping.hosted_event_id|default:event.pk }}] {{ event_mapping.hosted_event_name|default:event.nama_event }}\n\nTarget Server: {{ sync_config.label }} ({{ sync_config.url }})\n\n{% if event_mapping.is_mismatch %}PERHATIAN: Nama event lokal dan web publik berbeda!\n{% endif %}\nData yang sudah ada akan diperbarui dan atlet baru akan ditambahkan tanpa duplikasi.');">
+                    {% csrf_token %}
+                    <button type="submit" name="submit_type" value="pull_atlet" class="btn btn-success d-flex align-items-center gap-2" style="font-weight: 600; padding: 8px 14px; border-radius: 8px; font-size: 13px;" title="Tarik dari Web Server: {{ sync_config.url }}">
+                        <i class="fas fa-cloud-download-alt"></i>
+                        <span>Tarik Atlet (Web)</span>
+                    </button>
+                </form>
+                <button type="button" class="btn btn-dark border border-secondary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#importAtletModal" style="font-weight: 600; padding: 8px 14px; border-radius: 8px; font-size: 13px;">
+                    <i class="fas fa-file-excel text-success"></i>
+                    <span>Import Excel</span>
+                </button>
+                <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2" id="downloadTemplateBtn" style="padding: 8px 12px; border-radius: 8px; font-size: 13px;" title="Unduh format contoh CSV / Excel">
+                    <i class="fas fa-download"></i>
+                    <span>Format CSV</span>
+                </button>
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#tambahAtletModal" style="font-weight: 600; padding: 8px 16px; border-radius: 8px; font-size: 13px;">
+                    <i class="fas fa-plus"></i>
+                    <span>Tambah Atlet</span>
+                </button>
+            </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">
-                            Atlet Event {{ event.nama_event }}
-                            <input type="text" id="atlet-search-input" class="form-control" placeholder="Cari nama, NIK, perguruan, utusan, atau nomor tanding..." style="width: 600px;">
-                            <small class="form-text text-muted" id="atlet-search-count"></small>
-                        </div>
-                            
-                        <div>
-                            <a href="#" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#tambahAtletModal">Tambah Atlet</a>
-                            <div class="modal fade" id="tambahAtletModal" tabindex="-1" aria-labelledby="tambahAtletModal" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                    <div class="modal-header bg-dark text-white">
-                                        <h5 class="modal-title">Tambah Atlet</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form method="POST">
-                                        {% csrf_token %}
-                                        <div class="modal-body">
-                                            <div class="form-group">
-                                                <label for="nama_atlet">Nama Atlet</label>
-                                                <input type="text" class="form-control" id="nama_atlet" name="nama_atlet">
-                                                <small class="form-text text-muted">Akan auto uppercase.</small>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="nik">NIK</label>
-                                                <input type="text" class="form-control" id="nik" name="nik" maxlength="16" inputmode="numeric">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="perguruan">Perguruan</label>
-                                                <select class="form-control" id="perguruan" name="perguruan">
-                                                    {% for perguruan in perguruans %}
-                                                        <option value="{{ perguruan.pk }}">{{ perguruan.nama_perguruan }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
 
-                                            <div class="form-group">
-                                                <label for="utusan">Utusan</label>
-                                                <select class="form-control" id="utusan" name="utusan">
-                                                    {% for utusan in utusans %}
-                                                        <option value="{{ utusan.pk }}">{{ utusan.nama_utusan }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="nomor_tanding">Nomor Tanding</label>
-                                                <select class="form-control" id="nomor_tanding" name="nomor_tanding">
-                                                    {% for nomor_tanding in nomor_tandings %}
-                                                        <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" name="submit_type" value="tambah_atlet" class="btn btn-primary">Tambah</button>
-                                        </div>
-                                    </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="#" class="btn btn-dark" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#importAtletModal">Import Atlet</a>
-                            <div class="modal fade" id="importAtletModal" tabindex="-1" aria-labelledby="importAtletModal" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title">Import Atlet</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form method="POST" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <div class="modal-body">
-                                            <div class="form-group">
-                                                <label for="excel_atlet">File Excel</label>
-                                                <input type="file" class="form-control" id="excel_atlet" name="excel_atlet" accept=".xls,.xlsx">
-                                                <small class="form-text text-muted">Hanya menerima file excel dengan format berikut: <br><b>(Nama Atlet/NIK/Perguruan/Utusan/Nomor Tanding)</b></small>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" name="submit_type" value="import_atlet" class="btn btn-primary">Import</button>
-                                        </div>
-                                    </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Notification Alerts -->
+        {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="border-radius: 8px;">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                            <th scope="col" style="text-align: center;">No</th>
-                            <th scope="col" style="text-align: center;">Nama Atlet</th>
-                            <th scope="col" style="text-align: center;">NIK</th>
-                            <th scope="col" style="text-align: center;">Perguruan</th>
-                            <th scope="col" style="text-align: center;">Utusan</th>
-                            <th scope="col" style="text-align: center;">Nomor Tanding</th>
-                            <th scope="col" style="text-align: center;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for atlet in atlets %}
-                            <tr id="atlet-row-{{ atlet.pk }}" data-search="{{ atlet.nama_atlet }} {{ atlet.nik }} {{ atlet.perguruan.nama_perguruan }} {{ atlet.utusan.nama_utusan }} {{ atlet.nomor_tanding.nama_nomor_tanding }}">
-                                <td>{{ forloop.counter }}</td>
-                                <td style="text-align: center;"><b class="atlet-nama-display">{{ atlet.nama_atlet }}</b></td>
-                                <td style="text-align: center;"><b class="atlet-nama-display">{{ atlet.nik }}</b></td>
-                                <td style="text-align: center;"><b class="atlet-perguruan-display">{{ atlet.perguruan.nama_perguruan }}</b></td>
-                                <td style="text-align: center;"><b class="atlet-utusan-display">{{ atlet.utusan.nama_utusan }}</b></td>
-                                <td style="text-align: center;"><b class="atlet-nomor-tanding-display">{{ atlet.nomor_tanding.nama_nomor_tanding }}</b></td>
-                                <td style="text-align: center;">
-                                    <button type="button" class="btn btn-warning edit-atlet-btn" style="font-size: inherit; padding: 5px 10px;"
-                                            data-bs-toggle="modal" data-bs-target="#editAtletModal"
-                                            data-atlet-id="{{ atlet.pk }}"
-                                            data-nama="{{ atlet.nama_atlet }}"
-                                            data-nik="{{ atlet.nik|default:'' }}"
-                                            data-perguruan-id="{{ atlet.perguruan.pk|default:'' }}"
-                                            data-utusan-id="{{ atlet.utusan.pk|default:'' }}"
-                                            data-nomor-tanding-id="{{ atlet.nomor_tanding.pk|default:'' }}">
-                                        Edit
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                        </table>
+        <!-- Metric Stat Cards -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Total Atlet -->
+            <div class="col-6 col-md-3">
+                <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Total Atlet</span>
+                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.05); color: var(--text-primary);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1 text-white">{{ metrics.total }}</h3>
+                        <small class="text-muted" style="font-size: 11px;">Seluruh atlet terdaftar</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Tournament / Prestasi -->
+            <div class="col-6 col-md-3">
+                <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Tournament</span>
+                            <div class="p-2 rounded" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1 text-white">{{ metrics.tournament }}</h3>
+                        <small class="text-muted" style="font-size: 11px;">Peserta kategori prestasi</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Festival -->
+            <div class="col-6 col-md-3">
+                <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Festival</span>
+                            <div class="p-2 rounded" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1 text-warning">{{ metrics.festival }}</h3>
+                        <small class="text-muted" style="font-size: 11px;">Peserta kategori festival</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Tanpa NIK -->
+            <div class="col-6 col-md-3">
+                <div class="card card-stats mb-0 h-100" style="background: {% if metrics.tanpa_nik > 0 %}rgba(245, 158, 11, 0.08){% else %}var(--bg-surface){% endif %}; border: 1px solid {% if metrics.tanpa_nik > 0 %}rgba(245, 158, 11, 0.4){% else %}var(--border-color){% endif %}; border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="{% if metrics.tanpa_nik > 0 %}text-warning{% else %}text-secondary{% endif %} fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Tanpa NIK</span>
+                            <div class="p-2 rounded" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1 {% if metrics.tanpa_nik > 0 %}text-warning{% else %}text-white{% endif %}">{{ metrics.tanpa_nik }}</h3>
+                        <small class="{% if metrics.tanpa_nik > 0 %}text-warning opacity-75{% else %}text-muted{% endif %}" style="font-size: 11px;">
+                            {% if metrics.tanpa_nik > 0 %}Perlu verifikasi nomor identitas{% else %}Seluruh atlet memiliki NIK{% endif %}
+                        </small>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Filter Tabs & Search Bar Card -->
+        <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <!-- Filter Pills -->
+                    <div class="d-flex align-items-center flex-wrap gap-1" id="filterTabs">
+                        <button type="button" class="btn btn-sm btn-secondary fw-bold text-white active-tab" data-filter="all" style="border-radius: 8px; font-size: 13px;">
+                            Semua <span class="badge bg-dark ms-1">{{ metrics.total }}</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="tournament" style="border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-trophy me-1 text-primary"></i> Tournament <span class="badge bg-dark text-white ms-1">{{ metrics.tournament }}</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="festival" style="border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-medal me-1 text-warning"></i> Festival <span class="badge bg-dark text-white ms-1">{{ metrics.festival }}</span>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="tanpa-nik" style="border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-exclamation-triangle me-1 text-warning"></i> Tanpa NIK <span class="badge {% if metrics.tanpa_nik > 0 %}bg-warning text-dark{% else %}bg-dark text-white{% endif %} ms-1">{{ metrics.tanpa_nik }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Client-Side Search -->
+                    <div class="d-flex align-items-center" style="max-width: 360px; width: 100%;">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text" style="background: var(--bg-input); border-color: var(--border-color); color: var(--text-muted);">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" id="atlet-search-input" class="form-control" placeholder="Cari nama, NIK, perguruan, kontingen..." style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+            <div class="card-header d-flex align-items-center justify-content-between p-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="fw-bold mb-0 text-white" style="font-size: 15px;">
+                        <i class="fas fa-users me-1 text-primary"></i> Daftar Atlet Peserta
+                    </h5>
+                    <span class="badge bg-dark text-muted" id="atlet-search-count" style="font-size: 11px;">Menampilkan {{ atlets|length }} atlet</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted);">
+                    <i class="fas fa-info-circle me-1"></i> Klik Edit untuk update NIK, perguruan, kontingen, atau nomor tanding
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="atletTable" style="color: var(--text-primary);">
+                    <thead style="background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">
+                        <tr>
+                            <th style="width: 50px; text-align: center;">No</th>
+                            <th style="min-width: 200px;">Nama Atlet</th>
+                            <th style="min-width: 130px; text-align: center;">NIK</th>
+                            <th style="min-width: 140px;">Perguruan</th>
+                            <th style="min-width: 150px;">Utusan / Kontingen</th>
+                            <th style="min-width: 220px;">Nomor Tanding &amp; Klasifikasi</th>
+                            <th style="width: 120px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 13px;">
+                        {% for atlet in atlets %}
+                        <tr id="atlet-row-{{ atlet.pk }}" 
+                            data-kategori="{{ atlet.kategori_tipe|lower }}"
+                            data-has-nik="{% if atlet.nik %}1{% else %}0{% endif %}"
+                            data-search="{{ atlet.nama_atlet }} {{ atlet.nik|default:'' }} {{ atlet.perguruan.nama_perguruan|default:'' }} {{ atlet.utusan.nama_utusan|default:'' }} {{ atlet.nomor_tanding.nama_nomor_tanding|default:'' }}"
+                            style="border-bottom: 1px solid var(--border-color);">
+                            <td style="text-align: center; color: var(--text-muted);">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <b class="atlet-nama-display text-white" style="font-size: 13.5px;">{{ atlet.nama_atlet }}</b>
+                                    {% if atlet.kategori_tipe == 'BOB' %}
+                                        <span class="badge bg-danger" style="font-size: 10px;">BOB</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if atlet.nik %}
+                                    <span class="badge bg-dark border border-secondary text-light font-monospace atlet-nik-display" style="font-size: 11.5px; letter-spacing: 0.05em;">
+                                        {{ atlet.nik }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark atlet-nik-display" style="font-size: 11px;">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Belum Ada
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="atlet-perguruan-display fw-semibold text-light">
+                                    {{ atlet.perguruan.nama_perguruan|default:"-" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="atlet-utusan-display text-light">
+                                    {{ atlet.utusan.nama_utusan|default:"-" }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span class="atlet-nomor-tanding-display fw-semibold text-white" style="font-size: 12.5px;">
+                                        {{ atlet.nomor_tanding.nama_nomor_tanding|default:"Belum Ditentukan" }}
+                                    </span>
+                                    <div class="d-flex align-items-center flex-wrap gap-1">
+                                        {% if atlet.kategori_tipe == 'Festival' %}
+                                            <span class="badge bg-warning text-dark" style="font-size: 10px;">Festival</span>
+                                        {% elif atlet.kategori_tipe == 'BOB' %}
+                                            <span class="badge bg-danger" style="font-size: 10px;">BOB</span>
+                                        {% else %}
+                                            <span class="badge bg-primary" style="font-size: 10px;">Tournament</span>
+                                        {% endif %}
+
+                                        {% if atlet.disiplin == 'Kata' %}
+                                            <span class="badge bg-warning text-dark" style="font-size: 10px;">Kata</span>
+                                        {% elif atlet.disiplin == 'Kumite' %}
+                                            <span class="badge bg-danger" style="font-size: 10px;">Kumite</span>
+                                        {% endif %}
+
+                                        {% if atlet.gender == 'Putra' %}
+                                            <span class="badge bg-info text-dark" style="font-size: 10px;">Putra</span>
+                                        {% elif atlet.gender == 'Putri' %}
+                                            <span class="badge" style="background: #ec4899; color: #fff; font-size: 10px;">Putri</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="text-align: center; white-space: nowrap;">
+                                <button type="button" class="btn btn-warning btn-sm edit-atlet-btn" style="font-size: 12px; padding: 4px 8px; border-radius: 6px;"
+                                        data-bs-toggle="modal" data-bs-target="#editAtletModal"
+                                        data-atlet-id="{{ atlet.pk }}"
+                                        data-nama="{{ atlet.nama_atlet }}"
+                                        data-nik="{{ atlet.nik|default:'' }}"
+                                        data-perguruan-id="{{ atlet.perguruan.pk|default:'' }}"
+                                        data-utusan-id="{{ atlet.utusan.pk|default:'' }}"
+                                        data-nomor-tanding-id="{{ atlet.nomor_tanding.pk|default:'' }}"
+                                        title="Edit Atlet">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm hapus-atlet-btn ms-1" style="font-size: 12px; padding: 4px 8px; border-radius: 6px;"
+                                        data-bs-toggle="modal" data-bs-target="#hapusAtletModal"
+                                        data-atlet-id="{{ atlet.pk }}"
+                                        data-nama="{{ atlet.nama_atlet }}"
+                                        title="Hapus Atlet">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="fas fa-user-slash fa-2x text-secondary opacity-50"></i></div>
+                                <div>Belum ada data atlet untuk event ini.</div>
+                                <div class="small mt-1">Gunakan tombol <strong>Tarik Atlet (Web)</strong> atau <strong>Tambah Atlet</strong> untuk memulai.</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <!-- Modal Tambah Atlet -->
+    <div class="modal fade" id="tambahAtletModal" tabindex="-1" aria-labelledby="tambahAtletModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                <div class="modal-header bg-dark text-white" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title" id="tambahAtletModalLabel"><i class="fas fa-user-plus me-2 text-primary"></i>Tambah Atlet Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label for="nama_atlet" class="form-label text-white">Nama Atlet:</label>
+                            <input type="text" class="form-control" id="nama_atlet" name="nama_atlet" placeholder="Contoh: AHMAD FAUZI" required>
+                            <small class="form-text text-muted" style="font-size: 11px;">Nama akan otomatis disimpan dalam huruf kapital (uppercase).</small>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="nik" class="form-label text-white">NIK (16 Digit):</label>
+                            <input type="text" class="form-control" id="nik" name="nik" maxlength="16" inputmode="numeric" placeholder="Contoh: 3201010101010001">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="perguruan" class="form-label text-white">Perguruan:</label>
+                            <select class="form-control select2" id="perguruan" name="perguruan" style="width: 100%;">
+                                <option value="">-- Pilih Perguruan (Opsional) --</option>
+                                {% for perguruan in perguruans %}
+                                    <option value="{{ perguruan.pk }}">{{ perguruan.nama_perguruan }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="utusan" class="form-label text-white">Utusan / Kontingen:</label>
+                            <select class="form-control select2" id="utusan" name="utusan" style="width: 100%;">
+                                <option value="">-- Pilih Utusan (Opsional) --</option>
+                                {% for utusan in utusans %}
+                                    <option value="{{ utusan.pk }}">{{ utusan.nama_utusan }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="nomor_tanding" class="form-label text-white">Nomor Tanding:</label>
+                            <select class="form-control select2" id="nomor_tanding" name="nomor_tanding" style="width: 100%;">
+                                <option value="">-- Pilih Nomor Tanding --</option>
+                                {% for nomor_tanding in nomor_tandings %}
+                                    <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" name="submit_type" value="tambah_atlet" class="btn btn-primary font-weight-bold">
+                            <i class="fas fa-check me-1"></i> Simpan Atlet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Import Atlet -->
+    <div class="modal fade" id="importAtletModal" tabindex="-1" aria-labelledby="importAtletModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                <div class="modal-header bg-success text-white" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title" id="importAtletModalLabel"><i class="fas fa-file-excel me-2"></i>Import Data Atlet dari Excel</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label for="excel_atlet" class="form-label text-white fw-bold">Pilih File Excel / CSV:</label>
+                            <input type="file" class="form-control" id="excel_atlet" name="excel_atlet" accept=".xls,.xlsx,.csv" required>
+                            <div class="mt-2 p-3 rounded" style="background: rgba(255,255,255,0.05); font-size: 12.5px; border: 1px solid var(--border-color);">
+                                <b class="text-white">Format Kolom yang Didukung:</b>
+                                <ul class="mb-1 ps-3 mt-1 text-muted" style="font-size: 12px;">
+                                    <li><b>5 Kolom:</b> Nama Atlet | NIK | Perguruan | Utusan | Nomor Tanding</li>
+                                    <li><b>4 Kolom:</b> Nama Atlet | Perguruan | Utusan | Nomor Tanding</li>
+                                </ul>
+                                <span class="text-white-50 small"><i class="fas fa-info-circle me-1"></i>Baris pertama (header) akan otomatis dilewati. Perguruan &amp; Utusan baru akan otomatis didaftarkan.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="downloadTemplateCsv()">
+                            <i class="fas fa-download me-1"></i> Unduh Contoh
+                        </button>
+                        <div>
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" name="submit_type" value="import_atlet" class="btn btn-success btn-sm font-weight-bold">
+                                <i class="fas fa-upload me-1"></i> Mulai Import
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Atlet -->
     <div class="modal fade" id="editAtletModal" tabindex="-1" aria-labelledby="editAtletModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="editAtletModalLabel">Edit Atlet</h5>
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                <div class="modal-header bg-dark text-white" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title" id="editAtletModalLabel"><i class="fas fa-user-edit me-2 text-warning"></i>Edit Data Atlet</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editAtletForm">
                     {% csrf_token %}
                     <input type="hidden" id="edit-atlet-id" name="atlet_id">
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="edit-nama-atlet">Nama Atlet</label>
-                            <input type="text" class="form-control" id="edit-nama-atlet" name="nama_atlet">
-                            <small class="form-text text-muted">Akan auto uppercase.</small>
+                        <div class="form-group mb-3">
+                            <label for="edit-nama-atlet" class="form-label text-white">Nama Atlet:</label>
+                            <input type="text" class="form-control" id="edit-nama-atlet" name="nama_atlet" required>
+                            <small class="form-text text-muted" style="font-size: 11px;">Akan otomatis diubah menjadi huruf kapital.</small>
                         </div>
-                        <div class="form-group">
-                            <label for="edit-nik">NIK</label>
+                        <div class="form-group mb-3">
+                            <label for="edit-nik" class="form-label text-white">NIK (16 Digit):</label>
                             <input type="text" class="form-control" id="edit-nik" name="nik" maxlength="16" inputmode="numeric">
                         </div>
-                        <div class="form-group">
-                            <label for="edit-perguruan">Perguruan</label>
+                        <div class="form-group mb-3">
+                            <label for="edit-perguruan" class="form-label text-white">Perguruan:</label>
                             <select class="form-control" id="edit-perguruan" name="perguruan">
+                                <option value="">-- Pilih Perguruan (Opsional) --</option>
                                 {% for perguruan in perguruans %}
                                     <option value="{{ perguruan.pk }}">{{ perguruan.nama_perguruan }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="edit-utusan">Utusan</label>
+                        <div class="form-group mb-3">
+                            <label for="edit-utusan" class="form-label text-white">Utusan / Kontingen:</label>
                             <select class="form-control" id="edit-utusan" name="utusan">
+                                <option value="">-- Pilih Utusan (Opsional) --</option>
                                 {% for utusan in utusans %}
                                     <option value="{{ utusan.pk }}">{{ utusan.nama_utusan }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="edit-nomor-tanding">Nomor Tanding</label>
+                        <div class="form-group mb-0">
+                            <label for="edit-nomor-tanding" class="form-label text-white">Nomor Tanding:</label>
                             <select class="form-control" id="edit-nomor-tanding" name="nomor_tanding">
+                                <option value="">-- Pilih Nomor Tanding --</option>
                                 {% for nomor_tanding in nomor_tandings %}
                                     <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div id="edit-atlet-error" class="text-danger" style="display:none; margin-top: 8px; font-size: 13px;"></div>
+                        <div id="edit-atlet-error" class="alert alert-danger py-2 mt-3 mb-0" style="display:none; font-size: 13px;"></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="edit-atlet-submit-btn">Simpan</button>
+                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning text-dark font-weight-bold" id="edit-atlet-submit-btn">
+                            <i class="fas fa-save me-1"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hapus Atlet -->
+    <div class="modal fade" id="hapusAtletModal" tabindex="-1" aria-labelledby="hapusAtletModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                <div class="modal-header bg-danger text-white" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title" id="hapusAtletModalLabel"><i class="fas fa-trash-alt me-2"></i>Konfirmasi Hapus Atlet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="hapus_atlet">
+                    <input type="hidden" name="atlet_id" id="hapus-atlet-id">
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menghapus atlet <b id="hapus-atlet-nama" class="text-danger"></b> dari event ini?</p>
+                        <div class="alert alert-warning py-2 mb-0" style="font-size: 12.5px;">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Jika atlet sudah terdaftar dalam partai bagan, bagan terkait mungkin perlu di-drawing ulang. Tindakan ini tidak dapat dibatalkan.
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger font-weight-bold">
+                            <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Atlet
+                        </button>
                     </div>
                 </form>
             </div>
@@ -204,6 +473,7 @@
     </div>
 </div>
 {% endblock content %}
+
 {% block script %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -214,110 +484,197 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const csrftoken = getCookie('csrftoken');
 
+    // Download template helper
+    window.downloadTemplateCsv = function() {
+        const csvContent = "data:text/csv;charset=utf-8,Nama Atlet,NIK,Perguruan,Utusan,Nomor Tanding\nAHMAD FAUZI,3201010101010001,INKAI,KONTINGEN JAWA BARAT,KATA PERORANGAN SENIOR PUTRA\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "template_import_atlet.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const templateBtn = document.getElementById('downloadTemplateBtn');
+    if (templateBtn) {
+        templateBtn.addEventListener('click', downloadTemplateCsv);
+    }
+
+    // Modal Edit Atlet Setup
     document.querySelectorAll('.edit-atlet-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const atletId = btn.dataset.atletId;
             document.getElementById('edit-atlet-id').value = atletId;
-            document.getElementById('edit-nama-atlet').value = btn.dataset.nama;
-            document.getElementById('edit-perguruan').value = btn.dataset.perguruanId;
-            document.getElementById('edit-utusan').value = btn.dataset.utusanId;
-            document.getElementById('edit-nomor-tanding').value = btn.dataset.nomorTandingId;
+            document.getElementById('edit-nama-atlet').value = btn.dataset.nama || '';
+            document.getElementById('edit-perguruan').value = btn.dataset.perguruanId || '';
+            document.getElementById('edit-utusan').value = btn.dataset.utusanId || '';
+            document.getElementById('edit-nomor-tanding').value = btn.dataset.nomorTandingId || '';
             document.getElementById('edit-atlet-error').style.display = 'none';
-
-            // fetch NIK separately, only when the modal actually opens
-            document.getElementById('edit-nik').value = 'Memuat...';
-            fetch(`/atlet/${atletId}/nik/`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(res => res.json())
-                .then(data => { document.getElementById('edit-nik').value = data.nik || ''; })
-                .catch(() => { document.getElementById('edit-nik').value = ''; });
+            document.getElementById('edit-nik').value = btn.dataset.nik || '';
         });
     });
 
-    document.getElementById('editAtletForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const submitBtn = document.getElementById('edit-atlet-submit-btn');
-        const errorEl = document.getElementById('edit-atlet-error');
-        errorEl.style.display = 'none';
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Menyimpan...';
-
-        const formData = new FormData(this);
-
-        fetch("{% url 'edit-atlet-ajax' %}", {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
-            body: formData,
-        })
-            .then(res => res.json())
-            .then(data => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Simpan';
-
-                if (!data.success) {
-                    errorEl.textContent = data.message || 'Gagal menyimpan perubahan.';
-                    errorEl.style.display = 'block';
-                    return;
-                }
-
-                const row = document.getElementById(`atlet-row-${data.atlet_id}`);
-                if (row) {
-                    row.querySelector('.atlet-nama-display').textContent = data.nama_atlet;
-                    const nikDisplay = row.querySelector('.atlet-nik-display');
-                    if (nikDisplay) nikDisplay.textContent = data.nik || '-';
-                    row.querySelector('.atlet-perguruan-display').textContent = data.perguruan_nama;
-                    row.querySelector('.atlet-utusan-display').textContent = data.utusan_nama;
-                    row.querySelector('.atlet-nomor-tanding-display').textContent = data.nomor_tanding_nama;
-
-                    const editBtn = row.querySelector('.edit-atlet-btn');
-                    editBtn.dataset.nama = data.nama_atlet;
-                    editBtn.dataset.nik = data.nik || '';
-                    editBtn.dataset.perguruanId = data.perguruan_id;
-                    editBtn.dataset.utusanId = data.utusan_id;
-                    editBtn.dataset.nomorTandingId = data.nomor_tanding_id;
-                }
-
-                const modalEl = document.getElementById('editAtletModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
-            })
-            .catch(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Simpan';
-                errorEl.textContent = 'Terjadi kesalahan jaringan.';
-                errorEl.style.display = 'block';
-            });
+    // Modal Hapus Atlet Setup
+    document.querySelectorAll('.hapus-atlet-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('hapus-atlet-id').value = btn.dataset.atletId;
+            document.getElementById('hapus-atlet-nama').textContent = btn.dataset.nama || '';
+        });
     });
 
-    function fuzzyMatch(needle, haystack) {
-        needle = needle.toLowerCase();
-        haystack = haystack.toLowerCase();
-        let ni = 0;
-        for (let hi = 0; hi < haystack.length && ni < needle.length; hi++) {
-            if (haystack[hi] === needle[ni]) ni++;
-        }
-        return ni === needle.length;
+    // Handle AJAX Edit Form
+    const editForm = document.getElementById('editAtletForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('edit-atlet-submit-btn');
+            const errorEl = document.getElementById('edit-atlet-error');
+            errorEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan...';
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'edit-atlet-ajax' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: formData,
+            })
+                .then(res => res.json())
+                .then(data => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Perubahan';
+
+                    if (!data.success) {
+                        errorEl.textContent = data.message || 'Gagal menyimpan perubahan.';
+                        errorEl.style.display = 'block';
+                        return;
+                    }
+
+                    const row = document.getElementById(`atlet-row-${data.atlet_id}`);
+                    if (row) {
+                        row.querySelector('.atlet-nama-display').textContent = data.nama_atlet;
+                        const nikDisplay = row.querySelector('.atlet-nik-display');
+                        if (nikDisplay) {
+                            if (data.nik) {
+                                nikDisplay.className = 'badge bg-dark border border-secondary text-light font-monospace atlet-nik-display';
+                                nikDisplay.textContent = data.nik;
+                                row.dataset.hasNik = '1';
+                            } else {
+                                nikDisplay.className = 'badge bg-warning text-dark atlet-nik-display';
+                                nikDisplay.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Belum Ada';
+                                row.dataset.hasNik = '0';
+                            }
+                        }
+                        row.querySelector('.atlet-perguruan-display').textContent = data.perguruan_nama || '-';
+                        row.querySelector('.atlet-utusan-display').textContent = data.utusan_nama || '-';
+                        row.querySelector('.atlet-nomor-tanding-display').textContent = data.nomor_tanding_nama || '-';
+
+                        const editBtn = row.querySelector('.edit-atlet-btn');
+                        if (editBtn) {
+                            editBtn.dataset.nama = data.nama_atlet;
+                            editBtn.dataset.nik = data.nik || '';
+                            editBtn.dataset.perguruanId = data.perguruan_id || '';
+                            editBtn.dataset.utusanId = data.utusan_id || '';
+                            editBtn.dataset.nomorTandingId = data.nomor_tanding_id || '';
+                        }
+
+                        const hapusBtn = row.querySelector('.hapus-atlet-btn');
+                        if (hapusBtn) {
+                            hapusBtn.dataset.nama = data.nama_atlet;
+                        }
+
+                        // Refresh search index on the updated row
+                        row.dataset.search = `${data.nama_atlet} ${data.nik || ''} ${data.perguruan_nama || ''} ${data.utusan_nama || ''} ${data.nomor_tanding_nama || ''}`;
+                    }
+
+                    const modalEl = document.getElementById('editAtletModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+                })
+                .catch(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Perubahan';
+                    errorEl.textContent = 'Terjadi kesalahan jaringan.';
+                    errorEl.style.display = 'block';
+                });
+        });
     }
 
+    // ==========================================
+    // FILTER TABS & SMART SEARCH LOGIC
+    // ==========================================
+    let currentFilter = 'all';
     const searchInput = document.getElementById('atlet-search-input');
     const searchCount = document.getElementById('atlet-search-count');
-    const allRows = document.querySelectorAll('tbody tr[data-search]');
+    const allRows = Array.from(document.querySelectorAll('#atletTable tbody tr[data-search]'));
+    const totalRowCount = allRows.length;
 
-    searchInput.addEventListener('input', () => {
-        const query = searchInput.value.trim();
+    function applyFilterAndSearch() {
+        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+        const tokens = query ? query.split(/\s+/).filter(Boolean) : [];
         let visibleCount = 0;
 
         allRows.forEach(row => {
-            const haystack = row.dataset.search;
-            const matches = query === '' || fuzzyMatch(query, haystack);
-            row.style.display = matches ? '' : 'none';
-            if (matches) visibleCount++;
+            const kategori = row.dataset.kategori || '';
+            const hasNik = row.dataset.hasNik === '1';
+            const haystack = (row.dataset.search || '').toLowerCase();
+
+            // Check Tab condition
+            let passesTab = true;
+            if (currentFilter === 'tournament') {
+                passesTab = (kategori === 'tournament' || kategori === 'bob');
+            } else if (currentFilter === 'festival') {
+                passesTab = (kategori === 'festival');
+            } else if (currentFilter === 'tanpa-nik') {
+                passesTab = !hasNik;
+            }
+
+            // Check Search query condition
+            let passesSearch = true;
+            if (tokens.length > 0) {
+                passesSearch = tokens.every(token => haystack.includes(token));
+            }
+
+            if (passesTab && passesSearch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
         });
 
-        searchCount.textContent = query
-            ? `Menampilkan ${visibleCount} dari ${allRows.length} atlet`
-            : '';
+        if (searchCount) {
+            if (currentFilter === 'all' && tokens.length === 0) {
+                searchCount.textContent = `Menampilkan ${totalRowCount} atlet`;
+            } else {
+                searchCount.textContent = `Menampilkan ${visibleCount} dari ${totalRowCount} atlet`;
+            }
+        }
+    }
+
+    // Tab button click handler
+    const filterButtons = document.querySelectorAll('#filterTabs button[data-filter]');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterButtons.forEach(b => {
+                b.classList.remove('btn-secondary', 'fw-bold', 'text-white', 'active-tab');
+                b.classList.add('btn-outline-secondary', 'text-muted');
+            });
+            this.classList.remove('btn-outline-secondary', 'text-muted');
+            this.classList.add('btn-secondary', 'fw-bold', 'text-white', 'active-tab');
+
+            currentFilter = this.dataset.filter;
+            applyFilterAndSearch();
+        });
     });
+
+    // Search input handler
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilterAndSearch);
+    }
 });
 </script>
 {% endblock script %}

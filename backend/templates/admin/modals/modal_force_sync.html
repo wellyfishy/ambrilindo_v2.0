@@ -1,0 +1,29 @@
+<!-- 3. Force Sync Modal -->
+<div class="modal fade" id="forceSyncModal" tabindex="-1" aria-labelledby="forceSyncModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="forceSyncModalLabel"><i class="fas fa-sync-alt me-2"></i>Force Sync Hasil Pertandingan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-warning py-2 mb-2 text-dark" style="font-size: 13px;">
+                        <i class="fas fa-server me-1"></i> Target Web Server: <strong>{{ sync_config.label }}</strong> (<code>{{ sync_config.url }}</code>)
+                    </div>
+                    <div class="alert alert-secondary py-2 mb-3" style="font-size: 12.5px;">
+                        Fitur ini memindai seluruh partai yang sudah selesai di lokal dan mengirimkannya ke Web Public. Gunakan jika terjadi kendala koneksi saat pertandingan berjalan.
+                    </div>
+                    <p class="mb-0">Yakin ingin menyinkronkan ulang seluruh hasil pertandingan event <strong>{{ event.nama_event }}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="force_sync_results" class="btn btn-warning text-dark fw-bold">
+                        <i class="fas fa-bolt me-1"></i> Jalankan Force Sync
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

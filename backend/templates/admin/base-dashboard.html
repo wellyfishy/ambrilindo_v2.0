@@ -1,17 +1,21 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Dashboard - Admin Tatami</title>
+    <meta charset="UTF-8">
+    <title>Dashboard &bull; Ambrilindo</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
     <link rel="icon" href="" type="image/x-icon"/>
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <script src="{% static 'js/plugin/webfont/webfont.min.js' %}"></script>
 
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/plugins.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/ambrilindo.min.css' %}" />
@@ -20,228 +24,736 @@
 
     <style>
         :root {
-            --dash-ink: #1B1D22;
-            --dash-surface: #24262C;
-            --dash-surface-alt: #2C2E36;
-            --dash-belt: #8B3A3A;
-            --dash-belt-bright: #B14848;
-            --dash-tatami: #8B9A6B;
-            --dash-border: #3A3D46;
-            --dash-text: #F4F2EC;
-            --dash-text-dim: #A6A9B4;
+            --bg-body: #08080a;
+            --bg-surface: #111217;
+            --bg-surface-alt: #16181f;
+            --bg-surface-elevated: #1d1f28;
+            --bg-input: #0c0d12;
+            --border-color: #22242c;
+            --border-hover: #343743;
+            --border-subtle: #1c1e26;
+            --red-core: #e52525;
+            --red-hover: #ff3838;
+            --red-active: #c51b1b;
+            --red-glow: rgba(229, 37, 37, 0.25);
+            --red-tint: rgba(229, 37, 37, 0.08);
+            --red-tint-border: rgba(229, 37, 37, 0.28);
+            --text-primary: #f8fafc;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Kill every dark/muted text variant Bootstrap ships with — replace with our two theme tones */
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            background-color: var(--bg-body) !important;
+            color: var(--text-primary) !important;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
+            min-height: 100vh;
+        }
+
+        .wrapper, .main-panel {
+            background-color: transparent !important;
+        }
+
+        /* Typography overrides */
         body, p, span, div, td, th, label, small, li,
         .text-muted, .text-secondary, .text-dark, .text-body,
         .form-text, .op-7, .card-title, .modal-title {
-            color: var(--dash-text) !important;
+            color: var(--text-primary);
         }
 
-        /* Slightly softer tone for things that are *supposed* to look secondary
-          (dates, hints, table headers) — still readable, never Bootstrap's dark gray */
-        .text-muted, .text-secondary, .form-text, .op-7, table.table thead th {
-            color: var(--dash-text-dim) !important;
+        .text-muted, .text-secondary, .form-text, .op-7 {
+            color: var(--text-secondary) !important;
         }
 
-        /* Links, unless explicitly colored elsewhere (buttons, nav), default to a legible light tone */
         a:not(.btn):not(.nav-link):not(.dropdown-item) {
-            color: #E8B4B4;
+            color: #fca5a5;
+            text-decoration: none;
+            transition: var(--transition);
         }
         a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
             color: #fff;
         }
 
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--dash-ink) !important;
-            color: var(--dash-text);
-            background-image:
-                repeating-linear-gradient(45deg, rgba(139,154,107,0.03) 0, rgba(139,154,107,0.03) 1px, transparent 1px, transparent 22px),
-                repeating-linear-gradient(-45deg, rgba(139,154,107,0.03) 0, rgba(139,154,107,0.03) 1px, transparent 1px, transparent 22px);
-        }
-
-        .wrapper, .main-panel { background-color: transparent !important; }
-
-        /* Sidebar */
+        /* Sidebar Styling */
         .sidebar {
-            background-color: var(--dash-surface) !important;
-            border-right: 1px solid var(--dash-border);
+            background-color: var(--bg-surface) !important;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
         }
-        .sidebar .logo-header {
-            background-color: var(--dash-surface) !important;
-            border-bottom: 1px solid var(--dash-border);
+
+        .sidebar .sidebar-logo {
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-surface) !important;
             position: relative;
         }
-        .sidebar .logo-header::after {
+
+        .sidebar .sidebar-logo::after {
             content: '';
             position: absolute;
             left: 0; right: 0; bottom: -1px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--dash-belt) 0%, var(--dash-belt) 70%, var(--dash-tatami) 70%, var(--dash-tatami) 100%);
+            height: 2px;
+            background: linear-gradient(90deg, var(--red-core) 0%, var(--red-hover) 50%, transparent 100%);
+        }
+
+        .sidebar-brand-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none !important;
+            padding: 4px 8px;
+        }
+
+        .brand-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .brand-text span {
+            color: var(--red-core);
+        }
+
+        .brand-badge-pill {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: var(--red-tint);
+            border: 1px solid var(--red-tint-border);
+            color: var(--red-hover);
+            padding: 2px 7px;
+            border-radius: 999px;
+            margin-left: auto;
         }
 
         .sidebar .nav-secondary > .nav-item > a {
-            color: #D8D9DE;
-            font-family: 'Inter', sans-serif;
+            color: var(--text-secondary);
             font-weight: 500;
             font-size: 13.5px;
+            border-radius: var(--radius-sm);
+            margin: 2px 10px;
+            padding: 10px 14px;
+            transition: var(--transition);
         }
-        .sidebar .nav-secondary > .nav-item > a i { color: var(--dash-tatami); }
+
+        .sidebar .nav-secondary > .nav-item > a i {
+            color: var(--text-muted);
+            width: 20px;
+            text-align: center;
+            margin-right: 8px;
+            transition: var(--transition);
+        }
+
         .sidebar .nav-secondary > .nav-item.active > a,
         .sidebar .nav-secondary > .nav-item > a:hover {
-            background-color: var(--dash-surface-alt);
-            color: #fff;
+            background-color: var(--bg-surface-alt) !important;
+            color: var(--text-primary) !important;
         }
-        .sidebar .nav-collapse li a { color: var(--dash-text-dim); font-size: 13px; }
-        .sidebar .nav-collapse li.active a, .sidebar .nav-collapse li a:hover { color: #fff; }
-        .sidebar .nav-collapse li.active a { border-left: 2px solid var(--dash-belt-bright); padding-left: 10px; }
 
-        /* Topbar */
-        .main-header {
-            background-color: var(--dash-surface) !important;
-            border-bottom: 1px solid var(--dash-border);
+        .sidebar .nav-secondary > .nav-item.active > a i,
+        .sidebar .nav-secondary > .nav-item > a:hover i {
+            color: var(--red-hover);
         }
-        .profile-username .fw-bold { color: var(--dash-text); }
-        .profile-username .op-7 { color: var(--dash-text-dim); }
-        .dropdown-user, .dropdown-menu {
-            background-color: var(--dash-surface-alt) !important;
-            border: 1px solid var(--dash-border) !important;
+
+        .sidebar .nav-collapse {
+            margin: 4px 10px 8px 10px;
+            padding-left: 10px;
+            border-left: 1px solid var(--border-color);
         }
-        .dropdown-user .dropdown-item, .dropdown-menu .dropdown-item {
-            color: var(--dash-text) !important;
+
+        .sidebar .nav-collapse li a {
+            color: var(--text-secondary);
+            font-size: 13px;
+            padding: 7px 12px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
         }
-        .dropdown-user .dropdown-item:hover, .dropdown-menu .dropdown-item:hover {
-            background-color: rgba(139,58,58,0.18) !important;
+
+        .sidebar .nav-collapse li.active a,
+        .sidebar .nav-collapse li a:hover {
             color: #fff !important;
+            background: var(--bg-surface-elevated);
         }
 
-        /* Cards */
-        .page-inner { padding-top: 8px; }
-        .card {
-            background-color: var(--dash-surface) !important;
-            border: 1px solid var(--dash-border) !important;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-        }
-        .card-header {
-            background-color: var(--dash-surface) !important;
-            border-bottom: 1px solid var(--dash-border) !important;
-        }
-        .card-body { color: var(--dash-text); }
-        .card-title {
-            font-family: 'Oswald', sans-serif;
+        .sidebar .nav-collapse li.active a {
+            border-left: 2px solid var(--red-core);
             font-weight: 600;
-            letter-spacing: 0.01em;
-            font-size: 17px;
-            color: var(--dash-text);
+        }
+
+        /* Topbar Header */
+        .main-header {
+            background-color: var(--bg-surface) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+
+        .navbar-header {
+            min-height: 60px;
+        }
+
+        .event-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+        }
+
+        .event-header-badge .event-id-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--red-tint);
+            border: 1px solid var(--red-tint-border);
+            color: var(--red-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .event-header-badge .event-name-text {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Profile Dropdown */
+        .profile-pic {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none !important;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .profile-pic:hover {
+            background: var(--bg-surface-alt);
+        }
+
+        .profile-avatar-pill {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--red-core) 0%, var(--red-active) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            box-shadow: 0 0 8px var(--red-glow);
+        }
+
+        .dropdown-user, .dropdown-menu {
+            background-color: var(--bg-surface-alt) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+            padding: 6px !important;
+        }
+
+        .dropdown-item {
+            color: var(--text-primary) !important;
+            font-size: 13.5px;
+            padding: 8px 12px !important;
+            border-radius: var(--radius-sm) !important;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover, .dropdown-item:focus {
+            background-color: var(--red-tint) !important;
+            color: var(--red-hover) !important;
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid var(--border-color) !important;
+            margin: 4px 0 !important;
+        }
+
+        /* Main Panel Content Spacing & Cards */
+        .main-panel > .container,
+        .main-panel > .container-fluid {
+            margin-top: 75px !important;
+            padding: 0 16px !important;
+            width: 100% !important;
+            max-width: unset !important;
+        }
+
+        .page-inner {
+            padding: 16px 4px !important;
+        }
+
+        .card {
+            background-color: var(--bg-surface) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            background-color: var(--bg-surface) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 16px 20px;
+        }
+
+        .card-title {
+            font-family: 'Oswald', sans-serif !important;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            font-size: 18px;
+            color: var(--text-primary) !important;
+        }
+
+        .card-body {
+            padding: 20px;
+            color: var(--text-primary);
         }
 
         /* Buttons */
-        .btn-primary { background-color: var(--dash-belt); border-color: var(--dash-belt); }
-        .btn-primary:hover, .btn-primary:focus { background-color: var(--dash-belt-bright); border-color: var(--dash-belt-bright); }
-        .btn-secondary { background-color: var(--dash-surface-alt); border-color: var(--dash-border); color: var(--dash-text); }
-        .btn-secondary:hover { background-color: #383a44; border-color: var(--dash-border); color: #fff; }
-        .btn-dark { background-color: var(--dash-ink); border-color: var(--dash-border); }
-        .btn-close { filter: invert(1) grayscale(100%) brightness(1.8); }
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        /* Tables */
-        .table > :not(caption) > * > * {
-            background-color: var(--dash-surface) !important;
-            color: var(--dash-text) !important;
-            border-bottom-color: var(--dash-border) !important;
-            box-shadow: none !important;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--red-core) 0%, var(--red-active) 100%) !important;
+            border: 1px solid var(--red-core) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 12px rgba(229, 37, 37, 0.3);
         }
-        table.table-striped > tbody > tr:nth-of-type(odd) > * {
-            background-color: var(--dash-surface-alt) !important;
-            color: var(--dash-text) !important;
-        }
-        table.table thead th {
-            font-size: 12.5px;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            color: var(--dash-text-dim) !important;
-            border-bottom: 2px solid var(--dash-border) !important;
-        }
-        table.table a { color: #fff; }
-        table.table a:hover { color: #fff; }
 
-        /* Forms (inputs, selects, textareas — including inside modals) */
-        .form-control, .form-select, select.form-control, textarea.form-control,
-        .select2-container--default .select2-selection--single,
-        .select2-container--default .select2-selection--multiple {
-            background-color: var(--dash-surface-alt) !important;
-            border: 1px solid var(--dash-border) !important;
-            color: var(--dash-text) !important;
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(135deg, var(--red-hover) 0%, var(--red-core) 100%) !important;
+            box-shadow: 0 6px 16px rgba(229, 37, 37, 0.45) !important;
+            transform: translateY(-1px);
         }
-        .form-control:focus, .form-select:focus {
-            background-color: var(--dash-surface-alt) !important;
-            border-color: var(--dash-belt-bright) !important;
-            box-shadow: 0 0 0 3px rgba(177,72,72,0.2) !important;
-            color: var(--dash-text) !important;
+
+        .btn-secondary {
+            background-color: var(--bg-surface-elevated) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
         }
-        .form-control::placeholder { color: #6B6E78; }
-        .form-label, label { color: var(--dash-text-dim); }
-        .form-text.text-muted { color: #7d8090 !important; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered,
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            color: var(--dash-text) !important;
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: var(--dash-surface) !important;
-            border-color: var(--dash-border) !important;
-        }
-        .select2-dropdown {
-            background-color: var(--dash-surface-alt) !important;
-            border-color: var(--dash-border) !important;
-            color: var(--dash-text) !important;
-        }
-        .select2-results__option { color: var(--dash-text) !important; }
-        .select2-results__option--highlighted {
-            background-color: var(--dash-belt) !important;
+
+        .btn-secondary:hover {
+            background-color: var(--border-hover) !important;
             color: #fff !important;
         }
-        .select2-search__field {
-            background-color: var(--dash-surface-alt) !important;
-            color: var(--dash-text) !important;
+
+        .btn-danger {
+            background: #991b1b !important;
+            border-color: #b91c1c !important;
+            color: #fff !important;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c !important;
+        }
+
+        .btn-warning {
+            background: #d97706 !important;
+            border-color: #f59e0b !important;
+            color: #fff !important;
+        }
+
+        .btn-success {
+            background: #059669 !important;
+            border-color: #10b981 !important;
+            color: #fff !important;
+        }
+
+        .btn-info {
+            background: #0284c7 !important;
+            border-color: #0ea5e9 !important;
+            color: #fff !important;
+        }
+
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(2);
+        }
+
+        /* Tables */
+        .table {
+            border-color: var(--border-color) !important;
+            vertical-align: middle;
+        }
+
+        .table > :not(caption) > * > * {
+            background-color: var(--bg-surface) !important;
+            color: var(--text-primary) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 12px 14px;
+        }
+
+        table.table-striped > tbody > tr:nth-of-type(odd) > * {
+            background-color: var(--bg-surface-alt) !important;
+        }
+
+        table.table-hover > tbody > tr:hover > * {
+            background-color: var(--bg-surface-elevated) !important;
+        }
+
+        table.table thead th {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary) !important;
+            background-color: var(--bg-surface-alt) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            padding: 12px 14px;
+        }
+
+        /* Forms */
+        .form-control, .form-select, select.form-control, textarea.form-control {
+            background-color: var(--bg-input) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 10px 12px;
+            font-size: 13.5px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #0f1016 !important;
+            border-color: var(--red-core) !important;
+            box-shadow: 0 0 0 3px var(--red-glow) !important;
+            color: #fff !important;
+            outline: none;
+        }
+
+        .form-control::placeholder { color: var(--text-muted); }
+        .form-label, label {
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .dropdown-menu-end,
+        .dropdown-menu[data-bs-popper="static"] {
+            right: 0 !important;
+            left: auto !important;
+        }
+
+        .dropdown-menu {
+            max-width: calc(100vw - 32px) !important;
+        }
+
+        /* Select2 Theme & Fixes */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            background-color: var(--bg-input) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-sm) !important;
+            color: var(--text-primary) !important;
+            height: 42px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            background-color: var(--bg-input) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-sm) !important;
+            color: var(--text-primary) !important;
+            min-height: 44px !important;
+            height: auto !important;
+            display: block !important;
+            padding: 5px 8px !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--red-core) !important;
+            box-shadow: 0 0 0 3px var(--red-glow) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-primary) !important;
+            line-height: 40px !important;
+            padding-left: 12px !important;
+        }
+
+        /* Rendered list inside multi-select: modern flex-wrap container */
+        .select2-container .select2-selection--multiple .select2-selection__rendered,
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            gap: 6px !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            list-style: none !important;
+            overflow: visible !important;
+            white-space: normal !important;
+            height: auto !important;
+            line-height: normal !important;
+        }
+
+        /* Choice Tag / Pill */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: var(--bg-surface-elevated) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: 4px !important;
+            padding: 4px 10px 4px 26px !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.3px !important;
+            position: relative !important;
+            margin: 0 !important;
+            float: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35) !important;
+            max-width: 100% !important;
+            line-height: 1.4 !important;
+        }
+
+        /* Remove "x" button inside choice tag */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            background: transparent !important;
+            border: none !important;
+            border-right: none !important;
+            color: var(--red-hover) !important;
+            cursor: pointer !important;
+            position: absolute !important;
+            left: 6px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            padding: 0 !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            width: 15px !important;
+            height: 15px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            transition: all 0.15s ease !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #fff !important;
+            background: rgba(229, 37, 37, 0.6) !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+            color: var(--text-primary) !important;
+            font-weight: 600 !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+        }
+
+        /* Inline search inside multi-select */
+        .select2-container .select2-search--inline,
+        .select2-container--default .select2-search--inline {
+            display: inline-flex !important;
+            align-items: center !important;
+            float: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            flex: 1 1 80px !important;
+        }
+
+        .select2-container .select2-search--inline .select2-search__field,
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin: 0 !important;
+            padding: 4px 6px !important;
+            height: 28px !important;
+            color: var(--text-primary) !important;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            min-width: 60px !important;
+            width: 100% !important;
+            font-family: inherit !important;
+            font-size: 12.5px !important;
+            box-shadow: none !important;
+        }
+
+        /* Dropdown options container */
+        .select2-dropdown {
+            background-color: var(--bg-surface-alt) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-md) !important;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8) !important;
+            color: var(--text-primary) !important;
+            z-index: 1070 !important;
+            overflow: hidden !important;
+        }
+
+        .select2-results__options {
+            max-height: 220px !important;
+            padding: 4px !important;
+        }
+
+        .select2-results__option {
+            padding: 8px 12px !important;
+            color: var(--text-primary) !important;
+            font-size: 13px !important;
+            border-radius: 4px !important;
+            margin-bottom: 2px !important;
+            transition: background 0.15s ease !important;
+        }
+
+        /* Selected option in list (subtle dark red tint, readable white/red text) */
+        .select2-container--default .select2-results__option[aria-selected="true"],
+        .select2-container--default .select2-results__option--selected {
+            background-color: rgba(229, 37, 37, 0.16) !important;
+            color: var(--red-hover) !important;
+            font-weight: 600 !important;
+        }
+
+        /* Hovered / Highlighted option in list */
+        .select2-container--default .select2-results__option--highlighted,
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: var(--red-core) !important;
+            color: #ffffff !important;
+        }
+
+        /* When selected AND hovered */
+        .select2-container--default .select2-results__option--selected.select2-results__option--highlighted {
+            background-color: var(--red-hover) !important;
+            color: #ffffff !important;
+        }
+
+        .select2-dropdown .select2-search__field {
+            background-color: var(--bg-input) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: 8px 12px !important;
+            outline: none !important;
         }
 
         /* Modals */
         .modal-content {
-            background-color: var(--dash-surface) !important;
-            border: 1px solid var(--dash-border) !important;
-            color: var(--dash-text);
+            background-color: var(--bg-surface) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-lg) !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px -10px var(--red-glow);
+            color: var(--text-primary);
+            overflow: hidden;
         }
-        .modal-header.bg-dark, .modal-header.bg-primary {
-            background-color: var(--dash-belt) !important;
-            border-bottom: 1px solid var(--dash-border) !important;
+
+        .modal-header {
+            background-color: var(--bg-surface-alt) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 16px 20px;
         }
-        .modal-footer { border-top: 1px solid var(--dash-border) !important; }
+
+        .modal-header .modal-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 22px 20px;
+        }
+
+        .modal-footer {
+            background-color: var(--bg-surface-alt) !important;
+            border-top: 1px solid var(--border-color) !important;
+            padding: 14px 20px;
+        }
 
         /* Alerts */
-        .alert-success { background-color: rgba(139,154,107,0.15); border-color: rgba(139,154,107,0.4); color: #C7D4B3; }
-        .alert-danger, .alert-error { background-color: rgba(139,58,58,0.15); border-color: rgba(139,58,58,0.4); color: #E8A6A6; }
-        .alert-warning { background-color: rgba(177,140,72,0.15); border-color: rgba(177,140,72,0.4); color: #E8CBA6; }
-        .alert-info { background-color: rgba(72,140,177,0.15); border-color: rgba(72,140,177,0.4); color: #A6C7E8; }
+        .alert {
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 13.5px;
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+            border-color: rgba(16, 185, 129, 0.35) !important;
+            color: #6ee7b7 !important;
+        }
+
+        .alert-danger, .alert-error {
+            background-color: rgba(229, 37, 37, 0.12) !important;
+            border-color: rgba(229, 37, 37, 0.35) !important;
+            color: #fca5a5 !important;
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.12) !important;
+            border-color: rgba(245, 158, 11, 0.35) !important;
+            color: #fcd34d !important;
+        }
+
+        .alert-info {
+            background-color: rgba(14, 165, 233, 0.12) !important;
+            border-color: rgba(14, 165, 233, 0.35) !important;
+            color: #7dd3fc !important;
+        }
 
         /* Footer */
         .footer {
-            background-color: var(--dash-surface) !important;
-            border-top: 1px solid var(--dash-border) !important;
-            font-size: 12.5px;
-            color: var(--dash-text-dim);
+            background-color: var(--bg-surface) !important;
+            border-top: 1px solid var(--border-color) !important;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 14px 20px;
+            position: relative;
+            width: 100%;
         }
-        .footer .heart { color: var(--dash-belt); }
-        .footer a { color: var(--dash-tatami); }
+
+        .footer .heart { color: var(--red-core); }
+        .footer a { color: #fca5a5; }
 
         {% block style %}{% endblock style %}
     </style>
-
   </head>
   <body>
     <div class="wrapper">
+      <!-- Sidebar -->
       <div class="sidebar sidebar-style-2" data-background-color="dark">
         <div class="sidebar-logo">
-          <div class="logo-header" data-background-color="dark">
+          <div class="logo-header d-flex align-items-center justify-content-between px-3" data-background-color="dark">
+            <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="sidebar-brand-link">
+              <span class="brand-text">AMBRILINDO<span>.</span></span>
+              <span class="brand-badge-pill">Arena</span>
+            </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">
                 <i class="gg-menu-right"></i>
@@ -255,25 +767,27 @@
             </button>
           </div>
         </div>
+
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item {% if on == 'utama' or on == 'atlet' or on == 'tatami' or on == 'nomor-tanding' %}active{% endif %}">
+              <!-- Dashboard Group -->
+              <li class="nav-item {% if on == 'utama' or on == 'atlet' or on == 'tatami' or on == 'nomor-tanding' or on == 'tatami-manager' or on == 'wasit' %}active{% endif %}">
                 <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
-                  <i class="fas fa-home"></i>
+                  <i class="fas fa-th-large"></i>
                   <p>Dashboard</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="dashboard">
+                <div class="collapse show" id="dashboard">
                   <ul class="nav nav-collapse">
                     <li class="{% if on == 'utama' %}active{% endif %}">
                       <a href="{% url 'admin-dashboard' event_pk=event.pk %}">
-                        <span class="sub-item">Utama</span>
+                        <span class="sub-item">Bagan Utama</span>
                       </a>
                     </li>
                     <li class="{% if on == 'atlet' %}active{% endif %}">
                       <a href="{% url 'admin-atlet' event_pk=event.pk %}">
-                        <span class="sub-item">Atlet</span>
+                        <span class="sub-item">Data Atlet</span>
                       </a>
                     </li>
                     <li class="{% if on == 'nomor-tanding' %}active{% endif %}">
@@ -286,32 +800,37 @@
                         <span class="sub-item">Tatami</span>
                       </a>
                     </li>
-                    {% comment %} {% if not on == 'control' %}
-                    <li class="{% if on == 'fest' %}active{% endif %}">
-                      <a href="{% url 'control-panel-fest' event_pk=event.pk tatami_pk=admin_tatami.tatami.pk %}">
-                        <span class="sub-item">Control Panel Festival</span>
+                    <li class="{% if on == 'wasit' %}active{% endif %}">
+                      <a href="{% url 'admin-wasit' event_pk=event.pk %}">
+                        <span class="sub-item">Wasit & Juri</span>
                       </a>
                     </li>
-                    {% endif %} {% endcomment %}
+                    <li class="{% if on == 'tatami-manager' %}active{% endif %}">
+                      <a href="{% url 'tatami-manager' event_pk=event.pk %}">
+                        <span class="sub-item">Tatami Manager</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
+
+              <!-- Rekapan Group -->
               <li class="nav-item {% if on == 'summary' or on == 'utusan' or on == 'perguruan' or on == 'rekapan' or on == 'roster-counter' or on == 'roster-maker' %}active{% endif %}">
                 <a data-bs-toggle="collapse" href="#rekapan" class="collapsed" aria-expanded="false">
-                  <i class="fas fa-book"></i>
-                  <p>Rekapan</p>
+                  <i class="fas fa-chart-pie"></i>
+                  <p>Rekapan & Event</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="rekapan">
                   <ul class="nav nav-collapse">
                     <li class="{% if on == 'summary' %}active{% endif %}">
                       <a href="{% url 'summary' event_pk=event.pk %}">
-                        <span class="sub-item">Summary</span>
+                        <span class="sub-item">Summary Juara</span>
                       </a>
                     </li>
                     <li class="{% if on == 'utusan' %}active{% endif %}">
                       <a href="{% url 'admin-utusan' event_pk=event.pk %}">
-                        <span class="sub-item">Utusan</span>
+                        <span class="sub-item">Kontingen / Utusan</span>
                       </a>
                     </li>
                     <li class="{% if on == 'perguruan' %}active{% endif %}">
@@ -331,25 +850,39 @@
                     </li>
                     <li class="{% if on == 'roster-maker' %}active{% endif %}">
                       <a href="{% url 'timetable-editor' event_pk=event.pk %}">
-                        <span class="sub-item">Roster Maker</span>
+                        <span class="sub-item">Roster Maker (Jadwal)</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-              {% if role.role_type == 'admin_tatami' %}
+
+              <!-- Live Sync & Antrean Monitor -->
+              <li class="nav-item {% if on == 'sync-monitor' %}active{% endif %}">
+                <a href="{% url 'sync-monitor' event_pk=event.pk %}">
+                  <i class="fas fa-satellite-dish"></i>
+                  <p>Live Sync & Antrean</p>
+                  <span id="sidebarSyncFailBadge" class="badge bg-danger ms-auto sync-fail-badge" style="{% if not failed_sync_count or failed_sync_count == 0 %}display: none;{% endif %} font-size: 10px; padding: 2px 7px; border-radius: 999px;">{{ failed_sync_count|default:0 }}</span>
+                </a>
+              </li>
+
+              <!-- Scoring Board quick trigger (Admin Tatami only) -->
+              {% with active_role=role|default:request.user.role %}
+              {% if active_role and active_role.role_type == 'admin_tatami' and active_role.tatami %}
               <li class="nav-item">
-                <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=role.tatami.pk %}'); return false;">
-                  <i class="fas fa-braille"></i>
-                  <p>Scoring Board</p>
+                <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=active_role.tatami.pk %}'); return false;">
+                  <i class="fas fa-tv text-danger"></i>
+                  <p class="text-danger fw-bold">Scoring Board (T{{ active_role.tatami.tatami_number }})</p>
                 </a>
               </li>
               {% endif %}
+              {% endwith %}
             </ul>
           </div>
         </div>
       </div>
 
+      <!-- Main Panel -->
       <div class="main-panel">
         <div class="main-header">
           <div class="main-header-logo">
@@ -367,24 +900,40 @@
               </button>
             </div>
           </div>
-          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
-            <div class="container-fluid">
-              <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
-              </nav>
-              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg">
+            <div class="container-fluid px-3 d-flex justify-content-between align-items-center">
+              <!-- Event Header Badge -->
+              <div class="event-header-badge">
+                <span class="event-id-tag">e{{ event.pk }}</span>
+                <span class="event-name-text">{{ event.nama_event }}</span>
+              </div>
+
+              <!-- Right User Menu -->
+              <ul class="navbar-nav topbar-nav align-items-center">
                 <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                    <span class="profile-username">
-                      <span class="op-7">Hi,</span>
-                      <span class="fw-bold">{{ request.user }}</span>
+                    <div class="profile-avatar-pill">
+                      {{ request.user.username|slice:":1"|upper }}
+                    </div>
+                    <span class="d-none d-md-inline ms-1">
+                      <span class="op-7 small">Halo,</span>
+                      <strong class="text-white">{{ request.user }}</strong>
                     </span>
                   </a>
-                  <ul class="dropdown-menu dropdown-user animated fadeIn">
-                    <div class="dropdown-user-scroll scrollbar-outer">
-                      <li>
-                        <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                      </li>
-                    </div>
+                  <ul class="dropdown-menu dropdown-user dropdown-menu-end animated fadeIn">
+                    <li>
+                      <div class="px-3 py-2">
+                        <div class="small text-muted">Peran: {{ role.role_type|upper }}</div>
+                        <div class="fw-bold">{{ request.user }}</div>
+                      </div>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt me-2"></i> Keluar
+                      </a>
+                    </li>
                   </ul>
                 </li>
               </ul>
@@ -394,27 +943,20 @@
 
         {% block content %}{% endblock content %}
 
-      <footer class="footer">
-          <div class="container-fluid d-flex justify-content-between">
-            <nav class="pull-left">
-              <ul class="nav">
-                <li class="nav-item">
-                  -
-                </li>
-              </ul>
-            </nav>
-            <div class="copyright">
-              2025, made with <i class="fa fa-heart heart text-danger"></i> by
-              <a href="">wellyfishy</a>
-            </div>
+        <footer class="footer">
+          <div class="container-fluid d-flex justify-content-between align-items-center">
             <div>
-              Distributed by
-              <a target="_blank" href="">Ambrilindo</a>.
+              Ambrilindo Offline Tournament Console &bull; v2.0
+            </div>
+            <div class="copyright">
+              Dikembangkan dengan <i class="fa fa-heart heart text-danger"></i> untuk Komunitas Karate Indonesia
             </div>
           </div>
         </footer>
       </div>
     </div>
+
+    <!-- Scripts -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/core/popper.min.js' %}"></script>
     <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
@@ -433,6 +975,25 @@
           width=${screenWidth},height=${screenHeight},top=0,left=0`
         );
       }
+
+      // Sidebar Sync Fail Badge Polling
+      function checkSyncFailures() {
+        const badge = document.getElementById('sidebarSyncFailBadge');
+        if (!badge) return;
+        fetch("{% url 'sync-queue-status' %}")
+          .then(res => res.json())
+          .then(data => {
+            if (data.failed_count > 0) {
+              badge.textContent = data.failed_count;
+              badge.style.display = 'inline-block';
+            } else {
+              badge.style.display = 'none';
+            }
+          })
+          .catch(() => {});
+      }
+      setTimeout(checkSyncFailures, 1500);
+      setInterval(checkSyncFailures, 12000);
     </script>
     {% block script %}{% endblock script %}
   </body>

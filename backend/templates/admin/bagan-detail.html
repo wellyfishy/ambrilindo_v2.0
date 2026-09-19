@@ -1,1077 +1,2603 @@
 {% load static %} {% load custom_tags %}
-
-{% block style %}
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-html {
-  font-size: 15px;
-}
-@media (min-width: 38em) {
-  html {
-    font-size: 14px;
-  }
-}
-@media (min-width: 52em) {
-  html {
-    font-size: 15px;
-  }
-}
-@media (min-width: 72em) {
-  html {
-    font-size: 16px;
-  }
-}
-body {
-  background-color: #f1f1f1;
-  font-family: 'Work Sans', 'Helvetica Neue', Arial, sans-serif;
-}
-.container {
-  width: 90%;
-  min-width: 18em;
-  margin: 20px auto;
-}
-h1,
-h2 {
-  text-align: center;
-}
-h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5em;
-}
-h2 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 2em;
-}
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-.tournament-bracket {
-  display: flex;
-  flex-direction: column;
-}
-@media (min-width: 38em) {
-  .tournament-bracket {
-    flex-direction: row;
-  }
-}
-.tournament-bracket__round {
-  display: block;
-  margin-left: -3px;
-  flex: 1;
-}
-.tournament-bracket__round-title {
-  color: #9e9e9e;
-  font-size: 0.95rem;
-  font-weight: 400;
-  text-align: center;
-  font-style: italic;
-  margin-bottom: 0.5em;
-}
-.tournament-bracket__list {
-  display: flex;
-  flex-direction: column;
-  flex-flow: row wrap;
-  justify-content: center;
-  height: 100%;
-  min-height: 100%;
-  border-bottom: 1px dashed #e5e5e5;
-  padding-bottom: 2em;
-  margin-bottom: 2em;
-  transition: padding 0.2s ease-in-out, margin 0.2s ease-in-out;
-}
-@media (max-width: 24em) {
-  .tournament-bracket__list {
-    padding-bottom: 1em;
-    margin-bottom: 1em;
-  }
-}
-@media (min-width: 38em) {
-  .tournament-bracket__list {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-right: 1px dashed #e5e5e5;
-    border-bottom: 0;
-  }
-}
-.tournament-bracket__round:last-child .tournament-bracket__list {
-  border: 0;
-}
-.tournament-bracket__item {
-  display: flex;
-  flex: 0 1 auto;
-  justify-content: center;
-  flex-direction: column;
-  align-items: flex-start;
-  position: relative;
-  padding: 2% 0;
-  width: 48%;
-  transition: padding 0.2s linear;
-}
-.tournament-bracket__item:nth-child(odd) {
-  margin-right: 2%;
-}
-.tournament-bracket__item:nth-child(even) {
-  margin-left: 2%;
-}
-.tournament-bracket__item::after {
-  transition: width 0.2s linear;
-}
-@media (max-width: 24em) {
-  .tournament-bracket__item {
-    width: 100%;
-  }
-  .tournament-bracket__item:nth-child(odd),
-  .tournament-bracket__item:nth-child(even) {
-    margin-left: 0;
-    margin-right: 0;
-  }
-}
-@media (min-width: 38em) {
-  .tournament-bracket__item {
-    padding: 0.5em 1em;
-    width: 100%;
-  }
-  .tournament-bracket__item:nth-child(odd),
-  .tournament-bracket__item:nth-child(even) {
-    margin: 0;
-  }
-  .tournament-bracket__item::after {
-    position: absolute;
-    right: 0;
-    content: '';
-    display: block;
-    width: 1em;
-    height: 45%;
-    border-right: 2px solid #9e9e9e;
-  }
-  .tournament-bracket__item:nth-child(odd)::after {
-    top: 50%;
-    border-top: 2px solid #9e9e9e;
-    transform: translateY(-1px);
-  }
-  .tournament-bracket--rounded .tournament-bracket__item:nth-child(odd)::after {
-    border-top-right-radius: 0.6em;
-  }
-  .tournament-bracket__item:nth-child(even)::after {
-    bottom: 50%;
-    border-bottom: 2px solid #9e9e9e;
-    transform: translateY(1px);
-  }
-  .tournament-bracket--rounded .tournament-bracket__item:nth-child(even)::after {
-    border-bottom-right-radius: 0.6em;
-  }
-  .tournament-bracket__round:first-child .tournament-bracket__item {
-    padding-left: 0;
-  }
-  .tournament-bracket__round:last-child .tournament-bracket__item {
-    padding-right: 0;
-  }
-  .tournament-bracket__round:last-child .tournament-bracket__item::after {
-    display: none;
-  }
-  .tournament-bracket__round:nth-last-child(2) .tournament-bracket__item::after {
-    border-radius: 0;
-    border-right: 0;
-  }
-}
-@media (min-width: 72em) {
-  .tournament-bracket__item {
-    padding: 0.5em 1.5em;
-  }
-  .tournament-bracket__item::after {
-    width: 1.5em;
-  }
-}
-.tournament-bracket__match {
-  display: flex;
-  width: 100%;
-  background-color: rgb(255, 255, 255);
-  padding: 1em;
-  border: 1px solid #ddd; /* Add black border */
-  border-radius: 0.3em;     /* Slightly more rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for smoothness */
-  outline: none;
-  cursor: pointer;
-  transition: 
-    padding 0.2s ease-in-out, 
-    border 0.2s linear, 
-    box-shadow 0.2s ease-in-out; /* Smooth transition */
-}
-.tournament-bracket__match:focus {
-  border-color: #2196F3;
-}
-.tournament-bracket__match::before,
-.tournament-bracket__match::after {
-  transition: all 0.2s linear;
-}
-@media (max-width: 24em) {
-  .tournament-bracket__match {
-    padding: 0.75em 0.5em;
-  }
-}
-@media (min-width: 38em) {
-  .tournament-bracket__match::before,
-  .tournament-bracket__match::after {
-    position: absolute;
-    left: 0;
-    z-index: 1;
-    content: '';
-    display: block;
-    width: 1em;
-    height: 10%;
-    border-left: 2px solid #9e9e9e;
-  }
-  .tournament-bracket__match::before {
-    bottom: 50%;
-    border-bottom: 2px solid #9e9e9e;
-    transform: translate(0, 1px);
-  }
-  .tournament-bracket--rounded .tournament-bracket__match::before {
-    border-bottom-left-radius: 0.6em;
-  }
-  .tournament-bracket__match::after {
-    top: 50%;
-    border-top: 2px solid #9e9e9e;
-    transform: translate(0, -1px);
-  }
-  .tournament-bracket--rounded .tournament-bracket__match::after {
-    border-top-left-radius: 0.6em;
-  }
-}
-@media (min-width: 72em) {
-  .tournament-bracket__match::before,
-  .tournament-bracket__match::after {
-    width: 1.5em;
-  }
-  .tournament-bracket__match::before {
-    transform: translate(0, 1px);
-  }
-  .tournament-bracket__match::after {
-    transform: translate(0, -1px);
-  }
-}
-.tournament-bracket__round:last-child .tournament-bracket__match::before,
-.tournament-bracket__round:last-child .tournament-bracket__match::after {
-  border-left: 0;
-}
-.tournament-bracket__round:last-child .tournament-bracket__match::before {
-  border-bottom-left-radius: 0;
-}
-.tournament-bracket__round:last-child .tournament-bracket__match::after {
-  display: none;
-}
-.tournament-bracket__round:first-child .tournament-bracket__match::before,
-.tournament-bracket__round:first-child .tournament-bracket__match::after {
-  display: none;
-}
-.tournament-bracket__content {
-  display: flex;
-}
-.tournament-bracket__content::after {
-  content: ':';
-  width: 1em;
-  text-align: center;
-  padding: 0.2em 0.1em;
-}
-@media (min-width: 38em) {
-  .tournament-bracket__content::after {
-    order: 1;
-  }
-}
-.tournament-bracket__content .tournament-bracket__team:first-child {
-  width: 50%;
-  order: 0;
-  text-align: right;
-}
-@media (min-width: 38em) and (max-width: 52em) {
-  .tournament-bracket__content .tournament-bracket__team:first-child {
-    align-items: flex-end;
-  }
-}
-.tournament-bracket__content .tournament-bracket__team:first-child .tournament-bracket__country {
-  order: 2;
-  justify-content: flex-end;
-}
-@media (min-width: 24em) {
-  .tournament-bracket__content .tournament-bracket__team:first-child .tournament-bracket__country {
-    order: 0;
-  }
-}
-@media (min-width: 38em) and (max-width: 52em) {
-  .tournament-bracket__content .tournament-bracket__team:first-child .tournament-bracket__country {
-    flex-direction: column-reverse;
-    align-items: flex-end;
-  }
-}
-.tournament-bracket__content .tournament-bracket__team:first-child .tournament-bracket__score {
-  order: 0;
-}
-@media (min-width: 24em) {
-  .tournament-bracket__content .tournament-bracket__team:first-child .tournament-bracket__score {
-    order: 2;
-  }
-}
-.tournament-bracket__content .tournament-bracket__team:last-child {
-  width: 50%;
-  order: 2;
-  text-align: left;
-}
-@media (min-width: 38em) and (max-width: 52em) {
-  .tournament-bracket__content .tournament-bracket__team:last-child {
-    align-items: flex-start;
-  }
-}
-@media (min-width: 38em) {
-  .tournament-bracket__content .tournament-bracket__team:last-child .tournament-bracket__country {
-    justify-content: flex-start;
-  }
-}
-@media (min-width: 38em) and (max-width: 52em) {
-  .tournament-bracket__content .tournament-bracket__team:last-child .tournament-bracket__country {
-    align-items: flex-start;
-  }
-}
-.tournament-bracket__content .tournament-bracket__team:last-child .tournament-bracket__code {
-  order: 1;
-}
-.tournament-bracket__table {
-  width: 100%;
-}
-.tournament-bracket__caption {
-  font-size: 0.8rem;
-  color: #BDBDBD;
-  font-weight: 300;
-  padding-bottom: 0.75em;
-}
-.tournament-bracket__team {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-}
-@media (min-width: 24em) {
-  .tournament-bracket__team {
-    flex-direction: column-reverse;
-  }
-}
-@media (min-width: 38em) {
-  .tournament-bracket__team {
-    flex-direction: column-reverse;
-  }
-}
-.tournament-bracket__country {
-  font-size: 0.95rem;
-  display: flex;
-  margin-top: 0.5em;
-  align-items: center;
-}
-@media (max-width: 24em) {
-  .tournament-bracket__country {
-    margin-top: 0;
-  }
-}
-@media (min-width: 38em) and (max-width: 52em) {
-  .tournament-bracket__country {
-    display: flex;
-    flex-direction: column;
-  }
-  .tournament-bracket__country .tournament-bracket__code {
-    margin-top: 0.2em;
-  }
-}
-.tournament-bracket__code {
-  padding: 0 0.5em;
-  color: #212121;
-  font-weight: 600;
-  text-transform: uppercase;
-  border: 0;
-  text-decoration: none;
-  cursor: help;
-  transition: padding 0.2s ease-in-out;
-}
-@media (max-width: 24em) {
-  .tournament-bracket__code {
-    padding: 0 0.25em;
-  }
-}
-@media (min-width: 38em) and (max-width: 52em) {
-  .tournament-bracket__code {
-    padding: 0;
-  }
-}
-.tournament-bracket__score {
-  display: flex;
-  align-items: center;
-}
-.tournament-bracket__team:first-child .tournament-bracket__score {
-  flex-direction: row-reverse;
-  padding-left: 0.75em;
-}
-.tournament-bracket__team:last-child .tournament-bracket__score {
-  padding-right: 0.75em;
-}
-.tournament-bracket__number {
-  display: inline-block;
-  padding: 0.2em 0.4em 0.2em;
-  border-bottom: 0.075em solid transparent;
-  font-size: 0.95rem;
-  background-color: #F5F5F5;
-  border-color:rgb(0, 0, 0);
-}
-.tournament-bracket__team--winner .tournament-bracket__number {
-  background-color: #FFF176;
-  border-color: #fad674;
-}
-.tournament-bracket__medal {
-  padding: 0 0.5em;
-}
-.tournament-bracket__medal--gold {
-  color: #FFD700;
-}
-.tournament-bracket__medal--silver {
-  color: #C0C0C0;
-}
-.tournament-bracket__medal--bronze {
-  color: #CD7F32;
-}
-* {
-  text-decoration: none !important;
-}
-.pop {
-  display: none !important;
-}
-
-@media print {
-  body {
-    zoom: 0.6;
-  }
-  .hidden {
-    display: none !important;
-  }
-  .scores {
-    margin-left: 250px;
-  }
-  .pop {
-    display: inline !important;
-  }
-}
-</style>
-{% endblock style %}
-
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>{{ bagan }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#08080a">
+    <title>Bagan {{ bagan.nama_bagan }} &bull; {{ event.nama_event }}</title>
+
+    <!-- Stylesheets & Fonts -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'icons/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fonts.min.css' %}">
+
+    <style>
+        :root {
+            --bg-body: #08080a;
+            --bg-surface: #111217;
+            --bg-surface-elevated: #181a22;
+            --bg-card: rgba(18, 23, 34, 0.94);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.16);
+            --cal-red: #ef4444;
+            --cal-blue: #3b82f6;
+            --cal-gold: #f59e0b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --radius-card: 10px;
+            --radius-control: 8px;
+            --radius-pill: 9999px;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', Consolas, monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Header */
+        .bagan-header {
+            background: rgba(13, 15, 22, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .bagan-nav-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .bagan-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .bagan-breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.15s ease;
+        }
+
+        .bagan-breadcrumb a:hover {
+            color: #ffffff;
+        }
+
+        .bagan-title-group h1 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            margin: 0 0 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .bagan-badge-code {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            background: rgba(239, 68, 68, 0.18);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm, 6px);
+        }
+
+        .bagan-subtitle {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Action Buttons */
+        .bagan-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-bagan {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: var(--radius-control);
+            text-decoration: none;
+            transition: all 0.18s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            line-height: 1.4;
+        }
+
+        .btn-bagan-outline {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-glass);
+            color: var(--text-primary);
+        }
+
+        .btn-bagan-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-highlight);
+            color: #ffffff;
+        }
+
+        .btn-bagan-gold {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+        }
+
+        .btn-bagan-gold:hover {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: rgba(245, 158, 11, 0.6);
+            color: #fde68a;
+        }
+
+        .btn-bagan-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #f87171;
+        }
+
+        .btn-bagan-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+        }
+
+        /* Legend Strip */
+        .legend-strip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 10px;
+            border-radius: var(--radius-pill);
+        }
+
+        .legend-pill.aka {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #f87171;
+        }
+
+        .legend-pill.ao {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #60a5fa;
+        }
+
+        .legend-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.aka { background: #ef4444; }
+        .legend-dot.ao { background: #3b82f6; }
+
+        /* Tournament Bracket Viewport */
+        .bracket-scroll-viewport {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 28px 24px 60px;
+            min-height: 680px;
+            flex: 1;
+        }
+
+        .bracket-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.035;
+        }
+
+        .bracket-watermark img {
+            max-width: 480px;
+            height: auto;
+        }
+
+        .bracket-outer {
+            position: relative;
+            width: 100%;
+            min-width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #connector-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+        }
+
+        .bracket-grid {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: clamp(24px, 3.5vw, 60px);
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            min-height: 560px;
+        }
+
+        /* Bracket Column */
+        .round-col {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0;
+            min-width: 250px;
+            max-width: 380px;
+            position: relative;
+            align-self: stretch;
+        }
+
+        .round-col.is-final {
+            flex: 1.25 1 0;
+            min-width: 290px;
+            max-width: 440px;
+            position: relative;
+            align-self: stretch;
+        }
+
+        .round-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            flex-shrink: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .round-step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 9.5px;
+            color: #ffffff;
+        }
+
+        .round-matches {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1;
+            gap: 18px;
+        }
+
+        /* Final Column Matches: Centered above the bottom-right podium */
+        .round-col.is-final .round-matches {
+            justify-content: center;
+            padding-bottom: 180px; /* Leave clear vertical space for podium card at bottom */
+        }
+
+        /* Match Card */
+        .match {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-control);
+            overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
+            position: relative;
+        }
+
+        .match-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            outline: none;
+        }
+
+        .match:hover {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25), 0 8px 24px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .match.is-final-card {
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 24px rgba(245, 158, 11, 0.08);
+        }
+
+        .match.is-finished {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .match-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .match-num {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .match-badge-finish {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 8.5px;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.12);
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Player Row */
+        .player {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            min-height: 48px;
+            transition: background 0.15s ease;
+            position: relative;
+        }
+
+        .player + .player {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .player.player-aka {
+            border-left: 3px solid var(--cal-red);
+        }
+
+        .player.player-ao {
+            border-left: 3px solid var(--cal-blue);
+        }
+
+        .player.is-winner {
+            background: rgba(245, 158, 11, 0.09);
+        }
+
+        .player-side {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            width: 14px;
+            text-align: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .player-side.aka { color: var(--cal-red); }
+        .player-side.ao { color: var(--cal-blue); }
+
+        .player-dojo-logo {
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            object-fit: contain;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 1px;
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .player-name.empty {
+            color: var(--text-muted);
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .player-sub {
+            font-size: 10.5px;
+            font-weight: 500;
+            color: #cbd5e1;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dojo-badge-img {
+            width: 13px;
+            height: 13px;
+            border-radius: 2px;
+            object-fit: contain;
+            vertical-align: -2px;
+            margin-right: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: inline-block;
+        }
+
+        .player-meta-extra {
+            font-size: 10px;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .meta-kata {
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 3px;
+            padding: 0 4px;
+            display: inline-block;
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .meta-kata.aka {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .meta-kata.ao {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .meta-vr-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .meta-vr-badge.aka {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .meta-vr-badge.ao {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        /* Score Pill */
+        .player-score-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .player-score {
+            font-family: var(--font-mono);
+            min-width: 26px;
+            height: 26px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0 6px;
+        }
+
+        .player.player-aka .player-score {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.18);
+            color: #fca5a5;
+        }
+
+        .player.player-ao .player-score {
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(59, 130, 246, 0.18);
+            color: #93c5fd;
+        }
+
+        .player-score-small {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* Podium Card (Screen Mode) */
+        .cal-podium-card {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            z-index: 10;
+            background: rgba(18, 23, 34, 0.96);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: var(--radius-card);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(245, 158, 11, 0.08);
+        }
+
+        .cal-podium-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: rgba(245, 158, 11, 0.09);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .cal-podium-header-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        .cal-podium-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cal-podium-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.15s ease;
+        }
+
+        .cal-podium-row:last-child {
+            border-bottom: none;
+        }
+
+        .cal-podium-rank {
+            flex-shrink: 0;
+        }
+
+        .medal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .medal.gold {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: #78350f;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+        }
+
+        .medal.silver {
+            background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+            color: #1e293b;
+            box-shadow: 0 0 10px rgba(226, 232, 240, 0.3);
+        }
+
+        .medal.bronze {
+            background: linear-gradient(135deg, #fdba74 0%, #c2410c 100%);
+            color: #7c2d12;
+            box-shadow: 0 0 10px rgba(253, 186, 116, 0.3);
+        }
+
+        .cal-podium-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cal-podium-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cal-podium-sub {
+            font-size: 10.5px;
+            font-weight: 500;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 1px;
+        }
+
+        .cal-podium-sub .dojo-badge-img {
+            width: 14px;
+            height: 14px;
+            vertical-align: -2.5px;
+            margin-right: 4px;
+        }
+
+        /* Modal Styles */
+        .bagan-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .bagan-modal-backdrop.is-open {
+            display: flex;
+        }
+
+        .bagan-modal {
+            background: #12141c;
+            border: 1px solid var(--border-highlight);
+            border-radius: var(--radius-card);
+            width: 100%;
+            max-width: 540px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .bagan-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(245, 158, 11, 0.06);
+        }
+
+        .bagan-modal-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bagan-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            line-height: 1;
+        }
+
+        .bagan-modal-close:hover { color: #ffffff; }
+
+        .bagan-modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .bagan-form-group {
+            margin-bottom: 16px;
+        }
+
+        .bagan-form-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .bagan-select {
+            width: 100%;
+            background: #090a0f;
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-control);
+            color: #ffffff;
+            padding: 8px 12px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .bagan-select:focus {
+            border-color: #f59e0b;
+        }
+
+        .bagan-modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .print-only { display: none !important; }
+
+        /* ==========================================================================
+           PRINT ENGINE (EXACT A4 LANDSCAPE GEOMETRY)
+            Applied to BOTH body.is-printing (pre-print DOM state) AND @media print
+            ========================================================================== */
+        @page {
+            size: A4 landscape;
+            margin: 4mm 6mm;
+        }
+
+        /* --------------------------------------------------------------------------
+           1. DOM Print State (Used for ?print=1 and JS-triggered print previews)
+           -------------------------------------------------------------------------- */
+        body.is-printing {
+            background: #ffffff !important;
+            color: #111827 !important;
+            width: 285mm !important;
+            max-width: 285mm !important;
+            height: 198mm !important;
+            max-height: 198mm !important;
+            overflow: hidden !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 10px !important;
+        }
+
+        body.is-printing *,
+        body.is-printing *::before,
+        body.is-printing *::after {
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        body.is-printing .hidden-print,
+        body.is-printing .bagan-header,
+        body.is-printing .bagan-actions,
+        body.is-printing .legend-strip,
+        body.is-printing .bracket-watermark,
+        body.is-printing .bagan-modal-backdrop,
+        body.is-printing .cal-podium-header button {
+            display: none !important;
+        }
+
+        body.is-printing .print-only {
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px 4px 4px !important;
+            border-bottom: 1.5px solid #111827 !important;
+            margin-bottom: 4px !important;
+            height: 28px !important;
+        }
+
+        body.is-printing .print-title h2 {
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            color: #111827 !important;
+            margin: 0 !important;
+            line-height: 1.1 !important;
+        }
+
+        body.is-printing .print-title p {
+            font-size: 8.5px !important;
+            color: #4b5563 !important;
+            margin: 1px 0 0 0 !important;
+        }
+
+        body.is-printing .print-logo img {
+            height: 26px !important;
+            width: auto !important;
+        }
+
+        body.is-printing .bracket-scroll-viewport {
+            background: #ffffff !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            min-height: auto !important;
+            height: 184mm !important;
+            max-height: 184mm !important;
+            overflow: hidden !important;
+            width: 285mm !important;
+            max-width: 285mm !important;
+        }
+
+        body.is-printing .bracket-outer {
+            padding: 0 !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        body.is-printing .bracket-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            gap: 20px !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 0 !important;
+        }
+
+        body.is-printing .round-col {
+            display: flex !important;
+            flex-direction: column !important;
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+
+        body.is-printing .round-col.is-final {
+            flex: 1.15 1 0 !important;
+            position: relative !important;
+            height: 100% !important;
+        }
+
+        body.is-printing .round-label {
+            color: #111827 !important;
+            border-bottom: 1.2px solid #111827 !important;
+            font-size: 8px !important;
+            font-weight: 800 !important;
+            margin-bottom: 3px !important;
+            padding-bottom: 2px !important;
+            line-height: 1 !important;
+        }
+
+        body.is-printing .round-step {
+            background: #111827 !important;
+            color: #ffffff !important;
+            border: 1px solid #111827 !important;
+            width: 13px !important;
+            height: 13px !important;
+            font-size: 6.5px !important;
+        }
+
+        body.is-printing .round-matches {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-around !important;
+            flex: 1 !important;
+            gap: 2px !important;
+            height: 100% !important;
+        }
+
+        body.is-printing .round-col.is-final .round-matches {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            padding-top: 0 !important;
+            padding-bottom: 95px !important;
+            height: 100% !important;
+        }
+
+        body.is-printing .match {
+            background: #ffffff !important;
+            border: 1px solid #475569 !important;
+            border-radius: 3px !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        body.is-printing .match-header {
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
+            border-bottom: 1px solid #cbd5e1 !important;
+            padding: 1px 4px !important;
+            font-size: 7px !important;
+            font-weight: 700 !important;
+            line-height: 1.1 !important;
+        }
+
+        body.is-printing .match-num {
+            color: #0f172a !important;
+            font-size: 7px !important;
+        }
+
+        body.is-printing .match-badge-finish {
+            display: none !important;
+        }
+
+        body.is-printing .player {
+            background: #ffffff !important;
+            min-height: 16px !important;
+            padding: 1px 4px !important;
+            gap: 3px !important;
+        }
+
+        body.is-printing .player + .player {
+            border-top: 1px solid #e2e8f0 !important;
+        }
+
+        body.is-printing .player.player-aka {
+            border-left: 3px solid #dc2626 !important;
+        }
+
+        body.is-printing .player.player-ao {
+            border-left: 3px solid #2563eb !important;
+        }
+
+        body.is-printing .player-side {
+            font-size: 7px !important;
+            font-weight: 800 !important;
+            width: 8px !important;
+            text-align: center !important;
+            line-height: 1 !important;
+        }
+
+        body.is-printing .player-side.aka { color: #dc2626 !important; }
+        body.is-printing .player-side.ao { color: #2563eb !important; }
+
+        body.is-printing .player-dojo-logo {
+            width: 13px !important;
+            height: 13px !important;
+            border-radius: 2px !important;
+            object-fit: contain !important;
+            border: 0.5px solid #cbd5e1 !important;
+            background: #ffffff !important;
+            flex-shrink: 0 !important;
+            padding: 0.5px !important;
+        }
+
+        body.is-printing .player-name {
+            color: #0f172a !important;
+            font-size: 8px !important;
+            font-weight: 800 !important;
+            line-height: 1.1 !important;
+        }
+
+        body.is-printing .player-name.empty {
+            color: #94a3b8 !important;
+        }
+
+        body.is-printing .player-sub {
+            color: #1e293b !important;
+            font-size: 6.5px !important;
+            font-weight: 600 !important;
+            line-height: 1 !important;
+            margin-top: 0 !important;
+        }
+
+        body.is-printing .dojo-badge-img {
+            width: 8px !important;
+            height: 8px !important;
+            border-radius: 1px !important;
+            object-fit: contain !important;
+            vertical-align: -1px !important;
+            margin-right: 2px !important;
+            background: transparent !important;
+            border: 0.5px solid #cbd5e1 !important;
+            display: inline-block !important;
+        }
+
+        body.is-printing .player-meta-extra {
+            margin-top: 1px !important;
+            gap: 3px !important;
+        }
+
+        body.is-printing .meta-kata {
+            font-size: 6.5px !important;
+            padding: 0 2px !important;
+            border-width: 0.5px !important;
+        }
+
+        body.is-printing .meta-vr-badge {
+            height: 11px !important;
+            font-size: 6.5px !important;
+            padding: 0 2px !important;
+        }
+
+        body.is-printing .player-score {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #94a3b8 !important;
+            height: 14px !important;
+            min-width: 14px !important;
+            font-size: 7.5px !important;
+            font-weight: 800 !important;
+            padding: 0 2px !important;
+        }
+
+        body.is-printing .player-score-small {
+            font-size: 6.5px !important;
+            color: #64748b !important;
+        }
+
+        /* Podium Card in Print: Absolute Bottom Right Corner (Visible!) */
+        body.is-printing .cal-podium-card {
+            background: #ffffff !important;
+            border: 1.5px solid #d97706 !important;
+            border-radius: 4px !important;
+            box-shadow: none !important;
+            position: absolute !important;
+            bottom: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            margin-top: 0 !important;
+            z-index: 10 !important;
+            display: block !important;
+            visibility: visible !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        body.is-printing .cal-podium-header {
+            background: #fef3c7 !important;
+            border-bottom: 1px solid #d97706 !important;
+            padding: 2px 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        body.is-printing .cal-podium-header-title {
+            color: #92400e !important;
+            font-size: 8px !important;
+            font-weight: 800 !important;
+        }
+
+        body.is-printing .cal-podium-row {
+            padding: 1.5px 6px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            gap: 5px !important;
+            display: flex !important;
+            align-items: center !important;
+            min-height: 15px !important;
+        }
+
+        body.is-printing .cal-podium-row:last-child {
+            border-bottom: none !important;
+        }
+
+        body.is-printing .cal-podium-name {
+            color: #0f172a !important;
+            font-size: 7.5px !important;
+            font-weight: 700 !important;
+            line-height: 1.1 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        body.is-printing .cal-podium-sub {
+            color: #1e293b !important;
+            font-size: 6.5px !important;
+            font-weight: 600 !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        body.is-printing .cal-podium-sub .dojo-badge-img {
+            width: 8.5px !important;
+            height: 8.5px !important;
+            vertical-align: -1.5px !important;
+        }
+
+        body.is-printing .medal {
+            width: 13px !important;
+            height: 13px !important;
+            font-size: 6.5px !important;
+            font-weight: 800 !important;
+        }
+
+        body.is-printing .medal.gold {
+            background: #fef08a !important;
+            color: #854d0e !important;
+            border: 1px solid #eab308 !important;
+        }
+
+        body.is-printing .medal.silver {
+            background: #f1f5f9 !important;
+            color: #334155 !important;
+            border: 1px solid #94a3b8 !important;
+        }
+
+        body.is-printing .medal.bronze {
+            background: #ffedd5 !important;
+            color: #9a3412 !important;
+            border: 1px solid #f97316 !important;
+        }
+
+        body.is-printing #connector-svg {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            pointer-events: none !important;
+            overflow: visible !important;
+        }
+
+        body.is-printing #connector-svg line {
+            stroke: #1e293b !important;
+            stroke-width: 1.2px !important;
+        }
+
+        /* --------------------------------------------------------------------------
+           2. Standard Browser Print Media Styles (@media print)
+           -------------------------------------------------------------------------- */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 4mm 6mm;
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                color: #111827 !important;
+                width: 285mm !important;
+                max-width: 285mm !important;
+                height: 198mm !important;
+                max-height: 198mm !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                font-size: 10px !important;
+            }
+
+            .hidden-print,
+            .bagan-header,
+            .bagan-actions,
+            .legend-strip,
+            .bracket-watermark,
+            .bagan-modal-backdrop,
+            .cal-podium-header button {
+                display: none !important;
+            }
+
+            .print-only {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 4px 4px 4px !important;
+                border-bottom: 1.5px solid #111827 !important;
+                margin-bottom: 4px !important;
+                height: 28px !important;
+            }
+
+            .print-title h2 {
+                font-size: 13px !important;
+                font-weight: 800 !important;
+                color: #111827 !important;
+                margin: 0 !important;
+                line-height: 1.1 !important;
+            }
+
+            .print-title p {
+                font-size: 8.5px !important;
+                color: #4b5563 !important;
+                margin: 1px 0 0 0 !important;
+            }
+
+            .print-logo img {
+                height: 26px !important;
+                width: auto !important;
+            }
+
+            .bracket-scroll-viewport {
+                background: #ffffff !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                min-height: auto !important;
+                height: 184mm !important;
+                max-height: 184mm !important;
+                overflow: hidden !important;
+                width: 285mm !important;
+                max-width: 285mm !important;
+            }
+
+            .bracket-outer {
+                padding: 0 !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                overflow: hidden !important;
+                position: relative !important;
+            }
+
+            .bracket-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                gap: 20px !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 0 !important;
+            }
+
+            .round-col {
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 1 0 !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                height: 100% !important;
+                position: relative !important;
+            }
+
+            .round-col.is-final {
+                flex: 1.15 1 0 !important;
+                position: relative !important;
+                height: 100% !important;
+            }
+
+            .round-label {
+                color: #111827 !important;
+                border-bottom: 1.2px solid #111827 !important;
+                font-size: 8px !important;
+                font-weight: 800 !important;
+                margin-bottom: 3px !important;
+                padding-bottom: 2px !important;
+                line-height: 1 !important;
+            }
+
+            .round-step {
+                background: #111827 !important;
+                color: #ffffff !important;
+                border: 1px solid #111827 !important;
+                width: 13px !important;
+                height: 13px !important;
+                font-size: 6.5px !important;
+            }
+
+            .round-matches {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-around !important;
+                flex: 1 !important;
+                gap: 2px !important;
+                height: 100% !important;
+            }
+
+            .round-col.is-final .round-matches {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                padding-top: 0 !important;
+                padding-bottom: 95px !important;
+                height: 100% !important;
+            }
+
+            .match {
+                background: #ffffff !important;
+                border: 1px solid #475569 !important;
+                border-radius: 3px !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .match-header {
+                background: #f1f5f9 !important;
+                color: #1e293b !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+                padding: 1px 4px !important;
+                font-size: 7px !important;
+                font-weight: 700 !important;
+                line-height: 1.1 !important;
+            }
+
+            .match-num {
+                color: #0f172a !important;
+                font-size: 7px !important;
+            }
+
+            .match-badge-finish {
+                display: none !important;
+            }
+
+            .player {
+                background: #ffffff !important;
+                min-height: 16px !important;
+                padding: 1px 4px !important;
+                gap: 3px !important;
+            }
+
+            .player + .player {
+                border-top: 1px solid #e2e8f0 !important;
+            }
+
+            .player.player-aka {
+                border-left: 3px solid #dc2626 !important;
+            }
+
+            .player.player-ao {
+                border-left: 3px solid #2563eb !important;
+            }
+
+            .player-side {
+                font-size: 7px !important;
+                font-weight: 800 !important;
+                width: 8px !important;
+                text-align: center !important;
+                line-height: 1 !important;
+            }
+
+            .player-side.aka { color: #dc2626 !important; }
+            .player-side.ao { color: #2563eb !important; }
+
+            .player-dojo-logo {
+                width: 13px !important;
+                height: 13px !important;
+                border-radius: 2px !important;
+                object-fit: contain !important;
+                border: 0.5px solid #cbd5e1 !important;
+                background: #ffffff !important;
+                flex-shrink: 0 !important;
+                padding: 0.5px !important;
+            }
+
+            .player-name {
+                color: #0f172a !important;
+                font-size: 8px !important;
+                font-weight: 800 !important;
+                line-height: 1.1 !important;
+            }
+
+            .player-name.empty {
+                color: #94a3b8 !important;
+            }
+
+            .player-sub {
+                color: #1e293b !important;
+                font-size: 6.5px !important;
+                font-weight: 600 !important;
+                line-height: 1 !important;
+                margin-top: 0 !important;
+            }
+
+            .dojo-badge-img {
+                width: 8px !important;
+                height: 8px !important;
+                border-radius: 1px !important;
+                object-fit: contain !important;
+                vertical-align: -1px !important;
+                margin-right: 2px !important;
+                background: transparent !important;
+                border: 0.5px solid #cbd5e1 !important;
+                display: inline-block !important;
+            }
+
+            .player-meta-extra {
+                margin-top: 1px !important;
+                gap: 3px !important;
+            }
+
+            .meta-kata {
+                font-size: 6.5px !important;
+                padding: 0 2px !important;
+                border-width: 0.5px !important;
+            }
+
+            .meta-vr-badge {
+                height: 11px !important;
+                font-size: 6.5px !important;
+                padding: 0 2px !important;
+            }
+
+            .player-score {
+                background: #f8fafc !important;
+                color: #0f172a !important;
+                border: 1px solid #94a3b8 !important;
+                height: 14px !important;
+                min-width: 14px !important;
+                font-size: 7.5px !important;
+                font-weight: 800 !important;
+                padding: 0 2px !important;
+            }
+
+            .player-score-small {
+                font-size: 6.5px !important;
+                color: #64748b !important;
+            }
+
+            /* Podium Card in Print: Absolute Bottom Right Corner (Visible!) */
+            .cal-podium-card {
+                background: #ffffff !important;
+                border: 1.5px solid #d97706 !important;
+                border-radius: 4px !important;
+                box-shadow: none !important;
+                position: absolute !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                margin-top: 0 !important;
+                z-index: 10 !important;
+                display: block !important;
+                visibility: visible !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .cal-podium-header {
+                background: #fef3c7 !important;
+                border-bottom: 1px solid #d97706 !important;
+                padding: 2px 6px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+            }
+
+            .cal-podium-header-title {
+                color: #92400e !important;
+                font-size: 8px !important;
+                font-weight: 800 !important;
+            }
+
+            .cal-podium-row {
+                padding: 1.5px 6px !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                gap: 5px !important;
+                display: flex !important;
+                align-items: center !important;
+                min-height: 15px !important;
+            }
+
+            .cal-podium-row:last-child {
+                border-bottom: none !important;
+            }
+
+            .cal-podium-name {
+                color: #0f172a !important;
+                font-size: 7.5px !important;
+                font-weight: 700 !important;
+                line-height: 1.1 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            .cal-podium-sub {
+                color: #1e293b !important;
+                font-size: 6.5px !important;
+                font-weight: 600 !important;
+                line-height: 1 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            .cal-podium-sub .dojo-badge-img {
+                width: 8.5px !important;
+                height: 8.5px !important;
+                vertical-align: -1.5px !important;
+            }
+
+            .medal {
+                width: 13px !important;
+                height: 13px !important;
+                font-size: 6.5px !important;
+                font-weight: 800 !important;
+            }
+
+            .medal.gold {
+                background: #fef08a !important;
+                color: #854d0e !important;
+                border: 1px solid #eab308 !important;
+            }
+
+            .medal.silver {
+                background: #f1f5f9 !important;
+                color: #334155 !important;
+                border: 1px solid #94a3b8 !important;
+            }
+
+            .medal.bronze {
+                background: #ffedd5 !important;
+                color: #9a3412 !important;
+                border: 1px solid #f97316 !important;
+            }
+
+            #connector-svg {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                pointer-events: none !important;
+                overflow: visible !important;
+            }
+
+            #connector-svg line {
+                stroke: #1e293b !important;
+                stroke-width: 1.2px !important;
+            }
+
+            .bracket-scroll-viewport,
+            .bracket-outer,
+            .bracket-grid {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+        }
+    </style>
 </head>
-<body>
-<div class="container" id="print-wrapper">
-    <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="hidden">Kembali</a>
-  |
-    <a class="hidden" href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}">Edit Mode</a>
-  <h1>({{ bagan.kode }}) {{ bagan.nama_bagan }} 
-    <button class="btn btn-success hidden" onclick="window.print()">Print</button>
-  </h1>
-  
-  {% if not referchange %}
-  <div class="tournament-bracket tournament-bracket--rounded">                                                     
-    <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
+<body class="{% if request.GET.print == '1' %}is-printing{% endif %}">
 
-        {% for detail_bagan in detail_bagans_round_1 %}
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil1 %}{{ detail_bagan.scorekecil1 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 30%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
-  {{ detail_bagan.kata2 }}
-</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil2 %}{{ detail_bagan.scorekecil2 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 30%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
-
-      </ul>
-    </div>
-    <div class="tournament-bracket__round tournament-bracket__round--semifinals">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
-
-        {% for detail_bagan in detail_bagans_round_2 %}
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 220px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil1 %}{{ detail_bagan.scorekecil1 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 25%; margin-right: 20%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
-  {{ detail_bagan.kata2 }}
-</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 220px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil2 %}{{ detail_bagan.scorekecil2 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 25%; margin-right: 20%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
-
-      </ul>
-    </div>
-    <div class="tournament-bracket__round tournament-bracket__round--bronze">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
-        {% for detail_bagan in detail_bagans_round_3 %}
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 220px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil1 %}{{ detail_bagan.scorekecil1 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 25%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
-  {{ detail_bagan.kata2 }}
-</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 220px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil2 %}{{ detail_bagan.scorekecil2 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 25%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div class="tournament-bracket__round tournament-bracket__round--silver">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
-        {% for detail_bagan in detail_bagans_round_4 %}
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: red; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ detail_bagan.kata1 }}</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 220px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil1 %}{{ detail_bagan.scorekecil1 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 25%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            {% if detail_bagan|contains_team %}
-            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% else %}
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk tatami_pk=tatami.pk %}">
-            {% endif %}
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }} {% if detail_bagan.selesai and bagan.tipe_tanding == '1' %} | <span style="font-size: 15px; color: blue; font-weight: normal; display: inline-block; max-width: 200px; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
-  {{ detail_bagan.kata2 }}
-</span> {% endif %} {% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 220px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %} <span style="font-size: 15px;">{% if detail_bagan.scorekecil2 %}{{ detail_bagan.scorekecil2 }}{% else %}{% endif %}</span></b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 25%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
+    <!-- Print-Only Header Banner -->
+    <div class="print-only" aria-hidden="true">
+        <div class="print-title">
+            <h2>({{ bagan.kode }}) {{ bagan.nama_bagan }}</h2>
+            <p><i class="fas fa-trophy"></i> {{ event.nama_event }} &bull; {{ event.tempat_event|default:"Venue Pertandingan" }}</p>
+        </div>
+        <div class="print-logo">
+            <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo">
+        </div>
     </div>
 
-    <div class="tournament-bracket__round tournament-bracket__round--gold">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <form method="POST">
-        {% csrf_token %}
-        <table style="
-          position: absolute; 
-          border-collapse: collapse; 
-          width: 100%; 
-          max-width: 700px; 
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-          font-family: Arial, sans-serif;
-          margin-left: -300px;
-          margin-top: 0px;
-        ">
-          <thead>
-            <tr style="background-color: #f5f5f5;">
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 10%;">Juara</th>
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Nama</th>
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 20%;">Perguruan</th>
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Utusan</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>1</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_1.nama_atlet }}</b>
-                <select class="hidden" name="juara_1_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_1 == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>2</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_2.nama_atlet }}</b>
-                <select class="hidden" name="juara_2_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_2 == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_3a.nama_atlet }}</b>
-                <select class="hidden" name="juara_3a_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_3a == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_3b.nama_atlet }}</b>
-                <select class="hidden" name="juara_3b_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_3b == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr class="hidden" style="position: relative; z-index: 1000;">
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style="text-align: center; padding-top: 10px; padding-bottom: 10px;">
-                <button type="submit" name="submit_type" value="generate_juara" style="">Generate (Auto)</button>
-                <button type="submit" name="submit_type" value="simpan_juara" style="">Simpan</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
-      <ul class="tournament-bracket__list">
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                    <span style="font-size: 12px"><b>{% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                    <span style="padding-top: -20px;"><b>{% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                </td>
-              </tbody>
-            </table>
-          </div>
-        </li>
-      </ul>
-      <div style="text-align: center; margin-top: -100px; margin-left: -300px;">
-        
-        <h3 style="display: inline-block; max-width: 90%; word-wrap: break-word;">
-          {{ bagan.event.nama_event }}
-        </h3>
-        <br>
-        <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" 
-            style="width: 300px; height: auto; max-width: 90%;" 
-            alt="">
-        
-      </div>
-  </div>
-  {% else %}
-  <div class="tournament-bracket tournament-bracket--rounded" style="margin-top: 200px;">                                                     
-    <div class="tournament-bracket__round tournament-bracket__round--quarterfinals">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
-        {% for detail_bagan in detail_bagans_round_1 %}
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr1 %}<img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" style="width: 15%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b> {% if bagan.tipe_tanding == '2' and detail_bagan.vr2 %}<img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" style="width: 13%;">{% endif %}</span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
+    <!-- Navigation & Header Bar -->
+    <header class="bagan-header hidden-print">
+        <div class="bagan-nav-strip">
+            <div class="bagan-meta">
+                <nav class="bagan-breadcrumb" aria-label="Breadcrumb">
+                    <a href="{% url 'admin-dashboard' event_pk=event.pk %}">
+                        <i class="fas fa-chevron-left"></i>
+                        <span>Dashboard Event</span>
+                    </a>
+                    <span>/</span>
+                    <span>Bagan Pertandingan</span>
+                </nav>
 
-      </ul>
+                <div class="bagan-title-group">
+                    <h1>
+                        <span class="bagan-badge-code">{{ bagan.kode }}</span>
+                        <span>{{ bagan.nama_bagan }}</span>
+                    </h1>
+                    <p class="bagan-subtitle">
+                        <i class="fas fa-map-marker-alt text-danger"></i>
+                        <span>{{ event.nama_event }} &bull; {{ event.tempat_event|default:"Venue Pertandingan" }}</span>
+                        &bull;
+                        <span class="text-warning">
+                            {% if bagan.pool and bagan.pool > 1 %}Pool {{ bagan.pool }}{% else %}Single Pool{% endif %}
+                        </span>
+                        {% if referchange %}
+                        &bull; <span class="badge bg-secondary" style="font-size: 10px;">REFERCHANGE</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="legend-strip">
+                    <span class="legend-pill aka">
+                        <span class="legend-dot aka"></span> M (Merah)
+                    </span>
+                    <span class="legend-pill ao">
+                        <span class="legend-dot ao"></span> B (Biru)
+                    </span>
+                    <span class="text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>Klik kartu match untuk membuka panel penilaian/scoring
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="bagan-actions">
+                <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn-bagan btn-bagan-outline" title="Edit susunan atlet pada bagan">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit Mode</span>
+                </a>
+                <button type="button" class="btn-bagan btn-bagan-gold" onclick="openModal('juaraModal')" title="Tetapkan / Generate Juara Pertandingan">
+                    <i class="fas fa-trophy"></i>
+                    <span>Tetapkan Juara</span>
+                </button>
+                <button type="button" class="btn-bagan btn-bagan-outline" onclick="printBagan()" title="Cetak Bagan A4 Landscape">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak Bagan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tournament Bracket Viewport -->
+    <main class="bracket-scroll-viewport">
+        <div class="bracket-watermark" aria-hidden="true">
+            <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="">
+        </div>
+
+        <div class="bracket-outer">
+            <svg id="connector-svg" aria-hidden="true"></svg>
+
+            <div class="bracket-grid" id="bracket-grid">
+
+                {% if not referchange %}
+                <!-- ================= STANDARD ELIMINATION BRACKET ================= -->
+
+                <!-- ROUND 1 -->
+                <div class="round-col" data-round="1">
+                    <div class="round-label">
+                        <span class="round-step">R1</span>
+                        {% if bagan.pool == 2 %}BABAK 32 BESAR{% elif bagan.pool == 4 %}BABAK 64 BESAR{% else %}BABAK 16 BESAR{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_1 %}
+                        <div class="match {% if db.selesai %}is-finished{% endif %}" data-id="r1m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            {% if db|contains_team %}
+                            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% else %}
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% endif %}
+                                <div class="match-header">
+                                    <span class="match-num">Match {{ db.urutan }}</span>
+                                    {% if db.selesai %}
+                                    <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- AKA Row -->
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr1 %}
+                                            <span class="meta-vr-badge aka">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata1 and db.kata1 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata aka">{{ db.kata1 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">
+                                            {{ db.score1|default:"-" }}
+                                        </div>
+                                        {% if db.scorekecil1 %}
+                                        <span class="player-score-small">({{ db.scorekecil1 }})</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- AO Row -->
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr2 %}
+                                            <span class="meta-vr-badge ao">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata2 and db.kata2 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata ao">{{ db.kata2 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">
+                                            {{ db.score2|default:"-" }}
+                                        </div>
+                                        {% if db.scorekecil2 %}
+                                        <span class="player-score-small">({{ db.scorekecil2 }})</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted text-center py-4 small">Tidak ada match di babak ini</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ROUND 2 -->
+                <div class="round-col" data-round="2">
+                    <div class="round-label">
+                        <span class="round-step">R2</span>
+                        {% if bagan.pool == 2 %}BABAK 16 BESAR{% elif bagan.pool == 4 %}BABAK 32 BESAR{% else %}PEREMPAT FINAL{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_2 %}
+                        <div class="match {% if db.selesai %}is-finished{% endif %}" data-id="r2m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            {% if db|contains_team %}
+                            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% else %}
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% endif %}
+                                <div class="match-header">
+                                    <span class="match-num">Match {{ db.urutan }}</span>
+                                    {% if db.selesai %}
+                                    <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
+                                    {% endif %}
+                                </div>
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr1 %}
+                                            <span class="meta-vr-badge aka">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata1 and db.kata1 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata aka">{{ db.kata1 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">{{ db.score1|default:"-" }}</div>
+                                        {% if db.scorekecil1 %}<span class="player-score-small">({{ db.scorekecil1 }})</span>{% endif %}
+                                    </div>
+                                </div>
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr2 %}
+                                            <span class="meta-vr-badge ao">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata2 and db.kata2 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata ao">{{ db.kata2 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">{{ db.score2|default:"-" }}</div>
+                                        {% if db.scorekecil2 %}<span class="player-score-small">({{ db.scorekecil2 }})</span>{% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted text-center py-4 small">Belum ada match di babak ini</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ROUND 3 -->
+                <div class="round-col" data-round="3">
+                    <div class="round-label">
+                        <span class="round-step">{% if bagan.pool == 2 or bagan.pool == 4 %}R3{% else %}SF{% endif %}</span>
+                        {% if bagan.pool == 2 %}BABAK 8 BESAR{% elif bagan.pool == 4 %}BABAK 16 BESAR{% else %}SEMI FINAL{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_3 %}
+                        <div class="match {% if db.selesai %}is-finished{% endif %}" data-id="r3m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            {% if db|contains_team %}
+                            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% else %}
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% endif %}
+                                <div class="match-header">
+                                    <span class="match-num">{% if bagan.pool == 2 or bagan.pool == 4 %}Match {{ db.urutan }}{% else %}Semi {{ db.urutan }}{% endif %}</span>
+                                    {% if db.selesai %}
+                                    <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
+                                    {% endif %}
+                                </div>
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr1 %}
+                                            <span class="meta-vr-badge aka">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata1 and db.kata1 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata aka">{{ db.kata1 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">{{ db.score1|default:"-" }}</div>
+                                        {% if db.scorekecil1 %}<span class="player-score-small">({{ db.scorekecil1 }})</span>{% endif %}
+                                    </div>
+                                </div>
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr2 %}
+                                            <span class="meta-vr-badge ao">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata2 and db.kata2 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata ao">{{ db.kata2 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">{{ db.score2|default:"-" }}</div>
+                                        {% if db.scorekecil2 %}<span class="player-score-small">({{ db.scorekecil2 }})</span>{% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted text-center py-4 small">Belum ada match di babak ini</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ROUND 4 (FINAL / PODIUM) -->
+                <div class="round-col is-final" data-round="4">
+                    <div class="round-label text-warning">
+                        <span class="round-step text-warning border-warning">FN</span>
+                        PARTAI FINAL
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_4 %}
+                        <div class="match is-final-card {% if db.selesai %}is-finished{% endif %}" data-id="r4m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            {% if db|contains_team %}
+                            <a href="{% url 'control-panel-team' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% else %}
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                            {% endif %}
+                                <div class="match-header">
+                                    <span class="match-num text-warning"><i class="fas fa-trophy me-1"></i>PARTAI FINAL</span>
+                                    {% if db.selesai %}
+                                    <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
+                                    {% endif %}
+                                </div>
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr1 %}
+                                            <span class="meta-vr-badge aka">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata1 and db.kata1 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata aka">{{ db.kata1 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">{{ db.score1|default:"-" }}</div>
+                                        {% if db.scorekecil1 %}<span class="player-score-small">({{ db.scorekecil1 }})</span>{% endif %}
+                                    </div>
+                                </div>
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                            {% if bagan.tipe_tanding == '2' and db.vr2 %}
+                                            <span class="meta-vr-badge ao">VR</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="player-sub">
+                                            {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                                        </div>
+                                        {% if db.selesai and bagan.tipe_tanding == '1' and db.kata2 and db.kata2 != '0 - Blank' %}
+                                        <div class="player-meta-extra">
+                                            <span class="meta-kata ao">{{ db.kata2 }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="player-score-wrap">
+                                        <div class="player-score">{{ db.score2|default:"-" }}</div>
+                                        {% if db.scorekecil2 %}<span class="player-score-small">({{ db.scorekecil2 }})</span>{% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted text-center py-4 small">Belum ada match final</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Podium Juara Card (Positioned at Absolute Bottom Right) -->
+                    <div class="cal-podium-card">
+                        <div class="cal-podium-header">
+                            <div class="cal-podium-header-title">
+                                <i class="fas fa-award text-warning"></i>
+                                <span>Podium Juara</span>
+                            </div>
+                            <button type="button" class="btn-bagan btn-bagan-outline btn-sm hidden-print" onclick="openModal('juaraModal')" title="Tetapkan Juara">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="cal-podium-body">
+                            <!-- Juara 1 -->
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal gold">1</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">
+                                        {% if bagan.juara_1 %}{{ bagan.juara_1.nama_atlet }}{% else %}Belum Ditentukan{% endif %}
+                                    </div>
+                                    <div class="cal-podium-sub">
+                                        {% if bagan.juara_1 %}
+                                            {% if bagan.juara_1.utusan.logo %}<img src="{{ bagan.juara_1.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_1.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_1.utusan.nama_utusan|default:"-" }}
+                                        {% else %}&mdash;{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Juara 2 -->
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal silver">2</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">
+                                        {% if bagan.juara_2 %}{{ bagan.juara_2.nama_atlet }}{% else %}Belum Ditentukan{% endif %}
+                                    </div>
+                                    <div class="cal-podium-sub">
+                                        {% if bagan.juara_2 %}
+                                            {% if bagan.juara_2.utusan.logo %}<img src="{{ bagan.juara_2.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_2.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_2.utusan.nama_utusan|default:"-" }}
+                                        {% else %}&mdash;{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Juara 3A -->
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal bronze">3</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">
+                                        {% if bagan.juara_3a %}{{ bagan.juara_3a.nama_atlet }}{% else %}Belum Ditentukan{% endif %}
+                                    </div>
+                                    <div class="cal-podium-sub">
+                                        {% if bagan.juara_3a %}
+                                            {% if bagan.juara_3a.utusan.logo %}<img src="{{ bagan.juara_3a.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_3a.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_3a.utusan.nama_utusan|default:"-" }}
+                                        {% else %}&mdash;{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Juara 3B -->
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal bronze">3</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">
+                                        {% if bagan.juara_3b %}{{ bagan.juara_3b.nama_atlet }}{% else %}Belum Ditentukan{% endif %}
+                                    </div>
+                                    <div class="cal-podium-sub">
+                                        {% if bagan.juara_3b %}
+                                            {% if bagan.juara_3b.utusan.logo %}<img src="{{ bagan.juara_3b.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_3b.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_3b.utusan.nama_utusan|default:"-" }}
+                                        {% else %}&mdash;{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- ================= REFERCHANGE / REPECHAGE BRACKET ================= -->
+
+                <!-- REFERCHANGE ROUND 1 -->
+                <div class="round-col" data-round="1">
+                    <div class="round-label">
+                        <span class="round-step">R1</span>
+                        BABAK 1
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_1 %}
+                        <div class="match {% if db.selesai %}is-finished{% endif %}" data-id="r1m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                                <div class="match-header">
+                                    <span class="match-num">Match {{ db.urutan }}</span>
+                                    {% if db.selesai %}<span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>{% endif %}
+                                </div>
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                        </div>
+                                        <div class="player-sub">{% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                    </div>
+                                    <div class="player-score-wrap"><div class="player-score">{{ db.score1|default:"-" }}</div></div>
+                                </div>
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                        </div>
+                                        <div class="player-sub">{% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                    </div>
+                                    <div class="player-score-wrap"><div class="player-score">{{ db.score2|default:"-" }}</div></div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- REFERCHANGE ROUND 2 -->
+                <div class="round-col" data-round="2">
+                    <div class="round-label">
+                        <span class="round-step">R2</span>
+                        BABAK 2
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_2 %}
+                        <div class="match {% if db.selesai %}is-finished{% endif %}" data-id="r2m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                                <div class="match-header">
+                                    <span class="match-num">Match {{ db.urutan }}</span>
+                                    {% if db.selesai %}<span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>{% endif %}
+                                </div>
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                        </div>
+                                        <div class="player-sub">{% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                    </div>
+                                    <div class="player-score-wrap"><div class="player-score">{{ db.score1|default:"-" }}</div></div>
+                                </div>
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                        </div>
+                                        <div class="player-sub">{% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                    </div>
+                                    <div class="player-score-wrap"><div class="player-score">{{ db.score2|default:"-" }}</div></div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- REFERCHANGE ROUND 3 -->
+                <div class="round-col is-final" data-round="3">
+                    <div class="round-label text-warning">
+                        <span class="round-step text-warning border-warning">FN</span>
+                        FINAL REFERCHANGE
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_3 %}
+                        <div class="match is-final-card {% if db.selesai %}is-finished{% endif %}" data-id="r3m{{ db.urutan }}" id="db-{{ db.pk }}">
+                            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
+                                <div class="match-header">
+                                    <span class="match-num text-warning"><i class="fas fa-trophy me-1"></i>FINAL</span>
+                                    {% if db.selesai %}<span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>{% endif %}
+                                </div>
+                                <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+                                    <div class="player-side aka" title="Merah">M</div>
+                                    {% if db.atlet1.utusan.logo %}
+                                    <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                                            <span>{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                        </div>
+                                        <div class="player-sub">{% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                    </div>
+                                    <div class="player-score-wrap"><div class="player-score">{{ db.score1|default:"-" }}</div></div>
+                                </div>
+                                <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+                                    <div class="player-side ao" title="Biru">B</div>
+                                    {% if db.atlet2.utusan.logo %}
+                                    <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+                                    {% endif %}
+                                    <div class="player-info">
+                                        <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                                            <span>{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+                                        </div>
+                                        <div class="player-sub">{% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                    </div>
+                                    <div class="player-score-wrap"><div class="player-score">{{ db.score2|default:"-" }}</div></div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Podium Juara Card (Referchange) -->
+                    <div class="cal-podium-card">
+                        <div class="cal-podium-header">
+                            <div class="cal-podium-header-title">
+                                <i class="fas fa-award text-warning"></i>
+                                <span>Podium Juara</span>
+                            </div>
+                            <button type="button" class="btn-bagan btn-bagan-outline btn-sm hidden-print" onclick="openModal('juaraModal')" title="Tetapkan Juara">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="cal-podium-body">
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal gold">1</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">{% if bagan.juara_1 %}{{ bagan.juara_1.nama_atlet }}{% else %}Belum Ditentukan{% endif %}</div>
+                                    <div class="cal-podium-sub">{% if bagan.juara_1 %}{% if bagan.juara_1.utusan.logo %}<img src="{{ bagan.juara_1.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_1.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                </div>
+                            </div>
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal silver">2</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">{% if bagan.juara_2 %}{{ bagan.juara_2.nama_atlet }}{% else %}Belum Ditentukan{% endif %}</div>
+                                    <div class="cal-podium-sub">{% if bagan.juara_2 %}{% if bagan.juara_2.utusan.logo %}<img src="{{ bagan.juara_2.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_2.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                </div>
+                            </div>
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal bronze">3</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">{% if bagan.juara_3a %}{{ bagan.juara_3a.nama_atlet }}{% else %}Belum Ditentukan{% endif %}</div>
+                                    <div class="cal-podium-sub">{% if bagan.juara_3a %}{% if bagan.juara_3a.utusan.logo %}<img src="{{ bagan.juara_3a.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_3a.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_3a.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                </div>
+                            </div>
+                            <div class="cal-podium-row">
+                                <div class="cal-podium-rank"><span class="medal bronze">3</span></div>
+                                <div class="cal-podium-meta">
+                                    <div class="cal-podium-name">{% if bagan.juara_3b %}{{ bagan.juara_3b.nama_atlet }}{% else %}Belum Ditentukan{% endif %}</div>
+                                    <div class="cal-podium-sub">{% if bagan.juara_3b %}{% if bagan.juara_3b.utusan.logo %}<img src="{{ bagan.juara_3b.utusan.logo.url }}" class="dojo-badge-img" alt="">{% endif %}{{ bagan.juara_3b.perguruan.nama_perguruan|default:"-" }} &bull; {{ bagan.juara_3b.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Tetapkan Juara Pertandingan -->
+    <div class="bagan-modal-backdrop" id="juaraModal" onclick="handleBackdropClick(event)">
+        <div class="bagan-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="bagan-modal-header">
+                <div class="bagan-modal-title" id="modalTitle">
+                    <i class="fas fa-trophy text-warning"></i>
+                    <span>Tetapkan Hasil Juara Pertandingan</span>
+                </div>
+                <button type="button" class="bagan-modal-close" onclick="closeModal('juaraModal')" aria-label="Tutup">&times;</button>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="bagan-modal-body">
+                    <!-- Juara 1 -->
+                    <div class="bagan-form-group">
+                        <label class="bagan-form-label">
+                            <span class="medal gold" style="width:18px;height:18px;font-size:10px;">1</span>
+                            Juara 1 (Emas)
+                        </label>
+                        <select name="juara_1_pk" class="bagan-select">
+                            <option value="-">&mdash; Belum Ada Juara &mdash;</option>
+                            {% for atlet in all_atlets %}
+                            <option value="{{ atlet.pk }}" {% if bagan.juara_1 and bagan.juara_1.pk == atlet.pk %}selected{% endif %}>
+                                {{ atlet.nama_atlet }} ({{ atlet.utusan.nama_utusan|default:"-" }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Juara 2 -->
+                    <div class="bagan-form-group">
+                        <label class="bagan-form-label">
+                            <span class="medal silver" style="width:18px;height:18px;font-size:10px;">2</span>
+                            Juara 2 (Perak)
+                        </label>
+                        <select name="juara_2_pk" class="bagan-select">
+                            <option value="-">&mdash; Belum Ada Juara &mdash;</option>
+                            {% for atlet in all_atlets %}
+                            <option value="{{ atlet.pk }}" {% if bagan.juara_2 and bagan.juara_2.pk == atlet.pk %}selected{% endif %}>
+                                {{ atlet.nama_atlet }} ({{ atlet.utusan.nama_utusan|default:"-" }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Juara 3A -->
+                    <div class="bagan-form-group">
+                        <label class="bagan-form-label">
+                            <span class="medal bronze" style="width:18px;height:18px;font-size:10px;">3</span>
+                            Juara 3 Bersama A (Perunggu)
+                        </label>
+                        <select name="juara_3a_pk" class="bagan-select">
+                            <option value="-">&mdash; Belum Ada Juara &mdash;</option>
+                            {% for atlet in all_atlets %}
+                            <option value="{{ atlet.pk }}" {% if bagan.juara_3a and bagan.juara_3a.pk == atlet.pk %}selected{% endif %}>
+                                {{ atlet.nama_atlet }} ({{ atlet.utusan.nama_utusan|default:"-" }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Juara 3B -->
+                    <div class="bagan-form-group">
+                        <label class="bagan-form-label">
+                            <span class="medal bronze" style="width:18px;height:18px;font-size:10px;">3</span>
+                            Juara 3 Bersama B (Perunggu)
+                        </label>
+                        <select name="juara_3b_pk" class="bagan-select">
+                            <option value="-">&mdash; Belum Ada Juara &mdash;</option>
+                            {% for atlet in all_atlets %}
+                            <option value="{{ atlet.pk }}" {% if bagan.juara_3b and bagan.juara_3b.pk == atlet.pk %}selected{% endif %}>
+                                {{ atlet.nama_atlet }} ({{ atlet.utusan.nama_utusan|default:"-" }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bagan-modal-footer">
+                    <button type="button" class="btn-bagan btn-bagan-outline" onclick="closeModal('juaraModal')">Batal</button>
+                    <button type="submit" name="submit_type" value="generate_juara" class="btn-bagan btn-bagan-gold" title="Generate juara otomatis berdasarkan hasil pertandingan">
+                        <i class="fas fa-magic"></i>
+                        <span>Generate (Auto)</span>
+                    </button>
+                    <button type="submit" name="submit_type" value="simpan_juara" class="btn-bagan btn-bagan-danger">
+                        <i class="fas fa-save"></i>
+                        <span>Simpan Hasil Juara</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="tournament-bracket__round tournament-bracket__round--semifinals">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
 
-        {% for detail_bagan in detail_bagans_round_2 %}
-        <li class="tournament-bracket__item" style="margin-top: 100px">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
+    <!-- Connector Drawing Engine & Interactive Scripts -->
+    <script>
+        /* Dynamic SVG Bracket Connector Engine */
+        function drawConnectors() {
+            const svg = document.getElementById('connector-svg');
+            if (!svg) return;
+            svg.innerHTML = '';
 
-      </ul>
-    </div>
-    <div class="tournament-bracket__round tournament-bracket__round--bronze">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <ul class="tournament-bracket__list">
-        {% for detail_bagan in detail_bagans_round_3 %}
-        <li class="tournament-bracket__item" style="margin-top: 175px">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                    <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>M | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        <li class="tournament-bracket__item">
-          <div class="tournament-bracket__match" tabindex="0" style="padding-top: 5px; padding-bottom: 5px;">
-            <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=detail_bagan.pk %}">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                  <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>B | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                  <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
-                </td>
-              </tbody>
-            </table>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+            const outer = svg.parentElement.getBoundingClientRect();
+            const cols = Array.from(document.querySelectorAll('.round-col'));
 
-    <div class="tournament-bracket__round tournament-bracket__round--gold">
-      <h3 class="tournament-bracket__round-title"></h3>
-      <form method="POST">
-        {% csrf_token %}
-        <table style="
-          position: absolute; 
-          border-collapse: collapse; 
-          width: 100%; 
-          max-width: 700px; 
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-          font-family: Arial, sans-serif;
-          margin-left: -300px;
-          margin-top: -150px;
-        ">
-          <thead>
-            <tr style="background-color: #f5f5f5;">
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 10%;">Juara</th>
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Nama</th>
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 20%;">Perguruan</th>
-              <th style="text-align: center; padding: 5px; border: 1px solid #ddd; width: 40%;">Utusan</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>1</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_1.nama_atlet }}</b>
-                <select class="hidden" name="juara_1_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_1 == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_1.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>2</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_2.nama_atlet }}</b>
-                <select class="hidden" name="juara_2_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_2 == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_2.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_3a.nama_atlet }}</b>
-                <select class="hidden" name="juara_3a_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_3a == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3a.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>3</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;">
-                <b class="pop">{{ bagan.juara_3b.nama_atlet }}</b>
-                <select class="hidden" name="juara_3b_pk">
-                  <option value="-">-</option>
-                  {% for atlet in all_atlets %}
-                  {% if bagan.juara_3b == atlet %}
-                  <option value="{{ atlet.pk }}" selected>{{ atlet.nama_atlet }}</option>
-                  {% else %}
-                  <option value="{{ atlet.pk }}">{{ atlet.nama_atlet }}</option>
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.perguruan.nama_perguruan }}</b></td>
-              <td style="text-align: center; padding: 5px; border: 1px solid #ddd;"><b>{{ bagan.juara_3b.utusan.nama_utusan }}</b></td>
-            </tr>
-            <tr class="hidden" style="position: relative; z-index: 1000;">
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style="text-align: center; padding-top: 10px; padding-bottom: 10px;">
-                <button type="submit" name="submit_type" value="simpan_juara" style="">Simpan</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
-      {% for detail_bagan_round_4 in detail_bagans_round_4 %}
-      <ul class="tournament-bracket__list">
-        <li class="tournament-bracket__item" style="margin-top: 175px;">
-          <div class="tournament-bracket__match" tabindex="0">
-            <table class="tournament-bracket__table">
-              <tbody class="tournament-bracket">
-                <td class="tournament-bracket__team">
-                    <span style="font-size: 12px"><b>{% if detail_bagan_round_4.atlet1 %}{{ detail_bagan_round_4.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan_round_4.atlet1 %}{{ detail_bagan_round_4.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                    <span style="padding-top: -20px;"><b>{% if detail_bagan_round_4.atlet1 %}{{ detail_bagan_round_4.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
-                </td>
-              </tbody>
-            </table>
-          </div>
-        </li>
-      </ul>
-      {% endfor %}  
-      <div style="text-align: center; margin-top: 0px; margin-left: -300px;">
-        
-        <h3 style="display: inline-block; max-width: 90%; word-wrap: break-word;">
-          {{ bagan.event.nama_event }}
-        </h3>
-        <br>
-        <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" 
-            style="width: 300px; height: auto; max-width: 90%;" 
-            alt="">
-        
-      </div>
-    </div>
-  </div>
-  {% endif %}
-</div>
+            const isPrint = document.body.classList.contains('is-printing') || (window.matchMedia && window.matchMedia('print').matches);
+            const strokeColor = isPrint ? '#1e293b' : 'rgba(239, 68, 68, 0.4)';
+            const strokeWidth = isPrint ? '1.2' : '1.5';
 
+            for (let ri = 0; ri < cols.length - 1; ri++) {
+                const fromCards = Array.from(cols[ri].querySelectorAll('.match'));
+                const toCards   = Array.from(cols[ri + 1].querySelectorAll('.match'));
+
+                if (fromCards.length === 0 || toCards.length === 0) continue;
+
+                // Case 1: 1-to-1 linear connector (e.g. Referchange bracket)
+                if (fromCards.length === 1 && toCards.length === 1) {
+                    const cardA = fromCards[0];
+                    const cardOut = toCards[0];
+                    if (!cardA || !cardOut) continue;
+
+                    const rA = cardA.getBoundingClientRect();
+                    const rOut = cardOut.getBoundingClientRect();
+
+                    const yA = rA.top + rA.height / 2 - outer.top;
+                    const yTo = rOut.top + rOut.height / 2 - outer.top;
+                    const xFrom = rA.right - outer.left;
+                    const xTo = rOut.left - outer.left;
+                    const xMid = xFrom + (xTo - xFrom) / 2;
+
+                    seg(svg, xFrom, yA, xMid, yA, strokeColor, strokeWidth);
+                    seg(svg, xMid, yA, xMid, yTo, strokeColor, strokeWidth);
+                    seg(svg, xMid, yTo, xTo, yTo, strokeColor, strokeWidth);
+                } 
+                // Case 2: Standard elimination tournament tree (Pairs 2i & 2i+1 to target card i)
+                else {
+                    for (let i = 0; i < toCards.length; i++) {
+                        const cardA   = fromCards[i * 2];
+                        const cardB   = fromCards[i * 2 + 1];
+                        const cardOut = toCards[i];
+                        if (!cardA || !cardOut) continue;
+
+                        const rA   = cardA.getBoundingClientRect();
+                        const rOut = cardOut.getBoundingClientRect();
+
+                        const yA   = rA.top   + rA.height / 2  - outer.top;
+                        const yTo  = rOut.top + rOut.height / 2 - outer.top;
+                        const xFrom = rA.right  - outer.left;
+                        const xTo   = rOut.left - outer.left;
+                        const xMid  = xFrom + (xTo - xFrom) / 2;
+
+                        if (cardB) {
+                            const rB   = cardB.getBoundingClientRect();
+                            const yB   = rB.top   + rB.height / 2  - outer.top;
+                            const yMid = (yA + yB) / 2;
+
+                            seg(svg, xFrom, yA,   xMid, yA, strokeColor, strokeWidth);
+                            seg(svg, xFrom, yB,   xMid, yB, strokeColor, strokeWidth);
+                            seg(svg, xMid,  yA,   xMid, yB, strokeColor, strokeWidth);
+                            seg(svg, xMid,  yMid, xMid, yTo, strokeColor, strokeWidth);
+                            seg(svg, xMid,  yTo,  xTo,  yTo, strokeColor, strokeWidth);
+                        } else {
+                            // Unpaired single match feeder
+                            seg(svg, xFrom, yA,   xMid, yA, strokeColor, strokeWidth);
+                            seg(svg, xMid,  yA,   xMid, yTo, strokeColor, strokeWidth);
+                            seg(svg, xMid,  yTo,  xTo,  yTo, strokeColor, strokeWidth);
+                        }
+                    }
+                }
+            }
+        }
+
+        function seg(svg, x1, y1, x2, y2, strokeColor, strokeWidth) {
+            const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            l.setAttribute('x1', x1);
+            l.setAttribute('y1', y1);
+            l.setAttribute('x2', x2);
+            l.setAttribute('y2', y2);
+            l.setAttribute('stroke', strokeColor || '#1e293b');
+            l.setAttribute('stroke-width', strokeWidth || '1.2');
+            l.setAttribute('stroke-linecap', 'round');
+            svg.appendChild(l);
+        }
+
+        // Render connectors on DOM readiness & font loading
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.search.includes('print=1')) {
+                document.body.classList.add('is-printing');
+            }
+
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => {
+                    requestAnimationFrame(() => requestAnimationFrame(drawConnectors));
+                });
+            }
+            setTimeout(drawConnectors, 100);
+            setTimeout(drawConnectors, 300);
+        });
+
+        window.addEventListener('load', () => {
+            requestAnimationFrame(() => requestAnimationFrame(drawConnectors));
+        });
+
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(drawConnectors);
+        });
+
+        /* Print Execution Handler */
+        function printBagan() {
+            document.body.classList.add('is-printing');
+            void document.body.offsetHeight; // Force layout recalculation to print geometry
+            drawConnectors();
+            setTimeout(() => {
+                window.print();
+            }, 120);
+        }
+
+        window.addEventListener('beforeprint', () => {
+            document.body.classList.add('is-printing');
+            void document.body.offsetHeight;
+            drawConnectors();
+        });
+
+        window.addEventListener('afterprint', () => {
+            if (!window.location.search.includes('print=1')) {
+                document.body.classList.remove('is-printing');
+                void document.body.offsetHeight;
+                drawConnectors();
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            if (document.body.classList.contains('is-printing') && !window.location.search.includes('print=1')) {
+                document.body.classList.remove('is-printing');
+                void document.body.offsetHeight;
+                drawConnectors();
+            }
+        });
+
+        /* Modal Dialog Controller */
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('is-open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function handleBackdropClick(event) {
+            if (event.target.classList.contains('bagan-modal-backdrop')) {
+                closeModal(event.target.id);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.bagan-modal-backdrop.is-open').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

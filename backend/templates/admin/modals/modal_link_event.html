@@ -1,0 +1,75 @@
+<!-- 4. Link Event Web Modal -->
+<div class="modal fade" id="linkEventModal" tabindex="-1" aria-labelledby="linkEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="linkEventModalLabel"><i class="fas fa-link me-2 text-warning"></i>Hubungkan ke Event Web Public</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" id="formLinkEvent">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="set_event_mapping">
+                <input type="hidden" name="hosted_event_name" id="selected_hosted_event_name" value="{{ event_mapping.hosted_event_name|default:'' }}">
+                <div class="modal-body">
+                    <div class="card bg-dark border p-3 mb-3">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted">Target Web Server:</span>
+                            <strong>{{ sync_config.label }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted">Event Lokal:</span>
+                            <strong>{{ event.nama_event }} (ID #{{ event.pk }})</strong>
+                        </div>
+                        {% if event_mapping.hosted_event_id %}
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-muted">Terhubung ke:</span>
+                            <span class="badge bg-success">[#{{ event_mapping.hosted_event_id }}] {{ event_mapping.hosted_event_name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="hosted_event_select" class="form-label mb-0">Pilih Event di Web Public:</label>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" id="btnRefreshHostedEvents" title="Muat ulang daftar event dari web server" style="font-size: 11px;">
+                                <i class="fas fa-sync-alt me-1" id="refreshIcon"></i> Muat Ulang
+                            </button>
+                        </div>
+                        <div id="hostedEventsLoading" class="text-muted small py-1" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Mengambil daftar event dari web server...
+                        </div>
+                        <div id="hostedEventsError" class="alert alert-danger py-2 mt-2" style="display: none; font-size: 13px;">
+                            <i class="fas fa-exclamation-circle me-1"></i> <span id="hostedEventsErrorMsg"></span>
+                        </div>
+                        <select class="form-select" id="hosted_event_select" name="hosted_event_id" required style="width: 100%;">
+                            <option value="">-- Pilih Event dari Web Server --</option>
+                            {% if event_mapping.hosted_event_id %}
+                                <option value="{{ event_mapping.hosted_event_id }}" data-name="{{ event_mapping.hosted_event_name }}" selected>
+                                    [ID: {{ event_mapping.hosted_event_id }}] {{ event_mapping.hosted_event_name }} (Tersimpan)
+                                </option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div id="mismatchAlertBox" class="alert alert-warning py-2 mt-3" style="display: none; font-size: 12.5px;">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <strong>Peringatan Nama Berbeda:</strong><br>
+                        Lokal: <code id="lblLocalName">{{ event.nama_event }}</code><br>
+                        Web: <code id="lblHostedName"></code><br>
+                        <span class="small text-muted">Data akan disinkronkan ke event web yang dipilih ini.</span>
+                    </div>
+
+                    <div id="matchAlertBox" class="alert alert-success py-2 mt-3" style="display: none; font-size: 12.5px;">
+                        <i class="fas fa-check-circle me-1"></i> <strong>Nama Event Cocok!</strong>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveLinkEvent">
+                        <i class="fas fa-save me-1"></i> Simpan Hubungan Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

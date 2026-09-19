@@ -28,6 +28,7 @@ class Event(models.Model):
 class NomorTanding(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_nomor_tanding = models.CharField(max_length=50, null=True, blank=True)
+    is_bob = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.event} - {self.nama_nomor_tanding}'
@@ -42,12 +43,14 @@ class Perguruan(models.Model):
 class Utusan(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_utusan = models.CharField(max_length=50, null=True, blank=True)
+    logo = models.ImageField(upload_to='logo_utusan/', null=True, blank=True)
 
     def __str__(self):
         return f'{self.event} - {self.nama_utusan}'
     
 class Atlet(models.Model):
     nik = models.CharField(max_length=50, null=True, blank=True)
+    kode_atlet = models.CharField(max_length=50, null=True, blank=True, db_index=True)
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_atlet = models.CharField(max_length=50, null=True, blank=True)
     perguruan = models.ForeignKey(Perguruan, null=True, blank=True, on_delete=models.SET_NULL)
@@ -56,6 +59,13 @@ class Atlet(models.Model):
 
     def __str__(self):
         return f'{self.event} - {self.nama_atlet}'
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['event', 'nama_atlet']),
+            models.Index(fields=['event', 'nomor_tanding']),
+            models.Index(fields=['event', 'kode_atlet']),
+        ]
         
 class Bagan(models.Model):
     TIPE = [
@@ -73,9 +83,16 @@ class Bagan(models.Model):
     round_robin = models.BooleanField(default=False)
     pool = models.IntegerField(default=1)
     kode = models.CharField(max_length=50, null=True, blank=True)
+    is_bob = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.nama_bagan}'
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['event', 'kode']),
+            models.Index(fields=['event', 'nomor_tanding']),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.kode and self.event_id:
@@ -128,6 +145,11 @@ class DetailBagan(models.Model):
 
     def __str__(self):
         return f'{self.pk} - {self.round} - {self.urutan}'
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['bagan', 'round', 'urutan']),
+        ]
     
 class Matchup(models.Model):
     bagan = models.ForeignKey(Bagan, null=True, blank=True, on_delete=models.CASCADE)
@@ -246,6 +268,58 @@ class SyncQueue(models.Model):
 
     def __str__(self):
         return f"SyncQueue #{self.pk} - {self.endpoint} ({self.status})"
+
+
+class Wasit(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wasits')
+    nama_wasit = models.CharField(max_length=100)
+    perguruan = models.ForeignKey(Perguruan, null=True, blank=True, on_delete=models.SET_NULL, related_name='wasits')
+    kab_kota = models.CharField(max_length=100, null=True, blank=True, verbose_name="Kabupaten/Kota")
+    lisensi = models.CharField(max_length=50, null=True, blank=True)
+    no_lisensi = models.CharField(max_length=50, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['nama_wasit']
+        indexes = [
+            models.Index(fields=['event', 'nama_wasit']),
+            models.Index(fields=['event', 'perguruan']),
+        ]
+
+    def __str__(self):
+        perg_name = self.perguruan.nama_perguruan if self.perguruan else 'PB / Umum'
+        return f"{self.nama_wasit} ({perg_name})"
+
+
+class WasitTatami(models.Model):
+    POSISI_CHOICES = [
+        ('tatami_manager', 'Tatami Manager'),
+        ('referee', 'Wasit Utama (Referee)'),
+        ('wasit_2', 'Wasit 2 (Assistant Referee)'),
+        ('judge_1', 'Juri 1 (Judge 1)'),
+        ('judge_2', 'Juri 2 (Judge 2)'),
+        ('judge_3', 'Juri 3 (Judge 3)'),
+        ('judge_4', 'Juri 4 (Judge 4)'),
+        ('judge_5', 'Juri 5 (Judge 5)'),
+        ('judge_6', 'Juri 6 (Judge 6)'),
+        ('judge_7', 'Juri 7 (Judge 7)'),
+        ('kansa', 'Kansa (Match Supervisor)'),
+        ('pool', 'Anggota Pool Tatami'),
+    ]
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wasit_tatamis')
+    tatami = models.ForeignKey(Tatami, on_delete=models.CASCADE, related_name='wasit_assignments')
+    wasit = models.ForeignKey(Wasit, on_delete=models.CASCADE, related_name='tatami_assignments')
+    posisi = models.CharField(max_length=30, choices=POSISI_CHOICES, default='pool')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tatami', 'wasit')
+        ordering = ['posisi', 'id']
+
+    def __str__(self):
+        return f"{self.wasit.nama_wasit} -> Tatami {self.tatami.tatami_number} ({self.get_posisi_display()})"
+
 
 
 

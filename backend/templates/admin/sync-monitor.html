@@ -1,0 +1,805 @@
+{% extends "admin/base-dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+        <!-- Breadcrumbs & Header -->
+        <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);">
+                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: var(--text-secondary); text-decoration: none;">Dashboard</a></li>
+                    <li><span style="opacity: 0.5;">/</span></li>
+                    <li style="color: var(--text-primary); font-weight: 600;">Monitor Antrean Sync</li>
+                </ul>
+                <h3 class="fw-bold mb-1" style="color: #ffffff; font-family: 'Oswald', sans-serif; letter-spacing: 0.02em;">
+                    MONITOR ANTREAN & SINKRONISASI LIVE
+                </h3>
+                <div class="d-flex align-items-center flex-wrap gap-2 text-muted" style="font-size: 13px;">
+                    <span>Target Web: <strong class="text-white">{{ sync_config.label }}</strong> (<code>{{ sync_config.url }}</code>)</span>
+                    <span>&bull;</span>
+                    {% if event_mapping and event_mapping.hosted_event_name %}
+                        <span class="text-success"><i class="fas fa-link me-1"></i> Terhubung ke Web: <strong>{{ event_mapping.hosted_event_name }}</strong></span>
+                    {% else %}
+                        <span class="text-warning"><i class="fas fa-exclamation-circle me-1"></i> Belum terhubung ke Event Web</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Actions Toolbar -->
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <button type="button" class="btn btn-secondary btn-sm d-flex align-items-center gap-2" id="btnPingHosted" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 8px;">
+                    <i class="fas fa-wifi" id="pingIcon"></i>
+                    <span id="pingText">Test Koneksi Web</span>
+                </button>
+
+                <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-2" id="btnRetryAll" style="padding: 8px 14px; border-radius: 8px; font-weight: 600;">
+                    <i class="fas fa-sync-alt" id="retryAllIcon"></i>
+                    <span>Kirim Ulang Semua</span>
+                </button>
+
+                {% if synced_count > 0 %}
+                <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnClearSynced" style="border-color: var(--border-color); color: var(--text-secondary); padding: 8px 14px; border-radius: 8px;" title="Bersihkan riwayat data yang sudah berhasil terkirim">
+                    <i class="fas fa-broom"></i>
+                    <span>Bersihkan Sukses</span>
+                </button>
+                {% endif %}
+
+                {% if total_count > 0 %}
+                <button type="button" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#clearAllModal" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 8px 14px; border-radius: 8px;" title="Kosongkan seluruh antrean (aman dilakukan karena tersedia Force Sync Hasil Pertandingan)">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Kosongkan Semua Antrean</span>
+                </button>
+                {% endif %}
+
+                <!-- Auto Refresh Switch -->
+                <div class="form-check form-switch ms-2 d-flex align-items-center gap-2" style="background: var(--bg-surface-alt); padding: 6px 14px 6px 36px; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <input class="form-check-input mt-0" type="checkbox" id="toggleAutoRefresh" checked style="cursor: pointer;">
+                    <label class="form-check-label mb-0 text-white" for="toggleAutoRefresh" style="font-size: 12px; cursor: pointer; user-select: none;">
+                        Auto-Refresh <span id="refreshSpinner" class="spinner-border spinner-border-sm text-info ms-1" style="width: 12px; height: 12px; display: none;"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failure Warning Banner (High Priority) -->
+        {% if failed_count > 0 %}
+        <div class="alert alert-danger d-flex align-items-start gap-3 p-3 mb-4 shadow-sm" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(153, 27, 27, 0.12) 100%); border: 1px solid #dc2626; border-radius: 12px;">
+            <div class="p-2 rounded-circle text-white d-flex align-items-center justify-content-center" style="background: #dc2626; width: 40px; height: 40px; flex-shrink: 0; box-shadow: 0 0 12px rgba(220, 38, 38, 0.6);">
+                <i class="fas fa-exclamation-triangle fa-lg"></i>
+            </div>
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                    <h5 class="fw-bold mb-0 text-white" style="font-size: 16px;">
+                        PERHATIAN: {{ failed_count }} DATA GAGAL TERKIRIM KE SERVER WEB!
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-danger fw-bold d-flex align-items-center gap-2" onclick="triggerRetryAll(this)">
+                            <i class="fas fa-redo"></i> Coba Kirim Ulang
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-light d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#clearAllModal" style="border-color: rgba(255,255,255,0.3); font-size: 12px;">
+                            <i class="fas fa-trash-alt text-danger"></i> Kosongkan Antrean
+                        </button>
+                    </div>
+                </div>
+                <p class="mb-0 text-white-50" style="font-size: 13px; line-height: 1.5;">
+                    Antrean sinkronisasi FIFO otomatis dihentikan sementara pada item tertua agar hasil pertandingan tidak saling mendahului di server publik. 
+                    Anda dapat memeriksa detail error di bawah, menguji koneksi web, atau klik <strong>"Lewati / Sudah Sinkron"</strong> jika hasil pertandingan tersebut telah disinkronkan manual via <em>Push Bagan</em> atau <em>Force Sync</em>. Jika antrean menumpuk, Anda juga dapat <strong>mengosongkan antrean</strong> dan menjalankan <em>Force Sync Hasil Pertandingan</em> di Dashboard.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Metric Stat Cards -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Total Antrean -->
+            <div class="col-6 col-md-3">
+                <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; transition: transform 0.15s ease;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Total Antrean</span>
+                            <div class="p-2 rounded" style="background: rgba(255, 255, 255, 0.05); color: var(--text-primary);">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1 text-white" id="statTotalCount">{{ total_count }}</h3>
+                        <small class="text-muted" style="font-size: 11px;">Semua catatan sinkronisasi</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Gagal (Failed) -->
+            <div class="col-6 col-md-3">
+                <a href="?status=failed" style="text-decoration: none;">
+                    <div class="card card-stats mb-0 h-100 position-relative" style="background: {% if failed_count > 0 %}rgba(220, 38, 38, 0.1){% else %}var(--bg-surface){% endif %}; border: 1px solid {% if failed_count > 0 %}#dc2626{% else %}var(--border-color){% endif %}; border-radius: 12px; box-shadow: {% if failed_count > 0 %}0 0 15px rgba(220, 38, 38, 0.25){% else %}none{% endif %};">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="fw-semibold {% if failed_count > 0 %}text-danger{% else %}text-secondary{% endif %}" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    Gagal (Failed)
+                                </span>
+                                <div class="p-2 rounded" style="background: rgba(220, 38, 38, 0.2); color: #f87171;">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 {% if failed_count > 0 %}text-danger{% else %}text-white{% endif %}" id="statFailedCount">{{ failed_count }}</h3>
+                            <small class="{% if failed_count > 0 %}text-danger opacity-75{% else %}text-muted{% endif %}" style="font-size: 11px;">
+                                {% if failed_count > 0 %}Menahan antrean FIFO{% else %}Tidak ada kegagalan{% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 3. Tertunda (Pending) -->
+            <div class="col-6 col-md-3">
+                <a href="?status=pending" style="text-decoration: none;">
+                    <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Tertunda (Pending)</span>
+                                <div class="p-2 rounded" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-warning" id="statPendingCount">{{ pending_count }}</h3>
+                            <small class="text-muted" style="font-size: 11px;">Menunggu giliran kirim</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 4. Berhasil (Synced) -->
+            <div class="col-6 col-md-3">
+                <a href="?status=synced" style="text-decoration: none;">
+                    <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Berhasil (Synced)</span>
+                                <div class="p-2 rounded" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-success" id="statSyncedCount">{{ synced_count }}</h3>
+                            <small class="text-muted" style="font-size: 11px;">Tersinkron ke server web</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Tabs & Search Bar -->
+        <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <!-- Tabs -->
+                    <div class="nav nav-pills d-flex align-items-center gap-1" role="tablist">
+                        <a href="?status=all" class="btn btn-sm {% if status_filter == 'all' %}btn-secondary fw-bold text-white{% else %}text-muted{% endif %}" style="border-radius: 8px; font-size: 13px;">
+                            Semua <span class="badge bg-dark ms-1">{{ total_count }}</span>
+                        </a>
+                        <a href="?status=failed" class="btn btn-sm {% if status_filter == 'failed' %}btn-danger fw-bold{% else %}text-muted{% endif %}" style="border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-times-circle me-1"></i> Gagal <span class="badge {% if failed_count > 0 %}bg-danger text-white{% else %}bg-dark{% endif %} ms-1">{{ failed_count }}</span>
+                        </a>
+                        <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-warning text-dark fw-bold{% else %}text-muted{% endif %}" style="border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-clock me-1"></i> Tertunda <span class="badge bg-dark text-white ms-1">{{ pending_count }}</span>
+                        </a>
+                        <a href="?status=synced" class="btn btn-sm {% if status_filter == 'synced' %}btn-success fw-bold{% else %}text-muted{% endif %}" style="border-radius: 8px; font-size: 13px;">
+                            <i class="fas fa-check-circle me-1"></i> Terkirim <span class="badge bg-dark text-white ms-1">{{ synced_count }}</span>
+                        </a>
+                    </div>
+
+                    <!-- Client-side Search -->
+                    <div class="d-flex align-items-center" style="max-width: 320px; width: 100%;">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text" style="background: var(--bg-input); border-color: var(--border-color); color: var(--text-muted);">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" id="queueSearchInput" class="form-control" placeholder="Cari ID, partai, atlet, error..." style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Queue Table Card -->
+        <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+            <div class="card-header d-flex align-items-center justify-content-between p-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="fw-bold mb-0 text-white" style="font-size: 15px;">
+                        <i class="fas fa-list me-1 text-danger"></i> Daftar Antrean Sinkronisasi
+                    </h5>
+                    <span class="badge bg-dark text-muted" style="font-size: 11px;">Menampilkan {{ queue_items|length }} data</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted);">
+                    <i class="fas fa-info-circle me-1"></i> Urutan FIFO: Item ID terendah diproses lebih dulu
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="queueTable">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-surface-elevated);">
+                            <th style="width: 70px; text-align: center;">ID</th>
+                            <th style="width: 140px;">Endpoint</th>
+                            <th style="min-width: 220px;">Pertandingan & Data</th>
+                            <th style="width: 110px; text-align: center;">Status</th>
+                            <th style="width: 90px; text-align: center;">Retry</th>
+                            <th style="min-width: 200px;">Diagnostik / Error</th>
+                            <th style="width: 160px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if queue_items %}
+                            {% for item in queue_items %}
+                            <tr id="row-{{ item.pk }}" class="queue-row {% if item.status == 'failed' %}table-danger-subtle{% endif %}" data-search="{{ item.pk }} {{ item.endpoint }} {{ item.p_kode_realtime }} {{ item.p_winner }} {{ item.p_ring }} {{ item.last_error|default:'' }}">
+                                <!-- 1. ID -->
+                                <td class="text-center fw-bold font-monospace" style="color: var(--text-secondary); font-size: 13px;">
+                                    #{{ item.pk }}
+                                </td>
+
+                                <!-- 2. Endpoint -->
+                                <td>
+                                    <span class="badge rounded-pill px-2 py-1 font-monospace" style="background: rgba(255, 255, 255, 0.07); border: 1px solid var(--border-color); font-size: 11px; color: #cbd5e1;">
+                                        /{{ item.endpoint }}
+                                    </span>
+                                    <div class="mt-1 text-muted" style="font-size: 10.5px;">
+                                        {{ item.created_at|date:"d M H:i:s" }}
+                                    </div>
+                                </td>
+
+                                <!-- 3. Pertandingan & Data -->
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        {% if item.p_ring %}
+                                        <div>
+                                            <span class="badge bg-danger text-white fw-bold me-1" style="font-size: 10px;">Tatami {{ item.p_ring }}</span>
+                                            {% if item.p_round %}<span class="badge bg-dark text-secondary me-1" style="font-size: 10px;">Babak {{ item.p_round }}</span>{% endif %}
+                                            {% if item.p_urutan %}<span class="badge bg-dark text-secondary me-1" style="font-size: 10px;">Partai {{ item.p_urutan }}</span>{% endif %}
+                                        </div>
+                                        {% endif %}
+
+                                        {% if item.p_score or item.p_winner %}
+                                        <div style="font-size: 12.5px;">
+                                            {% if item.p_score %}
+                                                <span class="fw-bold text-warning me-2">Skor: {{ item.p_score }}</span>
+                                            {% endif %}
+                                            {% if item.p_winner %}
+                                                <span class="text-white">Pemenang: <strong class="text-success">{{ item.p_winner }}</strong></span>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            {% if item.p_kode_realtime %}
+                                                <span class="text-muted font-monospace" style="font-size: 11px;" title="Kode Realtime">
+                                                    <i class="fas fa-tag me-1"></i>{{ item.p_kode_realtime }}
+                                                </span>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-link btn-xs p-0 text-info" style="font-size: 11px; text-decoration: none;" onclick="viewPayloadModal({{ item.pk }})">
+                                                <i class="fas fa-code me-1"></i>Lihat Payload
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Hidden JSON payload storage for modal -->
+                                    <textarea id="payload-json-{{ item.pk }}" style="display: none;">{{ item.p_json }}</textarea>
+                                </td>
+
+                                <!-- 4. Status -->
+                                <td class="text-center">
+                                    {% if item.status == 'failed' %}
+                                        <span class="badge bg-danger px-2 py-1 fw-bold text-white shadow-sm" style="font-size: 11px;">
+                                            <i class="fas fa-times-circle me-1"></i> GAGAL
+                                        </span>
+                                    {% elif item.status == 'processing' %}
+                                        <span class="badge bg-info px-2 py-1 fw-bold text-white" style="font-size: 11px;">
+                                            <i class="fas fa-spinner fa-spin me-1"></i> PROSES
+                                        </span>
+                                    {% elif item.status == 'pending' %}
+                                        <span class="badge bg-warning px-2 py-1 fw-bold text-dark" style="font-size: 11px;">
+                                            <i class="fas fa-clock me-1"></i> TERTUNDA
+                                        </span>
+                                    {% elif item.status == 'synced' %}
+                                        <span class="badge bg-success px-2 py-1 fw-bold text-white" style="font-size: 11px;">
+                                            <i class="fas fa-check me-1"></i> TERKIRIM
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary px-2 py-1" style="font-size: 11px;">{{ item.status }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- 5. Retry Counter -->
+                                <td class="text-center font-monospace" style="font-size: 12px;">
+                                    {% if item.retry_count > 0 %}
+                                        <span class="badge bg-black border border-danger text-danger fw-bold" style="font-size: 11px;">
+                                            {{ item.retry_count }}x
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- 6. Diagnostik / Error -->
+                                <td>
+                                    {% if item.last_error %}
+                                        <div class="p-2 rounded border border-danger-subtle" style="background: rgba(220, 38, 38, 0.08); font-size: 12px; color: #fca5a5; max-width: 320px; word-break: break-word;">
+                                            <i class="fas fa-bug me-1 text-danger"></i> {{ item.last_error }}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted" style="font-size: 12px;">-</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- 7. Aksi -->
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        {% if item.status == 'failed' or item.status == 'pending' %}
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="retrySingleItem({{ item.pk }}, this)" title="Kirim ulang data ini sekarang">
+                                                <i class="fas fa-redo"></i> Kirim
+                                            </button>
+                                            
+                                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="markItemSynced({{ item.pk }}, this)" title="Tandai data ini terkirim / lewati agar antrean FIFO berjalan">
+                                                <i class="fas fa-forward"></i> Lewati
+                                            </button>
+                                        {% endif %}
+
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteSingleItem({{ item.pk }}, this)" title="Hapus item ini dari antrean">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr id="emptyRow">
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="py-4">
+                                        <div class="mb-3">
+                                            <i class="fas fa-check-double fa-3x text-success opacity-50"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-white mb-1">Tidak Ada Antrean Sinkronisasi</h5>
+                                        <p class="text-muted mb-0" style="font-size: 13px;">
+                                            {% if status_filter == 'failed' %}
+                                                Hebat! Tidak ada data yang gagal terkirim saat ini. Semua antrean berjalan normal.
+                                            {% elif status_filter == 'pending' %}
+                                                Tidak ada data yang sedang tertunda.
+                                            {% else %}
+                                                Belum ada request sinkronisasi live yang tersimpan di antrean.
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus/Kosongkan Semua Antrean -->
+<div class="modal fade" id="clearAllModal" tabindex="-1" aria-labelledby="clearAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid #ef4444; border-radius: 12px; color: var(--text-primary); box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold" id="clearAllModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Kosongkan Seluruh Antrean?
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3" style="font-size: 14px;">
+                    Anda akan menghapus seluruh <strong>{{ total_count }} item</strong> antrean sinkronisasi (termasuk data yang berstatus <em>Gagal</em> dan <em>Tertunda</em>).
+                </p>
+                <div class="alert alert-warning py-3 mb-3 text-dark d-flex align-items-start gap-2" style="font-size: 13px; border-radius: 8px;">
+                    <i class="fas fa-shield-alt fa-lg mt-1 text-dark"></i>
+                    <div>
+                        <strong>Aman Dilakukan:</strong> Menghapus antrean ini sepenuhnya aman karena Anda dapat menyinkronkan seluruh bracket dan pemenang ke server web kapan saja menggunakan tombol <strong>"Force Sync Hasil Pertandingan"</strong> di menu Web Sync Dashboard.
+                    </div>
+                </div>
+                <p class="mb-0 text-muted" style="font-size: 12px;">
+                    Setelah dikosongkan, antrean baru untuk pertandingan yang sedang berlangsung di tatami akan kembali tercatat secara bersih dan normal.
+                </p>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger btn-sm fw-bold px-3" id="btnConfirmClearAll" onclick="executeClearAll(this)">
+                    <i class="fas fa-trash-alt me-1"></i> Ya, Kosongkan Semua ({{ total_count }} Item)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Payload JSON -->
+<div class="modal fade" id="payloadModal" tabindex="-1" aria-labelledby="payloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary);">
+            <div class="modal-header" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title fw-bold text-white" id="payloadModalLabel" style="font-size: 15px;">
+                    <i class="fas fa-code text-info me-2"></i>Detail Payload Sinkronisasi #<span id="modalQueueId"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted" style="font-size: 12px;">Payload JSON yang dikirimkan ke server web:</span>
+                    <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2" id="btnCopyJson" onclick="copyModalJson()" style="font-size: 12px;">
+                        <i class="fas fa-copy me-1"></i> Salin JSON
+                    </button>
+                </div>
+                <pre id="modalJsonContent" class="p-3 rounded font-monospace" style="background: #0d0f14; border: 1px solid var(--border-color); color: #38bdf8; font-size: 12.5px; max-height: 420px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="syncToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="syncToastBody" style="font-size: 13px;">
+                <!-- Message inserted via JS -->
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ACTION_URL = "{% url 'sync-monitor-action' event_pk=event.pk %}";
+    const CSRF_TOKEN = "{{ csrf_token }}";
+    let autoRefreshInterval = null;
+
+    // Toast helper
+    function showToast(message, isSuccess = true) {
+        const toastEl = document.getElementById('syncToast');
+        const bodyEl = document.getElementById('syncToastBody');
+        toastEl.className = 'toast align-items-center text-white border-0 ' + (isSuccess ? 'bg-success' : 'bg-danger');
+        bodyEl.innerHTML = (isSuccess ? '<i class="fas fa-check-circle me-2"></i>' : '<i class="fas fa-exclamation-circle me-2"></i>') + message;
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
+    }
+
+    // Ping Hosted Web Server
+    document.getElementById('btnPingHosted').addEventListener('click', function() {
+        const btn = this;
+        const icon = document.getElementById('pingIcon');
+        const text = document.getElementById('pingText');
+        
+        btn.disabled = true;
+        icon.className = 'fas fa-spinner fa-spin';
+        text.innerText = 'Menguji...';
+
+        const formData = new FormData();
+        formData.append('action', 'ping_hosted');
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            if (data.success) {
+                icon.className = 'fas fa-check-circle text-success';
+                text.innerText = `Online (${data.latency_ms} ms)`;
+                showToast(`Server web terhubung dengan baik! Latensi: ${data.latency_ms} ms`);
+            } else {
+                icon.className = 'fas fa-exclamation-circle text-danger';
+                text.innerText = 'Offline';
+                showToast(data.error || 'Gagal terhubung ke server web', false);
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            icon.className = 'fas fa-exclamation-circle text-danger';
+            text.innerText = 'Error';
+            showToast('Koneksi gagal: ' + err, false);
+        });
+    });
+
+    // Retry All Trigger
+    function triggerRetryAll(btnElement) {
+        if (!confirm('Kirim ulang seluruh antrean sinkronisasi yang tertunda/gagal sekarang?')) return;
+        
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...';
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'retry_all');
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => window.location.reload(), 1200);
+            } else {
+                showToast(data.message, false);
+                if (btnElement) btnElement.disabled = false;
+            }
+        })
+        .catch(err => {
+            showToast('Terjadi kesalahan: ' + err, false);
+            if (btnElement) btnElement.disabled = false;
+        });
+    }
+
+    document.getElementById('btnRetryAll').addEventListener('click', function() {
+        triggerRetryAll(this);
+    });
+
+    // Retry Single Item
+    function retrySingleItem(queueId, btn) {
+        btn.disabled = true;
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        const formData = new FormData();
+        formData.append('action', 'retry_item');
+        formData.append('queue_id', queueId);
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                showToast(data.message, false);
+                setTimeout(() => window.location.reload(), 1200);
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            showToast('Kesalahan pengiriman: ' + err, false);
+        });
+    }
+
+    // Mark Synced / Skip Item
+    function markItemSynced(queueId, btn) {
+        if (!confirm(`Tandai item antrean #${queueId} sebagai TERKIRIM (Lewati)?\n\nLakukan ini jika data pertandingan sudah tersinkron via Push Bagan/Force Sync agar sisa antrean FIFO dapat lanjut terkirim.`)) return;
+
+        btn.disabled = true;
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        const formData = new FormData();
+        formData.append('action', 'mark_synced');
+        formData.append('queue_id', queueId);
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (data.success) {
+                showToast(data.message);
+                setTimeout(() => window.location.reload(), 600);
+            } else {
+                showToast(data.message, false);
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            showToast('Kesalahan: ' + err, false);
+        });
+    }
+
+    // Delete Single Item
+    function deleteSingleItem(queueId, btn) {
+        if (!confirm(`Hapus item antrean #${queueId} secara permanen dari database?`)) return;
+
+        btn.disabled = true;
+        const formData = new FormData();
+        formData.append('action', 'delete_item');
+        formData.append('queue_id', queueId);
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                const row = document.getElementById(`row-${queueId}`);
+                if (row) row.remove();
+            } else {
+                showToast(data.message, false);
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            showToast('Kesalahan: ' + err, false);
+        });
+    }
+
+    // Clear Synced Records
+    const btnClear = document.getElementById('btnClearSynced');
+    if (btnClear) {
+        btnClear.addEventListener('click', function() {
+            if (!confirm('Bersihkan seluruh riwayat antrean yang sudah berstatus TERKIRIM? Catatan yang gagal/tertunda tetap tersimpan.')) return;
+
+            const btn = this;
+            btn.disabled = true;
+            const formData = new FormData();
+            formData.append('action', 'clear_synced');
+
+            fetch(ACTION_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF_TOKEN },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    showToast(data.message);
+                    setTimeout(() => window.location.reload(), 600);
+                } else {
+                    showToast(data.message, false);
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                showToast('Kesalahan: ' + err, false);
+            });
+        });
+    }
+
+    // Execute Clear All Queue
+    function executeClearAll(btn) {
+        btn.disabled = true;
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Mengosongkan...';
+
+        const formData = new FormData();
+        formData.append('action', 'clear_all');
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message);
+                // Close modal if open
+                const modalEl = document.getElementById('clearAllModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                setTimeout(() => window.location.reload(), 600);
+            } else {
+                showToast(data.message, false);
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            showToast('Gagal mengosongkan antrean: ' + err, false);
+        });
+    }
+
+    // Payload Modal Viewer
+    function viewPayloadModal(queueId) {
+        const payloadTextArea = document.getElementById(`payload-json-${queueId}`);
+        const modalId = document.getElementById('modalQueueId');
+        const modalContent = document.getElementById('modalJsonContent');
+
+        modalId.innerText = queueId;
+        modalContent.innerText = payloadTextArea ? payloadTextArea.value : "{}";
+
+        const modal = new bootstrap.Modal(document.getElementById('payloadModal'));
+        modal.show();
+    }
+
+    function copyModalJson() {
+        const content = document.getElementById('modalJsonContent').innerText;
+        navigator.clipboard.writeText(content).then(() => {
+            const btn = document.getElementById('btnCopyJson');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check text-success me-1"></i> Tersalin!';
+            setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+    }
+
+    // Client-side search filtering
+    document.getElementById('queueSearchInput').addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.queue-row');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+            if (searchData.includes(query)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Auto-refresh polling (every 4 seconds)
+    function pollQueueStatus() {
+        const spinner = document.getElementById('refreshSpinner');
+        spinner.style.display = 'inline-block';
+
+        const formData = new FormData();
+        formData.append('action', 'get_status');
+
+        fetch(ACTION_URL, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            setTimeout(() => { spinner.style.display = 'none'; }, 400);
+            if (data.success) {
+                // Update stat cards
+                const curFailed = parseInt(document.getElementById('statFailedCount').innerText);
+                const curPending = parseInt(document.getElementById('statPendingCount').innerText);
+
+                document.getElementById('statTotalCount').innerText = data.total_count;
+                document.getElementById('statFailedCount').innerText = data.failed_count;
+                document.getElementById('statPendingCount').innerText = data.pending_count;
+                document.getElementById('statSyncedCount').innerText = data.synced_count;
+
+                // Reload if counts changed to reflect new items
+                if (curFailed !== data.failed_count || curPending !== data.pending_count) {
+                    window.location.reload();
+                }
+            }
+        })
+        .catch(() => {
+            spinner.style.display = 'none';
+        });
+    }
+
+    const toggleSwitch = document.getElementById('toggleAutoRefresh');
+    function setupAutoRefresh() {
+        if (toggleSwitch.checked) {
+            if (!autoRefreshInterval) {
+                autoRefreshInterval = setInterval(pollQueueStatus, 4000);
+            }
+        } else {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+    }
+
+    toggleSwitch.addEventListener('change', setupAutoRefresh);
+    setupAutoRefresh();
+</script>
+{% endblock content %}

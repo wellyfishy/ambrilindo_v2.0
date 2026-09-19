@@ -1,99 +1,685 @@
-{% extends "admin/base-dashboard.html" %} {% load static %}
+{% extends "admin/base-dashboard.html" %}
+{% load static %}
+
+{% block style %}
+<style>
+  /* Header Card */
+  .rekapan-header-card {
+    background: linear-gradient(135deg, rgba(22, 24, 31, 0.95) 0%, rgba(29, 31, 40, 0.95) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+  .rekapan-header-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red-core) 0%, #3b82f6 50%, #10b981 100%);
+  }
+
+  /* KPI Stat Chips */
+  .stat-chips-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .stat-chip {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 180px;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .stat-chip:hover {
+    transform: translateY(-2px);
+  }
+  .stat-chip-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .stat-chip.total .stat-chip-icon {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+  .stat-chip.finished .stat-chip-icon {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  .stat-chip.pending .stat-chip-icon {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  .stat-chip-val {
+    font-family: 'Oswald', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+  .stat-chip-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+  }
+
+  /* Day Filter Container */
+  .filter-box-dark {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+  }
+  .day-pill-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--bg-surface-alt);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+    margin: 3px 4px 3px 0;
+  }
+  .day-pill-checkbox:hover {
+    border-color: var(--border-hover);
+    color: #fff;
+  }
+  .day-pill-checkbox input {
+    accent-color: var(--red-core);
+    cursor: pointer;
+  }
+  .day-pill-checkbox.checked {
+    background: var(--red-tint);
+    border-color: var(--red-tint-border);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* Search & Filter Toolbar */
+  .toolbar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .rekapan-search-box {
+    position: relative;
+    min-width: 280px;
+    flex: 1;
+    max-width: 420px;
+  }
+  .rekapan-search-box i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .rekapan-search-box input {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 9px 14px 9px 40px;
+    color: var(--text-primary);
+    font-size: 13.5px;
+    outline: none;
+    transition: var(--transition);
+  }
+  .rekapan-search-box input:focus {
+    border-color: var(--red-core);
+    box-shadow: 0 0 0 2px var(--red-glow);
+  }
+
+  .status-filter-group {
+    display: flex;
+    gap: 6px;
+  }
+  .status-btn {
+    background: var(--bg-surface-alt);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .status-btn:hover {
+    color: #fff;
+    border-color: var(--border-hover);
+  }
+  .status-btn.active {
+    background: var(--red-core);
+    border-color: var(--red-core);
+    color: #fff;
+  }
+
+  /* Rekapan Table */
+  .rekapan-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 0;
+  }
+  .rekapan-table th {
+    background-color: var(--bg-surface-alt);
+    color: var(--text-secondary);
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+  }
+  .rekapan-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background-color: var(--bg-surface);
+    vertical-align: top;
+    transition: background-color 0.15s ease;
+  }
+  .rekapan-table tr:hover td {
+    background-color: var(--bg-surface-elevated);
+  }
+
+  .bagan-code-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: #f8fafc;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+
+  .bagan-link {
+    font-weight: 700;
+    font-size: 14.5px;
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .bagan-link:hover {
+    color: var(--red-hover);
+    text-decoration: underline;
+  }
+
+  /* Podium items inside table */
+  .podium-slot {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+  .podium-slot:not(:last-child) {
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+
+  .medal-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .medal-mark.g {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+  .medal-mark.s {
+    background: rgba(156, 163, 175, 0.2);
+    color: #e5e7eb;
+    border: 1px solid rgba(156, 163, 175, 0.4);
+  }
+  .medal-mark.b {
+    background: rgba(217, 119, 6, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(217, 119, 6, 0.4);
+  }
+
+  .podium-athlete-name {
+    font-weight: 700;
+    color: #fff;
+    font-size: 13.5px;
+  }
+  .podium-athlete-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 9px;
+    border-radius: 999px;
+  }
+  .status-tag.done {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+  .status-tag.waiting {
+    background: rgba(156, 163, 175, 0.12);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.25);
+  }
+
+  /* Print stylesheet */
+  @media print {
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+      background-image: none !important;
+    }
+    .sidebar, .main-header, .btn-print-hide, .filter-box-dark, .toolbar-row, .footer {
+      display: none !important;
+    }
+    .main-panel {
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+    .rekapan-header-card, .stat-chip, .card {
+      border: 1px solid #ddd !important;
+      background: #fff !important;
+      color: #000 !important;
+      box-shadow: none !important;
+    }
+    .rekapan-table {
+      color: #000 !important;
+    }
+    .rekapan-table th {
+      background: #f0f0f0 !important;
+      color: #000 !important;
+      border-color: #ccc !important;
+    }
+    .rekapan-table td {
+      background: #fff !important;
+      color: #000 !important;
+      border-color: #ddd !important;
+    }
+    .bagan-link, .podium-athlete-name {
+      color: #000 !important;
+    }
+    .print-only-title {
+      display: block !important;
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+    }
+  }
+  .print-only-title {
+    display: none;
+  }
+</style>
+{% endblock style %}
 
 {% block content %}
-<div class="container">
-    <div class="page-inner">
-        <div class="page-header">
-          <h3 class="fw-bold mb-3"></h3>
+<div class="container-fluid px-4 py-4">
+  <!-- Print Title (visible only during print) -->
+  <div class="print-only-title">
+    <h2 style="font-family: 'Oswald', sans-serif; font-weight: 700; margin-bottom: 4px;">REKAPAN HASIL PERTANDINGAN BAGAN</h2>
+    <h4 style="margin-bottom: 4px;">{{ event.nama_event }}</h4>
+    <p style="font-size: 12px; color: #555;">Dicetak pada: <span id="printDateRekapan"></span></p>
+  </div>
+
+  <!-- Header Banner -->
+  <div class="rekapan-header-card">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-danger" style="font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;">Rekapan Resmi</span>
+          <span class="text-secondary" style="font-size: 13px;">Event: {{ event.nama_event }}</span>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Rekapan Event {{ event.nama_event }}</div>
-                    </div>
+        <h2 class="fw-bold mb-1" style="font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; color: #fff;">
+          REKAPAN BAGAN & DAFTAR JUARA
+        </h2>
+        <p class="text-secondary mb-0" style="font-size: 13.5px;">
+          Laporan lengkap seluruh kategori tanding, status pertandingan, dan peraih Juara 1, 2, serta Juara 3 Bersama.
+        </p>
+      </div>
 
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-
-                        {% if days_for_filter %}
-                        <form method="get" style="margin-bottom: 20px; padding: 14px 16px; background: #f8f9fa; border-radius: 8px;">
-                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px;">
-                                <strong style="font-size: 13px; color: #555;">Filter Hari:</strong>
-                                {% for day in days_for_filter %}
-                                <label style="font-size: 13px; display: flex; align-items: center; gap: 5px; margin: 0;">
-                                    <input type="checkbox" name="day" value="{{ day.pk }}" {% if day.pk|stringformat:"s" in selected_day_ids %}checked{% endif %}>
-                                    {{ day.label }}
-                                </label>
-                                {% endfor %}
-                                <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
-                                <a href="?{% for day in days_for_filter %}day={{ day.pk }}&{% endfor %}" class="btn btn-outline-secondary btn-sm">Pilih Semua</a>
-                            </div>
-                        </form>
-                        {% endif %}
-
-                        <table class="table table-striped mt-3">
-                            <!-- unchanged table below -->
-                            <thead>
-                                <tr>
-                                <th scope="col" style="text-align: center; vertical-align: middle;" rowspan="2">No</th>
-                                <th scope="col" style="text-align: center; vertical-align: middle;" rowspan="2">Nama Bagan</th>
-                                <th scope="col" style="text-align: center;" colspan="4">Juara</th>
-                                </tr>
-                                <tr>
-                                    <th scope="col" style="text-align: center; width: 5%;">Juara</th>
-                                    <th scope="col" style="text-align: center; width: 20%;">Nama</th>
-                                    <th scope="col" style="text-align: center; width: 10%;">Perguruan</th>
-                                    <th scope="col" style="text-align: center; width: 20%;">Utusan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for bagan in bagans %}
-                                {% with bg=forloop.counter|divisibleby:2|yesno:"table-light," %}
-                                <tr>
-                                    <td rowspan="5" style="text-align: center;">{{ forloop.counter }}</td>
-                                    <td rowspan="5"><a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}"><b>({{ bagan.kode }}) {{ bagan.nama_bagan }}</b></a></td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;"><b>1</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_1 %}{{ bagan.juara_1.nama_atlet }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_1 %}{{ bagan.juara_1.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_1 %}{{ bagan.juara_1.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;"><b>2</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_2 %}{{ bagan.juara_2.nama_atlet }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_2 %}{{ bagan.juara_2.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_2 %}{{ bagan.juara_2.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;"><b>3</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_3a %}{{ bagan.juara_3a.nama_atlet }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_3a %}{{ bagan.juara_3a.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_3a %}{{ bagan.juara_3a.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;"><b>3</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_3b %}{{ bagan.juara_3b.nama_atlet }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_3b %}{{ bagan.juara_3b.perguruan.nama_perguruan }}{% else %}-{% endif %}</b></td>
-                                    <td style="text-align: left;"><b>{% if bagan.juara_3b %}{{ bagan.juara_3b.utusan.nama_utusan }}{% else %}-{% endif %}</b></td>
-                                </tr>
-                                {% endwith %}
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div class="d-flex align-items-center gap-2 btn-print-hide">
+        <button onclick="window.print()" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); font-weight: 600;">
+          <i class="fas fa-print"></i> Cetak Rekapan
+        </button>
+        <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn btn-dark btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); border: 1px solid var(--border-color); font-weight: 600;">
+          <i class="fas fa-th-large"></i> Bagan Utama
+        </a>
+      </div>
     </div>
-    
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- KPI Chips -->
+  <div class="stat-chips-row btn-print-hide">
+    <div class="stat-chip total">
+      <div class="stat-chip-icon">
+        <i class="fas fa-layer-group"></i>
+      </div>
+      <div>
+        <div class="stat-chip-val">{{ total_count }}</div>
+        <div class="stat-chip-label">Total Bagan Tanding</div>
+      </div>
+    </div>
+
+    <div class="stat-chip finished">
+      <div class="stat-chip-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div>
+        <div class="stat-chip-val">{{ finished_count }}</div>
+        <div class="stat-chip-label">Bagan Selesai (Ada Juara)</div>
+      </div>
+    </div>
+
+    <div class="stat-chip pending">
+      <div class="stat-chip-icon">
+        <i class="fas fa-hourglass-half"></i>
+      </div>
+      <div>
+        <div class="stat-chip-val">{{ pending_count }}</div>
+        <div class="stat-chip-label">Bagan Belum Selesai</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day Filter Bar -->
+  {% if days_for_filter %}
+  <div class="filter-box-dark btn-print-hide">
+    <form method="get" id="filterDayForm">
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-calendar-alt text-danger"></i>
+          <span style="font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; color: #fff;">
+            Filter Hari:
+          </span>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+          {% for day in days_for_filter %}
+          <label class="day-pill-checkbox {% if day.pk|stringformat:'s' in selected_day_ids %}checked{% endif %}">
+            <input type="checkbox" name="day" value="{{ day.pk }}" {% if day.pk|stringformat:'s' in selected_day_ids %}checked{% endif %} onchange="this.parentElement.classList.toggle('checked', this.checked)">
+            {{ day.label }}
+          </label>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <button type="submit" class="btn btn-danger btn-sm px-3" style="font-weight: 600; border-radius: var(--radius-sm);">
+            <i class="fas fa-filter me-1"></i> Terapkan
+          </button>
+          <a href="?{% for day in days_for_filter %}day={{ day.pk }}&{% endfor %}" class="btn btn-outline-secondary btn-sm px-2" style="border-radius: var(--radius-sm);">
+            Pilih Semua
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Toolbar: Search & Status Filter -->
+  <div class="toolbar-row btn-print-hide">
+    <div class="rekapan-search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="rekapanSearch" placeholder="Cari Kode Bagan, Nama Kelas, Atlet, Utusan..." onkeyup="filterRekapanTable()">
+    </div>
+
+    <div class="status-filter-group">
+      <button type="button" class="status-btn active" data-filter="all" onclick="setStatusFilter('all', this)">
+        Semua ({{ bagans|length }})
+      </button>
+      <button type="button" class="status-btn" data-filter="done" onclick="setStatusFilter('done', this)">
+        Selesai
+      </button>
+      <button type="button" class="status-btn" data-filter="pending" onclick="setStatusFilter('pending', this)">
+        Belum Selesai
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Rekapan Table Card -->
+  <div class="card" style="background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="table-responsive">
+      <table class="rekapan-table" id="tableRekapan">
+        <thead>
+          <tr>
+            <th style="width: 60px; text-align: center;">No</th>
+            <th style="width: 280px;">Kategori / Bagan Tanding</th>
+            <th style="width: 120px; text-align: center;">Status</th>
+            <th>Peraih Medali (Juara 1, 2, 3 Bersama)</th>
+            <th class="btn-print-hide" style="width: 90px; text-align: center;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bagan in bagans %}
+          <tr class="rekapan-row" data-status="{% if bagan.juara_1 %}done{% else %}pending{% endif %}">
+            <td style="text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 600;">
+              {{ forloop.counter }}
+            </td>
+            <td>
+              <div>
+                {% if bagan.kode %}
+                <span class="bagan-code-badge">KODE: {{ bagan.kode }}</span>
+                {% endif %}
+                <div>
+                  <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="bagan-link" title="Buka Detail Bagan">
+                    {{ bagan.nama_bagan }}
+                  </a>
+                </div>
+                {% if bagan.nomor_tanding %}
+                <small class="text-secondary">{{ bagan.nomor_tanding.nama_nomor_tanding }}</small>
+                {% endif %}
+              </div>
+            </td>
+            <td style="text-align: center;">
+              {% if bagan.juara_1 %}
+              <span class="status-tag done">
+                <i class="fas fa-check"></i> Selesai
+              </span>
+              {% else %}
+              <span class="status-tag waiting">
+                <i class="fas fa-clock"></i> Belum Ada Juara
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if bagan.juara_1 or bagan.juara_2 or bagan.juara_3a or bagan.juara_3b %}
+              <div class="podium-list">
+                <!-- Juara 1 -->
+                {% if bagan.juara_1 %}
+                <div class="podium-slot">
+                  <span class="medal-mark g">1</span>
+                  <div>
+                    <span class="podium-athlete-name">{{ bagan.juara_1.nama_atlet }}</span>
+                    <div class="podium-athlete-sub">
+                      {% if bagan.juara_1.utusan %}<i class="fas fa-flag me-1 text-danger"></i>{{ bagan.juara_1.utusan.nama_utusan }}{% endif %}
+                      {% if bagan.juara_1.perguruan %} • {{ bagan.juara_1.perguruan.nama_perguruan }}{% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Juara 2 -->
+                {% if bagan.juara_2 %}
+                <div class="podium-slot">
+                  <span class="medal-mark s">2</span>
+                  <div>
+                    <span class="podium-athlete-name">{{ bagan.juara_2.nama_atlet }}</span>
+                    <div class="podium-athlete-sub">
+                      {% if bagan.juara_2.utusan %}<i class="fas fa-flag me-1 text-secondary"></i>{{ bagan.juara_2.utusan.nama_utusan }}{% endif %}
+                      {% if bagan.juara_2.perguruan %} • {{ bagan.juara_2.perguruan.nama_perguruan }}{% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Juara 3A -->
+                {% if bagan.juara_3a %}
+                <div class="podium-slot">
+                  <span class="medal-mark b">3</span>
+                  <div>
+                    <span class="podium-athlete-name">{{ bagan.juara_3a.nama_atlet }}</span>
+                    <div class="podium-athlete-sub">
+                      {% if bagan.juara_3a.utusan %}<i class="fas fa-flag me-1 text-warning"></i>{{ bagan.juara_3a.utusan.nama_utusan }}{% endif %}
+                      {% if bagan.juara_3a.perguruan %} • {{ bagan.juara_3a.perguruan.nama_perguruan }}{% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Juara 3B -->
+                {% if bagan.juara_3b %}
+                <div class="podium-slot">
+                  <span class="medal-mark b">3</span>
+                  <div>
+                    <span class="podium-athlete-name">{{ bagan.juara_3b.nama_atlet }}</span>
+                    <div class="podium-athlete-sub">
+                      {% if bagan.juara_3b.utusan %}<i class="fas fa-flag me-1 text-warning"></i>{{ bagan.juara_3b.utusan.nama_utusan }}{% endif %}
+                      {% if bagan.juara_3b.perguruan %} • {{ bagan.juara_3b.perguruan.nama_perguruan }}{% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              {% else %}
+              <div class="text-secondary" style="font-size: 13px; font-style: italic;">
+                Pertandingan belum selesai atau belum diinput juara.
+              </div>
+              {% endif %}
+            </td>
+            <td class="btn-print-hide" style="text-align: center;">
+              <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-sm btn-outline-light px-2 py-1" style="border-radius: var(--radius-sm); font-size: 12px;" title="Buka Bagan Detail">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-5 text-muted">
+              Tidak ada bagan tanding yang sesuai dengan filter.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Print Signature (visible only during print) -->
+  <div class="print-only-title mt-5 pt-4">
+    <div style="display: flex; justify-content: space-between; text-align: center; margin-top: 40px;">
+      <div style="width: 200px;">
+        <p style="font-size: 13px; margin-bottom: 60px;">Ketua Pertandingan,</p>
+        <p style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px;">( ........................................ )</p>
+      </div>
+      <div style="width: 200px;">
+        <p style="font-size: 13px; margin-bottom: 60px;">Technical Delegate,</p>
+        <p style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px;">( ........................................ )</p>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  var currentStatusFilter = 'all';
+
+  function setStatusFilter(status, btn) {
+    currentStatusFilter = status;
+    document.querySelectorAll('.status-btn').forEach(function(b) {
+      b.classList.remove('active');
+    });
+    if (btn) btn.classList.add('active');
+    filterRekapanTable();
+  }
+
+  function filterRekapanTable() {
+    var searchInput = document.getElementById('rekapanSearch');
+    var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    var rows = document.querySelectorAll('#tableRekapan tbody tr.rekapan-row');
+
+    rows.forEach(function(row) {
+      var rowStatus = row.getAttribute('data-status');
+      var rowText = row.innerText.toLowerCase();
+
+      var matchSearch = !query || rowText.includes(query);
+      var matchStatus = (currentStatusFilter === 'all') ||
+                        (currentStatusFilter === 'done' && rowStatus === 'done') ||
+                        (currentStatusFilter === 'pending' && rowStatus === 'pending');
+
+      if (matchSearch && matchStatus) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var d = new Date();
+    var dateStr = d.toLocaleDateString('id-ID', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    var printElem = document.getElementById('printDateRekapan');
+    if (printElem) printElem.innerText = dateStr;
+  });
+</script>
 {% endblock content %}

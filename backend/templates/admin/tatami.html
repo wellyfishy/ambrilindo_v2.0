@@ -1,94 +1,385 @@
-{% extends "admin/base-dashboard.html" %} {% load static %}
+{% extends "admin/base-dashboard.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container">
     <div class="page-inner">
-        <div class="page-header">
-          <h3 class="fw-bold mb-3"></h3>
+        <!-- Page Header -->
+        <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);">
+                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: var(--text-secondary); text-decoration: none;">Dashboard</a></li>
+                    <li><span style="opacity: 0.5;">/</span></li>
+                    <li style="color: var(--text-primary); font-weight: 600;">Manajemen Tatami</li>
+                </ul>
+                <h3 class="fw-bold mb-1" style="color: #ffffff; font-family: 'Oswald', sans-serif; letter-spacing: 0.02em;">
+                    MANAJEMEN TATAMI EVENT
+                </h3>
+                <p class="text-muted mb-0" style="font-size: 13px;">
+                    Kelola arena tatami pertandingan, kredensial juri & operator, serta akses cepat kontrol scoring.
+                </p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#confirmAddModal" style="font-weight: 600; padding: 9px 18px; border-radius: 8px;">
+                    <i class="fas fa-plus"></i>
+                    <span>Tambah Tatami {{ next_suggested }}</span>
+                </button>
+            </div>
         </div>
+
+        <!-- Notification Alerts -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert" style="border-radius: 10px;">
+                    <div class="d-flex align-items-center gap-2">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle fs-5 text-success"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="fas fa-exclamation-circle fs-5 text-danger"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle fs-5 text-info"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Main Card -->
         <div class="row">
             <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Tatami Event</div>
-                        <div>
-                            <a href="#" class="btn btn-primary" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#confirmAddModal">Tambah Tatami</a>
-                            <div class="modal fade" id="confirmAddModal" tabindex="-1" aria-labelledby="confirmAddLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                    <div class="modal-header bg-primary text-white">
-                                        <h5 class="modal-title">Konfirmasi Menambah Tatami</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Apakah kamu yakin ingin menambahkan tatami?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <form method="POST">
-                                            {% csrf_token %}
-                                            <button type="submit" name="submit_type" value="tambah_tatami" class="btn btn-primary">Tambah</button>
-                                        </form>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden;">
+                    <div class="card-header d-flex align-items-center justify-content-between py-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-layer-group text-danger"></i>
+                            <span class="card-title fw-bold" style="font-size: 15px; margin: 0; color: #fff;">Daftar Arena Tatami Aktif</span>
+                            <span class="badge bg-dark border border-secondary text-light ms-1">{{ tatamis|length }} Arena</span>
                         </div>
                     </div>
-                    
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+                    <div class="card-body p-0">
+                        {% if tatamis %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="color: var(--text-primary);">
+                                    <thead style="background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color);">
+                                        <tr style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">
+                                            <th scope="col" style="padding: 14px 20px; width: 130px;">Arena</th>
+                                            <th scope="col" style="padding: 14px 20px;">Pertandingan Berjalan</th>
+                                            <th scope="col" style="padding: 14px 20px; min-width: 330px;">Tautan Langsung Arena</th>
+                                            <th scope="col" style="padding: 14px 20px; width: 140px; text-align: center;">Kredensial</th>
+                                            <th scope="col" style="padding: 14px 20px; width: 100px; text-align: center;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="border-top: none;">
+                                        {% for tatami in tatamis %}
+                                            <tr style="border-bottom: 1px solid var(--border-color); transition: background-color 0.15s ease;">
+                                                <!-- Arena Badge -->
+                                                <td style="padding: 16px 20px;">
+                                                    <span class="badge" style="font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, #e52525, #b91c1c); padding: 6px 14px; border-radius: 6px; box-shadow: 0 2px 8px rgba(229, 37, 37, 0.35); letter-spacing: 0.05em;">
+                                                        TATAMI {{ tatami.tatami_number }}
+                                                    </span>
+                                                </td>
+
+                                                <!-- Pertandingan Berjalan -->
+                                                <td style="padding: 16px 20px;">
+                                                    {% if tatami.detail_bagan %}
+                                                        <div class="d-flex flex-column gap-1">
+                                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                                <span class="fw-bold" style="font-size: 14px; color: #ffffff;">
+                                                                    {{ tatami.detail_bagan.bagan.nomor_tanding.nama_nomor_tanding|default:"Partai Pertandingan" }}
+                                                                </span>
+                                                                <span class="badge bg-primary" style="font-size: 10.5px; padding: 2px 7px;">
+                                                                    Babak {{ tatami.detail_bagan.round }} • Partai {{ tatami.detail_bagan.urutan }}
+                                                                </span>
+                                                                {% if tatami.detail_bagan.selesai %}
+                                                                    <span class="badge bg-success" style="font-size: 10.5px; padding: 2px 7px;">Selesai</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-danger" style="font-size: 10.5px; padding: 2px 7px; animation: pulse 1.5s infinite;">Sedang Bertanding</span>
+                                                                {% endif %}
+                                                            </div>
+
+                                                            <div class="d-flex align-items-center gap-3 text-secondary" style="font-size: 12.5px;">
+                                                                <div>
+                                                                    <span class="text-danger fw-bold">AKA:</span> 
+                                                                    {{ tatami.detail_bagan.atlet1.nama_atlet|default:"-" }}
+                                                                    {% if tatami.detail_bagan.atlet1.perguruan %}
+                                                                        <small class="text-muted">({{ tatami.detail_bagan.atlet1.perguruan.nama_perguruan }})</small>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div>
+                                                                    <span class="text-primary fw-bold">AO:</span> 
+                                                                    {{ tatami.detail_bagan.atlet2.nama_atlet|default:"-" }}
+                                                                    {% if tatami.detail_bagan.atlet2.perguruan %}
+                                                                        <small class="text-muted">({{ tatami.detail_bagan.atlet2.perguruan.nama_perguruan }})</small>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="badge" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 11.5px; padding: 5px 10px;">
+                                                                <i class="fas fa-pause-circle me-1"></i> Standby (Belum ada partai dipilih)
+                                                            </span>
+                                                        </div>
+                                                    {% endif %}
+                                                </td>
+
+                                                <!-- Quick Launchers -->
+                                                <td style="padding: 16px 20px;">
+                                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                                        <a href="{% url 'scoring-board' tatami_pk=tatami.pk %}" target="_blank" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" style="font-size: 11.5px; padding: 4px 8px; border-radius: 6px;" title="Buka Scoring Board">
+                                                            <i class="fas fa-tv"></i> Scoring
+                                                        </a>
+                                                        <a href="{% url 'admin-control' tatami_pk=tatami.pk %}" target="_blank" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1" style="font-size: 11.5px; padding: 4px 8px; border-radius: 6px;" title="Buka Admin Control">
+                                                            <i class="fas fa-gamepad"></i> Control
+                                                        </a>
+                                                        <a href="{% url 'lo-kata' tatami_pk=tatami.pk %}" target="_blank" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1" style="font-size: 11.5px; padding: 4px 8px; border-radius: 6px;" title="Buka Input Kata LO">
+                                                            <i class="fas fa-user-ninja"></i> LO Kata
+                                                        </a>
+                                                        <a href="{% url 'coach-supervisor' tatami_pk=tatami.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" style="font-size: 11.5px; padding: 4px 8px; border-radius: 6px;" title="Buka Coach Supervisor">
+                                                            <i class="fas fa-user-shield"></i> Coach Sup
+                                                        </a>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Credential Info Button -->
+                                                <td style="padding: 16px 20px; text-align: center;">
+                                                    <button type="button" class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-1" style="font-size: 11.5px; padding: 4px 10px; border-radius: 6px;" data-bs-toggle="modal" data-bs-target="#credentialModal{{ tatami.pk }}">
+                                                        <i class="fas fa-key text-warning"></i> Kredensial
+                                                    </button>
+                                                </td>
+
+                                                <!-- Action Buttons -->
+                                                <td style="padding: 16px 20px; text-align: center;">
+                                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                                        {% if tatami.detail_bagan %}
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#confirmResetModal{{ tatami.pk }}" title="Kosongkan partai dari tatami" style="padding: 4px 8px; border-radius: 6px;">
+                                                                <i class="fas fa-times text-muted"></i>
+                                                            </button>
+                                                        {% endif %}
+                                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ tatami.pk }}" title="Hapus tatami ini" style="padding: 4px 9px; border-radius: 6px;">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <!-- Empty State -->
+                            <div class="text-center py-5 px-3">
+                                <div class="mb-3">
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(229, 37, 37, 0.1); border: 1px solid rgba(229, 37, 37, 0.25);">
+                                        <i class="fas fa-layer-group text-danger fs-3"></i>
+                                    </span>
                                 </div>
-                            {% endfor %}
+                                <h5 class="fw-bold mb-1" style="color: #ffffff;">Belum Ada Tatami Ditambahkan</h5>
+                                <p class="text-muted mb-4" style="max-width: 420px; margin: 0 auto; font-size: 13px;">
+                                    Tambahkan tatami pertama untuk mengaktifkan scoring board, sistem juri, dan panel kendali pertandingan.
+                                </p>
+                                <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#confirmAddModal" style="padding: 8px 18px; border-radius: 8px; font-weight: 600;">
+                                    <i class="fas fa-plus"></i> Tambah Tatami 1
+                                </button>
+                            </div>
                         {% endif %}
-                        <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                            <th scope="col" style="text-align: center;">Tatami</th>
-                            <th scope="col" style="text-align: center;">MISC</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tatami in tatamis %}
-                            <tr>
-                                <td style="text-align: center;">Tatami - {{ tatami.tatami_number }}</td>
-                                <td style="text-align: center;">
-                                    <a href="#" class="btn btn-danger" style="font-size: inherit; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{tatami.pk}}">
-                                        Hapus
-                                    </a>
-                                    <div class="modal fade" id="confirmDeleteModal{{tatami.pk}}" tabindex="-1" aria-labelledby="confirmDeleteModal{{tatami.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title">Konfirmasi Menghapus Tatami</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                Apakah kamu yakin ingin menghapus tatami {{ tatami.tatami_number }}?
-                                            </div>
-                                            <div class="modal-footer">
-                                                <form method="POST">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="tatami_pk" value="{{ tatami.pk }}">
-                                                    <button type="submit" name="submit_type" value="hapus_tatami" class="btn btn-danger">Hapus</button>
-                                                </form>
-                                            </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
 </div>
+
+<!-- ================= MODALS SECTION (Outside Table for Clean DOM) ================= -->
+
+<!-- 1. Modal: Tambah Tatami -->
+<div class="modal fade" id="confirmAddModal" tabindex="-1" aria-labelledby="confirmAddLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); color: var(--text-primary);">
+            <div class="modal-header" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title fw-bold" id="confirmAddLabel" style="font-size: 16px; color: #ffffff;">
+                    <i class="fas fa-plus-circle text-primary me-2"></i>Konfirmasi Tambah Tatami
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="mb-3">
+                    Apakah kamu yakin ingin menambahkan <strong>Tatami {{ next_suggested }}</strong> pada event ini?
+                </p>
+                <div class="p-3 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); font-size: 12.5px;">
+                    <span class="text-warning fw-bold"><i class="fas fa-info-circle me-1"></i> Akun yang dibuat otomatis:</span>
+                    <ul class="mb-0 mt-2 ps-3 text-secondary">
+                        <li><strong>1 Akun Admin Tatami:</strong> <code>admtatami{{ next_suggested }}e{{ event.pk }}</code></li>
+                        <li><strong>7 Akun Juri Tatami:</strong> <code>j1t{{ next_suggested }}e{{ event.pk }}</code> s/d <code>j7t{{ next_suggested }}e{{ event.pk }}</code></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="submit_type" value="tambah_tatami" class="btn btn-primary fw-bold px-4">
+                        Ya, Tambahkan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loop Modals per Tatami -->
+{% for tatami in tatamis %}
+    <!-- 2. Modal: Kredensial Akses Tatami -->
+    <div class="modal fade" id="credentialModal{{ tatami.pk }}" tabindex="-1" aria-labelledby="credentialLabel{{ tatami.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); color: var(--text-primary);">
+                <div class="modal-header" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger" style="font-family: 'Oswald', sans-serif;">TATAMI {{ tatami.tatami_number }}</span>
+                        <h5 class="modal-title fw-bold mb-0" id="credentialLabel{{ tatami.pk }}" style="font-size: 16px; color: #ffffff;">
+                            Kredensial Akses Arena
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="text-muted mb-3" style="font-size: 13px;">
+                        Gunakan kredensial berikut untuk masuk ke perangkat operasional di Tatami {{ tatami.tatami_number }}.
+                    </p>
+
+                    <div class="row g-3">
+                        <!-- Admin Tatami -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color);">
+                                <span class="badge bg-primary mb-2">Admin Tatami</span>
+                                <div style="font-size: 13px;">
+                                    <div><strong>User:</strong> <code class="text-light">admtatami{{ tatami.tatami_number }}e{{ event.pk }}</code></div>
+                                    <div><strong>Pass:</strong> <code class="text-light">admtatami{{ tatami.tatami_number }}e{{ event.pk }}</code></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LO Kata -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(229, 37, 37, 0.06); border: 1px solid rgba(229, 37, 37, 0.25);">
+                                <span class="badge bg-danger mb-2">LO Kata (Tatami Input)</span>
+                                <div style="font-size: 13px;">
+                                    <div><strong>User:</strong> <code class="text-light">lo{{ event.pk }}</code> <small class="text-muted">(atau pilih event & input 'lo')</small></div>
+                                    <div><strong>Pass:</strong> <code class="text-light">{{ tatami.tatami_number }}</code></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Control (View Only) -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color);">
+                                <span class="badge bg-info text-dark mb-2">Admin Control (View Only)</span>
+                                <div style="font-size: 13px;">
+                                    <div><strong>User:</strong> <code class="text-light">{{ event.pk }}</code></div>
+                                    <div><strong>Pass:</strong> <code class="text-light">{{ tatami.tatami_number }}</code></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coach Supervisor -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color);">
+                                <span class="badge bg-secondary mb-2">Coach Supervisor (View Only)</span>
+                                <div style="font-size: 13px;">
+                                    <div><strong>User:</strong> <code class="text-light">c{{ event.pk }}</code></div>
+                                    <div><strong>Pass:</strong> <code class="text-light">{{ tatami.tatami_number }}</code></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Juri 1 - 7 -->
+                        <div class="col-12">
+                            <div class="p-3 rounded" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color);">
+                                <span class="badge bg-dark border border-secondary text-light mb-2">Juri Tatami (1 s/d 7)</span>
+                                <div class="row g-2 mt-1" style="font-size: 12.5px;">
+                                    {% for j in "1234567" %}
+                                        <div class="col-md-4 col-sm-6">
+                                            <div class="p-2 rounded bg-black border border-secondary">
+                                                <strong>Juri {{ j }}:</strong> <code>j{{ j }}t{{ tatami.tatami_number }}e{{ event.pk }}</code>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal: Hapus Tatami -->
+    <div class="modal fade" id="confirmDeleteModal{{ tatami.pk }}" tabindex="-1" aria-labelledby="confirmDeleteLabel{{ tatami.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid rgba(229, 37, 37, 0.35); border-radius: var(--radius-lg); color: var(--text-primary);">
+                <div class="modal-header" style="background: rgba(229, 37, 37, 0.15); border-bottom: 1px solid rgba(229, 37, 37, 0.3);">
+                    <h5 class="modal-title fw-bold text-danger" id="confirmDeleteLabel{{ tatami.pk }}" style="font-size: 16px;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Tatami {{ tatami.tatami_number }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-3">
+                        Apakah Anda yakin ingin menghapus <strong>Tatami {{ tatami.tatami_number }}</strong>?
+                    </p>
+                    <div class="alert alert-danger py-2 px-3 mb-0" style="font-size: 12.5px;">
+                        <i class="fas fa-info-circle me-1"></i> Tindakan ini akan menghapus Tatami beserta seluruh akun juri (<code>j1-j7</code>) dan akun admin tatami yang terdaftar.
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="tatami_pk" value="{{ tatami.pk }}">
+                        <button type="submit" name="submit_type" value="hapus_tatami" class="btn btn-danger fw-bold px-4">
+                            Ya, Hapus Tatami
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Modal: Kosongkan Partai dari Tatami -->
+    {% if tatami.detail_bagan %}
+        <div class="modal fade" id="confirmResetModal{{ tatami.pk }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); color: var(--text-primary);">
+                    <div class="modal-header" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                        <h5 class="modal-title fw-bold" style="font-size: 16px; color: #ffffff;">
+                            <i class="fas fa-unlink text-warning me-2"></i>Kosongkan Pertandingan
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <p class="mb-0">
+                            Lepaskan pertandingan <strong>{{ tatami.detail_bagan.bagan.nomor_tanding.nama_nomor_tanding }} (Babak {{ tatami.detail_bagan.round }} Partai {{ tatami.detail_bagan.urutan }})</strong> dari Tatami {{ tatami.tatami_number }}? Arena akan kembali berstatus Standby.
+                        </p>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="tatami_pk" value="{{ tatami.pk }}">
+                            <button type="submit" name="submit_type" value="reset_tatami" class="btn btn-warning fw-bold px-4">
+                                Kosongkan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+
 {% endblock content %}

@@ -1,0 +1,92 @@
+<!-- 9. Export Bagan Modal -->
+<div class="modal fade" id="exportBaganModal" tabindex="-1" aria-labelledby="exportBaganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportBaganModalLabel"><i class="fas fa-file-excel me-2 text-success"></i>Export Bagan ke Excel</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="export_bagan">
+                <div class="modal-body">
+                    {% if not bagans %}
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-0" style="font-size: 13px;">
+                        <i class="fas fa-exclamation-triangle mt-1 fs-5 text-warning"></i>
+                        <div>
+                            <div class="fw-bold text-white mb-1">Belum Ada Bagan Pertandingan</div>
+                            <div class="text-white-50">
+                                Event <strong>{{ event.nama_event }}</strong> belum memiliki bagan pertandingan yang dibuat (Total 0 bagan).
+                            </div>
+                            <div class="text-white-50 mt-1 small">
+                                Silakan generate bagan terlebih dahulu melalui menu <strong>Buat Bagan &gt; Drawing Otomatis</strong> atau <strong>Tambah Bagan Satuan</strong> sebelum mengekspor ke Excel.
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <label class="form-label text-white fw-bold mb-2" style="font-size: 13px;">Pilihan Ekspor:</label>
+                        <div class="d-flex flex-column gap-2">
+                            <!-- Option 1: Semua Bagan -->
+                            <label class="form-check p-2 rounded border border-secondary bg-dark d-flex align-items-center mb-0" style="cursor: pointer;">
+                                <input class="form-check-input mt-0 me-2" type="radio" name="export_scope" id="exportScopeAll" value="all" checked>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-white fw-semibold" style="font-size: 13px;">Export Semua Bagan</span>
+                                        <span class="badge bg-primary" style="font-size: 11px;">{{ bagans.count }} bagan</span>
+                                    </div>
+                                    <div class="text-muted small mt-0.5" style="font-size: 11.5px;">
+                                        Mengunduh seluruh bagan pertandingan dalam event ini ke satu file Excel.
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Option 2: Bagan Tertentu -->
+                            <label class="form-check p-2 rounded border border-secondary bg-dark d-flex align-items-center mb-0" style="cursor: pointer;">
+                                <input class="form-check-input mt-0 me-2" type="radio" name="export_scope" id="exportScopeSelected" value="selected">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-white fw-semibold" style="font-size: 13px;">Pilih Bagan Tertentu</span>
+                                        <span class="text-muted small" style="font-size: 11px;">Multi-select &amp; Cari</span>
+                                    </div>
+                                    <div class="text-muted small mt-0.5" style="font-size: 11.5px;">
+                                        Pilih satu atau beberapa bagan spesifik yang ingin diekspor.
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Hidden input for "all" mode -->
+                    <input type="hidden" id="export_all_input" name="bagan_pk" value="semua">
+
+                    <!-- Custom bagan selection container (hidden by default) -->
+                    <div id="exportCustomBaganWrap" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="export_bagan_pk" class="form-label mb-0" style="font-size: 12.5px;">Cari &amp; Pilih Bagan:</label>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-secondary py-0 px-2 text-white" id="btnSelectAllExport" style="font-size: 11px;">Pilih Semua</button>
+                                <button type="button" class="btn btn-outline-secondary py-0 px-2 text-white" id="btnClearAllExport" style="font-size: 11px;">Hapus Pilihan</button>
+                            </div>
+                        </div>
+                        <select class="form-select select2" id="export_bagan_pk" name="bagan_pk" multiple style="width: 100%;" data-placeholder="Ketik untuk mencari nama bagan..." disabled>
+                            {% for bagan in bagans %}
+                            <option value="{{ bagan.pk }}">{{ bagan.nama_bagan }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text text-muted small mt-1" style="font-size: 11px;">
+                            <i class="fas fa-search me-1"></i> Ketik nama kategori untuk memfilter (misal: Kata, Kumite, Senior, Kadet).
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="export_bagan" class="btn btn-success" {% if not bagans %}disabled title="Tidak ada bagan untuk diexport"{% endif %}>
+                        <i class="fas fa-download me-1"></i> Unduh File Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

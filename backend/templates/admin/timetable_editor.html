@@ -1,948 +1,2716 @@
 {% load custom_tags %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ event.nama_event }} - Timetable</title>
+    <title>{{ event.nama_event }} - Roster Maker 2.0</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/icons/fontawesome-free/css/all.min.css">
+    
     <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #f4f6fa;
-            margin: 0;
-            color: #24272f;
+        :root {
+            --bg-body: #090a0f;
+            --bg-surface: #12141c;
+            --bg-surface-alt: #171a24;
+            --bg-surface-elevated: #1e2230;
+            --bg-input: #0c0e14;
+            --border-color: #242938;
+            --border-hover: #373e54;
+            --border-subtle: #1a1e2b;
+            --red-core: #e52525;
+            --red-hover: #ff3838;
+            --red-glow: rgba(229, 37, 37, 0.25);
+            --red-tint: rgba(229, 37, 37, 0.08);
+            --blue-core: #3b82f6;
+            --emerald-core: #10b981;
+            --amber-core: #f59e0b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* ---------- Sidebar ---------- */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            margin: 0;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 36px 36px;
+        }
+
+        /* ---------- Sidebar (Category Pool) ---------- */
         .nt-sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
-            width: 300px;
-            background: #fff;
-            box-shadow: 2px 0 16px rgba(20, 25, 40, 0.08);
+            width: 330px;
+            background: var(--bg-surface);
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
             overflow-y: auto;
-            padding: 22px 20px;
+            padding: 20px 18px;
             z-index: 1000;
             transition: transform 0.22s ease;
-            border-right: 1px solid #edeff4;
+            border-right: 1px solid var(--border-color);
         }
         .nt-sidebar.hidden { transform: translateX(-100%); }
-        .nt-sidebar h4 {
-            margin: 0 0 14px 0;
-            font-size: 13px;
+        .nt-sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .nt-sidebar-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
             font-weight: 700;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: #8a90a2;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nt-search-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+        .nt-search-input:focus {
+            border-color: var(--red-core);
+            box-shadow: 0 0 0 2px var(--red-glow);
         }
         .nt-sidebar select {
             width: 100%;
-            margin-bottom: 16px;
-            padding: 9px 12px;
-            border-radius: 10px;
-            border: 1px solid #e0e3ec;
+            margin-bottom: 14px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
             font-size: 13px;
-            background: #fafbfd;
-            color: #333;
+            background: var(--bg-surface-alt);
+            color: var(--text-primary);
+            outline: none;
         }
-        #nt-pool { display: flex; flex-wrap: wrap; gap: 8px; }
+        #nt-pool {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
+        /* Chips in pool */
         .nt-chip {
-            padding: 7px 12px;
-            background: linear-gradient(180deg, #f0f3ff, #e8ecff);
-            border: 1px solid #d3d9fb;
-            border-radius: 14px;
+            padding: 10px 12px;
+            background: var(--bg-surface-alt);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             cursor: grab;
-            font-size: 11.5px;
+            font-size: 12px;
             line-height: 1.4;
-            font-weight: 500;
-            color: #4653c9;
-            white-space: normal;
-            word-break: break-word;
-            flex: 0 1 auto;
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            color: var(--text-primary);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            user-select: none;
+            position: relative;
         }
         .nt-chip:hover {
-            box-shadow: 0 3px 10px rgba(79, 110, 247, 0.25);
-            transform: translateY(-1px);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
         .nt-chip:active { cursor: grabbing; }
 
-        .nt-chip.nt-chip-used {
-            background: #f0f1f4;
-            border-color: #dcdfe6;
-            color: #9096a3;
+        .nt-chip.is-kata {
+            border-left: 3px solid #38bdf8;
         }
-        .nt-chip.nt-chip-used:hover {
+        .nt-chip.is-kumite {
+            border-left: 3px solid #f87171;
+        }
+
+        .nt-chip-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .nt-chip-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #fff;
+            white-space: normal;
+            word-break: break-word;
+        }
+        .nt-chip-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .nt-badge-mini {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.07);
+            color: var(--text-secondary);
+        }
+        .nt-badge-mini.dur {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .nt-chip.nt-chip-used {
+            opacity: 0.45;
+            background: rgba(255, 255, 255, 0.02);
+            border-color: var(--border-subtle);
+            border-left-color: var(--text-muted);
             box-shadow: none;
-            transform: none;
+            cursor: default;
+        }
+        .nt-chip.nt-chip-used:hover { transform: none; }
+        .nt-chip.nt-chip-used::after {
+            content: '✓ Terjadwal';
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--emerald-core);
+            background: rgba(16, 185, 129, 0.15);
+            padding: 1px 6px;
+            border-radius: 4px;
         }
 
         .nt-sidebar-toggle {
             position: fixed;
-            top: 22px;
-            left: 310px;
+            top: 20px;
+            left: 340px;
             z-index: 1001;
-            background: #4f6ef7;
+            background: var(--red-core);
             color: #fff;
             border: none;
-            border-radius: 0 10px 10px 0;
-            padding: 11px 10px;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
             cursor: pointer;
+            font-family: 'Oswald', sans-serif;
             font-size: 13px;
-            font-weight: 500;
-            box-shadow: 2px 3px 10px rgba(79, 110, 247, 0.3);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            box-shadow: 0 4px 14px var(--red-glow);
             transition: left 0.22s ease, background 0.15s ease;
-        }
-        .nt-sidebar-toggle:hover { background: #3f5adf; }
-        .nt-sidebar.hidden ~ .nt-sidebar-toggle { left: 0; }
-
-        /* ---------- Main content ---------- */
-        .main-content {
-            margin-left: 320px;
-            padding: 24px 28px 60px;
-            transition: margin-left 0.22s ease;
-        }
-        .main-content.sidebar-hidden { margin-left: 20px; }
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            background: #fff;
-            padding: 14px 18px;
-            border-radius: 14px;
-            box-shadow: 0 1px 6px rgba(20, 25, 40, 0.06);
-            margin-bottom: 22px;
-        }
-        .toolbar label {
-            font-size: 12.5px;
-            color: #6b7280;
             display: flex;
             align-items: center;
             gap: 6px;
         }
+        .nt-sidebar-toggle:hover { background: var(--red-hover); }
+        .nt-sidebar.hidden ~ .nt-sidebar-toggle { left: 16px; }
+
+        /* ---------- Main Content ---------- */
+        .main-content {
+            margin-left: 350px;
+            padding: 24px 32px 80px;
+            transition: margin-left 0.22s ease;
+        }
+        .main-content.sidebar-hidden { margin-left: 30px; }
+
+        /* Top Bar */
+        .workspace-header {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .workspace-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--red-core) 0%, var(--blue-core) 50%, var(--emerald-core) 100%);
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: var(--bg-surface);
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .toolbar label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 4px;
+        }
         .toolbar input[type="time"],
         .toolbar input[type="number"] {
-            padding: 7px 10px;
-            border-radius: 8px;
-            border: 1px solid #e0e3ec;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: #fff;
             font-size: 13px;
+            outline: none;
         }
-        button {
-            padding: 9px 16px;
-            border-radius: 9px;
-            border: 1px solid transparent;
-            font-size: 13.5px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: filter 0.12s ease, transform 0.08s ease;
-        }
-        button:active { transform: scale(0.97); }
-        .btn-secondary { background: #eef1f7; color: #3a3f4b; border-color: #e3e6ee; }
-        .btn-secondary:hover { filter: brightness(0.97); }
-        .btn-success { background: #22c55e; color: #fff; }
-        .btn-success:hover { filter: brightness(1.05); }
-        #save-status { font-size: 13px; font-weight: 600; color: #22c55e; margin-left: 4px; }
 
-        /* ---------- Day blocks ---------- */
-        .day-block {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 1px 6px rgba(20, 25, 40, 0.06);
-            overflow: hidden;
-            margin-bottom: 26px;
-        }
-        .day-header {
-            position: relative;
-            display: flex;
+        button.btn-tool {
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface-alt);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
             align-items: center;
-            justify-content: flex-end;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, #2d3148, #3a3f5c);
+            gap: 6px;
+        }
+        button.btn-tool:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-surface-elevated);
             color: #fff;
         }
-        .day-label-text {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: 600;
-            font-size: 15px;
-            letter-spacing: 0.01em;
+        button.btn-tool.primary {
+            background: var(--red-core);
+            border-color: var(--red-core);
+            color: #fff;
+            box-shadow: 0 2px 10px var(--red-glow);
+        }
+        button.btn-tool.primary:hover {
+            background: var(--red-hover);
+        }
+        button.btn-tool.success {
+            background: #059669;
+            border-color: #059669;
+            color: #fff;
+        }
+        button.btn-tool.success:hover { background: #10b981; }
+
+        button.btn-tool.magic {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+        button.btn-tool.magic:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        /* Conflict Alert Banner */
+        .conflict-alert-bar {
+            background: rgba(229, 37, 37, 0.15);
+            border: 1px solid rgba(229, 37, 37, 0.4);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fca5a5;
+            font-size: 13.5px;
+            animation: pulseBanner 2s infinite;
+        }
+        @keyframes pulseBanner {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(229, 37, 37, 0.4); }
+            50% { box-shadow: 0 0 12px 2px rgba(229, 37, 37, 0.25); }
+        }
+
+        /* Day Blocks */
+        .day-block {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-surface-alt);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .day-title-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .day-date-input {
-            padding: 5px 10px;
-            border-radius: 7px;
-            border: none;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: #fff;
             font-size: 13px;
+            outline: none;
         }
-        .remove-day-btn, .remove-row-btn, .remove-tatami-btn {
+
+        /* Tatami Column Grid */
+        .tatami-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--tatami-count, 3), minmax(280px, 1fr));
+            gap: 16px;
+            align-items: start;
+            margin-top: 12px;
+        }
+
+        .tatami-column {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .tatami-col-header {
+            background: var(--bg-surface-alt);
+            padding: 12px 14px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tatami-name-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.03em;
+        }
+
+        .tatami-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tatami-card-list {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 0; /* Strict 0 gap for mathematical vertical time sync between tatamis */
+            min-height: 120px;
+            background: var(--bg-surface);
+            transition: background 0.15s ease;
+        }
+
+        .tatami-card-list.drag-over {
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        /* Match Card */
+        .tt-card {
+            position: relative;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 0;
+            box-sizing: border-box;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .tt-card:active {
+            cursor: grabbing;
+        }
+
+        .tt-card.is-dragging {
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+
+        .tt-card.conflict-card {
+            border-color: var(--red-core) !important;
+            background: rgba(229, 37, 37, 0.25) !important;
+            box-shadow: 0 0 10px rgba(229, 37, 37, 0.6) !important;
+        }
+
+        .tt-card.conflict-card::before {
+            content: '⚠️ BENTROK ATLET';
+            position: absolute;
+            top: 2px; right: 24px;
+            font-size: 8.5px;
+            font-weight: 700;
+            color: #f87171;
+            background: rgba(0,0,0,0.85);
+            padding: 1px 4px;
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .tt-card.is-festival-card {
+            background: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.7) !important;
+            box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2) !important;
+        }
+        .tt-card.is-festival-card .card-content {
+            color: #f59e0b !important;
+            font-weight: 700 !important;
+        }
+        .tt-card.is-break-card {
+            background: rgba(56, 189, 248, 0.12) !important;
+            border: 1px dashed rgba(56, 189, 248, 0.65) !important;
+            box-shadow: none !important;
+        }
+        .tt-card.is-break-card .card-content {
+            color: #7dd3fc !important;
+            font-weight: 700;
+        }
+        .auto-schedule-result-bar {
+            background: linear-gradient(90deg, #092014 0%, #0d1b2a 100%);
+            border: 1px solid #10b981;
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tatami-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .tatami-pill input[type="checkbox"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .card-content {
+            outline: none;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.25;
+            color: #fff;
+            word-break: break-word;
+            padding-right: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .remove-card-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 11px;
+            line-height: 1;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: color 0.15s ease, background 0.15s ease;
+            z-index: 2;
+        }
+
+        .remove-card-btn:hover {
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Dropzone placeholder at bottom of tatami */
+        .tatami-dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .tatami-dropzone.drag-over {
+            border-color: #60a5fa;
+            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.12);
+        }
+
+        .remove-day-btn, .remove-tatami-btn {
             border: none;
             background: transparent;
             cursor: pointer;
             font-size: 13px;
-            line-height: 1;
+            color: var(--text-muted);
             transition: color 0.12s ease;
+            padding: 4px;
+            border-radius: 4px;
         }
-        .remove-day-btn { color: #ffb4b4; }
-        .remove-day-btn:hover { color: #fff; }
-        .remove-row-btn { color: #c9403f; }
-        .remove-row-btn:hover { color: #921f1f; }
-        .remove-tatami-btn { color: #9aa0ad; }
-        .remove-tatami-btn:hover { color: #c9403f; }
-
-        table { border-collapse: collapse; width: 100%; }
-        th {
-            background: #f6f7fb;
-            padding: 11px 8px;
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #333;
-            text-align: center;
-            border-bottom: 2px solid #eceef4;
-        }
-        td { border-bottom: 1px solid #eef0f5; border-right: 1px solid #eef0f5; padding: 7px; vertical-align: top; }
-        .time-label-input, .label-text-input {
-            border: none;
-            background: transparent;
-            width: 100%;
-            font-size: 13px;
-        }
-        .time-label-input { font-weight: 600; color: #1a1a1a; white-space: nowrap; }
-        .label-text-input { text-align: center; font-weight: 600; color: #b8860b; }
-
-        .tt-cell { min-width: 150px; height: 46px; transition: background 0.15s; vertical-align: top; }
-        .tt-cell.drag-over { background: #eef1ff; }
-        .cell-content {
-            min-height: 24px;
-            outline: none;
-            font-size: 12.5px;
-            padding: 4px 6px;
-            border-radius: 6px;
+        .remove-day-btn:hover, .remove-tatami-btn:hover {
+            color: #f87171;
+            background: rgba(229, 37, 37, 0.15);
         }
 
-        .tt-row td:first-child {
-            vertical-align: middle;
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
-        .cell-content:not(:empty) { background: #f2f4fb; color: #111; }
-        .label-cell { background: #fff8e6 !important; }
-
-        #keterangan-block {
-            background: #fff;
-            border-radius: 12px;
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 560px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+        .modal-box-header {
+            background: var(--bg-surface-alt);
             padding: 14px 18px;
-            box-shadow: 0 1px 6px rgba(20, 25, 40, 0.06);
-            margin-bottom: 22px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
         }
-        #keterangan-block label {
+        .modal-box-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+        .modal-box-body {
+            padding: 18px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+        .modal-box-footer {
+            background: var(--bg-surface-alt);
+            padding: 12px 18px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .form-group-custom {
+            margin-bottom: 14px;
+        }
+        .form-group-custom label {
             display: block;
             font-size: 12.5px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #8a90a2;
-            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
         }
-        #keterangan-input {
+        .form-group-custom input:not([type="checkbox"]), .form-group-custom select {
             width: 100%;
-            border: 1px solid #e0e3ec;
-            border-radius: 8px;
-            padding: 10px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: #fff;
             font-size: 13.5px;
-            font-family: inherit;
-            color: #24272f;
-            resize: vertical;
-        }
-        #keterangan-input:focus {
             outline: none;
-            border-color: #4f6ef7;
         }
 
-        #print-kop-header {
+        /* Age Filter Pills */
+        .age-pills-container {
             display: flex;
-            visibility: hidden;
-            height: 0;
-            overflow: hidden;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: var(--bg-input);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .age-pill {
+            display: inline-flex !important;
             align-items: center;
-            gap: 16px;
+            gap: 7px;
+            padding: 6px 12px !important;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface-elevated);
+            color: var(--text-secondary) !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+            margin-bottom: 0 !important;
+            white-space: nowrap;
         }
-        #print-kop-header img { height: 70px; }
+        .age-pill input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
+            margin: 0;
+        }
+        .age-pill-check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 8.5px;
+            background: rgba(255, 255, 255, 0.08);
+            color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.15s ease;
+        }
+        .age-pill.active {
+            background: rgba(56, 189, 248, 0.15) !important;
+            border-color: #38bdf8 !important;
+            color: #f0f9ff !important;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+        }
+        .age-pill.active .age-pill-check {
+            background: #38bdf8;
+            border-color: #38bdf8;
+            color: #0c1524;
+        }
+        .age-pill:not(.active) {
+            opacity: 0.55;
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-muted) !important;
+        }
+        .age-pill:not(.active) .age-pill-check {
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.2);
+            color: transparent;
+        }
+        .age-pill:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+        .age-pill-count {
+            font-size: 11px;
+            opacity: 0.85;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            font-weight: 700;
+        }
+        .age-pill.active .age-pill-count {
+            background: rgba(56, 189, 248, 0.25);
+            color: #7dd3fc;
+        }
+        .btn-tool-mini {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-tool-mini:hover {
+            background: var(--bg-surface-elevated);
+            color: #fff;
+            border-color: var(--text-muted);
+        }
 
-        .table-scroll-wrapper { overflow-x: auto; }
+        @page {
+            size: A4 portrait;
+            margin: 10mm 8mm;
+        }
 
-        .kop-logo-empty { display: none; }
-
+        /* Print styles - Optimized for Minimal Ink Usage */
         @media print {
-            .nt-sidebar, .nt-sidebar-toggle, .toolbar,
-            .remove-row-btn, .remove-tatami-btn, .remove-day-btn,
-            .action-col, .day-date-input { display: none !important; }
-
-            #print-kop-header {
-                visibility: visible !important;
-                height: auto !important;
-                overflow: visible !important;
-                border-bottom: 3px solid #000;
-                padding-bottom: 14px;
-                margin-bottom: 18px;
+            body { 
+                background: #ffffff !important; 
+                color: #111827 !important; 
+                background-image: none !important; 
             }
-            #print-kop-header #kop-nama-text {
-                font-size: 22px;
-                font-weight: 800;
-                color: #000;
+            .nt-sidebar, .nt-sidebar-toggle, .toolbar, .workspace-header, .conflict-alert-bar, 
+            .tatami-actions-row, .remove-card-btn, .tatami-dropzone, .remove-day-btn, .remove-tatami-btn {
+                display: none !important;
             }
-            #print-kop-header #kop-alamat-text {
-                font-size: 12px;
-                color: #333;
+            .main-content { 
+                margin: 0 !important; 
+                padding: 0 !important; 
             }
-            #print-kop-header #kop-kontak-text {
-                font-size: 10px;
-                color: #555;
+            .day-block { 
+                border: 1px solid #cbd5e1 !important; 
+                box-shadow: none !important; 
+                margin-bottom: 16px !important; 
+                page-break-inside: auto !important;
+                background: #ffffff !important;
             }
-            #kop-surat-modal { display: none !important; }
-            #keterangan-block {
-                box-shadow: none;
-                border-radius: 0;
-                padding: 0;
-                margin-bottom: 16px;
+            .day-header { 
+                background: #ffffff !important; 
+                color: #111827 !important; 
+                border-bottom: 1px solid #cbd5e1 !important; 
+                padding: 6px 10px !important;
             }
-            #keterangan-block label {
-                font-size: 11px;
-                color: #000;
+            .day-title-text { 
+                color: #111827 !important; 
+                font-size: 14px !important;
+                font-weight: 700 !important;
             }
-            #keterangan-input {
-                border: none;
-                padding: 0;
-                color: #000;
-                resize: none;
-                pointer-events: none;
-                font-size: 12px;
+            .day-date-input {
+                border: none !important;
+                background: transparent !important;
+                color: #475569 !important;
+                font-weight: 600 !important;
+                font-size: 12px !important;
             }
-
-            .table-scroll-wrapper {
-                overflow: visible !important;
+            .tatami-grid { 
+                display: grid !important; 
+                grid-template-columns: repeat(var(--tatami-count, 3), 1fr) !important; 
+                gap: 6px !important; 
+                width: 100% !important; 
+                margin-top: 0 !important; 
             }
-
-            .main-content { margin-left: 0; padding: 0; }
-            body { background: #fff; }
-            .day-block { box-shadow: none; border-radius: 0; break-inside: avoid; }
-            .cell-content, .time-label-input, .label-text-input { pointer-events: none; }
-
-            th, td { border: 1px solid #999 !important; color: #000 !important; }
-            .time-label-input { white-space: nowrap; }
-
-            @page { size: portrait; margin: 0.5cm; }
+            .tatami-column { 
+                border: 1px solid #cbd5e1 !important; 
+                background: #ffffff !important; 
+                border-radius: 3px !important; 
+                page-break-inside: auto !important; 
+                box-shadow: none !important;
+            }
+            .tatami-col-header { 
+                background: #ffffff !important; 
+                border-bottom: 1px solid #cbd5e1 !important; 
+                padding: 5px !important; 
+            }
+            .tatami-name-label { 
+                color: #111827 !important; 
+                font-weight: 700 !important; 
+                font-size: 12.5px !important; 
+            }
+            .tatami-card-list { 
+                padding: 5px !important; 
+                gap: 5px !important; 
+                background: #ffffff !important; 
+            }
+            .tt-card { 
+                border: 1px solid #e2e8f0 !important; 
+                background: #ffffff !important; 
+                box-shadow: none !important; 
+                border-radius: 2px !important; 
+                padding: 5px 6px !important; 
+                page-break-inside: avoid !important; 
+            }
+            .card-content { 
+                color: #111827 !important; 
+                font-size: 10px !important; 
+                font-weight: 600 !important; 
+                line-height: 1.3 !important; 
+                padding-right: 0 !important; 
+            }
+            .tt-card.is-festival-card {
+                background: #fef3c7 !important;
+                border: 1px solid #f59e0b !important;
+            }
+            .tt-card.is-festival-card .card-content {
+                color: #92400e !important;
+                font-weight: 700 !important;
+            }
+            .tt-card.is-break-card {
+                background: #e0f2fe !important;
+                border: 1px dashed #0284c7 !important;
+            }
+            .tt-card.is-break-card .card-content {
+                color: #0369a1 !important;
+                font-weight: 700 !important;
+            }
+            #print-kop-header { 
+                display: flex !important; 
+                margin-bottom: 10px !important; 
+                border-bottom: 1px solid #cbd5e1 !important; 
+                padding-bottom: 6px !important; 
+                background: transparent !important;
+            }
+            #print-kop-header h3, #print-kop-header h4, #print-kop-header p {
+                color: #111827 !important;
+            }
         }
+        #print-kop-header { display: none; }
     </style>
 </head>
 <body>
+
+    <!-- Category Pool Sidebar -->
     <div class="nt-sidebar" id="nt-sidebar">
-        <h4>Nomor Tanding</h4>
-        <select id="age-group-select">
+        <div class="nt-sidebar-header">
+            <h4 class="nt-sidebar-title"><i class="fas fa-layer-group text-danger"></i> Pool Nomor Tanding</h4>
+            <span id="unscheduled-count-badge" class="badge" style="background: rgba(229,37,37,0.2); color:#fca5a5; font-size:11px; padding:2px 8px; border-radius:999px;">0 Sisa</span>
+        </div>
+
+        <input type="text" id="chip-search-input" class="nt-search-input" placeholder="🔍 Cari kategori / kelas..." onkeyup="filterChipsBySearch()">
+
+        <select id="age-group-select" onchange="filterChipsByGroup()">
+            <option value="ALL">Semua Nomor Tanding</option>
+            <option value="VALID_TOURNAMENT">Tournament Siap Tanding (>1 Atlet)</option>
+            <option value="SOLO">Tanpa Lawan (0 / 1 Atlet)</option>
+            <option value="TOURNAMENT">Semua Tournament</option>
+            <option value="FESTIVAL">Hanya Festival</option>
             {% for group in age_groups %}
                 <option value="{{ group }}">{{ group }}</option>
             {% endfor %}
         </select>
+
         <div id="nt-pool">
             {% for nt in nt_with_group %}
-                <div class="nt-chip" draggable="true"
+                <div class="nt-chip {% if nt.discipline == 'kata' %}is-kata{% else %}is-kumite{% endif %}" draggable="true"
                      data-nt-id="{{ nt.pk }}" data-nt-name="{{ nt.nama }}"
-                     data-age-group="{{ nt.age_group }}" data-atlet-count="{{ nt.atlet_count }}">
-                    {{ nt.nama }} ({{ nt.atlet_count }})
+                     data-age-group="{{ nt.age_group }}" data-atlet-count="{{ nt.atlet_count }}"
+                     data-matches="{{ nt.matches }}" data-duration="{{ nt.est_duration_minutes }}"
+                     data-discipline="{{ nt.discipline }}" data-is-festival="{% if nt.is_festival %}true{% else %}false{% endif %}">
+                    <div class="nt-chip-header">
+                        <div class="nt-chip-title">
+                            {% if nt.discipline == 'kata' %}🥋{% else %}🥊{% endif %} {{ nt.nama }}
+                        </div>
+                    </div>
+                    <div class="nt-chip-meta">
+                        {% if nt.is_festival %}
+                            <span class="nt-badge-mini" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24;"><i class="fas fa-flag"></i> Festival ({{ nt.atlet_count }} Atlet)</span>
+                        {% elif nt.atlet_count <= 1 %}
+                            <span class="nt-badge-mini" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8;"><i class="fas fa-info-circle"></i> {{ nt.atlet_count }} Atlet (Tanpa Lawan)</span>
+                        {% else %}
+                            <span class="nt-badge-mini">{{ nt.atlet_count }} Atlet</span>
+                            <span class="nt-badge-mini">{{ nt.matches }} Partai</span>
+                            <span class="nt-badge-mini dur">~{{ nt.est_duration_minutes }}m</span>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         </div>
     </div>
 
-    <button class="nt-sidebar-toggle" id="nt-sidebar-toggle" type="button">☰ Nomor Tanding</button>
+    <button class="nt-sidebar-toggle" id="nt-sidebar-toggle" type="button">
+        <i class="fas fa-bars"></i> Nomor Tanding
+    </button>
 
+    <!-- Main Content Workspace -->
     <div class="main-content" id="main-content">
-        <div id="print-kop-header">
-            <img id="kop-logo-img" src="{{ kop_surat.logo_url }}" class="{% if not kop_surat.logo_url %}kop-logo-empty{% endif %}" onerror="this.classList.add('kop-logo-empty')">
+        <!-- Print Header -->
+        <div id="print-kop-header" style="display:flex; align-items:center; gap:16px;">
+            {% if kop_surat.logo_url %}<img src="{{ kop_surat.logo_url }}" style="width:65px; height:65px; object-fit:contain;">{% endif %}
             <div>
-                <div id="kop-nama-text">{{ kop_surat.nama_organisasi }}</div>
-                <div id="kop-alamat-text">{{ kop_surat.alamat }}</div>
-                <div id="kop-kontak-text">{{ kop_surat.kontak }}</div>
+                <h3 style="margin:0; font-family:'Oswald',sans-serif;">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
+                <p style="margin:2px 0; font-size:12px;">{{ kop_surat.alamat }} &bull; {{ kop_surat.kontak }}</p>
+                <h4 style="margin:4px 0 0; font-size:14px;">JADWAL PERTANDINGAN / RUN SHEET</h4>
             </div>
         </div>
-        <div id="keterangan-block">
-            <label for="keterangan-input">Keterangan</label>
-            <textarea id="keterangan-input" rows="3" placeholder="Tulis keterangan tambahan di sini...">{{ keterangan_text }}</textarea>
-        </div>
-        <div class="toolbar">
-            <button id="add-slot-row-btn" class="btn-secondary" type="button">+ Baris Waktu</button>
-            <button id="add-label-row-btn" class="btn-secondary" type="button">+ Baris Label</button>
-            <button id="add-tatami-btn" class="btn-secondary" type="button">+ Tatami</button>
-            <button id="add-day-btn" class="btn-secondary" type="button">+ Hari</button>
-            <label>Mulai:
-                <input type="time" id="start-time-input" value="08:00">
-            </label>
-            <label>Menit/match:
-                <input type="number" id="duration-input" value="3" min="1" style="width: 60px;">
-            </label>
-            <button id="save-timetable-btn" class="btn-success" type="button">Simpan</button>
-            <button id="kop-surat-btn" class="btn-secondary" type="button">📝 Kop Surat</button>
-            <button id="print-btn" class="btn-secondary" type="button">🖨️ Print</button>
-            <span id="save-status"></span>
+
+        <!-- Top Header Card -->
+        <div class="workspace-header">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1" style="display:flex; align-items:center; gap:8px;">
+                    <span style="background:var(--red-tint); border:1px solid var(--red-core); color:var(--red-hover); font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; text-transform:uppercase;">
+                        Roster Maker 2.0
+                    </span>
+                    <span class="text-secondary" style="font-size:13px; color:var(--text-secondary);">Event: {{ event.nama_event }}</span>
+                </div>
+                <h2 style="font-family:'Oswald',sans-serif; font-size:22px; margin:0; color:#fff; letter-spacing:0.02em;">
+                    PENYUSUNAN JADWAL & ROSTER PERTANDINGAN
+                </h2>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn-tool magic" onclick="openAutoScheduleModal()">
+                    <i class="fas fa-magic"></i> ⚡ Auto-Jadwal Cerdas
+                </button>
+                <button type="button" class="btn-tool success" id="save-timetable-btn">
+                    <i class="fas fa-save"></i> Simpan Jadwal
+                </button>
+                <span id="save-status" style="font-size:12px; font-weight:600; margin-left:4px;"></span>
+            </div>
         </div>
 
+        <!-- Conflict Alert Banner -->
+        <div id="conflict-alert-banner" class="conflict-alert-bar" style="display: none;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-exclamation-triangle" style="font-size:18px;"></i>
+                <div>
+                    <strong id="conflict-count-text">0 Konflik Jadwal Terdeteksi!</strong>
+                    <div id="conflict-details-text" style="font-size:12px; opacity:0.9;">Ada atlet yang bertanding pada waktu yang bersamaan di Tatami berbeda.</div>
+                </div>
+            </div>
+            <button type="button" class="btn-tool" style="font-size:12px; padding:4px 10px; background:rgba(0,0,0,0.3); border-color:transparent; color:#fff;" onclick="highlightNextConflict()">
+                Lihat Bentrok
+            </button>
+        </div>
+
+        <!-- Auto Schedule Result Banner -->
+        <div id="auto-schedule-result-banner" class="auto-schedule-result-bar" style="display: none;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; font-size:18px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-check"></i>
+                </span>
+                <div>
+                    <strong id="auto-result-title" style="font-size:14px; color:#fff;">Auto-Jadwal Berhasil Diterapkan!</strong>
+                    <div id="auto-result-summary" style="font-size:12.5px; color:#94a3b8; margin-top:2px;"></div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn-tool" style="font-size:12px; padding:6px 12px; background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="undoLastAutoSchedule()">
+                    <i class="fas fa-undo"></i> Urungkan (Undo)
+                </button>
+                <button type="button" class="btn-tool success" style="font-size:12px; padding:6px 12px;" onclick="document.getElementById('save-timetable-btn').click()">
+                    <i class="fas fa-save"></i> Simpan Jadwal Ini
+                </button>
+                <button type="button" class="remove-day-btn" onclick="document.getElementById('auto-schedule-result-banner').style.display='none'">✕</button>
+            </div>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="toolbar">
+            <button id="add-tatami-btn" class="btn-tool" type="button"><i class="fas fa-vector-square"></i> Tambah Tatami</button>
+            <button id="add-day-btn" class="btn-tool" type="button"><i class="fas fa-calendar-plus"></i> Tambah Hari</button>
+            <button id="add-festival-btn" class="btn-tool" type="button" onclick="insertFestivalSessionPrompt()"><i class="fas fa-flag"></i> + Sesi Festival</button>
+            <button id="add-ishoma-btn" class="btn-tool" type="button" onclick="insertIshomaSessionPrompt()"><i class="fas fa-utensils"></i> + ISHOMA</button>
+            
+            <div style="height:20px; width:1px; background:var(--border-color); margin:0 4px;"></div>
+
+            <label>Mulai Default:
+                <input type="time" id="start-time-input" value="08:30">
+            </label>
+            <label>Menit/match:
+                <input type="number" id="duration-input" value="4" min="1" style="width: 55px;">
+            </label>
+
+            <div style="height:20px; width:1px; background:var(--border-color); margin:0 4px;"></div>
+
+            <button id="kop-surat-btn" class="btn-tool" type="button"><i class="fas fa-file-invoice"></i> Kop Surat</button>
+            <button id="print-btn" class="btn-tool" type="button"><i class="fas fa-print"></i> Cetak</button>
+        </div>
+
+        <!-- Days Container -->
         <div id="days-container">
             {% for day in days_data %}
             <div class="day-block" data-day-id="{{ day.pk }}">
                 <div class="day-header">
-                    <span class="day-label-text">{{ day.label }}</span>
+                    <div class="day-title-text">
+                        <i class="fas fa-calendar-day text-danger"></i>
+                        <span class="day-label-text">{{ day.label }}</span>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="date" class="day-date-input" value="{{ day.tanggal }}">
                         <button class="remove-day-btn" type="button" title="Hapus hari">✕</button>
                     </div>
                 </div>
-                <div style="overflow-x: auto;">
-                    <div class="table-scroll-wrapper">
-                        <table class="timetable-table">
-                            <thead>
-                                <tr class="timetable-header-row">
-                                    <th style="width: 100px;">Estimasi</th>
-                                    {% for tatami in tatamis %}
-                                        <th data-tatami-id="{{ tatami.pk }}">
-                                            <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
-                                                <span>Tatami {{ tatami.tatami_number }}</span>
-                                                <a href="{% url 'timetable-bulk-print' event_pk=event.pk day_pk=day.pk tatami_pk=tatami.pk %}" title="Print bagan di kolom ini" style="text-decoration:none;">🖨️</a>
-                                                <button class="remove-tatami-btn" type="button" data-tatami-id="{{ tatami.pk }}">✕</button>
-                                            </div>
-                                        </th>
-                                    {% endfor %}
-                                    <th class="action-col" style="width: 40px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="timetable-body" data-day-id="{{ day.pk }}">
-                                {% for row in day.rows %}
-                                {% if row.row_type == 'label' %}
-                                    <tr class="tt-row" data-row-type="label">
-                                        <td class="label-cell" colspan="{{ tatamis|length|add:1 }}" style="text-align:center;">
-                                            <input type="text" class="label-text-input" value="{{ row.label_text }}">
-                                        </td>
-                                        <td class="action-col"><button class="remove-row-btn" type="button">✕</button></td>
-                                    </tr>
-                                {% else %}
-                                    <tr class="tt-row" data-row-type="slot">
-                                        <td><input type="text" class="time-label-input" value="{{ row.time_label }}" placeholder="08:00 - 08:30"></td>
-                                        {% for tatami in tatamis %}
-                                            {% with cell=day.cell_map|get_item:row.id|get_item:tatami.id %}
-                                            <td class="tt-cell" data-tatami-id="{{ tatami.pk }}" data-nt-id="{% if cell.nomor_tanding %}{{ cell.nomor_tanding.pk }}{% endif %}">
-                                                <div class="cell-content" contenteditable="true">{% if cell.nomor_tanding %}{{ cell.nomor_tanding.nama_nomor_tanding }} ({{ atlet_counts|get_item:cell.nomor_tanding.pk }}){% elif cell.custom_text %}{{ cell.custom_text }}{% endif %}</div>
-                                            </td>
-                                            {% endwith %}
-                                        {% endfor %}
-                                        <td class="action-col"><button class="remove-row-btn" type="button">✕</button></td>
-                                    </tr>
-                                {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
+
+                <div class="tatami-grid" data-day-id="{{ day.pk }}" style="--tatami-count: {{ tatamis|length }};">
+                    {% for col in day.tatami_columns %}
+                    <div class="tatami-column" data-tatami-id="{{ col.tatami.pk }}">
+                        <div class="tatami-col-header">
+                            <span class="tatami-name-label">
+                                Tatami {{ col.tatami.tatami_number }} <span class="tatami-athlete-counter-wrap">(<span class="tatami-atlet-counter">{{ col.total_atlets|default:0 }}</span>)</span>
+                            </span>
+                            <div class="tatami-actions-row">
+                                <a href="{% url 'timetable-call-sheet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:#60a5fa; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none;" title="Cetak Lembar Panggilan (Call Sheet)">
+                                    📋 LO Sheet
+                                </a>
+                                <a href="{% url 'timetable-bulk-print' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:#34d399; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none;" title="Print Seluruh Bagan Tatami ini">
+                                    🖨️ Bagan
+                                </a>
+                                <button class="remove-tatami-btn" type="button" data-tatami-id="{{ col.tatami.pk }}" title="Hapus Tatami">✕</button>
+                            </div>
+                        </div>
+
+                        <div class="tatami-card-list" data-tatami-id="{{ col.tatami.pk }}">
+                            {% for cell in col.cells %}
+                            <div class="tt-card {% if cell.is_festival %}is-festival-card{% elif cell.is_break %}is-break-card{% endif %}" draggable="true" data-tatami-id="{{ col.tatami.pk }}" data-nt-id="{% if cell.nomor_tanding %}{{ cell.nomor_tanding.pk }}{% endif %}" data-time="{{ cell.cell_time }}" data-duration="{{ cell.cell_duration }}" data-atlet-count="{{ cell.atlet_count }}" style="height: {% widthratio cell.cell_duration 10 24 %}px; min-height: {% widthratio cell.cell_duration 10 24 %}px; max-height: {% widthratio cell.cell_duration 10 24 %}px; box-sizing: border-box;">
+                                <div class="card-content" contenteditable="true">{% if cell.nomor_tanding %}{{ cell.cell_title }} ({{ cell.atlet_count }}){% if cell.cell_time %} ({{ cell.cell_time }}){% endif %}{% else %}{{ cell.cell_title }}{% if cell.cell_time and not cell.cell_time in cell.cell_title %} ({{ cell.cell_time }}){% endif %}{% endif %}</div>
+                                <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
+                            </div>
+                            {% endfor %}
+                            <div class="tatami-dropzone" data-tatami-id="{{ col.tatami.pk }}">
+                                <i class="fas fa-plus"></i> Tarik kategori ke sini
+                            </div>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
-    <div id="kop-surat-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:2000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:14px; padding:24px; width:420px; max-width:90vw; box-shadow:0 8px 30px rgba(0,0,0,0.2);">
-            <h3 style="margin:0 0 16px 0; font-size:16px;">Pengaturan Kop Surat</h3>
 
-            <label style="display:block; font-size:12.5px; color:#6b7280; margin-bottom:4px;">Logo</label>
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
-                <img id="kop-logo-preview" src="" style="height:50px; display:none; border-radius:6px; border:1px solid #eee;">
-                <input type="file" id="kop-logo-input" accept="image/*" style="font-size:13px;">
+    <!-- Auto Schedule Modal -->
+    <div id="auto-schedule-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-box-header">
+                <h4 class="modal-box-title"><i class="fas fa-magic text-warning"></i> Auto-Jadwal Cerdas</h4>
+                <button type="button" class="remove-day-btn" onclick="closeAutoScheduleModal()">✕</button>
             </div>
-
-            <label style="display:block; font-size:12.5px; color:#6b7280; margin-bottom:4px;">Nama Organisasi</label>
-            <input type="text" id="kop-nama-input" placeholder="Pengurus Provinsi FORKI ..." style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #e0e3ec; margin-bottom:12px;">
-
-            <label style="display:block; font-size:12.5px; color:#6b7280; margin-bottom:4px;">Alamat</label>
-            <input type="text" id="kop-alamat-input" placeholder="Jl. ..." style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #e0e3ec; margin-bottom:12px;">
-
-            <label style="display:block; font-size:12.5px; color:#6b7280; margin-bottom:4px;">Kontak</label>
-            <input type="text" id="kop-kontak-input" placeholder="Telp / Email" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #e0e3ec; margin-bottom:18px;">
-
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button id="kop-surat-cancel-btn" class="btn-secondary" type="button">Batal</button>
-                <button id="kop-surat-save-btn" class="btn-success" type="button">Simpan</button>
+            <div class="modal-box-body">
+                <p style="font-size:13px; color:var(--text-secondary); margin-top:0;">
+                    Algoritma akan mengalokasikan nomor tanding ke seluruh tatami secara paralel dan optimal, menyelaraskan slot waktu, serta aktif mencegah atlet bertanding pada waktu yang bersamaan di tatami berbeda.
+                </p>
+                <div class="form-group-custom">
+                    <label>Jam Mulai Pertandingan:</label>
+                    <input type="time" id="auto-start-time" value="08:30">
+                </div>
+                <div class="form-group-custom">
+                    <label>Sesi Pertandingan FESTIVAL:</label>
+                    <select id="auto-festival-opt">
+                        {% if festival_total_atlets > 0 %}
+                        <option value="yes" selected>Ya, Cantumkan Sesi "FESTIVAL" Serentak di 3 Tatami (Total {{ festival_total_atlets }} Atlet, ~{{ festival_atlets_per_tatami }} per Tatami)</option>
+                        <option value="no">Lewati / Tanpa Sesi Festival (Hanya Jadwalkan Tournament)</option>
+                        {% else %}
+                        <option value="no" selected>Tidak Ada Kategori Festival (Hanya Tournament)</option>
+                        <option value="yes">Tambahkan Sesi "FESTIVAL" Serentak di 3 Tatami</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group-custom" id="auto-festival-dur-group" {% if festival_total_atlets == 0 %}style="display:none;"{% endif %}>
+                    <label>Durasi Sesi Festival:</label>
+                    <select id="auto-festival-dur-opt">
+                        <option value="60">60 Menit (1 Jam)</option>
+                        <option value="90" selected>90 Menit (1.5 Jam)</option>
+                        <option value="120">120 Menit (2 Jam)</option>
+                    </select>
+                </div>
+                <div class="form-group-custom">
+                    <label>Sertakan Istirahat Siang (ISHOMA):</label>
+                    <select id="auto-ishoma-opt">
+                        <option value="yes">Ya, Otomatis Tambahkan ISHOMA (12:00 - 13:00)</option>
+                        <option value="no">Tidak, Pertandingan Berlanjut</option>
+                    </select>
+                </div>
+                <div class="form-group-custom">
+                    <label>Prioritas Urutan:</label>
+                    <select id="auto-priority-opt">
+                        <option value="kata_first">Kata Dahulu (Pagi), Kemudian Kumite</option>
+                        <option value="age_first">Berdasarkan Usia (Pra Usia Dini -> Senior)</option>
+                    </select>
+                </div>
+                <div class="form-group-custom">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label style="margin-bottom:0; font-size:13px; font-weight:600; color:#f1f5f9;">
+                            <i class="fas fa-filter text-info"></i> Filter Golongan Usia Hari Ini:
+                        </label>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn-tool-mini" onclick="selectAllAgePills(true)">
+                                <i class="fas fa-check-double"></i> Pilih Semua
+                            </button>
+                            <button type="button" class="btn-tool-mini" onclick="selectAllAgePills(false)">
+                                <i class="fas fa-times"></i> Kosongkan
+                            </button>
+                        </div>
+                    </div>
+                    <div class="age-pills-container">
+                        {% for group in age_groups %}
+                        <label class="age-pill active" title="Klik untuk mengaktifkan/menonaktifkan usia {{ group }}">
+                            <input type="checkbox" class="auto-age-cb" value="{{ group }}" checked onchange="toggleAgePill(this)">
+                            <span class="age-pill-check"><i class="fas fa-check"></i></span>
+                            <span class="age-pill-label">{{ group }}</span>
+                            <span class="age-pill-count" data-age-group="{{ group }}">0</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11.5px; color:var(--text-muted);">
+                        <span><i class="fas fa-info-circle"></i> Klik usia untuk memilih kategori yang dijadwalkan hari ini.</span>
+                        <span id="auto-age-selection-summary" style="color:#38bdf8; font-weight:600;">Semua Usia Terpilih</span>
+                    </div>
+                </div>
+                <div class="form-group-custom">
+                    <label>Hari Target:</label>
+                    <select id="auto-day-select">
+                        {% for day in days_data %}
+                        <option value="{{ day.pk }}">Day {{ forloop.counter }} {% if day.tanggal %}({{ day.tanggal }}){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group-custom">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="margin-bottom:0;"><i class="fas fa-vector-square text-info"></i> Alokasikan ke Tatami:</label>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn-tool-mini" onclick="selectAllTatamiCbs(true)">Semua</button>
+                        </div>
+                    </div>
+                    <div id="auto-tatami-cbs" style="display:flex; flex-wrap:wrap; gap:8px;">
+                        {% for tatami in tatamis %}
+                        <label class="tatami-pill">
+                            <input type="checkbox" class="auto-tatami-cb" value="{{ tatami.pk }}" checked>
+                            <span>Tatami {{ tatami.tatami_number }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group-custom">
+                    <label>Batas Selesai Hari Target:</label>
+                    <select id="auto-end-limit-opt">
+                        <option value="18:00" selected>Maksimal 18:00 (Sisa untuk Hari Berikutnya)</option>
+                        <option value="17:00">Maksimal 17:00</option>
+                        <option value="20:00">Maksimal 20:00</option>
+                        <option value="all">Tanpa Batas (Jadwalkan Semua Sekaligus)</option>
+                    </select>
+                </div>
+                <div class="form-group-custom">
+                    <label>Mode Pengisian Hari Target:</label>
+                    <select id="auto-mode-opt">
+                        <option value="overwrite" selected>Gantikan / Buat Jadwal Baru untuk Hari Ini</option>
+                        <option value="append">Lanjutkan di Bawah Baris Terakhir Hari Ini</option>
+                    </select>
+                </div>
+                <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 8px 12px; margin-top: 10px; font-size: 12px; color: #bae6fd;">
+                    <i class="fas fa-shield-alt text-info"></i> <strong>Pencegahan Bentrok Aktif:</strong> Sistem otomatis menyeleksi kategori pada tiap slot waktu agar tidak ada atlet yang bertanding bersamaan di tatami berbeda.
+                </div>
+            </div>
+            <div class="modal-box-footer">
+                <button type="button" class="btn-tool" onclick="closeAutoScheduleModal()">Batal</button>
+                <button type="button" class="btn-tool magic" onclick="executeAutoScheduler()">
+                    ⚡ Jalankan & Terapkan
+                </button>
             </div>
         </div>
     </div>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const SAVE_URL = "{% url 'timetable-save' event_pk=event.pk %}";
-    const ADD_TATAMI_URL = "{% url 'timetable-add-tatami' event_pk=event.pk %}";
-    const DELETE_TATAMI_URL_TEMPLATE = "{% url 'timetable-delete-tatami' event_pk=event.pk tatami_pk=999999 %}";
-    const ADD_DAY_URL = "{% url 'timetable-add-day' event_pk=event.pk %}";
-    const DELETE_DAY_URL_TEMPLATE = "{% url 'timetable-delete-day' event_pk=event.pk day_pk=999999 %}";
 
-    const INDO_MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-    const csrftoken = getCookie('csrftoken');
-    const daysContainer = document.getElementById('days-container');
-
-    const sidebar = document.getElementById('nt-sidebar');
-    const sidebarToggle = document.getElementById('nt-sidebar-toggle');
-    const mainContent = document.getElementById('main-content');
-
-    const KOP_SAVE_URL = "{% url 'timetable-kop-surat-save' event_pk=event.pk %}";
-
-    const kopModal = document.getElementById('kop-surat-modal');
-    const kopLogoInput = document.getElementById('kop-logo-input');
-    const kopLogoPreview = document.getElementById('kop-logo-preview');
-    const kopNamaInput = document.getElementById('kop-nama-input');
-    const kopAlamatInput = document.getElementById('kop-alamat-input');
-    const kopKontakInput = document.getElementById('kop-kontak-input');
-
-    const KETERANGAN_SAVE_URL = "{% url 'timetable-keterangan-save' event_pk=event.pk %}";
-    const keteranganInput = document.getElementById('keterangan-input');
-
-    function updateChipUsedState() {
-        const usedIds = new Set();
-        document.querySelectorAll('.tt-cell[data-nt-id]').forEach(cell => {
-            if (cell.dataset.ntId) usedIds.add(cell.dataset.ntId);
-        });
-
-        document.querySelectorAll('.nt-chip').forEach(chip => {
-            chip.classList.toggle('nt-chip-used', usedIds.has(chip.dataset.ntId));
-        });
-    }
-
-    updateChipUsedState();
-
-    keteranganInput.addEventListener('blur', () => {
-        fetch(KETERANGAN_SAVE_URL, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: keteranganInput.value }),
-        }).catch(() => {
-            // silent fail is acceptable here since it'll also get bundled into the main Simpan flow below if you want it included there instead
-        });
-    });
-
-    document.getElementById('print-btn').addEventListener('click', () => {
-        window.print();
-    });
-
-    document.getElementById('kop-surat-btn').addEventListener('click', () => {
-        kopNamaInput.value = document.getElementById('kop-nama-text').textContent;
-        kopAlamatInput.value = document.getElementById('kop-alamat-text').textContent;
-        kopKontakInput.value = document.getElementById('kop-kontak-text').textContent;
-
-        const logoImg = document.getElementById('kop-logo-img');
-        if (!logoImg.classList.contains('kop-logo-empty')) {
-            kopLogoPreview.src = logoImg.src;
-            kopLogoPreview.style.display = 'inline-block';
-        } else {
-            kopLogoPreview.style.display = 'none';
-        }
-
-        kopModal.style.display = 'flex';
-    });
-
-    document.getElementById('kop-surat-cancel-btn').addEventListener('click', () => {
-        kopModal.style.display = 'none';
-    });
-
-    kopLogoInput.addEventListener('change', () => {
-        const file = kopLogoInput.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            kopLogoPreview.src = e.target.result;
-            kopLogoPreview.style.display = 'inline-block';
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('kop-surat-save-btn').addEventListener('click', () => {
-        const formData = new FormData();
-        formData.append('nama_organisasi', kopNamaInput.value);
-        formData.append('alamat', kopAlamatInput.value);
-        formData.append('kontak', kopKontakInput.value);
-        if (kopLogoInput.files[0]) {
-            formData.append('logo', kopLogoInput.files[0]);
-        }
-
-        fetch(KOP_SAVE_URL, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
-            body: formData,
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) { alert('Gagal menyimpan kop surat.'); return; }
-
-                document.getElementById('kop-nama-text').textContent = kopNamaInput.value;
-                document.getElementById('kop-alamat-text').textContent = kopAlamatInput.value;
-                document.getElementById('kop-kontak-text').textContent = kopKontakInput.value;
-
-                const logoImg = document.getElementById('kop-logo-img');
-                if (data.logo_url) {
-                    logoImg.src = data.logo_url;
-                    logoImg.classList.remove('kop-logo-empty');
-                }
-
-                kopModal.style.display = 'none';
-            })
-            .catch(() => alert('Gagal menyimpan kop surat.'));
-    });
-
-    function setSidebarHidden(hidden) {
-        sidebar.classList.toggle('hidden', hidden);
-        mainContent.classList.toggle('sidebar-hidden', hidden);
-    }
-    sidebarToggle.addEventListener('click', () => {
-        setSidebarHidden(!sidebar.classList.contains('hidden'));
-    });
-
-    function formatDayLabel(dayNumber, dateStr) {
-        if (!dateStr) return `Day ${dayNumber}`;
-        const [y, m, d] = dateStr.split('-').map(Number);
-        return `Day ${dayNumber}, ${d} ${INDO_MONTHS[m - 1]} ${y}`;
-    }
-
-    // --- Age group filter ---
-    const ageSelect = document.getElementById('age-group-select');
-    function filterChips() {
-        const selected = ageSelect.value;
-        document.querySelectorAll('.nt-chip').forEach(chip => {
-            chip.style.display = (chip.dataset.ageGroup === selected) ? 'inline-block' : 'none';
-        });
-    }
-    ageSelect.addEventListener('change', filterChips);
-    filterChips();
-
-    // --- Drag source ---
-    document.querySelectorAll('.nt-chip').forEach(chip => {
-        chip.addEventListener('dragstart', e => {
-            e.dataTransfer.setData('nt-id', chip.dataset.ntId);
-            e.dataTransfer.setData('nt-name', chip.dataset.ntName);
-            e.dataTransfer.setData('nt-count', chip.dataset.atletCount);
-            setSidebarHidden(true);
-        });
-        chip.addEventListener('dragend', () => setSidebarHidden(false));
-    });
-
-    // --- Time helpers ---
-    function formatTime(date) { return date.toTimeString().slice(0, 5); }
-    function parseTimeToDate(timeStr) {
-        const [h, m] = timeStr.split(':').map(Number);
-        const d = new Date();
-        d.setHours(h, m, 0, 0);
-        return d;
-    }
-
-    function buildSlotRowCells() {
-        const anyHeaderRow = document.querySelector('.timetable-header-row');
-        let html = `<td><input type="text" class="time-label-input" placeholder="08:00 - 08:30"></td>`;
-        anyHeaderRow.querySelectorAll('th[data-tatami-id]').forEach(th => {
-            html += `<td class="tt-cell" data-tatami-id="${th.dataset.tatamiId}"><div class="cell-content" contenteditable="true"></div></td>`;
-        });
-        html += `<td class="action-col"><button class="remove-row-btn" type="button">✕</button></td>`;
-        return html;
-    }
-
-    // --- Drop (delegated across all day tables) ---
-    daysContainer.addEventListener('dragover', e => {
-        const cell = e.target.closest('.tt-cell');
-        if (cell) { e.preventDefault(); cell.classList.add('drag-over'); }
-    });
-    daysContainer.addEventListener('dragleave', e => {
-        const cell = e.target.closest('.tt-cell');
-        if (cell) cell.classList.remove('drag-over');
-    });
-    daysContainer.addEventListener('drop', e => {
-        const cell = e.target.closest('.tt-cell');
-        if (!cell) return;
-        e.preventDefault();
-        cell.classList.remove('drag-over');
-
-        const ntId = e.dataTransfer.getData('nt-id');
-        const ntName = e.dataTransfer.getData('nt-name');
-        const atletCount = parseInt(e.dataTransfer.getData('nt-count') || '0', 10);
-        if (!ntId) return;
-
-        cell.dataset.ntId = ntId;
-        cell.querySelector('.cell-content').textContent = `${ntName} (${atletCount})`;
-
-        const matches = atletCount > 1 ? atletCount - 1 : 1;
-        const durationMinutes = parseInt(document.getElementById('duration-input').value || '3', 10);
-        const totalMinutes = matches * durationMinutes;
-
-        const tr = cell.closest('tr');
-        const timeInput = tr.querySelector('.time-label-input');
-        const startPart = timeInput.value.split(' - ')[0] || document.getElementById('start-time-input').value;
-
-        const prevMax = parseInt(tr.dataset.maxDurationMinutes || '0', 10);
-        const rowMax = Math.max(prevMax, totalMinutes);
-        tr.dataset.maxDurationMinutes = rowMax;
-
-        const startDate = parseTimeToDate(startPart);
-        const endDate = new Date(startDate.getTime() + rowMax * 60000);
-        timeInput.value = `${formatTime(startDate)} - ${formatTime(endDate)}`;
-
-        updateChipUsedState();
-    });
-
-    daysContainer.addEventListener('input', e => {
-        if (e.target.classList.contains('cell-content')) {
-            delete e.target.closest('.tt-cell').dataset.ntId;
-            updateChipUsedState();
-        }
-    });
-
-    document.querySelectorAll('.tt-row[data-row-type="slot"]').forEach(tr => {
-        const parts = tr.querySelector('.time-label-input').value.split(' - ');
-        if (parts.length === 2) {
-            const diff = Math.round((parseTimeToDate(parts[1]) - parseTimeToDate(parts[0])) / 60000);
-            if (diff > 0) tr.dataset.maxDurationMinutes = diff;
-        }
-    });
-
-    function activeDayTbody() {
-        const blocks = document.querySelectorAll('.timetable-body');
-        return blocks[blocks.length - 1];
-    }
-
-    document.getElementById('add-slot-row-btn').addEventListener('click', () => {
-        const tbody = activeDayTbody();
-        const tr = document.createElement('tr');
-        tr.className = 'tt-row';
-        tr.dataset.rowType = 'slot';
-        tr.innerHTML = buildSlotRowCells();
-
-        const lastRow = [...tbody.querySelectorAll('tr.tt-row[data-row-type="slot"]')].pop();
-        const duration = parseInt(document.getElementById('duration-input').value || '3', 10);
-        let label;
-        if (lastRow) {
-            const startPart = lastRow.querySelector('.time-label-input').value.split(' - ')[1] || document.getElementById('start-time-input').value;
-            const startDate = parseTimeToDate(startPart);
-            const endDate = new Date(startDate.getTime() + duration * 60000);
-            label = `${formatTime(startDate)} - ${formatTime(endDate)}`;
-        } else {
-            const startDate = parseTimeToDate(document.getElementById('start-time-input').value);
-            const endDate = new Date(startDate.getTime() + duration * 60000);
-            label = `${formatTime(startDate)} - ${formatTime(endDate)}`;
-        }
-        tr.querySelector('.time-label-input').value = label;
-        tbody.appendChild(tr);
-    });
-
-    document.getElementById('add-label-row-btn').addEventListener('click', () => {
-        const tbody = activeDayTbody();
-        const tatamiCount = document.querySelectorAll('.timetable-header-row')[0].querySelectorAll('th[data-tatami-id]').length;
-        const tr = document.createElement('tr');
-        tr.className = 'tt-row';
-        tr.dataset.rowType = 'label';
-        tr.innerHTML = `
-            <td class="label-cell" colspan="${tatamiCount + 1}" style="text-align:center;">
-                <input type="text" class="label-text-input" placeholder="ISHOMA / Break">
-            </td>
-            <td><button class="remove-row-btn" type="button">✕</button></td>
-        `;
-        tbody.appendChild(tr);
-    });
-
-    daysContainer.addEventListener('click', e => {
-        if (e.target.classList.contains('remove-row-btn')) {
-            e.target.closest('tr').remove();
-            updateChipUsedState();
-        }
-    });
-
-    document.getElementById('add-tatami-btn').addEventListener('click', () => {
-        const name = prompt('Nama / nomor tatami baru:');
-        if (!name) return;
-
-        fetch(ADD_TATAMI_URL, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tatami_number: name }),
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) { alert('Gagal menambah tatami.'); return; }
-                document.querySelectorAll('.day-block').forEach(block => {
-                    addTatamiColumnToBlock(block, data.id, data.tatami_number);
-                });
-            })
-            .catch(() => alert('Gagal menambah tatami.'));
-    });
-
-    function addTatamiColumnToBlock(block, tatamiId, tatamiName) {
-        const headerRow = block.querySelector('.timetable-header-row');
-        const th = document.createElement('th');
-        th.dataset.tatamiId = tatamiId;
-        // addTatamiColumnToBlock()
-        th.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:6px;"><span>Tatami ${tatamiName}</span><button class="remove-tatami-btn" type="button" data-tatami-id="${tatamiId}">✕</button></div>`;
-        headerRow.insertBefore(th, headerRow.lastElementChild);
-
-        block.querySelectorAll('.tt-row').forEach(tr => {
-            if (tr.dataset.rowType !== 'slot') {
-                const labelCell = tr.querySelector('.label-cell');
-                if (labelCell) labelCell.colSpan = parseInt(labelCell.colSpan, 10) + 1;
-                return;
-            }
-            const td = document.createElement('td');
-            td.className = 'tt-cell';
-            td.dataset.tatamiId = tatamiId;
-            td.innerHTML = `<div class="cell-content" contenteditable="true"></div>`;
-            tr.insertBefore(td, tr.lastElementChild);
-        });
-    }
-
-    daysContainer.addEventListener('click', e => {
-        if (!e.target.classList.contains('remove-tatami-btn')) return;
-
-        const tatamiId = e.target.dataset.tatamiId;
-        if (!confirm('Hapus tatami ini? Semua data di kolom ini (di semua hari) akan hilang.')) return;
-
-        fetch(DELETE_TATAMI_URL_TEMPLATE.replace('999999', tatamiId), {
-            method: 'POST', headers: { 'X-CSRFToken': csrftoken },
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) { alert('Gagal menghapus tatami.'); return; }
-                document.querySelectorAll('.day-block').forEach(block => removeTatamiColumnFromBlock(block, tatamiId));
-            })
-            .catch(() => alert('Gagal menghapus tatami.'));
-    });
-
-    function removeTatamiColumnFromBlock(block, tatamiId) {
-        const th = block.querySelector(`.timetable-header-row th[data-tatami-id="${tatamiId}"]`);
-        if (th) th.remove();
-        block.querySelectorAll('.tt-row').forEach(tr => {
-            if (tr.dataset.rowType === 'slot') {
-                const td = tr.querySelector(`.tt-cell[data-tatami-id="${tatamiId}"]`);
-                if (td) td.remove();
-            } else {
-                const labelCell = tr.querySelector('.label-cell');
-                if (labelCell) labelCell.colSpan = parseInt(labelCell.colSpan, 10) - 1;
-            }
-        });
-    }
-
-    document.getElementById('add-day-btn').addEventListener('click', () => {
-        fetch(ADD_DAY_URL, { method: 'POST', headers: { 'X-CSRFToken': csrftoken } })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) { alert('Gagal menambah hari.'); return; }
-                appendDayBlock(data.id, data.label);
-            })
-            .catch(() => alert('Gagal menambah hari.'));
-    });
-
-    function appendDayBlock(dayId, label) {
-        const templateBlock = document.querySelector('.day-block');
-        const headerCols = templateBlock.querySelectorAll('.timetable-header-row th[data-tatami-id]');
-
-        let headerHtml = `<th style="width:140px;">Waktu</th>`;
-        
-        headerCols.forEach(th => {
-            const tatamiId = th.dataset.tatamiId;
-            const name = th.querySelector('span').textContent;
-            headerHtml += `<th data-tatami-id="${tatamiId}"><div style="display:flex; align-items:center; justify-content:center; gap:6px;"><span>Tatami ${name}</span><button class="remove-tatami-btn" type="button" data-tatami-id="${tatamiId}">✕</button></div></th>`;
-        });
-        headerHtml += `<th class="action-col" style="width:40px;"></th>`;
-
-        const block = document.createElement('div');
-        block.className = 'day-block';
-        block.dataset.dayId = dayId;
-        block.innerHTML = `
-            <div class="day-header">
-                <span class="day-label-text">${label}</span>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <input type="date" class="day-date-input">
-                    <button class="remove-day-btn" type="button">✕</button>
+    <!-- Kop Surat Modal -->
+    <div id="kop-surat-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-box-header">
+                <h4 class="modal-box-title">Pengaturan Kop Surat</h4>
+                <button type="button" class="remove-row-btn" id="kop-surat-cancel-btn">✕</button>
+            </div>
+            <div class="modal-box-body">
+                <div class="form-group-custom">
+                    <label>Nama Organisasi:</label>
+                    <input type="text" id="kop-nama-input" value="{{ kop_surat.nama_organisasi }}">
+                </div>
+                <div class="form-group-custom">
+                    <label>Alamat:</label>
+                    <input type="text" id="kop-alamat-input" value="{{ kop_surat.alamat }}">
+                </div>
+                <div class="form-group-custom">
+                    <label>Kontak / Email:</label>
+                    <input type="text" id="kop-kontak-input" value="{{ kop_surat.kontak }}">
+                </div>
+                <div class="form-group-custom">
+                    <label>Logo:</label>
+                    <input type="file" id="kop-logo-input" accept="image/*">
+                    <img id="kop-logo-preview" style="max-height:60px; margin-top:8px; display:none;">
                 </div>
             </div>
-            <div style="overflow-x:auto;">
-                <table class="timetable-table">
-                    <thead><tr class="timetable-header-row">${headerHtml}</tr></thead>
-                    <tbody class="timetable-body" data-day-id="${dayId}"></tbody>
-                </table>
+            <div class="modal-box-footer">
+                <button type="button" class="btn-tool" id="kop-surat-cancel-btn2">Batal</button>
+                <button type="button" class="btn-tool primary" id="kop-surat-save-btn">Simpan Kop</button>
             </div>
-        `;
-        daysContainer.appendChild(block);
-    }
+        </div>
+    </div>
 
-    daysContainer.addEventListener('change', e => {
-        if (!e.target.classList.contains('day-date-input')) return;
-        const block = e.target.closest('.day-block');
-        const labelEl = block.querySelector('.day-label-text');
-        const dayNumber = [...document.querySelectorAll('.day-block')].indexOf(block) + 1;
-        labelEl.textContent = formatDayLabel(dayNumber, e.target.value);
-    });
+    <!-- Pass JSON Data from Django safely -->
+    <script>
+        const csrftoken = "{{ csrf_token }}";
+        const SAVE_URL = "{% url 'timetable-save' event_pk=event.pk %}";
+        const ADD_TATAMI_URL = "{% url 'timetable-add-tatami' event_pk=event.pk %}";
+        const DELETE_TATAMI_URL = "{% url 'timetable-delete-tatami' event_pk=event.pk tatami_pk=0 %}".replace('/0/', '/');
+        const ADD_DAY_URL = "{% url 'timetable-add-day' event_pk=event.pk %}";
+        const DELETE_DAY_URL = "{% url 'timetable-delete-day' event_pk=event.pk day_pk=0 %}".replace('/0/', '/');
+        const KOP_SAVE_URL = "{% url 'timetable-kop-surat-save' event_pk=event.pk %}";
+        
+        // Conflict data & category metadata
+        const CONFLICT_DATA = {{ conflict_data_json|safe }};
+        const CATEGORIES_META = {{ categories_meta_json|safe }};
+        const FESTIVAL_METADATA = {
+            total_athletes: {{ festival_total_atlets|default:0 }},
+            per_tatami: {{ festival_atlets_per_tatami|default:0 }}
+        };
+    </script>
 
-    daysContainer.addEventListener('click', e => {
-        if (!e.target.classList.contains('remove-day-btn')) return;
-        const block = e.target.closest('.day-block');
-        const dayId = block.dataset.dayId;
+    <!-- Roster Maker 2.0 Engine Scripts -->
+    <script>
+        const sidebar = document.getElementById('nt-sidebar');
+        const sidebarToggle = document.getElementById('nt-sidebar-toggle');
+        const mainContent = document.getElementById('main-content');
+        const daysContainer = document.getElementById('days-container');
+        const saveStatus = document.getElementById('save-status');
 
-        if (!confirm('Hapus hari ini beserta seluruh jadwalnya?')) return;
+        function setSidebarHidden(hidden) {
+            sidebar.classList.toggle('hidden', hidden);
+            mainContent.classList.toggle('sidebar-hidden', hidden);
+        }
+        sidebarToggle.addEventListener('click', () => {
+            setSidebarHidden(!sidebar.classList.contains('hidden'));
+        });
 
-        fetch(DELETE_DAY_URL_TEMPLATE.replace('999999', dayId), {
-            method: 'POST', headers: { 'X-CSRFToken': csrftoken },
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) { alert('Gagal menghapus hari.'); return; }
-                block.remove();
-                updateChipUsedState();
-            })
-            .catch(() => alert('Gagal menghapus hari.'));
-    });
-
-    document.getElementById('save-timetable-btn').addEventListener('click', () => {
-        const statusEl = document.getElementById('save-status');
-        statusEl.textContent = ' Menyimpan...';
-
-        const days = [];
-        document.querySelectorAll('.day-block').forEach(block => {
-            const dayPk = block.dataset.dayId;
-            const tanggal = block.querySelector('.day-date-input').value;
-
-            const rows = [];
-            block.querySelectorAll('.tt-row').forEach(tr => {
-                if (tr.dataset.rowType === 'label') {
-                    rows.push({ row_type: 'label', label_text: tr.querySelector('.label-text-input').value });
+        // Search in pool chips
+        function filterChipsBySearch() {
+            const q = document.getElementById('chip-search-input').value.toLowerCase().trim();
+            const grp = document.getElementById('age-group-select').value;
+            document.querySelectorAll('.nt-chip').forEach(chip => {
+                const name = chip.dataset.ntName.toLowerCase();
+                const isFest = (chip.dataset.isFestival === 'true') || name.includes('festival');
+                const atletCount = parseInt(chip.dataset.atletCount || '0', 10);
+                const matchName = !q || name.includes(q);
+                let matchGrp = true;
+                if (grp === 'ALL') {
+                    matchGrp = true;
+                } else if (grp === 'VALID_TOURNAMENT') {
+                    matchGrp = !isFest && atletCount > 1;
+                } else if (grp === 'SOLO') {
+                    matchGrp = !isFest && atletCount <= 1;
+                } else if (grp === 'TOURNAMENT') {
+                    matchGrp = !isFest;
+                } else if (grp === 'FESTIVAL') {
+                    matchGrp = isFest;
                 } else {
-                    const cells = [];
-                    tr.querySelectorAll('.tt-cell').forEach(td => {
-                        const ntId = td.dataset.ntId || null;
-                        const text = td.querySelector('.cell-content').textContent.trim();
-                        if (ntId || text) {
-                            cells.push({ tatami_id: td.dataset.tatamiId, nomor_tanding_id: ntId, custom_text: ntId ? '' : text });
+                    matchGrp = (chip.dataset.ageGroup === grp);
+                }
+                chip.style.display = (matchName && matchGrp) ? 'flex' : 'none';
+            });
+        }
+
+        function filterChipsByGroup() {
+            filterChipsBySearch();
+        }
+
+        // Update unscheduled chip state
+        function updateChipUsedState() {
+            const usedIds = new Set();
+            document.querySelectorAll('.tt-card[data-nt-id]').forEach(card => {
+                if (card.dataset.ntId) usedIds.add(card.dataset.ntId);
+            });
+
+            let unusedTournamentCount = 0;
+            document.querySelectorAll('.nt-chip').forEach(chip => {
+                const isUsed = usedIds.has(chip.dataset.ntId);
+                const isFest = (chip.dataset.isFestival === 'true') || (chip.dataset.ntName || '').toLowerCase().includes('festival');
+                const atletCount = parseInt(chip.dataset.atletCount || '0', 10);
+                chip.classList.toggle('nt-chip-used', isUsed);
+                if (!isUsed && !isFest && atletCount > 1) unusedTournamentCount++;
+            });
+
+            const badge = document.getElementById('unscheduled-count-badge');
+            if (badge) badge.innerText = `${unusedTournamentCount} Sisa`;
+
+            runConflictDetection();
+            updateTatamiAthleteCounters();
+        }
+
+        // --- Drag & Drop for pool chips ---
+        document.querySelectorAll('.nt-chip').forEach(chip => {
+            chip.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('nt-id', chip.dataset.ntId);
+                e.dataTransfer.setData('nt-name', chip.dataset.ntName);
+                e.dataTransfer.setData('nt-count', chip.dataset.atletCount);
+                e.dataTransfer.setData('nt-duration', chip.dataset.duration);
+                sidebar.style.opacity = '0.85';
+            });
+            chip.addEventListener('dragend', () => {
+                sidebar.style.opacity = '1';
+            });
+        });
+
+        // Time helpers
+        function formatTime(date) { return date.toTimeString().slice(0, 5); }
+        function parseTimeToDate(timeStr) {
+            const [h, m] = (timeStr || '08:00').split(':').map(Number);
+            const d = new Date();
+            d.setHours(h || 8, m || 0, 0, 0);
+            return d;
+        }
+
+        // --- Drag & Drop & Timeline for Tatami Columns ---
+        let draggedCard = null;
+        let draggedCardSourceCol = null;
+
+        function attachCardEvents(card) {
+            card.addEventListener('dragstart', e => {
+                draggedCard = card;
+                draggedCardSourceCol = card.closest('.tatami-column');
+                card.classList.add('is-dragging');
+                e.dataTransfer.setData('source-type', 'existing-card');
+                e.dataTransfer.setData('nt-id', card.dataset.ntId || '');
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('is-dragging');
+                draggedCard = null;
+                draggedCardSourceCol = null;
+            });
+
+            const removeBtn = card.querySelector('.remove-card-btn');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const col = card.closest('.tatami-column');
+                    card.remove();
+                    recalculateTatamiTimeline(col);
+                    updateChipUsedState();
+                    updateTatamiAthleteCounters();
+                    runConflictDetection();
+                });
+            }
+
+            const content = card.querySelector('.card-content');
+            if (content) {
+                content.addEventListener('blur', () => {
+                    const timeMatch = content.textContent.match(/\((\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})\)/);
+                    if (timeMatch) {
+                        card.dataset.time = timeMatch[1];
+                    }
+                    updateChipUsedState();
+                    runConflictDetection();
+                });
+            }
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.tt-card:not(.is-dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function initTatamiGridEvents() {
+            document.querySelectorAll('.tatami-card-list').forEach(list => {
+                list.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    list.classList.add('drag-over');
+                    const afterElement = getDragAfterElement(list, e.clientY);
+                    if (draggedCard) {
+                        if (afterElement == null) {
+                            const dropzone = list.querySelector('.tatami-dropzone');
+                            list.insertBefore(draggedCard, dropzone);
+                        } else {
+                            list.insertBefore(draggedCard, afterElement);
                         }
-                    });
-                    rows.push({ row_type: 'slot', time_label: tr.querySelector('.time-label-input').value, cells });
+                    }
+                });
+
+                list.addEventListener('dragleave', e => {
+                    if (!list.contains(e.relatedTarget)) {
+                        list.classList.remove('drag-over');
+                    }
+                });
+
+                list.addEventListener('drop', e => {
+                    e.preventDefault();
+                    list.classList.remove('drag-over');
+                    const targetCol = list.closest('.tatami-column');
+
+                    if (draggedCard) {
+                        const sourceCol = draggedCardSourceCol;
+                        draggedCard.dataset.tatamiId = targetCol.dataset.tatamiId;
+                        if (sourceCol && sourceCol !== targetCol) {
+                            recalculateTatamiTimeline(sourceCol);
+                        }
+                        recalculateTatamiTimeline(targetCol);
+                        updateChipUsedState();
+                        updateTatamiAthleteCounters();
+                        runConflictDetection();
+                        draggedCard = null;
+                        draggedCardSourceCol = null;
+                        return;
+                    }
+
+                    const ntId = e.dataTransfer.getData('nt-id');
+                    const ntName = e.dataTransfer.getData('nt-name');
+                    const atletCount = parseInt(e.dataTransfer.getData('nt-count') || '0', 10);
+                    const estDur = parseInt(e.dataTransfer.getData('nt-duration') || '15', 10);
+                    if (!ntId) return;
+
+                    const card = document.createElement('div');
+                    card.className = 'tt-card';
+                    card.draggable = true;
+                    card.dataset.tatamiId = targetCol.dataset.tatamiId;
+                    card.dataset.ntId = ntId;
+                    card.dataset.duration = estDur;
+                    const initH = Math.round(estDur * PX_PER_MIN);
+                    card.style.height = `${initH}px`;
+                    card.style.minHeight = `${initH}px`;
+                    card.style.maxHeight = `${initH}px`;
+                    card.style.boxSizing = 'border-box';
+                    card.innerHTML = `
+                        <div class="card-content" contenteditable="true">${ntName} (${atletCount})</div>
+                        <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
+                    `;
+                    attachCardEvents(card);
+
+                    const afterElement = getDragAfterElement(list, e.clientY);
+                    const dropzone = list.querySelector('.tatami-dropzone');
+                    if (afterElement == null) {
+                        list.insertBefore(card, dropzone);
+                    } else {
+                        list.insertBefore(card, afterElement);
+                    }
+
+                    recalculateTatamiTimeline(targetCol);
+                    updateChipUsedState();
+                    updateTatamiAthleteCounters();
+                    runConflictDetection();
+                });
+            });
+
+            document.querySelectorAll('.tt-card').forEach(attachCardEvents);
+        }
+
+        const PX_PER_MIN = 2.4;
+
+        function updateTatamiAthleteCounters() {
+            document.querySelectorAll('.tatami-column').forEach(col => {
+                const counter = col.querySelector('.tatami-atlet-counter');
+                if (!counter) return;
+
+                let total = 0;
+                col.querySelectorAll('.tt-card').forEach(card => {
+                    const ntId = parseInt(card.dataset.ntId, 10);
+                    if (ntId) {
+                        const cat = (typeof CATEGORIES_META !== 'undefined') ? CATEGORIES_META.find(c => c.pk === ntId) : null;
+                        if (cat && cat.atlet_count) {
+                            total += cat.atlet_count;
+                            return;
+                        }
+                    }
+                    if (card.dataset.atletCount) {
+                        const ac = parseInt(card.dataset.atletCount, 10);
+                        if (!isNaN(ac)) {
+                            total += ac;
+                            return;
+                        }
+                    }
+                    const text = card.querySelector('.card-content') ? card.querySelector('.card-content').textContent : '';
+                    const m = text.match(/\((\d+)\)/);
+                    if (m) {
+                        total += parseInt(m[1], 10);
+                    }
+                });
+                counter.textContent = total;
+            });
+        }
+
+        function insertFestivalSessionPrompt() {
+            const activeDayBlock = document.querySelector('.day-block');
+            if (!activeDayBlock) {
+                alert('Belum ada hari pertandingan.');
+                return;
+            }
+            const tatamiCols = activeDayBlock.querySelectorAll('.tatami-column');
+            if (tatamiCols.length === 0) {
+                alert('Belum ada tatami pada hari ini.');
+                return;
+            }
+            const defaultFestAth = (typeof FESTIVAL_METADATA !== 'undefined') ? (FESTIVAL_METADATA.total_athletes || 0) : 0;
+            const perTatami = Math.round(defaultFestAth / tatamiCols.length) || 10;
+            const durStr = prompt('Masukkan durasi sesi FESTIVAL di semua Tatami (menit):', '90');
+            if (!durStr) return;
+            const dur = parseInt(durStr, 10) || 90;
+
+            const startVal = document.getElementById('start-time-input').value || '08:00';
+            const startTime = parseTimeToDate(startVal);
+            const endTime = new Date(startTime.getTime() + dur * 60000);
+            const timeStr = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+            const festHeight = Math.round(dur * PX_PER_MIN);
+
+            tatamiCols.forEach(col => {
+                const tid = col.dataset.tatamiId;
+                const cardList = col.querySelector('.tatami-card-list');
+                const firstCard = cardList.querySelector('.tt-card');
+
+                const card = document.createElement('div');
+                card.className = 'tt-card is-festival-card';
+                card.draggable = true;
+                card.dataset.tatamiId = tid;
+                card.dataset.time = timeStr;
+                card.dataset.duration = dur;
+                card.dataset.atletCount = perTatami;
+                card.style.height = `${festHeight}px`;
+                card.style.minHeight = `${festHeight}px`;
+                card.style.maxHeight = `${festHeight}px`;
+                card.style.boxSizing = 'border-box';
+                card.innerHTML = `
+                    <div class="card-content" contenteditable="true">FESTIVAL (${perTatami}) (${timeStr})</div>
+                    <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
+                `;
+                attachCardEvents(card);
+                if (firstCard) {
+                    cardList.insertBefore(card, firstCard);
+                } else {
+                    const dropzone = cardList.querySelector('.tatami-dropzone');
+                    cardList.insertBefore(card, dropzone);
+                }
+                recalculateTatamiTimeline(col);
+            });
+            updateTatamiAthleteCounters();
+            runConflictDetection();
+        }
+
+        function insertIshomaSessionPrompt() {
+            const activeDayBlock = document.querySelector('.day-block');
+            if (!activeDayBlock) {
+                alert('Belum ada hari pertandingan.');
+                return;
+            }
+            const tatamiCols = activeDayBlock.querySelectorAll('.tatami-column');
+            if (tatamiCols.length === 0) {
+                alert('Belum ada tatami pada hari ini.');
+                return;
+            }
+            tatamiCols.forEach(col => {
+                const tid = col.dataset.tatamiId;
+                const cardList = col.querySelector('.tatami-card-list');
+                const dropzone = cardList.querySelector('.tatami-dropzone');
+
+                const hasIshoma = col.querySelector('.tt-card.is-break-card');
+                if (!hasIshoma) {
+                    const bCard = document.createElement('div');
+                    bCard.className = 'tt-card is-break-card is-ishoma-card';
+                    bCard.draggable = true;
+                    bCard.dataset.tatamiId = tid;
+                    bCard.dataset.time = '12:00 - 13:00';
+                    bCard.dataset.duration = 60;
+                    bCard.innerHTML = `
+                        <div class="card-content" contenteditable="true">🍱 ISHOMA (12:00 - 13:00)</div>
+                        <button class="remove-card-btn" type="button" title="Hapus ISHOMA">✕</button>
+                    `;
+                    attachCardEvents(bCard);
+                    cardList.insertBefore(bCard, dropzone);
+                }
+                recalculateTatamiTimeline(col);
+            });
+            updateTatamiAthleteCounters();
+            runConflictDetection();
+        }
+
+        function recalculateTatamiTimeline(tatamiCol) {
+            if (!tatamiCol) return;
+            const cards = Array.from(tatamiCol.querySelectorAll('.tt-card'));
+            const startVal = document.getElementById('start-time-input')?.value || '08:30';
+            let currentClock = parseTimeToDate(startVal);
+            const ishomaEndMs = parseTimeToDate('13:00').getTime();
+            const ishomaThresholdMs = parseTimeToDate('12:30').getTime();
+
+            cards.forEach((card, idx) => {
+                delete card.dataset.keepGap;
+                delete card.dataset.justMoved;
+
+                const isBreak = card.classList.contains('is-break-card');
+                const isFestival = card.classList.contains('is-festival-card');
+                const ntId = parseInt(card.dataset.ntId, 10);
+                const cat = (typeof CATEGORIES_META !== 'undefined') ? CATEGORIES_META.find(c => c.pk === ntId) : null;
+
+                let dur = parseInt(card.dataset.duration, 10);
+
+                const isIshoma = isBreak && (card.classList.contains('is-ishoma-card') || (card.querySelector('.card-content')?.textContent || '').includes('ISHOMA'));
+                if (isIshoma) {
+                    // ISHOMA Break Card: Strictly spans to 13:00!
+                    if (currentClock.getTime() < ishomaEndMs) {
+                        dur = Math.max(1, Math.round((ishomaEndMs - currentClock.getTime()) / 60000));
+                    } else {
+                        dur = parseInt(card.dataset.duration, 10) || 15;
+                    }
+                    card.dataset.duration = dur;
+                } else if (isBreak) {
+                    dur = parseInt(card.dataset.duration, 10) || 10;
+                    card.dataset.duration = dur;
+                } else {
+                    // If no explicit ISHOMA card appears later in this column and current clock falls in lunch window,
+                    // advance clock to 13:00 so afternoon matches start right at 13:00:
+                    const hasLaterIshoma = cards.slice(idx + 1).some(c => 
+                        c.classList.contains('is-ishoma-card') || 
+                        (c.querySelector('.card-content')?.textContent || '').includes('ISHOMA')
+                    );
+                    if (!hasLaterIshoma && currentClock.getTime() >= ishomaThresholdMs && currentClock.getTime() < ishomaEndMs) {
+                        currentClock = new Date(ishomaEndMs);
+                    }
+
+                    if (isNaN(dur) || dur <= 0) {
+                        const t = card.dataset.time || '';
+                        if (t && t.includes('-')) {
+                            const m = t.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+                            if (m) {
+                                const s = parseTimeToDate(m[1]).getTime();
+                                const e = parseTimeToDate(m[2]).getTime();
+                                if (e > s) dur = Math.round((e - s) / 60000);
+                            }
+                        }
+                        if (isNaN(dur) || dur <= 0) {
+                            dur = cat ? (cat.est_duration_minutes || 15) : 15;
+                        }
+                        card.dataset.duration = dur;
+                    }
+                }
+
+                const startTime = new Date(currentClock.getTime());
+                let endTime = new Date(currentClock.getTime() + dur * 60000);
+                if (isIshoma && currentClock.getTime() < ishomaEndMs) {
+                    endTime = new Date(ishomaEndMs);
+                }
+                const startStr = formatTime(startTime);
+                const endStr = formatTime(endTime);
+                const timeStr = `${startStr} - ${endStr}`;
+                card.dataset.time = timeStr;
+
+                // Mathematical vertical height: strictly proportional to duration!
+                const cardHeightPx = Math.round(dur * PX_PER_MIN);
+                card.style.height = `${cardHeightPx}px`;
+                card.style.minHeight = `${cardHeightPx}px`;
+                card.style.maxHeight = `${cardHeightPx}px`;
+                card.style.boxSizing = 'border-box';
+
+                const content = card.querySelector('.card-content');
+                if (content) {
+                    if (isBreak) {
+                        let txt = content.textContent.replace(/\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
+                        if (!txt) txt = '🍱 ISHOMA';
+                        content.textContent = `${txt} (${timeStr})`;
+                    } else if (isFestival) {
+                        let txt = content.textContent.replace(/\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
+                        if (!txt) txt = `FESTIVAL (${card.dataset.atletCount || '0'})`;
+                        content.textContent = `${txt} (${timeStr})`;
+                    } else if (cat) {
+                        content.textContent = `${cat.nama} (${cat.atlet_count}) (${timeStr})`;
+                    } else {
+                        let txt = content.textContent.replace(/\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
+                        content.textContent = `${txt} (${timeStr})`;
+                    }
+                }
+
+                if (isIshoma) {
+                    currentClock = new Date(Math.max(ishomaEndMs, endTime.getTime()));
+                } else if (isBreak && endTime.getTime() <= ishomaEndMs) {
+                    currentClock = new Date(ishomaEndMs);
+                } else {
+                    currentClock = endTime;
                 }
             });
 
-            days.push({ day_pk: dayPk, tanggal, rows });
+            updateChipUsedState();
+            updateTatamiAthleteCounters();
+        }
+
+        const startTimeInput = document.getElementById('start-time-input');
+        const autoStartTimeInput = document.getElementById('auto-start-time');
+        if (startTimeInput && autoStartTimeInput) {
+            startTimeInput.addEventListener('change', () => {
+                autoStartTimeInput.value = startTimeInput.value;
+                document.querySelectorAll('.tatami-column').forEach(col => {
+                    recalculateTatamiTimeline(col);
+                });
+                runConflictDetection();
+            });
+            autoStartTimeInput.addEventListener('change', () => {
+                startTimeInput.value = autoStartTimeInput.value;
+            });
+        }
+
+        // Tatami and Day Removal
+        daysContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('remove-tatami-btn')) {
+                const tid = e.target.dataset.tatamiId;
+                if (!confirm('Hapus Tatami ini beserta jadwal di dalamnya?')) return;
+                fetch(DELETE_TATAMI_URL + tid + '/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) window.location.reload();
+                });
+            } else if (e.target.classList.contains('remove-day-btn')) {
+                const dayBlock = e.target.closest('.day-block');
+                const dayId = dayBlock.dataset.dayId;
+                if (!confirm('Hapus seluruh hari ini?')) return;
+                fetch(DELETE_DAY_URL + dayId + '/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) window.location.reload();
+                });
+            }
         });
 
-        fetch(SAVE_URL, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ days }),
-        })
+        // Add Day
+        document.getElementById('add-day-btn').addEventListener('click', () => {
+            fetch(ADD_DAY_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+            })
             .then(res => res.json())
-            .then(data => { statusEl.textContent = data.success ? ' ✅ Tersimpan' : ' ❌ Gagal'; })
-            .catch(() => { statusEl.textContent = ' ❌ Gagal'; });
-    });
-});
-</script>
+            .then(data => {
+                if (data.success) window.location.reload();
+            });
+        });
+
+        // Add Tatami
+        document.getElementById('add-tatami-btn').addEventListener('click', () => {
+            const num = prompt('Nomor / Nama Tatami baru:');
+            if (!num) return;
+            fetch(ADD_TATAMI_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tatami_number: num }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) window.location.reload();
+            });
+        });
+
+        // Save timetable
+        document.getElementById('save-timetable-btn').addEventListener('click', () => {
+            saveStatus.innerText = 'Menyimpan...';
+            saveStatus.style.color = '#38bdf8';
+
+            const payload = { days: [] };
+            document.querySelectorAll('.day-block').forEach(block => {
+                const dayPk = block.dataset.dayId;
+                const tanggal = block.querySelector('.day-date-input').value;
+                const cols = block.querySelectorAll('.tatami-column');
+                const tatamiIds = [];
+                const cardsByTatami = {};
+
+                cols.forEach(col => {
+                    const tid = col.dataset.tatamiId;
+                    tatamiIds.push(tid);
+                    cardsByTatami[tid] = Array.from(col.querySelectorAll('.tt-card'));
+                });
+
+                const maxLen = Math.max(0, ...tatamiIds.map(tid => cardsByTatami[tid].length));
+                const rows = [];
+
+                for (let i = 0; i < maxLen; i++) {
+                    const cells = [];
+                    tatamiIds.forEach(tid => {
+                        const card = cardsByTatami[tid][i];
+                        if (card) {
+                            let customText = card.dataset.time || '';
+                            if (!card.dataset.ntId) {
+                                const cEl = card.querySelector('.card-content');
+                                customText = cEl ? cEl.textContent.trim() : (card.dataset.time || '');
+                            }
+                            cells.push({
+                                tatami_id: tid,
+                                nomor_tanding_id: card.dataset.ntId || null,
+                                custom_text: customText,
+                            });
+                        }
+                    });
+                    rows.push({
+                        row_type: 'slot',
+                        time_label: '',
+                        cells: cells,
+                    });
+                }
+
+                payload.days.push({
+                    day_pk: dayPk,
+                    tanggal: tanggal,
+                    rows: rows,
+                });
+            });
+
+            fetch(SAVE_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    saveStatus.innerText = '✓ Berhasil Disimpan!';
+                    saveStatus.style.color = '#10b981';
+                    setTimeout(() => { saveStatus.innerText = ''; }, 2500);
+                } else {
+                    saveStatus.innerText = 'Gagal menyimpan.';
+                    saveStatus.style.color = '#f87171';
+                }
+            })
+            .catch(() => {
+                saveStatus.innerText = 'Error koneksi.';
+                saveStatus.style.color = '#f87171';
+            });
+        });
+
+        // Kop Surat Modal handling
+        const kopModal = document.getElementById('kop-surat-modal');
+        document.getElementById('kop-surat-btn').addEventListener('click', () => { kopModal.style.display = 'flex'; });
+        document.getElementById('kop-surat-cancel-btn').addEventListener('click', () => { kopModal.style.display = 'none'; });
+        document.getElementById('kop-surat-cancel-btn2').addEventListener('click', () => { kopModal.style.display = 'none'; });
+        document.getElementById('print-btn').addEventListener('click', () => { window.print(); });
+
+        document.getElementById('kop-surat-save-btn').addEventListener('click', () => {
+            const fd = new FormData();
+            fd.append('nama_organisasi', document.getElementById('kop-nama-input').value);
+            fd.append('alamat', document.getElementById('kop-alamat-input').value);
+            fd.append('kontak', document.getElementById('kop-kontak-input').value);
+            const logo = document.getElementById('kop-logo-input').files[0];
+            if (logo) fd.append('logo', logo);
+
+            fetch(KOP_SAVE_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: fd,
+            })
+            .then(res => res.json())
+            .then(d => {
+                if (d.success) {
+                    kopModal.style.display = 'none';
+                    window.location.reload();
+                }
+            });
+        });
+
+        // ==========================================
+        // ⚡ AIR TRAFFIC CONTROL: CONFLICT DETECTOR
+        // ==========================================
+        let conflictList = [];
+
+        function getCellTimeInterval(card) {
+            let text = card.dataset.time || '';
+            const match = (text || (card.textContent || '')).match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+            if (match) {
+                const s = parseTimeToDate(match[1]).getTime();
+                const e = parseTimeToDate(match[2]).getTime();
+                if (!isNaN(s) && !isNaN(e) && e > s) {
+                    return { start: s, end: e };
+                }
+            }
+            return null;
+        }
+
+        function runConflictDetection() {
+            conflictList = [];
+            document.querySelectorAll('.tt-card').forEach(c => c.classList.remove('conflict-card'));
+
+            const ntMap = CONFLICT_DATA.nt_athletes || {};
+            const athleteNames = CONFLICT_DATA.athlete_names || {};
+
+            // Scope detection PER DAY BLOCK so Day 1 matches never trigger false conflicts with Day 2!
+            document.querySelectorAll('.day-block').forEach(dayBlock => {
+                const scheduledCards = [];
+                dayBlock.querySelectorAll('.tt-card[data-nt-id]').forEach(card => {
+                    const ntId = parseInt(card.dataset.ntId, 10);
+                    if (!ntId) return;
+                    const interval = getCellTimeInterval(card);
+                    if (interval) {
+                        scheduledCards.push({
+                            card: card,
+                            ntId: ntId,
+                            tatamiId: card.dataset.tatamiId,
+                            interval: interval,
+                        });
+                    }
+                });
+
+                if (scheduledCards.length < 2) return;
+
+                for (let i = 0; i < scheduledCards.length; i++) {
+                    for (let j = i + 1; j < scheduledCards.length; j++) {
+                        const a = scheduledCards[i];
+                        const b = scheduledCards[j];
+                        if (a.tatamiId === b.tatamiId) continue;
+
+                        const overlap = (a.interval.start < b.interval.end && a.interval.end > b.interval.start);
+                        if (!overlap) continue;
+
+                        const athA = new Set(ntMap[a.ntId] || []);
+                        const athB = ntMap[b.ntId] || [];
+                        const common = athB.filter(x => athA.has(x));
+
+                        if (common.length > 0) {
+                            a.card.classList.add('conflict-card');
+                            b.card.classList.add('conflict-card');
+                            const names = common.map(id => athleteNames[id] || `ID ${id}`).join(', ');
+                            conflictList.push({
+                                cards: [a.card, b.card],
+                                names: names,
+                            });
+                        }
+                    }
+                }
+            });
+
+            const banner = document.getElementById('conflict-alert-banner');
+            const countText = document.getElementById('conflict-count-text');
+            const detailText = document.getElementById('conflict-details-text');
+
+            if (conflictList.length > 0) {
+                banner.style.display = 'flex';
+                countText.innerText = `⚠️ ${conflictList.length} Konflik Jadwal Terdeteksi!`;
+                detailText.innerText = `Atlet bertanding di waktu bersamaan: ${conflictList[0].names}`;
+            } else {
+                if (banner) banner.style.display = 'none';
+            }
+        }
+
+        let conflictNavIdx = 0;
+        function highlightNextConflict() {
+            if (conflictList.length === 0) return;
+            const c = conflictList[conflictNavIdx % conflictList.length];
+            c.cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            c.cards.forEach(card => {
+                card.style.outline = '3px solid #ff3838';
+                setTimeout(() => { card.style.outline = ''; }, 2000);
+            });
+            conflictNavIdx++;
+        }
+
+        // ==========================================
+        // ⚡ 1-CLICK AUTO-SCHEDULER ENGINE
+        // ==========================================
+        function toggleAgePill(checkbox) {
+            const pill = checkbox.closest('.age-pill');
+            if (pill) {
+                pill.classList.toggle('active', checkbox.checked);
+            }
+            updateAgePillSummary();
+        }
+
+        function selectAllAgePills(selected) {
+            document.querySelectorAll('.age-pill').forEach(pill => {
+                const cb = pill.querySelector('.auto-age-cb');
+                if (cb) {
+                    cb.checked = selected;
+                    pill.classList.toggle('active', selected);
+                }
+            });
+            updateAgePillSummary();
+        }
+
+        function updateAgePillSummary() {
+            const allPills = document.querySelectorAll('.age-pill');
+            const activePills = document.querySelectorAll('.age-pill.active');
+            const summarySpan = document.getElementById('auto-age-selection-summary');
+            if (!summarySpan) return;
+
+            if (allPills.length === 0) {
+                summarySpan.textContent = '';
+                return;
+            }
+
+            if (activePills.length === allPills.length) {
+                summarySpan.textContent = 'Semua Usia Terpilih';
+                summarySpan.style.color = '#38bdf8';
+            } else if (activePills.length === 0) {
+                summarySpan.textContent = 'Belum Ada Usia Dipilih';
+                summarySpan.style.color = '#f87171';
+            } else {
+                summarySpan.textContent = `${activePills.length} dari ${allPills.length} Usia Dipilih`;
+                summarySpan.style.color = '#38bdf8';
+            }
+        }
+
+        function updateAgePillCounts() {
+            // Collect currently scheduled categories across all days
+            const scheduledNtIds = new Set();
+            document.querySelectorAll('.tt-card[data-nt-id]').forEach(card => {
+                if (card.dataset.ntId) scheduledNtIds.add(parseInt(card.dataset.ntId, 10));
+            });
+
+            // Count remaining unscheduled tournament categories (>1 atlet) per age group
+            const remainingCounts = {};
+            if (typeof CATEGORIES_META !== 'undefined' && Array.isArray(CATEGORIES_META)) {
+                CATEGORIES_META.forEach(c => {
+                    const isFest = c.is_festival || (c.nama || '').toUpperCase().includes('FESTIVAL');
+                    if (!scheduledNtIds.has(c.pk) && c.atlet_count > 1 && !isFest) {
+                        remainingCounts[c.age_group] = (remainingCounts[c.age_group] || 0) + 1;
+                    }
+                });
+            }
+
+            document.querySelectorAll('.age-pill').forEach(pill => {
+                const cb = pill.querySelector('.auto-age-cb');
+                const countSpan = pill.querySelector('.age-pill-count');
+                if (cb && countSpan) {
+                    const count = remainingCounts[cb.value] || 0;
+                    countSpan.textContent = `${count}`;
+                    if (count === 0) {
+                        countSpan.style.background = 'rgba(148, 163, 184, 0.12)';
+                        countSpan.style.color = '#94a3b8';
+                    } else {
+                        countSpan.style.background = '';
+                        countSpan.style.color = '';
+                    }
+                }
+            });
+            updateAgePillSummary();
+        }
+
+        function selectAllTatamiCbs(selected) {
+            document.querySelectorAll('.auto-tatami-cb').forEach(cb => {
+                cb.checked = selected;
+            });
+        }
+
+        window.lastAutoScheduleSnapshot = null;
+        function undoLastAutoSchedule() {
+            if (!window.lastAutoScheduleSnapshot) {
+                alert('Tidak ada riwayat auto-jadwal yang dapat diurungkan.');
+                return;
+            }
+            const dayBlock = document.querySelector(`.day-block[data-day-id="${window.lastAutoScheduleSnapshot.dayPk}"]`);
+            if (dayBlock) {
+                dayBlock.innerHTML = window.lastAutoScheduleSnapshot.html;
+                initTatamiGridEvents();
+                updateChipUsedState();
+                updateTatamiAthleteCounters();
+                runConflictDetection();
+                const banner = document.getElementById('auto-schedule-result-banner');
+                if (banner) banner.style.display = 'none';
+                window.lastAutoScheduleSnapshot = null;
+            }
+        }
+
+        function openAutoScheduleModal() {
+            updateAgePillCounts();
+            const startInput = document.getElementById('start-time-input');
+            const autoStart = document.getElementById('auto-start-time');
+            if (startInput && autoStart && startInput.value) {
+                autoStart.value = startInput.value;
+            }
+            document.getElementById('auto-schedule-modal').style.display = 'flex';
+        }
+        function closeAutoScheduleModal() {
+            document.getElementById('auto-schedule-modal').style.display = 'none';
+        }
+
+        function executeAutoScheduler() {
+            const targetDayPk = document.getElementById('auto-day-select').value;
+            const startTimeStr = document.getElementById('auto-start-time').value || '08:30';
+            const startInput = document.getElementById('start-time-input');
+            if (startInput) startInput.value = startTimeStr;
+            const endLimitStr = document.getElementById('auto-end-limit-opt').value;
+            const sortMode = document.getElementById('auto-priority-opt').value;
+            const clearExisting = document.getElementById('auto-mode-opt').value === 'overwrite';
+            const includeIshoma = document.getElementById('auto-ishoma-opt').value === 'yes';
+            const includeFestival = document.getElementById('auto-festival-opt') ? (document.getElementById('auto-festival-opt').value === 'yes') : false;
+            const festivalDur = document.getElementById('auto-festival-dur-opt') ? (parseInt(document.getElementById('auto-festival-dur-opt').value, 10) || 90) : 90;
+            const defaultDur = 15;
+
+            const dayBlock = document.querySelector(`.day-block[data-day-id="${targetDayPk}"]`);
+            if (!dayBlock) {
+                alert('Pilih hari pertandingan terlebih dahulu.');
+                return;
+            }
+
+            // Target tatami filtering from checkboxes
+            const selectedTatamiIds = new Set(
+                Array.from(document.querySelectorAll('.auto-tatami-cb:checked')).map(cb => cb.value)
+            );
+            const tatamiCols = Array.from(dayBlock.querySelectorAll('.tatami-column')).filter(c => selectedTatamiIds.has(c.dataset.tatamiId));
+            const tatamis = tatamiCols.map(c => c.dataset.tatamiId);
+            if (tatamis.length === 0) {
+                alert('Pilih minimal satu Tatami untuk dialokasikan jadwal.');
+                return;
+            }
+
+            // Save in-memory snapshot for UNDO
+            window.lastAutoScheduleSnapshot = {
+                dayPk: targetDayPk,
+                html: dayBlock.innerHTML,
+            };
+
+            if (clearExisting) {
+                tatamiCols.forEach(col => {
+                    col.querySelectorAll('.tt-card').forEach(card => card.remove());
+                });
+            }
+
+            // Collect unscheduled categories across all days
+            const currentScheduledNtIds = new Set();
+            document.querySelectorAll('.tt-card[data-nt-id]').forEach(card => {
+                if (card.dataset.ntId) currentScheduledNtIds.add(parseInt(card.dataset.ntId, 10));
+            });
+
+            // Filter age groups selected in modal
+            const selectedAgeGroups = new Set(
+                Array.from(document.querySelectorAll('.auto-age-cb:checked')).map(cb => cb.value)
+            );
+
+            if (selectedAgeGroups.size === 0) {
+                alert('Pilih minimal satu golongan usia untuk dijadwalkan.');
+                return;
+            }
+
+            // Filter unscheduled: strictly ignore categories with <= 1 athlete, ignore festival categories, and match selected age groups
+            let unscheduled = CATEGORIES_META.filter(c => {
+                const notScheduled = !currentScheduledNtIds.has(c.pk);
+                const hasMultipleAthletes = (c.atlet_count > 1);
+                const notFestival = !c.is_festival && !(c.nama || '').toUpperCase().includes('FESTIVAL');
+                const ageGroupMatches = selectedAgeGroups.has(c.age_group);
+                return notScheduled && hasMultipleAthletes && notFestival && ageGroupMatches;
+            });
+
+            if (unscheduled.length === 0) {
+                alert('Tidak ada nomor tanding yang memenuhi syarat untuk dijadwalkan (kategori festival dan kategori dengan 0 atau 1 atlet otomatis diabaikan, atau seluruh nomor tanding pada golongan usia terpilih sudah terjadwal).');
+                closeAutoScheduleModal();
+                return;
+            }
+
+            const ORDERED_GROUPS = [
+                'Pra Usia Dini', 'Usia Dini', 'Pra Pemula', 'Pemula',
+                'Kadet', 'Junior', 'Under-21', 'Senior', 'Veteran', 'Lainnya'
+            ];
+
+            if (sortMode === 'kata_first') {
+                unscheduled.sort((a, b) => {
+                    if (a.discipline !== b.discipline) {
+                        return a.discipline === 'kata' ? -1 : 1;
+                    }
+                    const ga = ORDERED_GROUPS.indexOf(a.age_group);
+                    const gb = ORDERED_GROUPS.indexOf(b.age_group);
+                    if (ga !== gb) return ga - gb;
+                    return a.pk - b.pk;
+                });
+            } else if (sortMode === 'age_first') {
+                unscheduled.sort((a, b) => {
+                    const ga = ORDERED_GROUPS.indexOf(a.age_group);
+                    const gb = ORDERED_GROUPS.indexOf(b.age_group);
+                    if (ga !== gb) return ga - gb;
+                    if (a.discipline !== b.discipline) {
+                        return a.discipline === 'kata' ? -1 : 1;
+                    }
+                    return a.pk - b.pk;
+                });
+            } else {
+                unscheduled.sort((a, b) => a.atlet_count - b.atlet_count);
+            }
+
+            // Max end time, ISHOMA boundaries & conflict map
+            const maxEndTime = endLimitStr !== 'all' ? parseTimeToDate(endLimitStr).getTime() : Infinity;
+            const ishomaStartTime = parseTimeToDate('12:00').getTime();
+            const ishomaEndTime = parseTimeToDate('13:00').getTime();
+            const ntAthletesMap = CONFLICT_DATA.nt_athletes || {};
+
+            // Collect existing intervals within this dayBlock to prevent cross-day false collisions
+            const baseExistingIntervals = [];
+            if (!clearExisting) {
+                dayBlock.querySelectorAll('.tt-card[data-nt-id]').forEach(c => {
+                    const ntId = parseInt(c.dataset.ntId, 10);
+                    const interval = getCellTimeInterval(c);
+                    if (ntId && interval) {
+                        baseExistingIntervals.push({
+                            tid: c.dataset.tatamiId,
+                            start: interval.start,
+                            end: interval.end,
+                            athletes: new Set(ntAthletesMap[ntId] || []),
+                        });
+                    }
+                });
+            }
+
+            const festAthTotal = (typeof FESTIVAL_METADATA !== 'undefined') ? (FESTIVAL_METADATA.total_athletes || 0) : 0;
+            const festPerTatami = Math.round(festAthTotal / tatamis.length) || 0;
+            const festStartMs = parseTimeToDate(startTimeStr).getTime();
+            const festEndMs = festStartMs + festivalDur * 60000;
+            const festStartStr = startTimeStr;
+            const festEndStr = formatTime(new Date(festEndMs));
+            const festTimeStr = `${festStartStr} - ${festEndStr}`;
+            const festHeightPx = Math.round(festivalDur * PX_PER_MIN);
+
+            // Simulation solver function for a single trial
+            function runTrial(trialSeed) {
+                let trialUnscheduled = unscheduled.map(c => Object.assign({}, c));
+                const currentClocks = {};
+                const tatamiAthletes = {};
+                const tatamiMinutes = {};
+                const activeIntervals = baseExistingIntervals.map(act => ({
+                    tid: act.tid,
+                    start: act.start,
+                    end: act.end,
+                    athletes: new Set(act.athletes),
+                }));
+
+                if (includeFestival) {
+                    tatamis.forEach(tid => {
+                        currentClocks[tid] = festEndMs;
+                        tatamiAthletes[tid] = festPerTatami;
+                        tatamiMinutes[tid] = festivalDur;
+                        activeIntervals.push({
+                            tid: tid,
+                            start: festStartMs,
+                            end: festEndMs,
+                            athletes: new Set(),
+                        });
+                    });
+                } else {
+                    tatamis.forEach(tid => {
+                        const col = dayBlock.querySelector(`.tatami-column[data-tatami-id="${tid}"]`);
+                        const existingCards = col ? col.querySelectorAll('.tt-card') : [];
+                        let lastEnd = parseTimeToDate(startTimeStr).getTime();
+                        let athCount = 0;
+                        existingCards.forEach(card => {
+                            const interval = getCellTimeInterval(card);
+                            if (interval && interval.end > lastEnd) lastEnd = interval.end;
+                            const ntId = parseInt(card.dataset.ntId, 10);
+                            if (ntId) {
+                                const cat = CATEGORIES_META.find(c => c.pk === ntId);
+                                if (cat) athCount += cat.atlet_count;
+                            } else if (card.dataset.atletCount) {
+                                athCount += parseInt(card.dataset.atletCount, 10);
+                            }
+                        });
+                        currentClocks[tid] = lastEnd;
+                        tatamiAthletes[tid] = athCount;
+                        tatamiMinutes[tid] = 0;
+                    });
+                }
+
+                const ishomaInsertedTatamis = new Set();
+                const scheduledCards = [];
+
+                function insertIshoma(tid, s) {
+                    if (!includeIshoma || ishomaInsertedTatamis.has(tid)) return false;
+                    const startMs = s;
+                    const ishomaDur = Math.max(1, Math.round((ishomaEndTime - startMs) / 60000));
+                    const startStr = formatTime(new Date(startMs));
+                    const ishomaTimeStr = `${startStr} - 13:00`;
+                    ishomaInsertedTatamis.add(tid);
+                    currentClocks[tid] = ishomaEndTime;
+                    scheduledCards.push({
+                        tid: tid,
+                        isIshoma: true,
+                        nama: '🍱 ISHOMA',
+                        dur: ishomaDur,
+                        timeStr: ishomaTimeStr,
+                        start: startMs,
+                        end: ishomaEndTime
+                    });
+                    return true;
+                }
+
+                function canScheduleAtClock(tid, cand, s) {
+                    const durMinutes = cand.est_duration_minutes || (cand.matches * defaultDur) || 15;
+                    const candDur = durMinutes * 60000;
+                    const candAthletes = new Set(ntAthletesMap[cand.pk] || []);
+
+                    // Morning ISHOMA constraint:
+                    if (includeIshoma && !ishomaInsertedTatamis.has(tid) && s < ishomaEndTime) {
+                        if (s >= parseTimeToDate('12:25').getTime() || (s + candDur) > ishomaEndTime) {
+                            return null;
+                        }
+                    }
+
+                    const e = s + candDur;
+                    if (e > maxEndTime) return null;
+
+                    // Strictly check activeIntervals for any overlapping athlete:
+                    for (const act of activeIntervals) {
+                        if (act.tid !== tid && s < act.end && e > act.start) {
+                            for (const athId of candAthletes) {
+                                if (act.athletes.has(athId)) {
+                                    return null;
+                                }
+                            }
+                        }
+                    }
+
+                    return { start: s, end: e, duration: durMinutes, athletes: candAthletes };
+                }
+
+                while (trialUnscheduled.length > 0) {
+                    const eligibleTatamis = tatamis.filter(tid => currentClocks[tid] < maxEndTime);
+                    if (eligibleTatamis.length === 0) break;
+
+                    eligibleTatamis.sort((a, b) => {
+                        const cDiff = currentClocks[a] - currentClocks[b];
+                        if (cDiff !== 0) return cDiff;
+                        return (tatamiMinutes[a] || 0) - (tatamiMinutes[b] || 0);
+                    });
+
+                    const minEligibleClock = currentClocks[eligibleTatamis[0]];
+
+                    // Check if any eligible tatami should take ISHOMA:
+                    let ishomaHandled = false;
+                    for (const tid of eligibleTatamis) {
+                        if (includeIshoma && !ishomaInsertedTatamis.has(tid) && currentClocks[tid] < ishomaEndTime) {
+                            const s = currentClocks[tid];
+                            const canFitBefore13 = trialUnscheduled.some(c => (s + ((c.est_duration_minutes || 15) * 60000)) <= ishomaEndTime);
+                            if (s >= parseTimeToDate('12:35').getTime() || (s >= parseTimeToDate('12:15').getTime() && !canFitBefore13)) {
+                                insertIshoma(tid, s);
+                                ishomaHandled = true;
+                            }
+                        }
+                    }
+                    if (ishomaHandled) continue;
+
+                    const hasKata = trialUnscheduled.some(c => c.discipline === 'kata');
+                    let best = null;
+
+                    // Lockstep constraint: do not allow tatamis to race ahead of the slowest tatami by > 45 minutes
+                    const activeLockstepTatamis = eligibleTatamis.filter(tid => {
+                        const aheadMinutes = (currentClocks[tid] - minEligibleClock) / 60000;
+                        return aheadMinutes <= 45;
+                    });
+
+                    for (let attempt = 1; attempt <= 4; attempt++) {
+                        const candidateIndices = [];
+                        for (let i = 0; i < trialUnscheduled.length; i++) {
+                            const c = trialUnscheduled[i];
+                            if (attempt <= 2 && sortMode === 'kata_first' && hasKata && c.discipline !== 'kata') {
+                                continue;
+                            }
+                            candidateIndices.push(i);
+                        }
+                        if (candidateIndices.length === 0) continue;
+
+                        let minAgeIdx = Infinity;
+                        candidateIndices.forEach(i => {
+                            const idx = ORDERED_GROUPS.indexOf(trialUnscheduled[i].age_group);
+                            if (idx !== -1 && idx < minAgeIdx) minAgeIdx = idx;
+                        });
+                        if (minAgeIdx === Infinity) minAgeIdx = 0;
+
+                        let ageFiltered = candidateIndices;
+                        if (attempt === 1 || attempt === 3) {
+                            ageFiltered = candidateIndices.filter(i => {
+                                const idx = ORDERED_GROUPS.indexOf(trialUnscheduled[i].age_group);
+                                return idx === -1 || idx <= minAgeIdx + 1;
+                            });
+                        }
+
+                        const feasible = [];
+                        for (const tid of activeLockstepTatamis) {
+                            const s = currentClocks[tid];
+                            const curMin = tatamiMinutes[tid] || 0;
+                            const otherMin = Math.min(...tatamis.filter(t => t !== tid).map(t => tatamiMinutes[t] || 0));
+
+                            for (const idx of ageFiltered) {
+                                const cand = trialUnscheduled[idx];
+                                const fit = canScheduleAtClock(tid, cand, s);
+                                if (fit) {
+                                    const tatamiClockAheadMin = (s - minEligibleClock) / 60000;
+                                    const loadDiff = Math.max(0, (curMin + fit.duration) - otherMin);
+                                    const ageDiff = Math.max(0, (ORDERED_GROUPS.indexOf(cand.age_group) - minAgeIdx));
+                                    const jitter = trialSeed > 0 ? (Math.random() * 8.0) : 0;
+
+                                    const score = (tatamiClockAheadMin * 100.0) + (loadDiff * 4.0) + (ageDiff * 8.0) + jitter;
+
+                                    feasible.push({
+                                        score: score,
+                                        tid: tid,
+                                        candIdx: idx,
+                                        cand: cand,
+                                        startMs: s,
+                                        endMs: fit.end,
+                                        durMinutes: fit.duration,
+                                        athletes: fit.athletes
+                                    });
+                                }
+                            }
+                        }
+
+                        if (feasible.length > 0) {
+                            feasible.sort((a, b) => a.score - b.score);
+                            best = feasible[0];
+                            break;
+                        }
+                    }
+
+                    if (!best) {
+                        let tookIshoma = false;
+                        for (const tid of eligibleTatamis) {
+                            if (includeIshoma && !ishomaInsertedTatamis.has(tid) && currentClocks[tid] < ishomaEndTime) {
+                                if (currentClocks[tid] >= parseTimeToDate('12:15').getTime()) {
+                                    insertIshoma(tid, currentClocks[tid]);
+                                    tookIshoma = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (tookIshoma) continue;
+
+                        const earliestTid = eligibleTatamis[0];
+                        const s = currentClocks[earliestTid];
+                        const futureFinishes = activeIntervals.filter(a => a.end > s).map(a => a.end);
+                        if (futureFinishes.length > 0) {
+                            const nextClear = Math.min(...futureFinishes);
+                            if (nextClear > s && nextClear <= maxEndTime) {
+                                currentClocks[earliestTid] = nextClear;
+                                continue;
+                            }
+                        }
+                        break;
+                    }
+
+                    const tid = best.tid;
+                    const cat = trialUnscheduled.splice(best.candIdx, 1)[0];
+                    const startMs = best.startMs;
+                    const endMs = best.endMs;
+                    const durMinutes = best.durMinutes;
+
+                    activeIntervals.push({
+                        tid: tid,
+                        start: startMs,
+                        end: endMs,
+                        athletes: best.athletes
+                    });
+
+                    const startStr = formatTime(new Date(startMs));
+                    const endStr = formatTime(new Date(endMs));
+                    const timeStr = `${startStr} - ${endStr}`;
+
+                    scheduledCards.push({
+                        tid: tid,
+                        ntId: cat.pk,
+                        nama: cat.nama,
+                        atletCount: cat.atlet_count,
+                        dur: durMinutes,
+                        timeStr: timeStr,
+                        start: startMs,
+                        end: endMs
+                    });
+
+                    currentClocks[tid] = endMs;
+                    tatamiAthletes[tid] += cat.atlet_count;
+                    tatamiMinutes[tid] = (tatamiMinutes[tid] || 0) + durMinutes;
+
+                    if (includeIshoma && !ishomaInsertedTatamis.has(tid) && endMs >= parseTimeToDate('12:15').getTime() && endMs < ishomaEndTime) {
+                        const canFitMore = trialUnscheduled.some(c => (endMs + ((c.est_duration_minutes || 15) * 60000)) <= ishomaEndTime);
+                        if (endMs >= parseTimeToDate('12:35').getTime() || !canFitMore) {
+                            insertIshoma(tid, endMs);
+                        }
+                    }
+                }
+
+                let totalGapMinutes = 0;
+                tatamis.forEach(tid => {
+                    const cards = scheduledCards.filter(c => c.tid === tid);
+                    if (cards.length > 0) {
+                        const initialStart = includeFestival ? festEndMs : parseTimeToDate(startTimeStr).getTime();
+                        const initialGap = (cards[0].start - initialStart) / 60000;
+                        if (initialGap > 0) totalGapMinutes += (initialGap * 10);
+                    }
+                    for (let i = 0; i < cards.length - 1; i++) {
+                        const gap = (cards[i + 1].start - cards[i].end) / 60000;
+                        if (gap > 0) totalGapMinutes += gap;
+                    }
+                });
+
+                const scheduledCount = scheduledCards.filter(c => !c.isIshoma).length;
+                const athValues = Object.values(tatamiAthletes);
+                const athDiff = (Math.max(...athValues) - Math.min(...athValues)) || 0;
+
+                return {
+                    scheduledCards,
+                    unscheduled: trialUnscheduled,
+                    currentClocks,
+                    tatamiAthletes,
+                    scheduledCount,
+                    totalGapMinutes,
+                    athDiff,
+                };
+            }
+
+            // Run 40 multi-seed trials in memory and select the optimal plan:
+            let bestTrial = null;
+            let bestScore = Infinity;
+            const trialCount = 40;
+
+            for (let i = 0; i < trialCount; i++) {
+                const trialRes = runTrial(i);
+                const trialScore = (unscheduled.length - trialRes.scheduledCount) * 1000 + (trialRes.totalGapMinutes * 50) + (trialRes.athDiff * 2);
+                if (trialScore < bestScore) {
+                    bestScore = trialScore;
+                    bestTrial = trialRes;
+                }
+            }
+
+            // Render Festival cards if requested
+            if (includeFestival) {
+                tatamis.forEach(tid => {
+                    const targetCol = dayBlock.querySelector(`.tatami-column[data-tatami-id="${tid}"]`);
+                    const cardList = targetCol.querySelector('.tatami-card-list');
+                    const dropzone = cardList.querySelector('.tatami-dropzone');
+
+                    const card = document.createElement('div');
+                    card.className = 'tt-card is-festival-card';
+                    card.draggable = true;
+                    card.dataset.tatamiId = tid;
+                    card.dataset.time = festTimeStr;
+                    card.dataset.duration = festivalDur;
+                    card.dataset.atletCount = festPerTatami;
+                    card.style.height = `${festHeightPx}px`;
+                    card.style.minHeight = `${festHeightPx}px`;
+                    card.style.maxHeight = `${festHeightPx}px`;
+                    card.style.boxSizing = 'border-box';
+                    card.innerHTML = `
+                        <div class="card-content" contenteditable="true">FESTIVAL (${festPerTatami}) (${festTimeStr})</div>
+                        <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
+                    `;
+                    attachCardEvents(card);
+                    cardList.insertBefore(card, dropzone);
+                });
+            }
+
+            // Render the winning trial's scheduled cards directly to the DOM
+            bestTrial.scheduledCards.forEach(c => {
+                const targetCol = dayBlock.querySelector(`.tatami-column[data-tatami-id="${c.tid}"]`);
+                if (!targetCol) return;
+                const cardList = targetCol.querySelector('.tatami-card-list');
+                const dropzone = cardList.querySelector('.tatami-dropzone');
+                const cardHeightPx = Math.round(c.dur * PX_PER_MIN);
+
+                const card = document.createElement('div');
+                card.draggable = true;
+                card.dataset.tatamiId = c.tid;
+                card.dataset.time = c.timeStr;
+                card.dataset.duration = c.dur;
+                card.style.height = `${cardHeightPx}px`;
+                card.style.minHeight = `${cardHeightPx}px`;
+                card.style.maxHeight = `${cardHeightPx}px`;
+                card.style.boxSizing = 'border-box';
+
+                if (c.isIshoma) {
+                    card.className = 'tt-card is-break-card is-ishoma-card';
+                    card.innerHTML = `
+                        <div class="card-content" contenteditable="true">🍱 ISHOMA (${c.timeStr})</div>
+                        <button class="remove-card-btn" type="button" title="Hapus ISHOMA">✕</button>
+                    `;
+                } else {
+                    card.className = 'tt-card';
+                    card.dataset.ntId = c.ntId;
+                    card.dataset.atletCount = c.atletCount;
+                    card.innerHTML = `
+                        <div class="card-content" contenteditable="true">${c.nama} (${c.atletCount}) (${c.timeStr})</div>
+                        <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
+                    `;
+                }
+
+                attachCardEvents(card);
+                cardList.insertBefore(card, dropzone);
+            });
+
+            closeAutoScheduleModal();
+            updateChipUsedState();
+            updateTatamiAthleteCounters();
+            runConflictDetection();
+
+            const maxFinish = tatamis.reduce((max, tid) => Math.max(max, bestTrial.currentClocks[tid]), 0);
+            const finishTimeStr = formatTime(new Date(maxFinish));
+            const balanceSummary = tatamis.map((tid, idx) => `Tatami ${idx + 1}: ${bestTrial.tatamiAthletes[tid]} atlet`).join(', ');
+
+            // Display rich status banner with Undo button
+            const resBanner = document.getElementById('auto-schedule-result-banner');
+            const resTitle = document.getElementById('auto-result-title');
+            const resSummary = document.getElementById('auto-result-summary');
+
+            if (resBanner && resTitle && resSummary) {
+                resBanner.style.display = 'flex';
+                resTitle.innerText = `⚡ Auto-Jadwal Berhasil Diterapkan (${bestTrial.scheduledCount} Kategori Terjadwal)`;
+                resSummary.innerHTML = `Estimasi Selesai: <strong>${finishTimeStr}</strong> &bull; Beban: ${balanceSummary}. ${bestTrial.unscheduled.length > 0 ? `<span style="color:#fca5a5;">(Sisa ${bestTrial.unscheduled.length} kategori dapat dijadwalkan di hari berikutnya)</span>` : '<span style="color:#6ee7b7;">(Seluruh kategori telah terjadwal bebas bentrok)</span>'}`;
+                resBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Initialize state on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTatamiGridEvents();
+            // Sync start-time-input from first card if present (only if standard early morning start <= 09:00)
+            const firstCard = document.querySelector('.day-block:first-child .tatami-column .tt-card[data-time]');
+            if (firstCard && firstCard.dataset.time) {
+                const m = firstCard.dataset.time.match(/(\d{1,2}:\d{2})/);
+                if (m && m[1] <= '09:00') {
+                    const startInput = document.getElementById('start-time-input');
+                    const autoStart = document.getElementById('auto-start-time');
+                    if (startInput) startInput.value = m[1];
+                    if (autoStart) autoStart.value = m[1];
+                }
+            }
+            // Recalculate and synchronize all columns on page load so heights and rows match perfectly
+            document.querySelectorAll('.tatami-column').forEach(col => {
+                recalculateTatamiTimeline(col);
+            });
+            updateChipUsedState();
+            updateTatamiAthleteCounters();
+            runConflictDetection();
+        });
+    </script>
 </body>
 </html>

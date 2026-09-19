@@ -3,8 +3,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fullscreen Kata Scoreboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karate Scoring Board - Tatami {{ tatami.tatami_number }}</title>
+  
+  <!-- Premium Athletic & Broadcast Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Outfit:wght@600;700;800;900&family=Teko:wght@700&display=swap" rel="stylesheet">
+  
   <style>
+    :root {
+      --bg-main: #06090e;
+      --bg-card-aka: linear-gradient(135deg, rgba(185, 28, 28, 0.45) 0%, rgba(13, 19, 33, 0.96) 65%);
+      --bg-card-ao: linear-gradient(135deg, rgba(29, 78, 216, 0.45) 0%, rgba(13, 19, 33, 0.96) 65%);
+      --aka-primary: #dc2626;
+      --aka-bright: #ef4444;
+      --aka-glow: rgba(239, 68, 68, 0.5);
+      --ao-primary: #2563eb;
+      --ao-bright: #3b82f6;
+      --ao-glow: rgba(59, 130, 246, 0.5);
+      --gold: #f59e0b;
+      --gold-bright: #fbbf24;
+      --gold-glow: rgba(245, 158, 11, 0.55);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-condensed: 'Barlow Condensed', 'Outfit', sans-serif;
+      --font-score: 'Teko', 'Barlow Condensed', 'Impact', sans-serif;
+      --font-mono: 'Teko', 'Barlow Condensed', 'Consolas', monospace;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -14,1996 +41,2951 @@
     html, body {
       width: 100vw;
       height: 100vh;
-      background-color: black;
-      font-family: Arial, sans-serif;
-      color: white;
+      background-color: var(--bg-main);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(220, 38, 38, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(37, 99, 235, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.7) 0%, #06090e 100%);
+      font-family: var(--font-display);
+      color: #ffffff;
       overflow: hidden;
+      user-select: none;
     }
 
     .container {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      height: 100%;
-      padding: 20px;
-    }
-
-    .player {
-        display: flex;
-        flex-direction: column; /* vertical layout */
-        background: black;
-        padding: 0;
-    }
-
-    .player-main {
-        display: flex; /* horizontal layout for contents */
-        align-items: center;
-        padding: 10px;
-    }
-
-    .criteria-row {
-        display: flex;
-        justify-content: space-around;
-        padding: 5px 0;
-        border-top: 2px solid yellow;
-        color: white;
-    }
-    
-    .criteria {
-        flex: 1;
-        text-align: center;
-        font-size: 5vh;
-        font-weight: bold;
-        color: white;
-        border-right: 1px solid #222;
-    }
-
-    .criteria:last-child {
-        border-right: none;
-    }
-
-    .flag {
-      width: 300px;
-      height: auto;
-
-      margin-right: 20px;
-    }
-
-    .info {
-      flex-grow: 1;
-      min-width: 0;
-    }
-
-    .name {
-      font-size: 6em;
-      font-weight: bold;
-      color: gold;
-
-      white-space: nowrap;   
-      overflow: hidden;     
-      text-overflow: ellipsis;  
-      
-      text-shadow:
-        -2px -2px 0 #ffffffff,
-        2px -2px 0 #ffffffff,
-        -2px  2px 0 #ffffffff,
-        2px  2px 0 #ffffffff;
-    }
-
-    .country {
-      font-size: 5em;
-      color: #ccc;
-      font-weight: bold;
-
-      white-space: nowrap;   
-      overflow: hidden;     
-      text-overflow: ellipsis;  
-    }
-
-    .kata {
-      color: white;
-      font-size: 6em;
-      font-weight: bold;
-
-      white-space: nowrap;   
-      overflow: hidden;     
-      text-overflow: ellipsis;
-    }
-
-    .aka-vr {
-      width: 5%;
-      margin-right: 3vw;
-    } 
-
-    .aka-score {
-      display: flex;
-      align-items: center;
-      gap: 0.3em; /* space between o and number */
-      font-size: 14em;
-      font-weight: bold;
-      color: red;
-      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-    }
-
-    .aka-senshu {
-      background-color: red;
-      border-radius: 12px;
-      box-shadow: 0 0 0 20px red;
-      color: white;
-    }
-
-    .ao-vr {
-      width: 5%;
-      margin-right: 3vw;
-    } 
-
-    .ao-score {
-      display: flex;
-      align-items: center;
-      gap: 0.3em; /* space between o and number */
-      font-size: 14em;
-      font-weight: bold;
-      color: #4653c7;
-      text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white;
-    }
-
-    .ao-senshu {
-      background-color: #4653c7;
-      border-radius: 12px;
-      box-shadow: 0 0 0 20px #4653c7;
-      color: white;
-    }
-
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 2vh;
-      padding: 10px 20px;
-      border-top: 2px solid #333;
-    }
-
-    .tatami {
-      font-size: 5vh;
-      font-weight: bold;
-    }
-
-    .time {
-        font-size: 17vh;
-        color: white;
-        font-weight: bold;
-    }
-
-    .round-info {
-        white-space: normal;
-        word-break: break-word; 
-        max-width: 300px;
-        text-align: right;
-        font-size: 3vh;
-    }
-
-    .active-red {
-        background-color: red;
-    }
-
-    .active-blue {
-        background-color: blue;
-    }
-
-    .deactivate {
-        display: none;
-    }
-
-    #banner-wrap {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      height: 75vh;
-      width: 100%;
-      position: absolute;
-    }
-
-    .fullscreen-banner {
-      height: 75vh;
-      width: 100%;
-      background-color: black;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: 5vw;
-      line-height: 1;
-      flex-direction: column;
-    }
-
-    .fullscreen-banner #point-2-2 {
-      font-size: 5vw;
-    }
-
-    .fullscreen-banner #point-2 {
-      font-size: 5vw;
-    }
-
-    .fullscreen-banner h1, #aka-flags {
-      display: inline-block;
-    }
-
-    #point-1, #point-1-2 {
-      margin-bottom: -100px;
-    }
-
-    #aka-flags, #ao-flags {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 10px;
-    }
-    #aka-flags img, #ao-flags img {
-      width: 100px; /* adjust size */
-      height: auto;
-    }
-
-    .flag-stroke {
-      display: block;
-      width: 80px;              /* adjust size as needed */
-      margin: 5px auto;         /* center under the score */
-      filter: drop-shadow(0 0 3px white)
-              drop-shadow(0 0 3px white)
-              drop-shadow(0 0 3px white);
-    }
-
-    .judges-container {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      margin-top: 20px;
-    }
-    .judge {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .judge-flags {
-      display: flex;
-      gap: 20px;
-    }
-    .judge-flags img {
-      width: 150px;
-      height: auto;
-    }
-    .judge-count {
-      margin-top: 5px;
-      font-size: 5vw;
-      color: white;
-      font-weight: bold;
-    }
-
-    #hantei-wrap {
-      display: grid;
-      place-items: center;
-      height: 75vh;
-      width: 100%;
-      position: absolute;
-    }
-
-    #countdown-wrap {
-      display: grid;
-      place-items: center;
-      height: 75vh;
-      width: 100%;
-      position: absolute;
-    }
-
-    #kata-score-wrap {
-      inset: 0;
-      margin: auto;
-      display: grid;
-      place-items: center;
-      width: 100%;
-      margin-left: -20px;
-    }
-
-    .fullscreen-kata-score {
-      width: 95%;
-      height: 70vh;
-      background: #111;
-      display: flex;
-      align-items: center;
-    }
-
-    /* TABLE */
-    .kata-table {
-      width: 100%;
-      table-layout: fixed;
-      border-collapse: collapse;
-    }
-
-    .kata-table td.col-judge,
-    .kata-table td.score,
-    .kata-table td.total,
-    .kata-table td.col-total {
-      border-left: 10px solid orange;
-      border-top: 10px solid orange;
-      border-bottom: 10px solid orange;
-    }
-
-    /* COLUMNS */
-    .col-name {
-      width: 35%;
-      padding-left: 1.5vw;
-    }
-
-    .col-judge {
-      width: 5%;
-      text-align: center;
-      background-color: white;
-    }
-
-    .col-total {
-      width: 12%;
-      text-align: center;
-      background-color: white;
-    }
-
-    /* HEADER */
-    .kata-header td {
-      height: 10vh;
-      font-size: 6vh;
-      font-weight: bold;
-      color: orange;
-      border-bottom: 3px solid white;
-    }
-
-    .kata-header img {
-      width: 6vh;
-    }
-
-    /* ROWS */
-    .kata-row td.col-name {
-      height: 16vh;
-      font-size: 6vh;
-      font-weight: bold;
-      color: white;
-    }
-
-    .kata-row.aka td {
-      color: #ac2222;
-    }
-
-    .kata-row.ao td {
-      color: #4653c7;
-    }
-
-    .kata-row td.score,
-    .kata-row td.total {
-      color: black;
-      background-color: white;
-    }
-
-    /* SCORES */
-    .score, .total {
-      text-align: center;
-      text-shadow:
-        -3px -3px 0 white,
-        3px -3px 0 white,
-        -3px  3px 0 white,
-        3px  3px 0 white;
-    }
-
-    .score {
-      font-size: 9vh;        /* ← increase this */
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .total {
-      font-size: 11vh;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    /* NAME TRUNCATION */
-    .name-truncate {
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-shadow:
-        -2px -2px 0 white,
-        2px -2px 0 white,
-        -2px  2px 0 white,
-        2px  2px 0 white;
-    }
-
-    .col-name {
-      text-shadow:
-        -2px -2px 0 white,
-        2px -2px 0 white,
-        -2px  2px 0 white,
-        2px  2px 0 white;
-    }
-
-    .score,
-    .total,
-    .col-judge {
-      opacity: 0;
-    }
-
-    .reveal {
-      animation: scoreReveal 2s ease-out forwards;
-    }
-
-    @keyframes scoreReveal {
-      0% {
-        opacity: 0;
-        transform: scale(1.3);
-        filter: brightness(3) blur(6px);
-        text-shadow:
-          0 0 30px white,
-          0 0 60px white;
-      }
-
-      40% {
-        opacity: 1;
-        transform: scale(1.05);
-        filter: brightness(2);
-        text-shadow:
-          0 0 20px white,
-          0 0 40px white;
-      }
-
-      100% {
-        opacity: 1;
-        transform: scale(1);
-        filter: none;
-        text-shadow:
-          -3px -3px 0 white,
-          3px -3px 0 white,
-          -3px  3px 0 white,
-          3px  3px 0 white;
-      }
-    }
-
-    .fullscreen-hantei {
-      height: 60vh;
-      width: 80%;
-      background-color: orange;
-      color: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: 5vw;
-      line-height: 1;
-      flex-direction: column;
-    }
-    
-    #transition-wrap {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .fullscreen-transition {
-      position: fixed;
-      inset: 0;
-    }
-
-    /* slices */
-    .slice {
-      position: absolute;              /* 🔑 REQUIRED */
-      left: 0;
-      width: 100%;
-      height: 20.2vh;                  /* slight overlap */
-      
-      background-image: url("{% static 'img/ambrilindo/ambrilindo_3d(before).png' %}");
-      background-size: 100% 501%;      /* overdraw */
-      background-repeat: no-repeat;
-
-      transform: translateX(100%) translateZ(0);
-      filter: blur(14px) brightness(1.4);
-      box-shadow: 0 0 60px rgba(255,255,255,0.35);
-
-      animation:
-        enterRight 1.1s cubic-bezier(.4,0,.2,1) forwards,
-        exitLeft   1.1s cubic-bezier(.4,0,.2,1) forwards;
-    }
-
-    .slice:nth-child(1) { animation-delay: 0s,    2.50s; }
-    .slice:nth-child(2) { animation-delay: 0.12s, 2.62s; }
-    .slice:nth-child(3) { animation-delay: 0.24s, 2.74s; }
-    .slice:nth-child(4) { animation-delay: 0.36s, 2.86s; }
-    .slice:nth-child(5) { animation-delay: 0.48s, 2.98s; }
-
-
-    /* vertical placement + background alignment */
-    .slice:nth-child(1) { top: 0vh;  background-position: 0%   0%; }
-    .slice:nth-child(2) { top: 20vh; background-position: 0%  25%; }
-    .slice:nth-child(3) { top: 40vh; background-position: 0%  50%; }
-    .slice:nth-child(4) { top: 60vh; background-position: 0%  75%; }
-    .slice:nth-child(5) { top: 80vh; background-position: 0% 100%; }
-
-
-    /* ENTRY */
-    @keyframes enterRight {
-      0% {
-        transform: translateX(100%);
-        filter: blur(18px) brightness(1.6);
-        box-shadow: 0 0 80px rgba(255,255,255,0.45);
-      }
-
-      70% {
-        transform: translateX(0);
-        filter: blur(6px) brightness(1.2);
-        box-shadow: 0 0 30px rgba(255,255,255,0.25);
-      }
-
-      100% {
-        transform: translateX(0);
-        filter: blur(0) brightness(1);
-        box-shadow: none;
-      }
-    }
-
-    /* EXIT */
-    @keyframes exitLeft {
-      0% {
-        transform: translateX(0);
-        filter: blur(0) brightness(1);
-        box-shadow: none;
-      }
-
-      30% {
-        filter: blur(6px) brightness(1.2);
-        box-shadow: 0 0 30px rgba(255,255,255,0.25);
-      }
-
-      100% {
-        transform: translateX(-120%);
-        filter: blur(20px) brightness(1.6);
-        box-shadow: 0 0 90px rgba(255,255,255,0.5);
-      }
-    }
-
-    .fullscreen-countdown {
-      height: 60vh;
-      width: 80%;
-      background-color: orange;
-      color: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      font-size: 12vw;
-      line-height: 1;
-      flex-direction: column;
-    }
-
-    #ms-check-wrap {
-      display: grid;
-      place-items: center;
-      height: 75vh;
-      width: 100%;
-      position: absolute;
-    }
-
-    .fullscreen-ms-check {
-      height: 75vh;
-      width: 100%;
-      background-color: orange;
-      color: black;
-      font-size: 3vw;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .fullscreen-ms-check table {
-      width: 100%;
-      height: 100%;
-      border-collapse: collapse;
-    }
-
-    .fullscreen-ms-check td {
-      width: 50%;
-      height: 50%;
-      padding: 0;
-      margin: 0;
-      border: 2px solid black;
+      height: 100vh;
+      padding: 10px 16px 8px 16px;
       position: relative;
     }
 
-    /* Half-cell layout */
-    .cell-half {
-      width: 50%;
+    /* Top Arena & Marquee Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: clamp(46px, 5.8vh, 58px);
+      padding: 0 16px;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.92) 0%, rgba(10, 15, 26, 0.95) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .tatami-badge {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #000000;
+      font-family: var(--font-condensed);
+      font-weight: 900;
+      font-size: clamp(16px, 1.6vw, 24px);
+      letter-spacing: 0.08em;
+      padding: 5px 16px;
+      border-radius: 6px;
+      white-space: nowrap;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+    }
+
+    /* Scrolling Marquee Ticker */
+    .top-bar-marquee-wrap {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      position: relative;
+      mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+    }
+
+    .arena-marquee {
+      width: 100%;
+      font-family: var(--font-condensed);
+      font-size: clamp(18px, 1.85vw, 28px);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #fbbf24;
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .marquee-bullet {
+      color: #ffffff;
+      margin: 0 16px;
+      font-size: 80%;
+      opacity: 0.7;
+    }
+
+    .marquee-event-title {
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .audio-unlock-pill {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      animation: audioPulse 2.5s infinite;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .audio-unlock-pill:hover {
+      background: #2563eb;
+      transform: scale(1.04);
+    }
+
+    @keyframes audioPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.75; transform: scale(0.97); }
+    }
+
+    /* Player Cards */
+    .player-card {
+      display: flex;
+      flex-direction: column;
+      height: calc((100vh - clamp(120px, 16.5vh, 185px) - clamp(46px, 5.8vh, 58px) - 32px) / 2);
+      min-height: 205px;
+      border-radius: 16px;
+      position: relative;
+      overflow: visible;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .player-card.aka {
+      background: var(--bg-card-aka);
+      border: 2px solid rgba(239, 68, 68, 0.65);
+      box-shadow: 0 0 35px rgba(220, 38, 38, 0.28), inset 0 0 45px rgba(220, 38, 38, 0.18);
+    }
+
+    .player-card.ao {
+      background: var(--bg-card-ao);
+      border: 2px solid rgba(59, 130, 246, 0.65);
+      box-shadow: 0 0 35px rgba(37, 99, 235, 0.28), inset 0 0 45px rgba(37, 99, 235, 0.18);
+    }
+
+    .player-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      padding: 8px 24px;
+      gap: 22px;
+    }
+
+    .player-side-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: clamp(66px, 7vw, 104px);
       height: 100%;
+      border-radius: 12px;
+      font-family: var(--font-condensed);
+      font-size: clamp(28px, 3vw, 46px);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      position: relative;
+    }
+
+    .player-side-badge.aka {
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      border: 1px solid rgba(248, 113, 113, 0.4);
+    }
+
+    .player-side-badge.ao {
+      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      border: 1px solid rgba(96, 165, 250, 0.4);
+    }
+
+    .flag-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(105px, 11vw, 175px);
+      height: clamp(78px, 9vw, 132px);
+      background: rgba(0, 0, 0, 0.45);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      padding: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4), inset 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .flag-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5));
+    }
+
+    .player-details {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .player-name {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5.2vw, 84px);
+      font-weight: 850;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.08;
+      text-shadow: 0 4px 18px rgba(0,0,0,0.9);
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .player-club {
+      font-family: var(--font-condensed);
+      font-size: clamp(22px, 2.7vw, 42px);
+      font-weight: 700;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.15;
+      text-shadow: 0 3px 12px rgba(0,0,0,0.85);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .player-kata-title {
+      font-family: var(--font-condensed);
+      font-size: clamp(16px, 1.8vw, 28px);
+      font-weight: 800;
+      color: var(--gold-bright);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .player-right-slot {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+
+    .vr-indicator {
+      width: clamp(52px, 5.2vw, 84px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.45));
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    /* Score Pod: Arena-Scale Clean Numeral (NO SLASH ZERO) */
+    .score-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: clamp(155px, 16.5vw, 300px);
+      height: clamp(130px, 18vh, 235px);
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 20px;
+      position: relative;
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.5);
+      padding: 0 20px;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .player-card.aka .score-container {
+      border: 2px solid rgba(239, 68, 68, 0.45);
+      box-shadow: inset 0 0 30px rgba(220, 38, 38, 0.2), 0 0 22px rgba(220, 38, 38, 0.25);
+    }
+
+    .player-card.ao .score-container {
+      border: 2px solid rgba(59, 130, 246, 0.45);
+      box-shadow: inset 0 0 30px rgba(37, 99, 235, 0.2), 0 0 22px rgba(37, 99, 235, 0.25);
+    }
+
+    .main-score {
+      font-family: var(--font-score);
+      font-size: clamp(125px, 16.5vw, 220px);
+      font-weight: 700;
+      line-height: 0.95;
+      text-align: center;
+      position: relative;
+      letter-spacing: 0.02em;
+    }
+
+    .main-score.aka {
+      color: #ffffff;
+      text-shadow: 
+        0 0 35px rgba(239, 68, 68, 0.85),
+        0 0 12px rgba(239, 68, 68, 0.9),
+        0 6px 20px rgba(0,0,0,0.9);
+    }
+
+    .main-score.ao {
+      color: #ffffff;
+      text-shadow: 
+        0 0 35px rgba(59, 130, 246, 0.85),
+        0 0 12px rgba(59, 130, 246, 0.9),
+        0 6px 20px rgba(0,0,0,0.9);
+    }
+
+    /* Senshu Badge (Elevated Gold Championship Crown - Zero Digit Overlap) */
+    .senshu-badge {
+      display: none;
       position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #000000;
+      font-family: var(--font-condensed);
+      font-size: clamp(16px, 1.6vw, 24px);
+      font-weight: 900;
+      padding: 5px 22px;
+      border-radius: 20px;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      z-index: 25;
+    }
+
+    .senshu-active .senshu-badge {
+      display: block;
+      animation: senshuShine 2s infinite alternate;
+    }
+
+    .senshu-active {
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.55), inset 0 0 25px rgba(245, 158, 11, 0.25) !important;
+    }
+
+    @keyframes senshuShine {
+      from { transform: translateX(-50%) scale(1); filter: brightness(1); }
+      to { transform: translateX(-50%) scale(1.05); filter: brightness(1.2); }
+    }
+
+    .team-score {
+      font-family: var(--font-score);
+      font-size: clamp(100px, 13vw, 180px);
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-left: 14px;
+      display: none;
+      text-shadow: 0 0 25px rgba(245, 158, 11, 0.7);
+    }
+
+    /* Criteria / Penalty Row */
+    .criteria-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.55);
+      border-top: 1px solid var(--card-border);
+      height: clamp(36px, 4.4vh, 50px);
+      padding: 0 12px;
+    }
+
+    .criteria-bar.deactivate {
+      display: none !important;
+    }
+
+    .criteria-pill {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 80%;
+      margin: 0 6px;
+      border-radius: 7px;
+      font-family: var(--font-condensed);
+      font-size: clamp(13px, 1.45vw, 23px);
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      letter-spacing: 0.08em;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .criteria-pill.active-red {
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
+      color: #ffffff !important;
+      border-color: #fca5a5 !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+      transform: scale(1.04);
+    }
+
+    .criteria-pill.active-blue {
+      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+      color: #ffffff !important;
+      border-color: #93c5fd !important;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+      transform: scale(1.04);
+    }
+
+    /* Bottom Digital Timer & Branding Bar */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: clamp(120px, 16.5vh, 185px);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(8, 12, 22, 0.98) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 0 36px;
+      box-shadow: 0 14px 45px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      position: relative;
+    }
+
+    .bottom-info-slot {
+      display: flex;
+      align-items: center;
+      width: clamp(220px, 20vw, 360px);
+      flex-shrink: 0;
+    }
+
+    .timer-display-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Rock-Solid Tabular Jitter-Free Timer Engine */
+    .digital-timer {
+      font-family: 'Barlow Condensed', 'Outfit', sans-serif;
+      font-size: clamp(95px, 14vw, 185px);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 0.82;
+      letter-spacing: 0.02em;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.9);
+      padding-top: 4px;
+      font-variant-numeric: tabular-nums;
+      -moz-font-feature-settings: "tnum";
+      -webkit-font-feature-settings: "tnum";
+      font-feature-settings: "tnum";
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .digital-timer.running {
+      color: #fbbf24;
+      text-shadow: 0 0 35px rgba(251, 191, 36, 0.6), 0 4px 20px rgba(0,0,0,0.9);
+    }
+
+    .digital-timer.warning {
+      color: #ef4444 !important;
+      text-shadow: 0 0 45px rgba(239, 68, 68, 0.95) !important;
+      animation: timerAlert 0.7s infinite alternate;
+    }
+
+    @keyframes timerAlert {
+      from { transform: scale(1); }
+      to { transform: scale(1.03); }
+    }
+
+    .digital-timer .timer-segment {
+      display: inline-block;
+      font-variant-numeric: tabular-nums;
+      -moz-font-feature-settings: "tnum";
+      -webkit-font-feature-settings: "tnum";
+      font-feature-settings: "tnum";
+      text-align: center;
+    }
+
+    .digital-timer .timer-colon {
+      display: inline-block;
+      margin: 0 6px;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .digital-timer .timer-dot {
+      display: inline-block;
+      margin: 0 6px;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .digital-timer .ms-digits {
+      font-size: 58%;
+      opacity: 0.92;
+    }
+
+    .bottom-logo-slot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      width: clamp(220px, 20vw, 360px);
+      flex-shrink: 0;
+    }
+
+    .sponsor-logo {
+      height: clamp(80px, 12.5vh, 140px);
+      max-height: 88%;
+      max-width: 100%;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.5)) drop-shadow(0 4px 20px rgba(0,0,0,0.9));
+    }
+
+    /* FULLSCREEN OVERLAY BANNERS (Covers entire board down to top of timer footer) */
+    .fullscreen-banner-wrap {
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
+      bottom: var(--footer-total-height, 140px);
+      width: 100vw;
+      height: auto;
+      z-index: 9999;
+      pointer-events: none;
+      display: grid;
+      grid-template-columns: 1fr;
+      overflow: hidden;
+    }
+
+    .fullscreen-banner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px 40px;
+      color: #ffffff;
+      box-shadow: inset 0 0 140px rgba(0,0,0,0.7), 0 15px 40px rgba(0,0,0,0.85);
+      position: relative;
+      animation: bannerPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes bannerPopIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .fullscreen-banner.aka {
+      background: radial-gradient(circle at center, #dc2626 0%, #991b1b 75%, #7f1d1d 100%);
+      border-bottom: 4px solid #f87171;
+    }
+
+    .fullscreen-banner.ao {
+      background: radial-gradient(circle at center, #2563eb 0%, #1e40af 75%, #1e3a8a 100%);
+      border-bottom: 4px solid #93c5fd;
+    }
+
+    /* Arena-Scale Banner Titles */
+    .fullscreen-banner h1 {
+      font-family: var(--font-condensed);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1.05;
+      text-shadow: 0 6px 30px rgba(0,0,0,0.9), 0 0 35px rgba(255,255,255,0.5);
+      margin: 0;
+      padding: 0;
+    }
+
+    .banner-point-title {
+      font-size: clamp(48px, 6.5vw, 100px);
+      color: #fbbf24;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.85), 0 0 25px rgba(251, 191, 36, 0.6);
+      display: block;
+      margin-bottom: -4px;
+    }
+
+    .banner-point-subtitle {
+      font-size: clamp(80px, 12vw, 190px);
+      color: #ffffff;
+      text-shadow: 0 8px 35px rgba(0,0,0,0.95), 0 0 50px rgba(255,255,255,0.7);
+      display: block;
+      letter-spacing: 0.08em;
+    }
+
+    /* Split-screen Banner Scaling */
+    .fullscreen-banner-wrap[style*="1fr 1fr"] .banner-point-title {
+      font-size: clamp(32px, 4vw, 62px);
+    }
+    .fullscreen-banner-wrap[style*="1fr 1fr"] .banner-point-subtitle {
+      font-size: clamp(52px, 6.8vw, 105px);
+    }
+    .fullscreen-banner-wrap[style*="1fr 1fr"] .judge-flags img {
+      width: clamp(65px, 6.5vw, 105px);
+    }
+    .fullscreen-banner-wrap[style*="1fr 1fr"] .judge-count {
+      font-size: clamp(20px, 2.2vw, 36px);
+    }
+
+    /* REFEREE FLAGS & JUDGE COUNTS */
+    .judges-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin-top: 24px;
+    }
+
+    .judge-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      animation: flagPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+    }
+
+    .judge-flags {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .flag-stroke {
+      display: inline-block;
+      width: clamp(80px, 8.5vw, 140px);
+      height: auto;
+      margin: 0 4px;
+      filter: 
+        drop-shadow(0 0 4px #ffffff)
+        drop-shadow(0 0 8px rgba(255, 255, 255, 0.9))
+        drop-shadow(0 8px 25px rgba(0, 0, 0, 0.85));
+      animation: flagWave 1.8s ease-in-out infinite alternate;
+    }
+
+    .flag-aka-anim {
+      transform-origin: bottom center;
+    }
+
+    .flag-ao-anim {
+      transform-origin: bottom center;
+    }
+
+    @keyframes flagWave {
+      from { transform: rotate(-2deg) scale(1); }
+      to { transform: rotate(2deg) scale(1.03); }
+    }
+
+    @keyframes flagPop {
+      0% { opacity: 0; transform: scale(0.6) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .judge-count {
+      font-family: var(--font-condensed);
+      font-size: clamp(26px, 3.2vw, 50px);
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.85), 0 0 20px rgba(255,255,255,0.4);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* HANTEI Banner */
+    .fullscreen-hantei {
+      height: 100%;
+      width: 100%;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+      border-bottom: 4px solid var(--gold);
+      color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: white;
-      font-weight: bold;
       text-align: center;
-      line-height: 1.3;   /* ensures vertical spacing */
     }
 
-    .cell-half br {
-      display: block;
+    /* ========================================================
+       CHECK STICK JURI (4-JUDGE CONTROLLER DIAGNOSTIC OVERLAY)
+       ======================================================== */
+    .ms-check-screen {
+      height: 100%;
+      width: 100%;
+      background: radial-gradient(circle at 50% 25%, #0d1527 0%, #06090e 100%);
+      border-bottom: 4px solid var(--gold);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding: clamp(6px, 1.2vh, 16px) clamp(10px, 1.5vw, 24px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      pointer-events: auto;
+      box-sizing: border-box;
     }
 
-    .cell-half span {
-      display: inline; 
-      vertical-align: middle; 
+    .ms-check-screen::-webkit-scrollbar {
+      width: 6px;
+    }
+    .ms-check-screen::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .ms-check-screen::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
     }
 
-    /* Left = red */
-    .cell-half.red {
+    .ms-check-header {
+      width: 100%;
+      max-width: 1500px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: clamp(4px, 0.7vh, 8px);
+      padding-bottom: clamp(3px, 0.5vh, 6px);
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .ms-check-title-group {
+      text-align: left;
+    }
+
+    .ms-check-eyebrow {
+      font-size: clamp(10px, 0.9vw, 14px);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulseGreen 1.5s infinite;
+      display: inline-block;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.8); }
+    }
+
+    .ms-check-title {
+      font-family: var(--font-condensed);
+      font-size: clamp(20px, 2.6vw, 38px);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      line-height: 1.05;
+      margin: 0;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .ms-check-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ms-stat-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      padding: clamp(3px, 0.5vh, 6px) clamp(8px, 1vw, 16px);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .ms-stat-pill .stat-label {
+      font-size: clamp(9px, 0.85vw, 12px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .ms-stat-pill .stat-num {
+      font-family: var(--font-condensed);
+      font-size: clamp(16px, 1.8vw, 26px);
+      font-weight: 900;
+      color: var(--gold-bright);
+      line-height: 1;
+    }
+
+    /* 4-Jury 2x2 Grid - Fully Contained & Zero Overflow on 100% Zoom */
+    .ms-judge-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(6px, 1vh, 12px);
+      width: 100%;
+      max-width: 1500px;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .ms-judge-box {
+      background: rgba(15, 23, 42, 0.94);
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      padding: clamp(5px, 0.8vh, 10px) clamp(8px, 1vw, 14px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      box-sizing: border-box;
+    }
+
+    .ms-judge-box.all-tested {
+      border-color: #22c55e;
+      box-shadow: 0 0 25px rgba(34, 197, 94, 0.3), inset 0 0 20px rgba(34, 197, 94, 0.1);
+    }
+
+    .ms-judge-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: clamp(2px, 0.4vh, 5px);
+      margin-bottom: clamp(2px, 0.4vh, 5px);
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .ms-judge-name {
+      font-family: var(--font-condensed);
+      font-size: clamp(16px, 1.8vw, 26px);
+      font-weight: 900;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .badge-num {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: #ffffff;
+      border-radius: 5px;
+      width: clamp(20px, 2vw, 28px);
+      height: clamp(20px, 2vw, 28px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(12px, 1.2vw, 16px);
+      font-weight: 900;
+    }
+
+    .ms-judge-status {
+      font-size: clamp(11px, 1.1vw, 14px);
+      font-weight: 800;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.08);
+      padding: clamp(2px, 0.35vh, 4px) clamp(8px, 0.8vw, 12px);
+      border-radius: 16px;
+      letter-spacing: 0.05em;
+      transition: all 0.25s ease;
+      line-height: 1.1;
+    }
+
+    .ms-judge-box.all-tested .ms-judge-status {
+      background: #15803d;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+    }
+
+    .ms-judge-body {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(3px, 0.6vh, 8px);
+      flex: 1;
+      min-height: 0;
+      justify-content: space-between;
+    }
+
+    /* Top (AKA) and Bottom (AO) Tiers */
+    .ms-tier {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(2px, 0.4vh, 5px);
+      min-height: 0;
+    }
+
+    .ms-tier-label {
+      font-size: clamp(11px, 1.15vw, 15px);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .ms-tier.red .ms-tier-label { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
+    .ms-tier.blue .ms-tier-label { color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+
+    .col-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .col-dot.red { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .col-dot.blue { background-color: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+
+    /* Row of 3 Full-Width Point Cells */
+    .ms-btn-deck {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(5px, 0.8vw, 12px);
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .ms-btn-cell {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      padding: clamp(4px, 0.7vh, 10px) clamp(6px, 0.9vw, 14px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: clamp(4px, 0.6vw, 10px);
+      height: 100%;
+      min-height: 0;
+      box-sizing: border-box;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .ms-btn-cell:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.32);
+      transform: translateY(-1px);
+    }
+
+    .point-num {
+      font-family: var(--font-score);
+      font-size: clamp(22px, 2.8vw, 42px);
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .point-name {
+      font-family: var(--font-condensed);
+      font-size: clamp(12px, 1.4vw, 22px);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: #f8fafc;
+      text-align: left;
+      flex: 1;
+      margin-left: 2px;
+      text-transform: uppercase;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chk-flag {
+      font-size: clamp(16px, 2vw, 30px);
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.25);
+      min-width: clamp(16px, 1.8vw, 26px);
+      text-align: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* Tested state: marked green */
+    .ms-btn-cell.tested {
+      border-color: rgba(34, 197, 94, 0.7);
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .ms-btn-cell.tested .chk-flag {
+      color: #22c55e;
+      text-shadow: 0 0 12px rgba(34, 197, 94, 0.95);
+    }
+
+    /* Active / Pressed NOW state (flashing vibrant red/blue glow) */
+    .ms-btn-cell.active.red {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+      border-color: #fca5a5 !important;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+      transform: scale(1.03);
+    }
+
+    .ms-btn-cell.active.blue {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+      border-color: #93c5fd !important;
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+      transform: scale(1.03);
+    }
+
+    .ms-btn-cell.active .point-name,
+    .ms-btn-cell.active .point-num,
+    .ms-btn-cell.active .chk-flag {
+      color: #ffffff !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Compact Screen Adaptations (Laptops, 768p, 100% Zoom) */
+    @media (max-height: 760px) {
+      .ms-check-screen {
+        padding: 4px 12px;
+      }
+      .ms-check-header {
+        margin-bottom: 3px;
+        padding-bottom: 3px;
+      }
+      .ms-check-title {
+        font-size: 20px;
+      }
+      .ms-stat-pill {
+        padding: 2px 8px;
+      }
+      .ms-stat-pill .stat-label {
+        font-size: 8px;
+      }
+      .ms-stat-pill .stat-num {
+        font-size: 15px;
+      }
+      .ms-judge-grid {
+        gap: 5px;
+      }
+      .ms-judge-box {
+        padding: 4px 8px;
+      }
+      .ms-judge-head {
+        padding-bottom: 2px;
+        margin-bottom: 2px;
+      }
+      .ms-judge-name {
+        font-size: 14px;
+      }
+      .badge-num {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+      }
+      .ms-judge-status {
+        font-size: 10px;
+        padding: 1px 6px;
+      }
+      .ms-judge-body {
+        gap: 3px;
+      }
+      .ms-tier {
+        gap: 2px;
+      }
+      .ms-tier-label {
+        font-size: 10px;
+      }
+      .ms-btn-deck {
+        gap: 4px;
+      }
+      .ms-btn-cell {
+        padding: 2px 6px;
+      }
+      .point-num {
+        font-size: 18px;
+      }
+      .point-name {
+        font-size: 11px;
+      }
+      .chk-flag {
+        font-size: 14px;
+      }
+    }
+
+    /* Kata 5-Judge Scoring Display */
+    #kata-score-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+      background: rgba(10, 15, 26, 0.97);
+      border: 3px solid var(--gold);
+      border-radius: 18px;
+      padding: 24px 36px;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.85), 0 0 35px rgba(245, 158, 11, 0.35);
+      max-width: 92vw;
+    }
+
+    .kata-table {
+      border-collapse: separate;
+      border-spacing: 12px;
+    }
+
+    .kata-table td.score {
+      width: clamp(80px, 8.5vw, 140px);
+      height: clamp(70px, 7.5vw, 115px);
+      text-align: center;
+      vertical-align: middle;
+      font-family: var(--font-score);
+      font-size: clamp(38px, 4.5vw, 70px);
+      font-weight: 700;
+      border-radius: 12px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      transition: all 0.3s ease;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+    }
+
+    .kata-table tr.aka td.score {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: rgba(220, 38, 38, 0.15);
+    }
+
+    .kata-table tr.ao td.score {
+      border-color: rgba(59, 130, 246, 0.6);
+      background: rgba(37, 99, 235, 0.15);
+    }
+
+    /* CINEMATIC BROADCAST MATCH RELOAD TRANSITION */
+    #transition-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      pointer-events: none;
+      overflow: hidden;
+      display: none;
+    }
+
+    .broadcast-transition {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.98) 0%, rgba(6, 9, 14, 0.99) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: transitionFadeInOut 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .transition-shutter-top,
+    .transition-shutter-bottom {
+      position: absolute;
       left: 0;
-      background-color: red;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(180deg, #090e17 0%, #03060a 100%);
+      z-index: 1;
     }
 
-    /* Right = blue */
-    .cell-half.blue {
-      right: 0;
-      background-color: #3498db;
+    .transition-shutter-top {
+      top: 0;
+      border-bottom: 2px solid var(--gold);
+      box-shadow: 0 4px 30px rgba(245, 158, 11, 0.4);
+      animation: shutterTopSweep 1.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
     }
 
+    .transition-shutter-bottom {
+      bottom: 0;
+      border-top: 2px solid var(--gold);
+      box-shadow: 0 -4px 30px rgba(245, 158, 11, 0.4);
+      animation: shutterBottomSweep 1.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+    }
+
+    @keyframes shutterTopSweep {
+      0% { transform: translateY(-100%); }
+      25% { transform: translateY(0%); }
+      75% { transform: translateY(0%); }
+      100% { transform: translateY(-100%); }
+    }
+
+    @keyframes shutterBottomSweep {
+      0% { transform: translateY(100%); }
+      25% { transform: translateY(0%); }
+      75% { transform: translateY(0%); }
+      100% { transform: translateY(100%); }
+    }
+
+    .transition-center-card {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: centerLogoPulse 1.8s ease-in-out forwards;
+    }
+
+    .transition-brand-logo {
+      max-width: clamp(280px, 38vw, 620px);
+      height: auto;
+      object-fit: contain;
+      filter: 
+        drop-shadow(0 0 30px rgba(255, 255, 255, 0.8))
+        drop-shadow(0 8px 35px rgba(0, 0, 0, 0.95));
+    }
+
+    .transition-loading-text {
+      margin-top: 22px;
+      font-family: var(--font-condensed);
+      font-size: clamp(20px, 2.2vw, 34px);
+      font-weight: 900;
+      letter-spacing: 0.22em;
+      color: #fbbf24;
+      text-transform: uppercase;
+      text-shadow: 0 0 25px rgba(245, 158, 11, 0.9), 0 4px 15px rgba(0,0,0,0.9);
+    }
+
+    @keyframes centerLogoPulse {
+      0% { opacity: 0; transform: scale(0.85); }
+      25% { opacity: 1; transform: scale(1); }
+      75% { opacity: 1; transform: scale(1.04); }
+      100% { opacity: 0; transform: scale(1.12); }
+    }
+
+    @keyframes transitionFadeInOut {
+      0% { opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Status Indicator */
+    #ws-indicator {
+      position: fixed;
+      bottom: 8px;
+      right: 8px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+      z-index: 999999;
+      opacity: 0.85;
+      transition: all 0.3s ease;
+    }
   </style>
 </head>
-<body>  
-    <div style="display: none">
-      <img src="{% static 'img/ambrilindo/ao_flag.png' %}" alt="" id="ao_flag">
-      <img src="{% static 'img/ambrilindo/aka_flag.png' %}" alt="" id="aka_flag">
+<body>
+  <!-- Preloaded Hidden Flag Assets -->
+  <div style="display: none">
+    <img src="{% static 'img/ambrilindo/ao_flag.png' %}" alt="AO Flag" id="ao_flag">
+    <img src="{% static 'img/ambrilindo/aka_flag.png' %}" alt="AKA Flag" id="aka_flag">
+  </div>
+
+  <div class="container">
+    <!-- Top Arena Status Bar with Scrolling Marquee -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <span class="tatami-badge">TATAMI {{ tatami.tatami_number }}</span>
+      </div>
+      <div class="top-bar-marquee-wrap">
+        <marquee behavior="scroll" direction="left" scrollamount="12" class="arena-marquee">
+          <span class="marquee-bullet">★</span>
+          <span id="marquee-text">-</span>
+          <span class="marquee-bullet">★</span>
+          <span class="marquee-event-title">{{ tatami.event.nama_event }}</span>
+        </marquee>
+      </div>
+      <div class="top-bar-right">
+        <button type="button" class="audio-unlock-pill" id="audio-unlock-btn" onclick="unlockAudio()">
+          🔊 Audio
+        </button>
+      </div>
     </div>
-    <div class="container">
-      <div id="banner-wrap">
-        <div class="fullscreen-banner" id="banner-2" style="display: none;">
-          <h1>
-            <span id="point-1-2">NULL</span><br>
-            <span id="point-2-2">0 - POINT</span>
-          </h1>
-          <div id="ao-judges-container" class="judges-container"></div>
-        </div>
-        <div class="fullscreen-banner" id="banner" style="display: none;">
-          <h1>
-            <span id="point-1">NULL</span><br>
-            <span id="point-2">0 - POINT</span>
-          </h1>
-          <div id="aka-judges-container" class="judges-container"></div>
-        </div>
 
-      </div>
-
-      <div id="hantei-wrap">
-        <div class="fullscreen-hantei" id="hantei-banner" style="display: none;">
-          <h1 style="font-weight: bold">
-            <span>HANTEI</span><br>
-            <span style="font-size: 4vw">JUDGES' DECISION</span>
-          </h1>
-          <div id="aka-judges-container" class="judges-container"></div>
+    <!-- Red Competitor (AKA) Card -->
+    <div class="player-card aka" id="aka-card">
+      <div class="player-body">
+        <div class="player-side-badge aka">AKA</div>
+        <div class="flag-container">
+          <img id="atlet_red_logo" class="flag-img" src="{% if atlet_merah and atlet_merah.utusan and atlet_merah.utusan.logo %}{{ atlet_merah.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo">
+        </div>
+        <div class="player-details">
+          <div class="player-name" id="atlet_red_name">{{ atlet_merah.nama_atlet|default:"-" }}</div>
+          <div class="player-club" id="atlet_red_country">
+            {% if atlet_merah %}
+              {{ atlet_merah.perguruan.nama_perguruan|default:"" }}{% if atlet_merah.perguruan and atlet_merah.utusan %} • {% endif %}{{ atlet_merah.utusan.nama_utusan|default:"" }}
+            {% else %}-{% endif %}
+          </div>
+          <div class="player-kata-title" id="kata-aka" style="visibility: hidden;">0 - Blank</div>
+        </div>
+        <div class="player-right-slot">
+          <img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="VR" class="vr-indicator" id="aka-vr" style="visibility: hidden;">
+          <div class="score-container" id="aka-senshu-wrapper">
+            <span class="senshu-badge">SENSHU</span>
+            <div class="main-score aka" id="aka-score">0</div>
+          </div>
+          <div class="team-score" id="aka-big-score">0</div>
         </div>
       </div>
+      <div class="criteria-bar" name="criteria">
+        <div class="criteria-pill" id="akac1">C1</div>
+        <div class="criteria-pill" id="akac2">C2</div>
+        <div class="criteria-pill" id="akac3">C3</div>
+        <div class="criteria-pill" id="akac4">HC</div>
+        <div class="criteria-pill" id="akac5">H</div>
+      </div>
+    </div>
 
-      <div id="transition-wrap"></div>
-
-      <div id="countdown-wrap">
-        <div class="fullscreen-countdown" id="countdown-banner" style="display: none">
-          <h1 style="font-weight: bold">
-            <span id="cd-seconds">00</span>.<span id="cd-milliseconds" style="font-size: 50%;">00</span>
-          </h1>
-          <div id="aka-judges-container" class="judges-container"></div>
+    <!-- Blue Competitor (AO) Card -->
+    <div class="player-card ao" id="ao-card">
+      <div class="player-body">
+        <div class="player-side-badge ao">AO</div>
+        <div class="flag-container">
+          <img id="atlet_blue_logo" class="flag-img" src="{% if atlet_biru and atlet_biru.utusan and atlet_biru.utusan.logo %}{{ atlet_biru.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo">
+        </div>
+        <div class="player-details">
+          <div class="player-name" id="atlet_blue_name">{{ atlet_biru.nama_atlet|default:"-" }}</div>
+          <div class="player-club" id="atlet_blue_country">
+            {% if atlet_biru %}
+              {{ atlet_biru.perguruan.nama_perguruan|default:"" }}{% if atlet_biru.perguruan and atlet_biru.utusan %} • {% endif %}{{ atlet_biru.utusan.nama_utusan|default:"" }}
+            {% else %}-{% endif %}
+          </div>
+          <div class="player-kata-title" id="kata-ao" style="visibility: hidden;">0 - Blank</div>
+        </div>
+        <div class="player-right-slot">
+          <img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="VR" class="vr-indicator" id="ao-vr" style="visibility: hidden;">
+          <div class="score-container" id="ao-senshu-wrapper">
+            <span class="senshu-badge">SENSHU</span>
+            <div class="main-score ao" id="ao-score">0</div>
+          </div>
+          <div class="team-score" id="ao-big-score">0</div>
         </div>
       </div>
+      <div class="criteria-bar" name="criteria">
+        <div class="criteria-pill" id="aoc1">C1</div>
+        <div class="criteria-pill" id="aoc2">C2</div>
+        <div class="criteria-pill" id="aoc3">C3</div>
+        <div class="criteria-pill" id="aoc4">HC</div>
+        <div class="criteria-pill" id="aoc5">H</div>
+      </div>
+    </div>
 
-      <div id="ms-check-wrap">
-        <div class="fullscreen-ms-check" id="ms-check-banner" style="display: none;">
-          <table>
-            <tr>
-              <td>
-                <div class="cell-half red">
-                  <div class="title">Jury 1:</div>
+    <!-- Kata 5-Judge Scoreboard Table Overlay -->
+    <div id="kata-score-wrap" style="display: none;">
+      <table class="kata-table">
+        <tr class="kata-row aka">
+          <td class="score" id="j1-score-aka">0.0</td>
+          <td class="score" id="j2-score-aka">0.0</td>
+          <td class="score" id="j3-score-aka">0.0</td>
+          <td class="score" id="j4-score-aka">0.0</td>
+          <td class="score" id="j5-score-aka">0.0</td>
+        </tr>
+        <tr class="kata-row ao">
+          <td class="score" id="j1-score-ao">0.0</td>
+          <td class="score" id="j2-score-ao">0.0</td>
+          <td class="score" id="j3-score-ao">0.0</td>
+          <td class="score" id="j4-score-ao">0.0</td>
+          <td class="score" id="j5-score-ao">0.0</td>
+        </tr>
+      </table>
+    </div>
 
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="a" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="b" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="c" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-
-                <div class="cell-half blue">
-                  <div class="title">Jury 1:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="d" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="e" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="f" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="cell-half red">
-                  <div class="title">Jury 2:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="g" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="h" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="i" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-
-                <div class="cell-half blue">
-                  <div class="title">Jury 2:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="j" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="k" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="l" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="cell-half red">
-                  <div class="title">Jury 3:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="n" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="m" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="o" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-
-                <div class="cell-half blue">
-                  <div class="title">Jury 3:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="p" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="q" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="r" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="cell-half red">
-                  <div class="title">Jury 4:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="s" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="t" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="u" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-
-                <div class="cell-half blue">
-                  <div class="title">Jury 4:</div>
-
-                  <div class="line">
-                    <span class="num">1</span>
-                    <span id="v" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">2</span>
-                    <span id="w" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-
-                  <div class="line">
-                    <span class="num">3</span>
-                    <span id="x" class="flag" style="display: none; font-size: 80px;">⚫</span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </table>
+    <!-- Bottom Digital Match Timer & Brand Bar -->
+    <div class="bottom-bar">
+      <div class="bottom-info-slot"></div>
+      <div class="timer-display-wrap">
+        <div class="digital-timer" id="timer">
+          <span id="minutes" class="timer-segment">00</span><span class="timer-colon">:</span><span id="seconds" class="timer-segment">00</span><span class="timer-dot">.</span><span class="timer-segment ms-digits" id="milliseconds">00</span>
         </div>
       </div>
-
-
-        <div class="player">
-            <div class="player-main">
-                <img class="flag" src="{% static 'img/ambrilindo/idn-flag.png' %}" alt="Forki">
-                <div class="info">
-                    <div class="name" id="atlet_red_name">-</div>
-                    <div class="country" id="atlet_red_country">-</div>
-                    <div class="kata" id="kata-aka">0 - Blank</div>
-                </div>
-                <img src="{% static 'img/ambrilindo/vr-aka.png' %}" alt="" class="aka-vr" id="aka-vr">
-                <div style="display: flex; flex-direction: column; align-items: center; margin-right: 50px;">
-                  <div id="aka-senshu-wrapper" style="border-radius: 12px;">
-                    <div class="aka-score" id="aka-score">
-                      0
-                    </div>
-                  </div>
-                </div>
-                <div class="aka-score" id="aka-big-score" style="font-size: 130px; color: gold; margin-right: -10px;">
-                  0
-                </div>
-            </div>
-            
-            <div class="criteria-row" name="criteria">
-                <div class="criteria" id="akac1">C1</div>
-                <div class="criteria" id="akac2">C2</div>
-                <div class="criteria" id="akac3">C3</div>
-                <div class="criteria" id="akac4">HC</div>
-                <div class="criteria" id="akac5">H</div>
-            </div>
-        </div>
-
-        <div id="kata-score-wrap" style="display: none;">
-          <div class="">
-
-            <table class="kata-table">
-              <!-- AKA -->
-              <tr class="kata-row aka">
-                <td class="score" id="j1-score-aka">0.0</td>
-                <td class="score" id="j2-score-aka">0.0</td>
-                <td class="score" id="j3-score-aka">0.0</td>
-                <td class="score" id="j4-score-aka">0.0</td>
-                <td class="score" id="j5-score-aka">0.0</td>
-              </tr>
-
-              <!-- AO -->
-              <tr class="kata-row ao">
-                <td class="score" id="j1-score-ao">0.0</td>
-                <td class="score" id="j2-score-ao">0.0</td>
-                <td class="score" id="j3-score-ao">0.0</td>
-                <td class="score" id="j4-score-ao">0.0</td>
-                <td class="score" id="j5-score-ao">0.0</td>
-              </tr>
-          </table>
-
-        </div>
-      </div>
-
-        <div class="player">
-            <div class="player-main">
-                <img class="flag" src="{% static 'img/ambrilindo/idn-flag.png' %}" alt="Forki">
-                <div class="info">
-                    <div class="name" id="atlet_blue_name">-</div>
-                    <div class="country" id="atlet_blue_country">-</div>
-                    <div class="kata" id="kata-ao">0 - Blank</div>
-                </div>
-                <img src="{% static 'img/ambrilindo/vr-ao.png' %}" alt="" class="ao-vr" id="ao-vr">
-                <div style="display: flex; flex-direction: column; align-items: center; margin-right: 50px;">
-                  <div id="ao-senshu-wrapper" style="border-radius: 12px;">
-                    <div class="ao-score" id="ao-score">
-                      0
-                    </div>
-                  </div>
-                </div>
-                <div class="ao-score" id="ao-big-score" style="font-size: 130px; color: gold; margin-right: -10px;">
-                  0
-                </div>
-            </div>
-            <div class="criteria-row" name="criteria">
-                <div class="criteria" id="aoc1">C1</div>
-                <div class="criteria" id="aoc2">C2</div>
-                <div class="criteria" id="aoc3">C3</div>
-                <div class="criteria" id="aoc4">HC</div>
-                <div class="criteria" id="aoc5">H</div>
-            </div>
-        </div>
-
-    <div class="footer">
-      <div>
-        <div class="tatami" style="width: 30vw; overflow: hidden;">
-          <marquee behavior="scroll" direction="left" scrollamount="15" style="width: 100%; font-size: 4vw; font-weight: bold; color: gold">
-            TATAMI {{ tatami.tatami_number }}
-            <span id="marquee-text"></span>
-          </marquee>
-        </div>
-      </div>
-      <div class="time" id="timer" style="">
-        <span id="minutes">00</span>:<span id="seconds">00</span>.<span id="milliseconds" style="font-size: 50%;">00</span>
-      </div>
-      <div>
-        <img class="studio" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo" style="width: 600px; height: auto; filter: drop-shadow(0 0 6px white) drop-shadow(0 0 6px white);">
+      <div class="bottom-logo-slot">
+        <img class="sponsor-logo" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo">
       </div>
     </div>
   </div>
-</body>
-<script src="{% static 'js/jquery.min.js' %}"></script>
-<script>
-  const tatamiPk = {{ tatami.pk }};
-  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-  const socket = new WebSocket(protocol + window.location.host + `/ws/scoring-board/${tatamiPk}`);
-  const socket1 = new WebSocket(protocol + window.location.host + `/ws/admin-control/${tatamiPk}`);
-  const warning = new Audio("{% static 'sound/warning.mp3' %}");
-  const finish = new Audio("{% static 'sound/finish.mp3' %}");
-  let warningVal = false
-  {% comment %} audio.play(); {% endcomment %}
 
-  let countdownInterval = null;
-  let msInterval = null;
+  <!-- Fullscreen Banner Wrappers (76vh Height) -->
+  <div class="fullscreen-banner-wrap" id="banner-wrap" style="display: none;">
+    <div class="fullscreen-banner ao" id="banner-2" style="display: none;">
+      <h1>
+        <span id="point-1-2" class="banner-point-title">NULL</span>
+        <span id="point-2-2" class="banner-point-subtitle">0 - POINT</span>
+      </h1>
+      <div id="ao-judges-container" class="judges-container"></div>
+    </div>
+    <div class="fullscreen-banner aka" id="banner" style="display: none;">
+      <h1>
+        <span id="point-1" class="banner-point-title">NULL</span>
+        <span id="point-2" class="banner-point-subtitle">0 - POINT</span>
+      </h1>
+      <div id="aka-judges-container" class="judges-container"></div>
+    </div>
+  </div>
 
-  let revealTimers = [];
+  <div class="fullscreen-banner-wrap" id="hantei-wrap" style="display: none;">
+    <div class="fullscreen-banner" id="hantei-banner" style="background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); display: none;">
+      <h1 style="font-family: var(--font-condensed); font-weight: 900; color: var(--gold-bright);">
+        <span style="font-size: clamp(48px, 6.5vw, 95px);">HANTEI</span><br>
+        <span style="font-size: clamp(28px, 3.5vw, 55px); color: #ffffff;">JUDGES' DECISION</span>
+      </h1>
+      <div id="aka-judges-container-hantei" class="judges-container"></div>
+    </div>
+  </div>
 
-  let isTransitioning = false;
+  <div class="fullscreen-banner-wrap" id="countdown-wrap" style="display: none;">
+    <div class="fullscreen-banner" id="countdown-banner" style="display: none;">
+      <h1 style="font-size: clamp(80px, 14vw, 190px); font-family: var(--font-score); font-weight: 700;">
+        <span id="cd-seconds">00</span>.<span id="cd-milliseconds" style="font-size: 55%;">00</span>
+      </h1>
+    </div>
+  </div>
 
-  function playTransition() {
-    if (isTransitioning) return;
-    isTransitioning = true;
+  <div class="fullscreen-banner-wrap" id="ms-check-wrap" style="display: none;">
+    <div class="fullscreen-banner ms-check-screen" id="ms-check-banner" style="display: none;">
+      <!-- Header Bar (Without Reset Button) -->
+      <div class="ms-check-header">
+        <div class="ms-check-title-group">
+          <div class="ms-check-eyebrow">
+            <span class="pulse-dot"></span> UJI SINYAL KONTROLER WASIT • TATAMI {{ tatami.tatami_number }}
+          </div>
+          <h1 class="ms-check-title">CHECK STICK JURI</h1>
+        </div>
+        <div class="ms-check-stats">
+          <div class="ms-stat-pill" id="ms-tested-total-pill">
+            <span class="stat-label">TOTAL TERUJI</span>
+            <span class="stat-num" id="ms-total-tested-count">0 / 24</span>
+          </div>
+        </div>
+      </div>
 
-    const wrap = $('#transition-wrap');
-    wrap.empty();
+      <!-- 4-Jury 2x2 Grid -->
+      <div class="ms-judge-grid">
+        <!-- ==================== JURI 1 ==================== -->
+        <div class="ms-judge-box" id="ms-box-j1">
+          <div class="ms-judge-head">
+            <div class="ms-judge-name"><span class="badge-num">1</span> JURI 1</div>
+            <div class="ms-judge-status" id="ms-status-j1">0/6 READY</div>
+          </div>
+          <div class="ms-judge-body">
+            <!-- AKA Tier (Top) -->
+            <div class="ms-tier red">
+              <div class="ms-tier-label"><span class="col-dot red"></span> AKA (MERAH)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-a" data-code="a">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-a"><span id="a">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-b" data-code="b">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-b"><span id="b">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-c" data-code="c">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-c"><span id="c">○</span></span>
+                </div>
+              </div>
+            </div>
 
-    const transition = $('<div class="fullscreen-transition"></div>');
-    for (let i = 0; i < 5; i++) {
-      transition.append('<div class="slice"></div>');
+            <!-- AO Tier (Bottom) -->
+            <div class="ms-tier blue">
+              <div class="ms-tier-label"><span class="col-dot blue"></span> AO (BIRU)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-d" data-code="d">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-d"><span id="d">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-e" data-code="e">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-e"><span id="e">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-f" data-code="f">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-f"><span id="f">○</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== JURI 2 ==================== -->
+        <div class="ms-judge-box" id="ms-box-j2">
+          <div class="ms-judge-head">
+            <div class="ms-judge-name"><span class="badge-num">2</span> JURI 2</div>
+            <div class="ms-judge-status" id="ms-status-j2">0/6 READY</div>
+          </div>
+          <div class="ms-judge-body">
+            <!-- AKA Tier (Top) -->
+            <div class="ms-tier red">
+              <div class="ms-tier-label"><span class="col-dot red"></span> AKA (MERAH)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-g" data-code="g">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-g"><span id="g">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-h" data-code="h">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-h"><span id="h">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-i" data-code="i">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-i"><span id="i">○</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AO Tier (Bottom) -->
+            <div class="ms-tier blue">
+              <div class="ms-tier-label"><span class="col-dot blue"></span> AO (BIRU)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-j" data-code="j">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-j"><span id="j">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-k" data-code="k">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-k"><span id="k">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-l" data-code="l">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-l"><span id="l">○</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== JURI 3 ==================== -->
+        <div class="ms-judge-box" id="ms-box-j3">
+          <div class="ms-judge-head">
+            <div class="ms-judge-name"><span class="badge-num">3</span> JURI 3</div>
+            <div class="ms-judge-status" id="ms-status-j3">0/6 READY</div>
+          </div>
+          <div class="ms-judge-body">
+            <!-- AKA Tier (Top) -->
+            <div class="ms-tier red">
+              <div class="ms-tier-label"><span class="col-dot red"></span> AKA (MERAH)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-n" data-code="n">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-n"><span id="n">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-m" data-code="m">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-m"><span id="m">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-o" data-code="o">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-o"><span id="o">○</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AO Tier (Bottom) -->
+            <div class="ms-tier blue">
+              <div class="ms-tier-label"><span class="col-dot blue"></span> AO (BIRU)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-p" data-code="p">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-p"><span id="p">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-q" data-code="q">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-q"><span id="q">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-r" data-code="r">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-r"><span id="r">○</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== JURI 4 ==================== -->
+        <div class="ms-judge-box" id="ms-box-j4">
+          <div class="ms-judge-head">
+            <div class="ms-judge-name"><span class="badge-num">4</span> JURI 4</div>
+            <div class="ms-judge-status" id="ms-status-j4">0/6 READY</div>
+          </div>
+          <div class="ms-judge-body">
+            <!-- AKA Tier (Top) -->
+            <div class="ms-tier red">
+              <div class="ms-tier-label"><span class="col-dot red"></span> AKA (MERAH)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-s" data-code="s">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-s"><span id="s">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-t" data-code="t">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-t"><span id="t">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-u" data-code="u">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-u"><span id="u">○</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AO Tier (Bottom) -->
+            <div class="ms-tier blue">
+              <div class="ms-tier-label"><span class="col-dot blue"></span> AO (BIRU)</div>
+              <div class="ms-btn-deck">
+                <div class="ms-btn-cell ms-btn-row" id="btn-v" data-code="v">
+                  <span class="point-num">1</span>
+                  <span class="point-name">YUKO</span>
+                  <span class="chk-flag" id="flag-v"><span id="v">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-w" data-code="w">
+                  <span class="point-num">2</span>
+                  <span class="point-name">WAZA-ARI</span>
+                  <span class="chk-flag" id="flag-w"><span id="w">○</span></span>
+                </div>
+                <div class="ms-btn-cell ms-btn-row" id="btn-x" data-code="x">
+                  <span class="point-num">3</span>
+                  <span class="point-name">IPPON</span>
+                  <span class="chk-flag" id="flag-x"><span id="x">○</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cinematic Transition Container -->
+  <div id="transition-wrap"></div>
+  <div id="ws-indicator" title="Status Jaringan"></div>
+
+  <!-- Audio Resources -->
+  <audio id="warning" src="{% static 'audio/warning.mp3' %}" preload="auto"></audio>
+  <audio id="finish" src="{% static 'audio/finish.mp3' %}" preload="auto"></audio>
+
+  <!-- jQuery -->
+  <script src="{% static 'js/core/jquery-3.7.1.min.js' %}"></script>
+
+  <script>
+    const tatamiPk = "{{ tatami.pk }}";
+    const defaultFlagSrc = "{% static 'img/ambrilindo/idn-flag.png' %}";
+    const brandLogoSrc = "{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}";
+
+    const warning = document.getElementById('warning');
+    const finish = document.getElementById('finish');
+
+    function unlockAudio() {
+      if (warning) {
+        warning.play().then(() => { warning.pause(); warning.currentTime = 0; }).catch(() => {});
+      }
+      if (finish) {
+        finish.play().then(() => { finish.pause(); finish.currentTime = 0; }).catch(() => {});
+      }
+      const btn = document.getElementById('audio-unlock-btn');
+      if (btn) {
+        btn.style.background = '#10b981';
+        btn.innerText = '✓ Audio Aktif';
+        setTimeout(() => { btn.style.display = 'none'; }, 2000);
+      }
     }
-    wrap.append(transition);
 
-    setTimeout(() => {
-      wrap.empty();
-      isTransitioning = false;
-    }, 4000);
-  }
+    // Connection Indicators
+    let wsConnectedScore = false;
+    let wsConnectedControl = false;
 
-  function safeTimeout(fn, delay) {
-    const t = setTimeout(fn, delay);
-    revealTimers.push(t);
-  }
+    function updateWsStatus() {
+      const el = document.getElementById('ws-indicator');
+      if (!el) return;
+      if (wsConnectedScore && wsConnectedControl) {
+        el.style.backgroundColor = '#22c55e';
+        el.style.boxShadow = '0 0 10px #22c55e';
+        el.title = 'Live Sync Terhubung (Skor & Kontrol)';
+      } else if (wsConnectedScore || wsConnectedControl) {
+        el.style.backgroundColor = '#f59e0b';
+        el.style.boxShadow = '0 0 10px #f59e0b';
+        el.title = 'Terhubung Sebagian';
+      } else {
+        el.style.backgroundColor = '#ef4444';
+        el.style.boxShadow = '0 0 10px #ef4444';
+        el.title = 'Terputus - Menghubungkan ulang...';
+      }
+    }
 
-  function hardResetReveal() {
-    // 1️⃣ cancel all timeouts
-    revealTimers.forEach(t => clearTimeout(t));
-    revealTimers = [];
+    function safeJsonParse(val, fallback) {
+      if (val === null || val === undefined) return fallback;
+      if (typeof val === 'object') return val;
+      try {
+        return JSON.parse(val);
+      } catch (err) {
+        return fallback;
+      }
+    }
 
-    // 2️⃣ stop animations instantly
-    $('.reveal').each(function () {
-      this.style.animation = 'none';
-      this.offsetHeight; // force reflow
-      this.style.animation = '';
+    // High-Precision Drift-Proof Timer Engine
+    let totalSeconds = 0;
+    let milliseconds = 0;
+    let isRunning = false;
+    let targetEndTime = null;
+    let timerRaf = null;
+    let warningVal = false;
+    let timerFallbackInterval = null;
+
+    function updateDisplay(secs, ms) {
+      if (secs >= 0) {
+        const m = Math.floor(secs / 60);
+        const s = ((secs % 60) + 60) % 60;
+        $('#minutes').text(String(m).padStart(2, '0'));
+        $('#seconds').text(String(s).padStart(2, '0'));
+        $('#milliseconds').text(String(ms).padStart(2, '0'));
+      }
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      if (totalSeconds === 0 && milliseconds === 0) return;
+
+      reset_banners();
+
+      isRunning = true;
+      $('#timer').removeClass('warning').addClass('running');
+
+      const remainingMs = (totalSeconds * 1000) + (milliseconds * 10);
+      targetEndTime = performance.now() + remainingMs;
+
+      function tick() {
+        if (!isRunning) return;
+        const diff = targetEndTime - performance.now();
+        if (diff <= 0) {
+          totalSeconds = 0;
+          milliseconds = 0;
+          updateDisplay(0, 0);
+          pauseTimer();
+          try { finish.play(); } catch(e) {}
+          return;
+        }
+
+        totalSeconds = Math.floor(diff / 1000);
+        milliseconds = Math.floor((diff % 1000) / 10);
+
+        if (totalSeconds < 15) {
+          if (!warningVal) {
+            try { warning.play(); } catch(e) {}
+            warningVal = true;
+          }
+          $('#timer').removeClass('running').addClass('warning');
+        } else {
+          $('#timer').removeClass('warning').addClass('running');
+          warningVal = false;
+        }
+
+        updateDisplay(totalSeconds, milliseconds);
+        timerRaf = requestAnimationFrame(tick);
+      }
+
+      timerRaf = requestAnimationFrame(tick);
+
+      if (timerFallbackInterval) clearInterval(timerFallbackInterval);
+      timerFallbackInterval = setInterval(() => {
+        if (!isRunning || !targetEndTime) return;
+        const diff = targetEndTime - performance.now();
+        if (diff <= 0) {
+          totalSeconds = 0;
+          milliseconds = 0;
+          updateDisplay(0, 0);
+          pauseTimer();
+          try { finish.play(); } catch(e) {}
+        }
+      }, 250);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      if (timerRaf) {
+        cancelAnimationFrame(timerRaf);
+        timerRaf = null;
+      }
+      if (timerFallbackInterval) {
+        clearInterval(timerFallbackInterval);
+        timerFallbackInterval = null;
+      }
+      $('#timer').removeClass('running warning');
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (isRunning && targetEndTime) {
+        const diff = Math.max(0, targetEndTime - performance.now());
+        totalSeconds = Math.floor(diff / 1000);
+        milliseconds = Math.floor((diff % 1000) / 10);
+        updateDisplay(totalSeconds, milliseconds);
+      }
     });
 
-    // 3️⃣ remove reveal class
-    $('.score, .aka-score, .ao-score').removeClass('reveal');
-  }
+    // Score & Match States
+    let aka_score = 0;
+    let ao_score = 0;
+    let aka_criteria = 0;
+    let ao_criteria = 0;
+    let aka_state = 'off';
+    let ao_state = 'off';
+    let hantei = 0;
+    let ms_check = 0;
+    let msInterval = null;
+    let isShowing = false;
 
-  function resetAndReveal(delay = 500) {
-    hardResetReveal();
+    // Referee Flags Rendering Engine
+    function renderJudges(redCount, blueCount) {
+      const akaContainer = document.getElementById('aka-judges-container');
+      const aoContainer = document.getElementById('ao-judges-container');
+      const akaHantei = document.getElementById('aka-judges-container-hantei');
 
-    for (let i = 1; i <= 5; i++) {
-      const step = (i - 1) * 2;
+      const akaFlagEl = document.getElementById('aka_flag');
+      const aoFlagEl = document.getElementById('ao_flag');
+      const akaFlagSrc = akaFlagEl ? akaFlagEl.src : "{% static 'img/ambrilindo/aka_flag.png' %}";
+      const aoFlagSrc = aoFlagEl ? aoFlagEl.src : "{% static 'img/ambrilindo/ao_flag.png' %}";
 
-      safeTimeout(() => $(`#j${i}-score-aka`).addClass('reveal'), (step + 0) * delay);
-      safeTimeout(() => $(`#j${i}-score-ao`).addClass('reveal'),  (step + 1) * delay);
-    }
+      if (akaContainer) akaContainer.innerHTML = '';
+      if (aoContainer) aoContainer.innerHTML = '';
+      if (akaHantei) akaHantei.innerHTML = '';
 
-    safeTimeout(() => $('.aka-score, .ao-score').addClass('reveal'), 5 * 2 * delay);
-  }
+      // AKA (Red) Flags
+      if (redCount > 0 && akaContainer) {
+        const judgeCard = document.createElement('div');
+        judgeCard.className = 'judge-card';
 
-  function startCountdown(ms) {
-    let totalMs = ms; // 35 seconds in ms
+        const flagsDiv = document.createElement('div');
+        flagsDiv.className = 'judge-flags';
+        for (let i = 0; i < redCount; i++) {
+          const img = document.createElement('img');
+          img.src = akaFlagSrc;
+          img.alt = 'AKA Flag';
+          img.className = 'flag-stroke flag-aka-anim';
+          flagsDiv.appendChild(img);
+        }
 
-    const secEl = document.getElementById("cd-seconds");
-    const msEl = document.getElementById("cd-milliseconds");
+        const countSpan = document.createElement('div');
+        countSpan.className = 'judge-count';
+        countSpan.textContent = `${redCount} JUDGE${redCount > 1 ? 'S' : ''}`;
 
-    // Clear before starting
-    clearInterval(countdownInterval);
-    clearInterval(msInterval);
-
-    // Update every 10ms for smooth milliseconds
-    msInterval = setInterval(() => {
-      totalMs -= 10;
-
-      if (totalMs <= 0) {
-        secEl.textContent = "00";
-        msEl.textContent = "00";
-        clearInterval(msInterval);
-      } else {
-        const seconds = Math.floor(totalMs / 1000);
-        const milliseconds = Math.floor((totalMs % 1000) / 10);
-
-        secEl.textContent = String(seconds).padStart(2, "0");
-        msEl.textContent = String(milliseconds).padStart(2, "0");
+        judgeCard.appendChild(flagsDiv);
+        judgeCard.appendChild(countSpan);
+        akaContainer.appendChild(judgeCard);
+      } else if (redCount === 0 && hantei == 1 && akaContainer) {
+        const judgeCard = document.createElement('div');
+        judgeCard.className = 'judge-card';
+        const countSpan = document.createElement('div');
+        countSpan.className = 'judge-count';
+        countSpan.textContent = '0 JUDGES';
+        judgeCard.appendChild(countSpan);
+        akaContainer.appendChild(judgeCard);
       }
-    }, 10);
-  }
 
-  let interval = null;
-  let milliseconds = 0;
-  let totalSeconds = 0;
-  let isRunning = false;
-  let isShowing = false;
+      // AO (Blue) Flags
+      if (blueCount > 0 && aoContainer) {
+        const judgeCard = document.createElement('div');
+        judgeCard.className = 'judge-card';
 
-  let aka_score = 0 
-  let ao_score = 0 
+        const flagsDiv = document.createElement('div');
+        flagsDiv.className = 'judge-flags';
+        for (let i = 0; i < blueCount; i++) {
+          const img = document.createElement('img');
+          img.src = aoFlagSrc;
+          img.alt = 'AO Flag';
+          img.className = 'flag-stroke flag-ao-anim';
+          flagsDiv.appendChild(img);
+        }
 
-  let aka_criteria = 0
-  let ao_criteria = 0
+        const countSpan = document.createElement('div');
+        countSpan.className = 'judge-count';
+        countSpan.textContent = `${blueCount} JUDGE${blueCount > 1 ? 'S' : ''}`;
 
-  function updateDisplay(seconds, ms) {
-    if (seconds >= 0) {
-        const minutes = Math.floor(seconds / 60);
-        const secs = ((seconds % 60) + 60) % 60;
-        $('#minutes').text(String(minutes).padStart(2, '0'));
-        $('#seconds').text(String(secs).padStart(2, '0'));
-        $('#milliseconds').text(String(ms).padStart(2, '0'));
+        judgeCard.appendChild(flagsDiv);
+        judgeCard.appendChild(countSpan);
+        aoContainer.appendChild(judgeCard);
+      } else if (blueCount === 0 && hantei == 1 && aoContainer) {
+        const judgeCard = document.createElement('div');
+        judgeCard.className = 'judge-card';
+        const countSpan = document.createElement('div');
+        countSpan.className = 'judge-count';
+        countSpan.textContent = '0 JUDGES';
+        judgeCard.appendChild(countSpan);
+        aoContainer.appendChild(judgeCard);
+      }
+
+      // Hantei Decision Layout
+      if (hantei == 1) {
+        $('#point-1').text('AKA');
+        $('#point-2').text(`${redCount} JUDGE${redCount !== 1 ? 'S' : ''}`);
+        $('#point-1-2').text('AO');
+        $('#point-2-2').text(`${blueCount} JUDGE${blueCount !== 1 ? 'S' : ''}`);
+
+        $('#banner-wrap').css('grid-template-columns', '1fr 1fr').show();
+        $('#banner').show();
+        $('#banner-2').show();
+        $('#hantei-wrap').hide();
+      }
     }
-  }
+    window.renderJudges = renderJudges;
 
-  vr_status = false
-  let aka_state = 'off';
-  let ao_state = 'off';
-  let hantei = 0
-  let ms_check = 0
-  let resolveTimeout = null; // ← add this at the top with your other variables
+    function handleHanteiSignals(codes, isDecay) {
+      if (isDecay && confirmedPointActive) {
+        return; // Preserve confirmed decision on key expiration
+      }
 
-  function resetRenderJudges() {
-    document.getElementById('aka-judges-container').innerHTML = '';
-    document.getElementById('ao-judges-container').innerHTML = '';
-  }
+      let redCount = 0;
+      let blueCount = 0;
 
-  function resetAllFlags() {
-    for (let code = 97; code <= 120; code++) {   // ASCII a(97) → x(120)
-        const id = String.fromCharCode(code);
-        $('#' + id).hide();
+      codes.forEach(c => {
+        if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) redCount++;
+        if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) blueCount++;
+      });
+
+      const totalVotes = redCount + blueCount;
+      if (totalVotes === 0) return;
+
+      syncBannerBounds();
+      renderJudges(redCount, blueCount);
+
+      if (totalVotes >= 4) {
+        try { finish.play(); } catch(e) {}
+        confirmedPointActive = true;
+      }
     }
-  }
+    window.handleHanteiSignals = handleHanteiSignals;
 
+    // Confirmed Tournament Score Banner State & Hold Window
+    let bannerHoldTimer = null;
+    let confirmedPointActive = false;
 
-  socket1.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    const details = JSON.parse(data.details);
-    const aka = details[0] || [];
-    const ao = details[1] || [];
-    const codes = details[2] || [];
-    let bendera_merah = 0;
-    let bendera_biru = 0;
+    function reset_banners() {
+      if (bannerHoldTimer) {
+        clearTimeout(bannerHoldTimer);
+        bannerHoldTimer = null;
+      }
+      confirmedPointActive = false;
 
-    if (hantei == 1) {
+      $('#point-1').text('NULL');
+      $('#point-2').text('0 - POINT');
+      $('#point-1-2').text('NULL');
+      $('#point-2-2').text('0 - POINT');
+
+      $('#banner').hide();
+      $('#banner-2').hide();
+      $('#banner-wrap').hide().css('grid-template-columns', '1fr');
+      $('#hantei-wrap').hide();
+      $('#hantei-banner').hide();
+      $('#ms-check-wrap').hide();
+      $('#ms-check-banner').hide();
+      $('#countdown-wrap').hide();
+      $('#countdown-banner').hide();
+
+      aka_state = 'off';
+      ao_state = 'off';
+      hantei = 0;
+      ms_check = 0;
+      if (typeof resetAllStickFlags === 'function') {
+        resetAllStickFlags();
+      }
+
+      const akaContainer = document.getElementById('aka-judges-container');
+      const aoContainer = document.getElementById('ao-judges-container');
+      const akaHantei = document.getElementById('aka-judges-container-hantei');
+      if (akaContainer) akaContainer.innerHTML = '';
+      if (aoContainer) aoContainer.innerHTML = '';
+      if (akaHantei) akaHantei.innerHTML = '';
+    }
+    window.reset_banners = reset_banners;
+
+    // Dynamically sync score banner to cover 100% of the board down to the exact top edge of the timer footer
+    function syncBannerBounds() {
+      const bottomBar = document.querySelector('.bottom-bar');
+      if (!bottomBar) return;
+      const rect = bottomBar.getBoundingClientRect();
+      const bottomGap = Math.max(0, window.innerHeight - rect.top);
+      document.documentElement.style.setProperty('--footer-total-height', `${bottomGap}px`);
+      document.querySelectorAll('.fullscreen-banner-wrap').forEach(el => {
+        el.style.top = '0px';
+        el.style.bottom = `${bottomGap}px`;
+        el.style.height = `${rect.top}px`;
+      });
+    }
+    window.syncBannerBounds = syncBannerBounds;
+    window.addEventListener('resize', syncBannerBounds);
+
+    function formatClub(perguruan, utusan) {
+      const parts = [];
+      if (perguruan && String(perguruan).trim() && String(perguruan).trim().toLowerCase() !== 'null') {
+        parts.push(String(perguruan).trim());
+      }
+      if (utusan && String(utusan).trim() && String(utusan).trim().toLowerCase() !== 'null') {
+        parts.push(String(utusan).trim());
+      }
+      return parts.length > 0 ? parts.join(' • ') : '-';
+    }
+
+    function startCountdown(ms) {
+      let totalMs = ms;
+      const secEl = document.getElementById("cd-seconds");
+      const msEl = document.getElementById("cd-milliseconds");
+      if (msInterval) clearInterval(msInterval);
+
+      msInterval = setInterval(() => {
+        totalMs -= 10;
+        if (totalMs <= 0) {
+          if (secEl) secEl.textContent = "00";
+          if (msEl) msEl.textContent = "00";
+          clearInterval(msInterval);
+        } else {
+          const seconds = Math.floor(totalMs / 1000);
+          const milliseconds = Math.floor((totalMs % 1000) / 10);
+          if (secEl) secEl.textContent = String(seconds).padStart(2, "0");
+          if (msEl) msEl.textContent = String(milliseconds).padStart(2, "0");
+        }
+      }, 10);
+    }
+
+    // Cinematic Broadcast Match Reload Transition (Whole Centered Brand Logo)
+    let isTransitioning = false;
+    function playTransition() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const wrap = $('#transition-wrap');
+      wrap.empty().show();
+
+      const transition = $(`
+        <div class="broadcast-transition">
+          <div class="transition-shutter-top"></div>
+          <div class="transition-shutter-bottom"></div>
+          <div class="transition-center-card">
+            <img class="transition-brand-logo" src="${brandLogoSrc}" alt="Ambrilindo">
+            <div class="transition-loading-text">MEMUAT PERTANDINGAN...</div>
+          </div>
+        </div>
+      `);
+
+      wrap.append(transition);
+
+      setTimeout(() => {
+        wrap.empty().hide();
+        isTransitioning = false;
+      }, 1800);
+    }
+    window.playTransition = playTransition;
+
+    // Dynamic Action Pop-Up Banner Engine (Identical to Mouse Score Pop-Out)
+    function showScoreBanner(side, subtitle, title, duration = 1200) {
+      if (bannerHoldTimer) {
+        clearTimeout(bannerHoldTimer);
+        bannerHoldTimer = null;
+      }
+
+      confirmedPointActive = true;
+      syncBannerBounds();
+
+      const akaContainer = document.getElementById('aka-judges-container');
+      const aoContainer = document.getElementById('ao-judges-container');
+
+      if (subtitle === 'PELANGGARAN' || subtitle === 'KEUNGGULAN') {
+        if (akaContainer) akaContainer.innerHTML = '';
+        if (aoContainer) aoContainer.innerHTML = '';
+      }
+
+      if (side === 'aka') {
+        if (aoContainer) aoContainer.innerHTML = '';
+        $('#point-1').text(subtitle);
+        $('#point-2').text(title);
+        $('#banner').show();
+        $('#banner-2').hide();
+        aka_state = 'pending';
+        ao_state = 'off';
+      } else {
+        if (akaContainer) akaContainer.innerHTML = '';
+        $('#point-1-2').text(subtitle);
+        $('#point-2-2').text(title);
+        $('#banner-2').show();
+        $('#banner').hide();
+        ao_state = 'pending';
+        aka_state = 'off';
+      }
+
+      $('#banner-wrap').css('grid-template-columns', '1fr').show();
+      try { finish.play(); } catch(err) {}
+
+      if (duration > 0) {
+        bannerHoldTimer = setTimeout(() => {
+          reset_banners();
+        }, duration);
+      }
+    }
+    window.showScoreBanner = showScoreBanner;
+
+    // ==================== CHECK STICK JURI DIAGNOSTIC ENGINE ====================
+    let testedKeys = new Set();
+    const juryKeyMap = {
+      'a': { judge: 1, side: 'red', point: 'YUKO', num: 1 },
+      'b': { judge: 1, side: 'red', point: 'WAZA-ARI', num: 2 },
+      'c': { judge: 1, side: 'red', point: 'IPPON', num: 3 },
+      'd': { judge: 1, side: 'blue', point: 'YUKO', num: 1 },
+      'e': { judge: 1, side: 'blue', point: 'WAZA-ARI', num: 2 },
+      'f': { judge: 1, side: 'blue', point: 'IPPON', num: 3 },
+
+      'g': { judge: 2, side: 'red', point: 'YUKO', num: 1 },
+      'h': { judge: 2, side: 'red', point: 'WAZA-ARI', num: 2 },
+      'i': { judge: 2, side: 'red', point: 'IPPON', num: 3 },
+      'j': { judge: 2, side: 'blue', point: 'YUKO', num: 1 },
+      'k': { judge: 2, side: 'blue', point: 'WAZA-ARI', num: 2 },
+      'l': { judge: 2, side: 'blue', point: 'IPPON', num: 3 },
+
+      'n': { judge: 3, side: 'red', point: 'YUKO', num: 1 },
+      'm': { judge: 3, side: 'red', point: 'WAZA-ARI', num: 2 },
+      'o': { judge: 3, side: 'red', point: 'IPPON', num: 3 },
+      'p': { judge: 3, side: 'blue', point: 'YUKO', num: 1 },
+      'q': { judge: 3, side: 'blue', point: 'WAZA-ARI', num: 2 },
+      'r': { judge: 3, side: 'blue', point: 'IPPON', num: 3 },
+
+      's': { judge: 4, side: 'red', point: 'YUKO', num: 1 },
+      't': { judge: 4, side: 'red', point: 'WAZA-ARI', num: 2 },
+      'u': { judge: 4, side: 'red', point: 'IPPON', num: 3 },
+      'v': { judge: 4, side: 'blue', point: 'YUKO', num: 1 },
+      'w': { judge: 4, side: 'blue', point: 'WAZA-ARI', num: 2 },
+      'x': { judge: 4, side: 'blue', point: 'IPPON', num: 3 }
+    };
+    const allStickKeys = Object.keys(juryKeyMap);
+
+    function handleStickJuriSignals(codes) {
+      if (!Array.isArray(codes)) return;
+      const lowerCodes = codes.map(c => String(c).toLowerCase());
+
+      let newHit = false;
+      allStickKeys.forEach(k => {
+        const btn = document.getElementById('btn-' + k);
+        const flag = document.getElementById('flag-' + k);
+        const legacyFlag = document.getElementById(k);
+        const meta = juryKeyMap[k];
+        if (!btn) return;
+
+        if (lowerCodes.includes(k)) {
+          btn.classList.add('active', meta.side);
+          if (!testedKeys.has(k)) {
+            testedKeys.add(k);
+            newHit = true;
+          }
+          btn.classList.add('tested');
+          if (flag) flag.innerHTML = `<span id="${k}">✓</span>`;
+          if (legacyFlag && legacyFlag !== flag) $(legacyFlag).show().text('✓');
+        } else {
+          btn.classList.remove('active', 'red', 'blue');
+        }
+      });
+
+      if (newHit) {
+        try { warning.play(); } catch(e) {}
+      }
+
+      // Update per-judge summary
+      const judgeKeys = {
+        1: ['a', 'b', 'c', 'd', 'e', 'f'],
+        2: ['g', 'h', 'i', 'j', 'k', 'l'],
+        3: ['n', 'm', 'o', 'p', 'q', 'r'],
+        4: ['s', 't', 'u', 'v', 'w', 'x']
+      };
+
+      for (let j = 1; j <= 4; j++) {
+        const keys = judgeKeys[j];
+        const testedCount = keys.filter(k => testedKeys.has(k)).length;
+        const statusEl = document.getElementById(`ms-status-j${j}`);
+        const boxEl = document.getElementById(`ms-box-j${j}`);
+        if (statusEl) {
+          statusEl.textContent = testedCount === 6 ? '6/6 SIAP ✓' : `${testedCount}/6 READY`;
+        }
+        if (boxEl) {
+          if (testedCount === 6) boxEl.classList.add('all-tested');
+          else boxEl.classList.remove('all-tested');
+        }
+      }
+
+      const totalTestedEl = document.getElementById('ms-total-tested-count');
+      if (totalTestedEl) {
+        if (testedKeys.size === 24) {
+          totalTestedEl.style.color = '#22c55e';
+          totalTestedEl.textContent = '24 / 24 SEMUA SIAP ✓';
+          try { finish.play(); } catch(e) {}
+        } else {
+          totalTestedEl.style.color = 'var(--gold-bright)';
+          totalTestedEl.textContent = `${testedKeys.size} / 24`;
+        }
+      }
+    }
+
+    function resetAllStickFlags(playChime = false) {
+      testedKeys.clear();
+      allStickKeys.forEach(k => {
+        const btn = document.getElementById('btn-' + k);
+        const flag = document.getElementById('flag-' + k);
+        const legacyFlag = document.getElementById(k);
+        if (btn) btn.classList.remove('active', 'tested', 'red', 'blue');
+        if (flag) flag.innerHTML = `<span id="${k}">○</span>`;
+        if (legacyFlag && legacyFlag !== flag) $(legacyFlag).text('○').hide();
+      });
+
+      for (let j = 1; j <= 4; j++) {
+        const statusEl = document.getElementById(`ms-status-j${j}`);
+        const boxEl = document.getElementById(`ms-box-j${j}`);
+        if (statusEl) statusEl.textContent = '0/6 READY';
+        if (boxEl) boxEl.classList.remove('all-tested');
+      }
+
+      const totalTestedEl = document.getElementById('ms-total-tested-count');
+      if (totalTestedEl) {
+        totalTestedEl.textContent = '0 / 24';
+        totalTestedEl.style.color = 'var(--gold-bright)';
+      }
+
+      if (playChime) {
+        try { finish.play(); } catch(e) {}
+      }
+    }
+    window.resetAllStickFlags = resetAllStickFlags;
+    window.handleStickJuriSignals = handleStickJuriSignals;
+
+    // Interactive Touch / Click testing support for scoreboard monitors
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.ms-btn-row').forEach(row => {
+        row.addEventListener('click', function() {
+          const code = this.getAttribute('data-code');
+          if (code) {
+            handleStickJuriSignals([code]);
+            setTimeout(() => {
+              handleStickJuriSignals([]);
+            }, 600);
+          }
+        });
+      });
+    });
+
+    // Direct keyboard testing listener on scoreboard window
+    document.addEventListener('keydown', (e) => {
+      if (ms_check != 1) return;
+      const key = e.key.toLowerCase();
+      if (key >= 'a' && key <= 'x') {
+        handleStickJuriSignals([key]);
+        setTimeout(() => {
+          handleStickJuriSignals([]);
+        }, 700);
+      }
+    });
+
+    // Match Load & Hydration
+    function populateMatchDetails(d, isInitialReset = false) {
+      if (!d) return;
+
+      // Event & Category Marquee
+      const marqueeEl = document.getElementById('marquee-text');
+      if (marqueeEl) marqueeEl.innerText = d.nomor_tanding || '-';
+
+      // Competitor Red (AKA)
+      document.getElementById('atlet_red_name').innerText = d.atlet_red || '-';
+      document.getElementById('atlet_red_country').innerText = formatClub(d.atlet_red_perguruan, d.atlet_red_utusan);
+      const redLogoEl = document.getElementById('atlet_red_logo');
+      if (redLogoEl) redLogoEl.src = d.atlet_red_logo || defaultFlagSrc;
+
+      // Competitor Blue (AO)
+      document.getElementById('atlet_blue_name').innerText = d.atlet_blue || '-';
+      document.getElementById('atlet_blue_country').innerText = formatClub(d.atlet_blue_perguruan, d.atlet_blue_utusan);
+      const blueLogoEl = document.getElementById('atlet_blue_logo');
+      if (blueLogoEl) blueLogoEl.src = d.atlet_blue_logo || defaultFlagSrc;
+
+      // Kata Display Toggle
+      const kataAkaEl = document.getElementById('kata-aka');
+      const kataAoEl = document.getElementById('kata-ao');
+      if (d.tipe_tanding == '1') {
+        if (kataAkaEl) { kataAkaEl.innerText = d.atlet_red_kata || '0 - Blank'; kataAkaEl.style.visibility = 'visible'; }
+        if (kataAoEl) { kataAoEl.innerText = d.atlet_blue_kata || '0 - Blank'; kataAoEl.style.visibility = 'visible'; }
+        document.querySelectorAll('.criteria-bar').forEach(el => el.classList.add('deactivate'));
+      } else {
+        if (kataAkaEl) kataAkaEl.style.visibility = 'hidden';
+        if (kataAoEl) kataAoEl.style.visibility = 'hidden';
+        document.querySelectorAll('.criteria-bar').forEach(el => el.classList.remove('deactivate'));
+      }
+
+      // VR Badges
+      const akaVr = document.getElementById('aka-vr');
+      const aoVr = document.getElementById('ao-vr');
+      if (akaVr) akaVr.style.visibility = (d.atlet_red_vr && d.tipe_tanding == '2') ? 'visible' : 'hidden';
+      if (aoVr) aoVr.style.visibility = (d.atlet_blue_vr && d.tipe_tanding == '2') ? 'visible' : 'hidden';
+
+      // Team Scores
+      const akaBig = document.getElementById('aka-big-score');
+      const aoBig = document.getElementById('ao-big-score');
+      if (d.team) {
+        if (akaBig) { akaBig.style.display = 'block'; akaBig.innerText = d.total_aka_score || '0'; }
+        if (aoBig) { aoBig.style.display = 'block'; aoBig.innerText = d.total_ao_score || '0'; }
+      } else {
+        if (akaBig) { akaBig.style.display = 'none'; akaBig.innerText = '0'; }
+        if (aoBig) { aoBig.style.display = 'none'; aoBig.innerText = '0'; }
+      }
+
+      if (isInitialReset) {
+        aka_score = 0;
+        ao_score = 0;
+        aka_criteria = 0;
+        ao_criteria = 0;
+        document.getElementById('aka-score').innerText = '0';
+        document.getElementById('ao-score').innerText = '0';
+        $('#aka-senshu-wrapper').removeClass('senshu-active');
+        $('#ao-senshu-wrapper').removeClass('senshu-active');
+        for (let i = 1; i <= 5; i++) {
+          $(`#akac${i}`).removeClass('active-red');
+          $(`#aoc${i}`).removeClass('active-blue');
+        }
+        pauseTimer();
+        totalSeconds = 0;
+        milliseconds = 0;
+        updateDisplay(0, 0);
+        reset_banners();
+      }
+    }
+
+    // Scoring Command Dispatcher
+    function handleScoringMessage(e) {
+      const data = safeJsonParse(e.data, {});
+      if (!data.command) return;
+
+      if (data.command === 'get_atlet') {
+        playTransition();
+        setTimeout(() => {
+          populateMatchDetails(data.details, true);
+        }, 500);
+        return;
+      }
+
+      if (data.command === 'timer-change') {
+        if (!isRunning) {
+          totalSeconds = parseInt(data.details, 10) || 0;
+          milliseconds = 0;
+          updateDisplay(totalSeconds, milliseconds);
+        }
+      } else if (data.command === 'timer-status') {
+        if (data.details === 'start') {
+          startTimer();
+        } else if (data.details === 'pause') {
+          pauseTimer();
+        } else {
+          if (isRunning) pauseTimer(); else startTimer();
+        }
+      } else if (data.command === 'timer-sync') {
+        const arr = safeJsonParse(data.details, [0, 0]);
+        totalSeconds = arr[0] || 0;
+        milliseconds = arr[1] || 0;
+        if (isRunning) {
+          const remainingMs = (totalSeconds * 1000) + (milliseconds * 10);
+          targetEndTime = performance.now() + remainingMs;
+        }
+        updateDisplay(totalSeconds, milliseconds);
+      } else if (data.command === 'timer-increment') {
+        totalSeconds++;
+        if (isRunning) targetEndTime += 1000;
+        updateDisplay(totalSeconds, milliseconds);
+      } else if (data.command === 'timer-decrement') {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          if (isRunning) targetEndTime -= 1000;
+          updateDisplay(totalSeconds, milliseconds);
+        }
+      } else if (data.command === 'aka-yuko') {
+        aka_score += 1;
+        $('#aka-score').text(aka_score);
+        showScoreBanner('aka', '1 - POINT', 'YUKO', 1200);
+      } else if (data.command === 'aka-wazaari') {
+        aka_score += 2;
+        $('#aka-score').text(aka_score);
+        showScoreBanner('aka', '2 - POINT', 'WAZA-ARI', 1200);
+      } else if (data.command === 'aka-ippon') {
+        aka_score += 3;
+        $('#aka-score').text(aka_score);
+        showScoreBanner('aka', '3 - POINT', 'IPPON', 1200);
+      } else if (data.command === 'aka-score-dec') {
+        if (aka_score > 0) aka_score--;
+        $('#aka-score').text(aka_score);
+        reset_banners();
+      } else if (data.command === 'ao-yuko') {
+        ao_score += 1;
+        $('#ao-score').text(ao_score);
+        showScoreBanner('ao', '1 - POINT', 'YUKO', 1200);
+      } else if (data.command === 'ao-wazaari') {
+        ao_score += 2;
+        $('#ao-score').text(ao_score);
+        showScoreBanner('ao', '2 - POINT', 'WAZA-ARI', 1200);
+      } else if (data.command === 'ao-ippon') {
+        ao_score += 3;
+        $('#ao-score').text(ao_score);
+        showScoreBanner('ao', '3 - POINT', 'IPPON', 1200);
+      } else if (data.command === 'ao-score-dec') {
+        if (ao_score > 0) ao_score--;
+        $('#ao-score').text(ao_score);
+        reset_banners();
+      } else if (data.command === 'aka-criteria-inc') {
+        aka_criteria++;
+        if (aka_criteria >= 1 && aka_criteria <= 5) {
+          $(`#akac${aka_criteria}`).addClass('active-red');
+        }
+        const critTitle = aka_criteria >= 5 ? 'HANSOKU' : (aka_criteria === 4 ? 'HC' : `C${aka_criteria}`);
+        showScoreBanner('aka', 'PELANGGARAN', critTitle, 1200);
+      } else if (data.command === 'aka-criteria-dec') {
+        if (aka_criteria >= 1 && aka_criteria <= 5) {
+          $(`#akac${aka_criteria}`).removeClass('active-red');
+        }
+        if (aka_criteria > 0) aka_criteria--;
+      } else if (data.command === 'ao-criteria-inc') {
+        ao_criteria++;
+        if (ao_criteria >= 1 && ao_criteria <= 5) {
+          $(`#aoc${ao_criteria}`).addClass('active-blue');
+        }
+        const critTitle = ao_criteria >= 5 ? 'HANSOKU' : (ao_criteria === 4 ? 'HC' : `C${ao_criteria}`);
+        showScoreBanner('ao', 'PELANGGARAN', critTitle, 1200);
+      } else if (data.command === 'ao-criteria-dec') {
+        if (ao_criteria >= 1 && ao_criteria <= 5) {
+          $(`#aoc${ao_criteria}`).removeClass('active-blue');
+        }
+        if (ao_criteria > 0) ao_criteria--;
+      } else if (data.command === 'senshu') {
+        if (data.details === 'aka-senshu') {
+          $('#aka-senshu-wrapper').addClass('senshu-active');
+          showScoreBanner('aka', 'KEUNGGULAN', 'SENSHU', 1200);
+        } else if (data.details === 'aka-remove-senshu') {
+          $('#aka-senshu-wrapper').removeClass('senshu-active');
+        } else if (data.details === 'ao-senshu') {
+          $('#ao-senshu-wrapper').addClass('senshu-active');
+          showScoreBanner('ao', 'KEUNGGULAN', 'SENSHU', 1200);
+        } else if (data.details === 'ao-remove-senshu') {
+          $('#ao-senshu-wrapper').removeClass('senshu-active');
+        }
+      } else if (data.command === 'vr') {
+        if (data.details === 'aka-vr') {
+          $('#aka-vr').css('visibility', 'visible');
+        } else if (data.details === 'aka-remove-vr') {
+          $('#aka-vr').css('visibility', 'hidden');
+        } else if (data.details === 'ao-vr') {
+          $('#ao-vr').css('visibility', 'visible');
+        } else if (data.details === 'ao-remove-vr') {
+          $('#ao-vr').css('visibility', 'hidden');
+        } else if (data.details === 'aka-request') {
+          aka_vr_on('VIDEO REVIEW', 'REQUESTED');
+        } else if (data.details === 'aka-accept-1') {
+          aka_vr_on('VR +1 POINT', 'ACCEPTED');
+        } else if (data.details === 'aka-accept-2') {
+          aka_vr_on('VR +2 POINT', 'ACCEPTED');
+        } else if (data.details === 'aka-accept-3') {
+          aka_vr_on('VR +3 POINT', 'ACCEPTED');
+        } else if (data.details === 'aka-decline') {
+          aka_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED');
+        } else if (data.details === 'ao-request') {
+          ao_vr_on('VIDEO REVIEW', 'REQUESTED');
+        } else if (data.details === 'ao-accept-1') {
+          ao_vr_on('VR +1 POINT', 'ACCEPTED');
+        } else if (data.details === 'ao-accept-2') {
+          ao_vr_on('VR +2 POINT', 'ACCEPTED');
+        } else if (data.details === 'ao-accept-3') {
+          ao_vr_on('VR +3 POINT', 'ACCEPTED');
+        } else if (data.details === 'ao-decline') {
+          ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED');
+        }
+      } else if (data.command === 'aka-kata-kirim') {
+        $('#kata-aka').text(data.details);
+      } else if (data.command === 'ao-kata-kirim') {
+        $('#kata-ao').text(data.details);
+      } else if (data.command === 'tampilkan-score-simple') {
+        const arr = safeJsonParse(data.details, [0, 0]);
+        $('#aka-score').text(arr[0] || '0');
+        $('#ao-score').text(arr[1] || '0');
+      } else if (data.command === 'tampilkan-score') {
+        const arr = safeJsonParse(data.details, [0, 0, [], []]);
+        const scoresAka = arr[2] || [];
+        const scoresAo = arr[3] || [];
+        if (!isShowing) {
+          $('#kata-score-wrap').show();
+          for (let i = 0; i < 5; i++) {
+            $(`#j${i + 1}-score-aka`).text(scoresAka[i] || '0.0');
+            $(`#j${i + 1}-score-ao`).text(scoresAo[i] || '0.0');
+          }
+          isShowing = true;
+        } else {
+          $('#kata-score-wrap').hide();
+          isShowing = false;
+        }
+      } else if (data.command === 'hantei') {
+        hantei = data.details == 1 ? 1 : 0;
+        if (hantei == 1) {
+          syncBannerBounds();
+          $('#hantei-wrap').show();
+          $('#hantei-banner').show();
+          $('#banner').hide();
+          $('#banner-2').hide();
+          $('#banner-wrap').hide();
+        } else {
+          $('#hantei-wrap').hide();
+          $('#hantei-banner').hide();
+          reset_banners();
+        }
+      } else if (data.command === 'reset-banner') {
+        confirmedPointActive = false;
+        reset_banners();
+      } else if (data.command === 'bendera') {
+        const arr = safeJsonParse(data.details, [0, 0]);
+        $('#aka-score').text(arr[0] || '0');
+        $('#ao-score').text(arr[1] || '0');
+        aka_score = parseInt(arr[0], 10) || 0;
+        ao_score = parseInt(arr[1], 10) || 0;
+        reset_banners();
+      } else if (data.command === 'ms-check') {
+        ms_check = data.details;
+        if (ms_check == 1) {
+          syncBannerBounds();
+          $('#ms-check-wrap').show();
+          $('#ms-check-banner').show();
+        } else {
+          $('#ms-check-wrap').hide();
+          $('#ms-check-banner').hide();
+          resetAllStickFlags();
+        }
+      } else if (data.command === 'mouse') {
+        const arr = safeJsonParse(data.details, ['', '', [], 0, 0, false]);
+        const a = arr[0] || ''; // akaResult
+        const b = arr[1] || ''; // aoResult
+        const codes = arr[2] || [];
+        const isDecay = arr[5] === true;
+
+        if (hantei == 1) {
+          handleHanteiSignals(codes, isDecay);
+          return;
+        }
+
+        if (ms_check == 1) {
+          handleStickJuriSignals(codes);
+          return;
+        }
+
+        // SAFETY INTERLOCK: On YAME (paused timer), mouse combinations must NEVER output or change score popups!
+        if (!isRunning) {
+          return;
+        }
+
+        // DECAY: Background key expiration must never hide or downgrade an active confirmed score
+        if (isDecay) {
+          return;
+        }
+
+        if (ms_check == 0 && hantei == 0) {
+          const isAkaPoint = ['Aka Yuko', 'Aka Waza-ari', 'Aka Ippon'].includes(a);
+          const isAoPoint = ['Ao Yuko', 'Ao Waza-ari', 'Ao Ippon'].includes(b);
+
+          if (!isAkaPoint && !isAoPoint) {
+            // Unconfirmed or transient key state received.
+            // On a real tournament scoreboard, once a point is confirmed (>= 2 judges),
+            // it MUST NOT disappear when an unconfirmed single key arrives!
+            if (confirmedPointActive) {
+              return;
+            }
+            $('#banner').hide();
+            $('#banner-2').hide();
+            $('#banner-wrap').hide();
+            aka_state = 'off';
+            ao_state = 'off';
+            return;
+          }
+
+          // Valid confirmed score point awarded!
+          confirmedPointActive = true;
+          syncBannerBounds();
+
+          let hasAka = false;
+          let hasAo = false;
+
+          if (a === 'Aka Yuko') {
+            $('#point-1').text('1 - POINT');
+            $('#point-2').text('YUKO');
+            $('#banner').show();
+            aka_state = 'pending';
+            hasAka = true;
+          } else if (a === 'Aka Waza-ari') {
+            $('#point-1').text('2 - POINT');
+            $('#point-2').text('WAZA-ARI');
+            $('#banner').show();
+            aka_state = 'pending';
+            hasAka = true;
+          } else if (a === 'Aka Ippon') {
+            $('#point-1').text('3 - POINT');
+            $('#point-2').text('IPPON');
+            $('#banner').show();
+            aka_state = 'pending';
+            hasAka = true;
+          } else {
+            $('#banner').hide();
+            aka_state = 'off';
+            const el = document.getElementById('aka-judges-container');
+            if (el) el.innerHTML = '';
+          }
+
+          if (b === 'Ao Yuko') {
+            $('#point-1-2').text('1 - POINT');
+            $('#point-2-2').text('YUKO');
+            $('#banner-2').show();
+            ao_state = 'pending';
+            hasAo = true;
+          } else if (b === 'Ao Waza-ari') {
+            $('#point-1-2').text('2 - POINT');
+            $('#point-2-2').text('WAZA-ARI');
+            $('#banner-2').show();
+            ao_state = 'pending';
+            hasAo = true;
+          } else if (b === 'Ao Ippon') {
+            $('#point-1-2').text('3 - POINT');
+            $('#point-2-2').text('IPPON');
+            $('#banner-2').show();
+            ao_state = 'pending';
+            hasAo = true;
+          } else {
+            $('#banner-2').hide();
+            ao_state = 'off';
+            const el = document.getElementById('ao-judges-container');
+            if (el) el.innerHTML = '';
+          }
+
+          if (hasAka && hasAo) {
+            $('#banner-wrap').css('grid-template-columns', '1fr 1fr').show();
+          } else {
+            $('#banner-wrap').css('grid-template-columns', '1fr').show();
+          }
+          try { finish.play(); } catch(err) {}
+
+          // Ensure referee flags are displayed
+          const akaJudgeEl = document.getElementById('aka-judges-container');
+          const aoJudgeEl = document.getElementById('ao-judges-container');
+          const needAkaFlags = hasAka && akaJudgeEl && akaJudgeEl.children.length === 0;
+          const needAoFlags = hasAo && aoJudgeEl && aoJudgeEl.children.length === 0;
+          if (needAkaFlags || needAoFlags) {
+            renderJudges(hasAka ? 2 : 0, hasAo ? 2 : 0);
+          }
+          // The score banner remains visible indefinitely until a score is inputted or 'tutup banner' is clicked
+        }
+      } else if (data.command.startsWith('countdown-') || data.command === 'countdown' || data.command === 'countdown1') {
+        const wrap = document.getElementById("countdown-wrap");
+        const banner = document.getElementById("countdown-banner");
+        const isAka = data.command.includes('aka');
+        let durationMs = 35000;
+        if (data.command.includes('-1-')) durationMs = 60000;
+        else if (data.command.includes('-2-')) durationMs = 120000;
+        else if (data.command.includes('-3-')) durationMs = 180000;
+
+        if (data.details == 1) {
+          wrap.style.display = "grid";
+          banner.style.display = "flex";
+          banner.style.backgroundColor = isAka ? "var(--aka-primary)" : "var(--ao-primary)";
+          startCountdown(durationMs);
+        } else {
+          wrap.style.display = "none";
+          banner.style.display = "none";
+          if (msInterval) clearInterval(msInterval);
+        }
+      }
+    }
+
+    function aka_vr_on(title, subtitle) {
+      $('#point-1').text(title);
+      $('#point-2').text(subtitle);
+      $('#banner').show();
+      $('#banner-2').hide();
+      $('#banner-wrap').css('grid-template-columns', '1fr').show();
+      const el = document.getElementById('aka-judges-container');
+      if (el) el.innerHTML = '';
+      try { finish.play(); } catch(e) {}
+    }
+
+    function ao_vr_on(title, subtitle) {
+      $('#point-1-2').text(title);
+      $('#point-2-2').text(subtitle);
+      $('#banner-2').show();
+      $('#banner').hide();
+      $('#banner-wrap').css('grid-template-columns', '1fr').show();
+      const el = document.getElementById('ao-judges-container');
+      if (el) el.innerHTML = '';
+      try { finish.play(); } catch(e) {}
+    }
+
+    // Admin Control Socket Handler (Judge Joystick signals & Flag Counts)
+    function handleControlMessage(e) {
+      const data = safeJsonParse(e.data, {});
+      if (!data) return;
+
+      const details = safeJsonParse(data.details, []);
+      const akaResult = details[0] || '';
+      const aoResult = details[1] || '';
+      const codes = details[2] || [];
+      const isDecay = details[5] === true;
+      let bendera_merah = 0;
+      let bendera_biru = 0;
+
+      // Count votes from referee keycodes
       codes.forEach(c => {
         if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
         if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
       });
-      if (bendera_biru + bendera_merah == 4) {
-        finish.play()
+
+      if (data.command === 'hantei') {
+        hantei = data.details == 1 ? 1 : 0;
+        if (hantei == 1) {
+          syncBannerBounds();
+          $('#hantei-wrap').show();
+          $('#hantei-banner').show();
+          $('#banner').hide();
+          $('#banner-2').hide();
+          $('#banner-wrap').hide();
+        } else {
+          $('#hantei-wrap').hide();
+          $('#hantei-banner').hide();
+          reset_banners();
+        }
+        return;
       }
-    } else if (ms_check == 1) {
-      codes.forEach(c => {
-        if (c >= 'a' && c <= 'x') {
-            $('#' + c).show();
+
+      if (data.command === 'ms-check') {
+        ms_check = data.details;
+        if (ms_check == 1) {
+          syncBannerBounds();
+          $('#ms-check-wrap').show();
+          $('#ms-check-banner').show();
+        } else {
+          $('#ms-check-wrap').hide();
+          $('#ms-check-banner').hide();
+          resetAllStickFlags();
+        }
+        return;
+      }
+
+      if (hantei == 1) {
+        handleHanteiSignals(codes, isDecay);
+        return;
+      } else if (ms_check == 1) {
+        handleStickJuriSignals(codes);
+      } else {
+        // SAFETY INTERLOCK: On YAME (paused timer), mouse combinations must NEVER output or change flags!
+        if (!isRunning) {
+          return;
+        }
+
+        // DECAY: Background key expiration must never reduce or remove rendered flags!
+        if (isDecay) {
+          return;
+        }
+
+        if (data.command === 'mouse' || bendera_merah > 0 || bendera_biru > 0) {
+          if (confirmedPointActive) {
+            // While a confirmed point is displayed, update flags if judges add or change votes
+            if (bendera_merah >= 2 || bendera_biru >= 2) {
+              renderJudges(bendera_merah, bendera_biru);
+            }
+          } else if (isRunning) {
+            if (bendera_merah >= 2 || bendera_biru >= 2) {
+              renderJudges(bendera_merah, bendera_biru);
+            }
+          }
+        }
+      }
+    }
+
+    // Clean, Leak-Proof WebSocket Connection Handlers
+    let socket = null;
+    let socket1 = null;
+    let socketReconnectTimer = null;
+    let socket1ReconnectTimer = null;
+    const reconnectInterval = 1500;
+
+    function initScoreSocket() {
+      if (socket) {
+        try { socket.onclose = null; socket.close(); } catch(e) {}
+        socket = null;
+      }
+
+      const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      socket = new WebSocket(protocol + window.location.host + `/ws/scoring-board/${tatamiPk}`);
+
+      socket.onopen = function() {
+        console.log('[Scoreboard WS] Connected');
+        wsConnectedScore = true;
+        updateWsStatus();
+        if (socketReconnectTimer) { clearTimeout(socketReconnectTimer); socketReconnectTimer = null; }
+      };
+
+      socket.onmessage = handleScoringMessage;
+
+      socket.onclose = function() {
+        console.warn('[Scoreboard WS] Closed. Reconnecting...');
+        wsConnectedScore = false;
+        updateWsStatus();
+        if (!socketReconnectTimer) {
+          socketReconnectTimer = setTimeout(initScoreSocket, reconnectInterval);
+        }
+      };
+
+      socket.onerror = function() {
+        try { socket.close(); } catch(e) {}
+      };
+    }
+
+    function initAdminControlSocket() {
+      if (socket1) {
+        try { socket1.onclose = null; socket1.close(); } catch(e) {}
+        socket1 = null;
+      }
+
+      const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      socket1 = new WebSocket(protocol + window.location.host + `/ws/admin-control/${tatamiPk}`);
+
+      socket1.onopen = function() {
+        console.log('[AdminControl WS] Connected');
+        wsConnectedControl = true;
+        updateWsStatus();
+        if (socket1ReconnectTimer) { clearTimeout(socket1ReconnectTimer); socket1ReconnectTimer = null; }
+      };
+
+      socket1.onmessage = handleControlMessage;
+
+      socket1.onclose = function() {
+        console.warn('[AdminControl WS] Closed. Reconnecting...');
+        wsConnectedControl = false;
+        updateWsStatus();
+        if (!socket1ReconnectTimer) {
+          socket1ReconnectTimer = setTimeout(initAdminControlSocket, reconnectInterval);
+        }
+      };
+
+      socket1.onerror = function() {
+        try { socket1.close(); } catch(e) {}
+      };
+    }
+
+    // Initial Match Data Load
+    window.addEventListener('DOMContentLoaded', () => {
+      syncBannerBounds();
+      initScoreSocket();
+      initAdminControlSocket();
+
+      $.ajax({
+        url: `/scoring-board/${tatamiPk}`,
+        type: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        data: {
+          action: 'get_atlet',
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+          if (response && response.status === 'success' && response.data) {
+            populateMatchDetails(response.data, true);
+          }
+        },
+        error: function(err) {
+          console.warn('Initial match data fetch fallback', err);
         }
       });
-    } else {
-      if ((['Aka Yuko', 'Aka Waza-ari', 'Aka Ippon']).includes(aka)) {
-        codes.forEach(c => {
-          if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) bendera_merah++;
-        })
-      }
-  
-      if ((['Ao Yuko', 'Ao Waza-ari', 'Ao Ippon']).includes(ao)) {
-        codes.forEach(c => {
-          if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
-        })
-      }
-    }
-
-    if (hantei == 0) {
-      if (bendera_merah != 0 || bendera_biru != 0) {
-        renderJudges(bendera_merah, bendera_biru);
-      }
-    } else if (hantei == 1) {
-      if (bendera_biru + bendera_merah == 4) {
-        renderJudges(bendera_merah, bendera_biru);
-      } 
-    }
-    
-  };
-
-  function renderJudges(redCount, blueCount) {
-    const akaContainer = document.getElementById('aka-judges-container');
-    const aoContainer = document.getElementById('ao-judges-container');
-    const akaFlag = document.getElementById('aka_flag').src;
-    const aoFlag = document.getElementById('ao_flag').src;
-
-    akaContainer.innerHTML = '';
-    aoContainer.innerHTML = '';
-
-    // Aka (red)
-    const akaJudgeDiv = document.createElement('div');
-    akaJudgeDiv.classList.add('judge');
-    const akaFlagsDiv = document.createElement('div');
-    akaFlagsDiv.classList.add('judge-flags');
-
-    for (let i = 0; i < redCount; i++) {
-      const img = document.createElement('img');
-      img.src = akaFlag;
-      img.classList.add('flag-stroke');
-      akaFlagsDiv.appendChild(img);
-    }
-
-    const akaCountText = document.createElement('span');
-    akaCountText.classList.add('judge-count');
-    akaCountText.textContent = `${redCount} JUDGE${redCount > 1 ? 'S' : ''}`;
-
-    akaJudgeDiv.appendChild(akaFlagsDiv);
-    akaJudgeDiv.appendChild(akaCountText);
-    akaContainer.appendChild(akaJudgeDiv);
-
-    // Ao (blue)
-    const aoJudgeDiv = document.createElement('div');
-    aoJudgeDiv.classList.add('judge');
-    const aoFlagsDiv = document.createElement('div');
-    aoFlagsDiv.classList.add('judge-flags');
-
-    for (let i = 0; i < blueCount; i++) {
-      const img = document.createElement('img');
-      img.src = aoFlag;
-      img.classList.add('flag-stroke');
-      aoFlagsDiv.appendChild(img);
-    }
-
-    const aoCountText = document.createElement('span');
-    aoCountText.classList.add('judge-count');
-    aoCountText.textContent = `${blueCount} JUDGE${blueCount > 1 ? 'S' : ''}`;
-
-    aoJudgeDiv.appendChild(aoFlagsDiv);
-    aoJudgeDiv.appendChild(aoCountText);
-    aoContainer.appendChild(aoJudgeDiv);
-
-    if (hantei == 1) {
-      $('#point-1').hide()
-      $('#point-2').hide()
-      $('#point-1-2').hide()
-      $('#point-2-2').hide()
-      $('#hantei-banner').hide()
-      $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-      $('#banner').css({ backgroundColor: 'red', display: '' });
-      $('#banner-2').css({ backgroundColor: '#3498db', display: '' });
-      $('.fullscreen-banner h1').css('font-size','4vw');
-    }
-  }
-
-  function reset_banners() {
-    $('#point-1').text('NULL');
-    $('#point-2').text('0 - POINT');
-    $('#point-1-2').text('NULL');
-    $('#point-2-2').text('0 - POINT');
-
-    $('#banner').css({ backgroundColor: '', display: 'none' });
-    $('#banner-2').css({ backgroundColor: '', display: 'none' });
-
-    hantei = 0;
-    ms_check = 0;
-    $('#hantei-banner').hide()
-    $('#ms-check-banner').hide()
-
-    resetRenderJudges()
-  }
-
-  socket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    console.log(data.command, data.details)
-
-    function updateLayout() {
-      const b1 = (aka_state === 'pending');
-      const b2 = (ao_state === 'pending');
-
-      $('#banner').css('display', b1 ? '' : 'none');
-      $('#banner-2').css('display', b2 ? '' : 'none');
-
-      if (b1 && b2) {
-        $('#banner-wrap').css('grid-template-columns','1fr 1fr');
-        $('.fullscreen-banner h1').css('font-size','4vw');
-      } else {
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-      }
-    }
-
-    if (data.command == 'get_atlet') {
-      reset()
-      if (data.details.tipe_tanding == '2') {
-        $('#aka-score').css('opacity', '1')
-        $('#ao-score').css('opacity', '1')
-      }
-    } else if (data.command == 'hantei') {
-      hantei = data.details;
-      if (hantei == 0) {
-        $('#hantei-banner').hide()
-      } else {
-        $('#hantei-banner').show()
-      }
-    } else if (data.command == 'coach-supervisor') {
-        var arr = JSON.parse(data.details);
-        var a = arr[0];
-        var b = arr[1];
-
-        warning.play()
-
-        if (a == 'aka') {
-            // ← ADD THIS CHECK: block VR if aka already has a confirmed score showing
-            if (aka_state === 'pending' && 
-                ['1 - POINT','2 - POINT','3 - POINT'].includes($('#point-1').text())) {
-                // do nothing — a real score is already on the red banner
-            } else if (aka_state == 'off') {
-                aka_vr_on(`${b} POINT REQUESTED`, 'VIDEO REVIEW', 'request')
-                document.getElementById('aka-judges-container').innerHTML = '';
-            } else if (aka_state == 'pending') {
-                $('#point-1').text('VIDEO REVIEW');
-                $('#point-2').text(`${b} POINT REQUESTED`);
-            }
-        }
-
-        if (a == 'ao') {
-            // ← ADD THIS CHECK: block VR if ao already has a confirmed score showing
-            if (ao_state === 'pending' && 
-                ['1 - POINT','2 - POINT','3 - POINT'].includes($('#point-1-2').text())) {
-                // do nothing — a real score is already on the blue banner
-            } else if (ao_state == 'off') {
-                ao_vr_on(`${b} POINT REQUESTED`, 'VIDEO REVIEW', 'request')
-                document.getElementById('ao-judges-container').innerHTML = '';
-            } else if (ao_state == 'pending') {
-                $('#point-1-2').text('VIDEO REVIEW');
-                $('#point-2-2').text(`${b} POINT REQUESTED`);
-            }
-        }
-    } else if (data.command == 'countdown-aka') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "red"
-        startCountdown(35000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-ao') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "#3498db"
-        startCountdown(35000);
-      } else {
-        banner.style.display = "none";
-
-        // Stop timers
-        clearInterval(msInterval);
-
-        // Reset UI
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-1-aka') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "red"
-        startCountdown(60000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-2-aka') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "red"
-        startCountdown(120000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-3-aka') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "red"
-        startCountdown(180000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-1-ao') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "#3498db"
-        startCountdown(60000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-2-ao') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "#3498db"
-        startCountdown(120000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'countdown-3-ao') {
-      const banner = document.getElementById("countdown-banner");
-      cd_val = data.details;
-      if (cd_val == 1) {
-        banner.style.display = "";
-        banner.style.backgroundColor = "#3498db"
-        startCountdown(180000);
-      } else {
-        banner.style.display = "none";
-        clearInterval(msInterval);
-        document.getElementById("cd-seconds").textContent = "00";
-        document.getElementById("cd-milliseconds").textContent = "00";
-      }
-    } else if (data.command == 'ms-check') {
-      ms_check = data.details;
-      if (ms_check == 0) {
-        $('#ms-check-banner').hide()
-        resetAllFlags()
-      } else {
-        $('#ms-check-banner').show()
-      }
-    } else if (data.command == 'vr') {
-      resetRenderJudges()
-      if (data.details == 'aka-request') {
-        aka_vr_on('VIDEO REVIEW', 'REQUESTED')
-      } else if (data.details == 'aka-accept-1') {
-        aka_vr_on('VR +1 POINT', 'ACCEPTED')
-      } else if (data.details == 'aka-accept-2') {
-        aka_vr_on('VR +2 POINT', 'ACCEPTED')
-      } else if (data.details == 'aka-accept-3') {
-        aka_vr_on('VR +3 POINT', 'ACCEPTED')
-      } else if (data.details == 'aka-decline') {
-        aka_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
-      } else if (data.details == 'ao-request') {
-        ao_vr_on('VIDEO REVIEW', 'REQUESTED')
-      } else if (data.details == 'ao-accept-1') {
-        ao_vr_on('VR +1 POINT', 'ACCEPTED')
-      } else if (data.details == 'ao-accept-2') {
-        ao_vr_on('VR +2 POINT', 'ACCEPTED')
-      } else if (data.details == 'ao-accept-3') {
-        ao_vr_on('VR +3 POINT', 'ACCEPTED')
-      } else if (data.details == 'ao-decline') {
-        ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED')
-      }
-    } else if (data.command === 'mouse' && hantei == 0 && isRunning) {
-    var arr = JSON.parse(data.details);
-    var a = arr[0];  // akaResult
-    var b = arr[1];  // aoResult
-
-    if (ms_check == 0 && hantei == 0) {
-        // ── AKA side ──
-        if (a === 'Aka Yuko') {
-            $('#point-1').text('1 - POINT');
-            $('#point-2').text('YUKO');
-            $('#banner').show().css('background-color', 'red');
-            aka_state = 'pending';
-        } else if (a === 'Aka Waza-ari') {
-            $('#point-1').text('2 - POINT');
-            $('#point-2').text('WAZA-ARI');
-            $('#banner').show().css('background-color', 'red');
-            aka_state = 'pending';
-        } else if (a === 'Aka Ippon') {
-            $('#point-1').text('3 - POINT');
-            $('#point-2').text('IPPON');
-            $('#banner').show().css('background-color', 'red');
-            aka_state = 'pending';
-        } else {
-            // ← ADD THIS: jury changed mind, no aka result
-            $('#banner').hide();
-            aka_state = 'off';
-            document.getElementById('aka-judges-container').innerHTML = '';
-        }
-
-        // ── AO side ──
-        if (b === 'Ao Yuko') {
-            $('#point-1-2').text('1 - POINT');
-            $('#point-2-2').text('YUKO');
-            $('#banner-2').show().css('background-color', '#3498db');
-            ao_state = 'pending';
-        } else if (b === 'Ao Waza-ari') {
-            $('#point-1-2').text('2 - POINT');
-            $('#point-2-2').text('WAZA-ARI');
-            $('#banner-2').show().css('background-color', '#3498db');
-            ao_state = 'pending';
-        } else if (b === 'Ao Ippon') {
-            $('#point-1-2').text('3 - POINT');
-            $('#point-2-2').text('IPPON');
-            $('#banner-2').show().css('background-color', '#3498db');
-            ao_state = 'pending';
-        } else {
-            // ← ADD THIS: jury changed mind, no ao result
-            $('#banner-2').hide();
-            ao_state = 'off';
-            document.getElementById('ao-judges-container').innerHTML = '';
-        }
-
-        updateLayout();
-
-        if (a || b) {
-            finish.play();
-        }
-    }
-} else if (data.command == 'reset-banner') {
-      reset_banners()
-    } else if (data.command == 'timer-change') {
-      if (!isRunning) {
-        totalSeconds = data.details;
-        milliseconds = 0;
-        updateDisplay(totalSeconds, milliseconds);
-      }
-    } else if (data.command == 'timer-status') {
-      if (data.details == 'start' || data.details == 'pause') {
-        timer_status()
-      }
-    } else if (data.command == 'timer-increment') {
-      totalSeconds++;
-      updateDisplay(totalSeconds, milliseconds);
-    } else if (data.command == 'timer-decrement') {
-      totalSeconds--;
-      updateDisplay(totalSeconds, milliseconds);
-    } else if (data.command == 'timer-sync') {
-      const detailsArray = JSON.parse(data.details);
-      totalSeconds = detailsArray[0]
-      milliseconds = detailsArray[1]
-      updateDisplay(totalSeconds, milliseconds);
-    } else if (data.command == 'bendera') {
-      const detailsArray = JSON.parse(data.details);
-      var totalAka = detailsArray[0]
-      var totalAo = detailsArray[1]
-
-      $('#aka-score').text(totalAka)
-      $('#ao-score').text(totalAo)
-      $('#aka-score').css('opacity', '1')
-      $('#ao-score').css('opacity', '1')
-    } else if (data.command == 'tampilkan-score-simple') {
-      if (isShowing == false) {
-        const detailsArray = JSON.parse(data.details);
-        var totalAka = detailsArray[0]
-        var totalAo = detailsArray[1]
-  
-        $('#aka-score').text(totalAka)
-        $('#ao-score').text(totalAo)
-        $('.aka-score, .ao-score').addClass('reveal')
-        isShowing = true
-      } else {
-        hardResetReveal();
-        $('#aka-score').text('0')
-        $('#ao-score').text('0')
-        isShowing = false
-      }
-    } else if (data.command == 'tampilkan-score') {
-      const detailsArray = JSON.parse(data.details);
-      var totalAka = detailsArray[0]
-      var totalAo = detailsArray[1]
-      var scoresAka = detailsArray[2]
-      var scoresAo = detailsArray[3]
-      
-      if (isShowing == false) {
-        warning.play()
-        $('#kata-score-wrap').css('display', '')
-
-        const order = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
-
-        for (let i = 0; i < 5; i++) {
-          const srcIndex = order[i];
-
-          if (scoresAka[srcIndex] > scoresAo[srcIndex]) {
-            $(`#j${i + 1}-score-aka`).css('background-color', 'red')
-            $(`#j${i + 1}-score-ao`).css('background-color', 'white')
-          } else {
-            $(`#j${i + 1}-score-aka`).css('background-color', 'white')
-            $(`#j${i + 1}-score-ao`).css('background-color', 'blue')
-          }
-
-          $(`#j${i + 1}-score-aka`).text(scoresAka[srcIndex]);
-          $(`#j${i + 1}-score-ao`).text(scoresAo[srcIndex]);
-          $('#aka-score').css('opacity', '0')
-          $('#ao-score').css('opacity', '0')
-          $('#aka-score').text(totalAka)
-          $('#ao-score').text(totalAo)
-        }
-
-        resetAndReveal(500);
-        isShowing = true
-      } else {
-        hardResetReveal();
-        $('#aka-score').text('0')
-        $('#ao-score').text('0')
-        $('#kata-score-wrap').css('display', 'none')
-        isShowing = false
-      }
-    } else if (data.command == 'aka-kata-kirim') {
-      $('#kata-aka').text(data.details)
-    } else if (data.command == 'ao-kata-kirim') {
-      $('#kata-ao').text(data.details)
-    } else if (data.command == 'aka-yuko') {
-      aka_score += 1;
-      $('#aka-score').text(aka_score)
-      aka_banner('1 - POINT', 'YUKO')
-    } else if (data.command == 'aka-wazaari') {
-      aka_score += 2;
-      $('#aka-score').text(aka_score)
-      aka_banner('2 - POINT', 'WAZA-ARI')
-    } else if (data.command == 'aka-ippon') {
-      aka_score += 3;
-      $('#aka-score').text(aka_score)
-      aka_banner('3 - POINT', 'IPPON')
-    } else if (data.command == 'aka-score-dec') {
-      aka_score--;
-      $('#aka-score').text(aka_score)
-    } 
-    
-    if (data.command === 'aka-criteria-inc') {
-      aka_criteria++;
-      if (aka_criteria >= 1 && aka_criteria <= 5) {
-        $(`#akac${aka_criteria}`).addClass('active-red');
-        if (aka_criteria == 4) {
-          aka_banner(`HANSOKU CHUI`, 'WARNING')
-        } else if (aka_criteria == 5) {
-          aka_banner(`HANSOKU`, 'PENALTY')
-        } else {
-          aka_banner(`CHUI ${aka_criteria}`, 'WARNING')
-        }
-      }
-    } else if (data.command === 'aka-criteria-dec') {
-      if (aka_criteria >= 1 && aka_criteria <= 5) {
-        $(`#akac${aka_criteria}`).removeClass('active-red');
-      }
-      aka_criteria--;
-    } else if (data.command == 'ao-yuko') {
-      ao_score += 1;
-      $('#ao-score').text(ao_score)
-      ao_banner('1 - POINT', 'YUKO')
-    } else if (data.command == 'ao-wazaari') {
-      ao_score += 2;
-      $('#ao-score').text(ao_score)
-      ao_banner('2 - POINT', 'WAZA-ARI')
-    } else if (data.command == 'ao-ippon') {
-      ao_score += 3;
-      $('#ao-score').text(ao_score)
-      ao_banner('3 - POINT', 'IPPON')
-    } else if (data.command == 'ao-score-dec') {
-      ao_score--;
-      $('#ao-score').text(ao_score)
-    } 
-
-    if (data.command === 'ao-criteria-inc') {
-      ao_criteria++;
-      if (ao_criteria >= 1 && ao_criteria <= 5) {
-        $(`#aoc${ao_criteria}`).addClass('active-blue');
-        if (ao_criteria == 4) {
-          ao_banner(`HANSOKU CHUI`, 'WARNING')
-        } else if (ao_criteria == 5) {
-          ao_banner(`HANSOKU`, 'PENALTY')
-        } else {
-          ao_banner(`CHUI ${ao_criteria}`, 'WARNING')
-        }
-      }
-    } else if (data.command === 'ao-criteria-dec') {
-      if (ao_criteria >= 1 && ao_criteria <= 5) {
-        $(`#aoc${ao_criteria}`).removeClass('active-blue');
-      }
-      ao_criteria--;
-    } else if (data.command == 'senshu') {
-      if (data.details == 'aka-senshu') {
-        $('#aka-score').addClass('aka-senshu');
-        $('#aka-senshu-wrapper').addClass('aka-senshu');
-      } else if (data.details == 'aka-remove-senshu') {
-        $('#aka-score').removeClass('aka-senshu');
-        $('#aka-senshu-wrapper').removeClass('aka-senshu');
-      } else if (data.details == 'ao-senshu') {
-        $('#ao-score').addClass('ao-senshu');
-        $('#ao-senshu-wrapper').addClass('ao-senshu');
-      } else if (data.details == 'ao-remove-senshu') {
-        $('#ao-score').removeClass('ao-senshu');
-        $('#ao-senshu-wrapper').removeClass('ao-senshu');
-      }
-    } else if (data.command == 'vr') {
-      if (data.details == 'aka-vr') {
-        $('#aka-vr').css('visibility', 'visible') 
-      } else if (data.details == 'aka-remove-vr') {
-        $('#aka-vr').css('visibility', 'hidden') 
-      } else if (data.details == 'ao-vr') {
-        $('#ao-vr').css('visibility', 'visible') 
-      } else if (data.details == 'ao-remove-vr') {
-        $('#ao-vr').css('visibility', 'hidden') 
-      }
-    }
-    
-    if (a === 'aka' || a === 'ao') {
-      var arr = JSON.parse(data.details);
-      var a = arr[0];
-      var b = arr[1];
-    }
-
-    if (data.details === 'aka-request')  aka_vr_on(data.v1, data.v2, 'request');
-    if (data.details === 'aka-accept-1')   aka_vr_on(data.v1, data.v2, 'accept');
-    if (data.details === 'aka-accept-2')   aka_vr_on(data.v1, data.v2, 'accept');
-    if (data.details === 'aka-accept-3')   aka_vr_on(data.v1, data.v2, 'accept');
-    if (data.details === 'aka-decline')  aka_vr_on(data.v1, data.v2, 'decline');
-
-    if (data.details === 'ao-request')   ao_vr_on(data.v1, data.v2, 'request');
-    if (data.details === 'ao-accept-1')   ao_vr_on(data.v1, data.v2, 'accept');
-    if (data.details === 'ao-accept-2')   ao_vr_on(data.v1, data.v2, 'accept');
-    if (data.details === 'ao-accept-3')   ao_vr_on(data.v1, data.v2, 'accept');
-    if (data.details === 'ao-decline')   ao_vr_on(data.v1, data.v2, 'decline');
-
-    function tryResolve() {
-    const activeCount =
-        (aka_state === 'pending' || aka_state === 'resolved' ? 1 : 0) +
-        (ao_state === 'pending' || ao_state === 'resolved' ? 1 : 0);
-
-    const resolvedCount =
-        (aka_state === 'resolved' ? 1 : 0) +
-        (ao_state === 'resolved' ? 1 : 0);
-
-    console.log('tryResolve called — aka_state:', aka_state, '| ao_state:', ao_state, '| activeCount:', activeCount, '| resolvedCount:', resolvedCount);
-
-    if (activeCount > 0 && activeCount === resolvedCount) {
-        console.log('showResolved firing')
-        showResolved();
-    }
-}
-
-    
-
-    function showResolved() {
-        $('#vr-status-msg').css('display','');
-
-        // ← cancel any previous pending resolve
-        if (resolveTimeout) {
-            clearTimeout(resolveTimeout);
-            resolveTimeout = null;
-        }
-
-        resolveTimeout = setTimeout(() => {
-            // ← only reset if nothing new has taken over the banner
-            if (aka_state === 'resolved' || aka_state === 'off') {
-                aka_state = 'off';
-                $('#point-1').text('NULL');
-                $('#point-2').text('0 - POINT');
-                $('#point-2').css({backgroundColor: ''});
-                $('#banner').hide();
-            }
-            if (ao_state === 'resolved' || ao_state === 'off') {
-                ao_state = 'off';
-                $('#point-1-2').text('NULL');
-                $('#point-2-2').text('0 - POINT');
-                $('#point-2-2').css({backgroundColor: ''});
-                $('#banner-2').hide();
-            }
-
-            $('#vr-status-msg').css('display','none');
-            resolveTimeout = null;
-            updateLayout();
-        }, 3000);
-    }
-
-    function aka_vr_on(v1, v2, action) {
-      $('#point-1').text(v1);
-      $('#point-2').text(v2);
-
-      if (action === 'request') {
-        if (aka_state === 'pending') {
-          aka_state = 'off';
-          updateLayout();
-          return;
-        }
-        aka_state = 'pending';
-        $('#banner').css({backgroundColor:'red'});
-        updateLayout();
-        return;
-      }
-
-      if (action === 'accept') {
-        $('#point-2').css({backgroundColor:'#006400'});
-        aka_state = 'resolved';
-        tryResolve();
-        return;
-      }
-
-      if (action === 'decline') {
-        console.log('decline called for', v1, '— current aka_state:', aka_state, 'ao_state:', ao_state);
-        $('#point-2').css({backgroundColor:'#000'});
-        aka_state = 'resolved';
-        tryResolve();
-        return;
-    }
-    }
-
-    function ao_vr_on(v1, v2, action) {
-      $('#point-1-2').text(v1);
-      $('#point-2-2').text(v2);
-
-      if (action === 'request') {
-        if (ao_state === 'pending') {
-          ao_state = 'off';
-          updateLayout();
-          return;
-        }
-        ao_state = 'pending';
-        $('#banner-2').css({backgroundColor:'#3498db'});
-        updateLayout();
-        return;
-      }
-
-      if (action === 'accept') {
-        $('#point-2-2').css({backgroundColor:'#006400'});
-        ao_state = 'resolved';
-        tryResolve();
-        return;
-      }
-
-      if (action === 'decline') {
-        $('#point-2-2').css({backgroundColor:'#000'});
-        ao_state = 'resolved';
-        tryResolve();
-        return;
-      }
-    }
-
-    function aka_banner(score1, score2) {
-        $('#point-2').css({backgroundColor: ''});
-        $('#point-2-2').css({backgroundColor: ''});
-        
-        $('#point-1').text(score1)
-        $('#point-2').text(score2)
-
-        $('#banner').show().css('background-color','red');
-        $('#banner-2').css('display', 'none');
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-
-        // ← was: if (aka_state == 'pending') { aka_state = 'off' }
-        aka_state = 'off';
-
-        setTimeout(function () {
-            updateLayout()
-        }, 1000);
-    }
-
-    function ao_banner(score1, score2) {
-        $('#point-2').css({backgroundColor: ''});
-        $('#point-2-2').css({backgroundColor: ''});
-
-        $('#point-1-2').text(score1)
-        $('#point-2-2').text(score2)
-
-        $('#banner').css('display', 'none');
-        $('#banner-2').show().css('background-color','#3498db');
-        $('#banner-wrap').css('grid-template-columns','1fr');
-        $('.fullscreen-banner h1').css('font-size','10vw');
-
-        // ← was: if (ao_state == 'pending') { ao_state = 'off' }
-        ao_state = 'off';
-
-        setTimeout(function () {
-            updateLayout()
-        }, 1000);
-    }
-
-    function timer_status() {
-      if (!isRunning) {
-        isRunning = true;
-        interval = setInterval(() => {
-          if (milliseconds === 0) {
-              if (totalSeconds === 0) {
-                clearInterval(interval);
-                isRunning = false;
-                $('#timer').css('color', 'white')
-                finish.play()
-                return;
-              }
-              totalSeconds--;
-              milliseconds = 99;
-          } else {
-            if (totalSeconds < 15) {
-              if (warningVal == false) {
-                warning.play()
-                warningVal = true
-              }
-              $('#timer').css({
-                'color': 'red',
-                'text-shadow': `
-                  -1px -1px 0 white,
-                  1px -1px 0 white,
-                  -1px  1px 0 white,
-                  1px  1px 0 white
-                `
-              });
-            } else {
-              $('#timer').css('color', 'yellow')
-              if (warningVal == true) {
-                warningVal = false
-              }
-            }
-            milliseconds--;
-          }
-          updateDisplay(totalSeconds, milliseconds);
-        }, 10);
-      } else {
-        isRunning = false;
-        $('#timer').css('color', 'white')
-        clearInterval(interval);
-      }
-    }
-
-    function reset() {
-      playTransition();
-      setTimeout(() => {
-        if (data.details.tipe_tanding == '1') {
-          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
-            div.classList.add('deactivate');
-          });
-        } else if (data.details.tipe_tanding == '2') {
-          document.querySelectorAll('.criteria-row[name="criteria"]').forEach(function(div) {
-            div.classList.remove('deactivate');
-          });
-        }
-        if (!data.details.team) {
-          document.getElementById('aka-big-score').style.display = 'none';
-          document.getElementById('ao-big-score').style.display = 'none';
-          document.getElementById('aka-big-score').innerText = '0';
-          document.getElementById('aka-big-score').innerText = '0';
-        } else {
-          document.getElementById('aka-big-score').style.display = 'block';
-          document.getElementById('ao-big-score').style.display = 'block';
-          document.getElementById('aka-big-score').innerText = data.details.total_aka_score;
-          document.getElementById('ao-big-score').innerText = data.details.total_ao_score;
-        }
-        document.getElementById('aka-vr').style.visibility = 'hidden';
-        if (data.details.atlet_red_vr && data.details.tipe_tanding == '2') {
-          document.getElementById('aka-vr').style.visibility = 'visible';
-        }
-        document.getElementById('ao-vr').style.visibility = 'hidden';
-        if (data.details.atlet_blue_vr && data.details.tipe_tanding == '2') {
-          document.getElementById('ao-vr').style.visibility = 'visible';
-        }
-        // document.getElementById('nomor-tanding').innerText = data.details.nomor_tanding
-        document.getElementById('marquee-text').innerText = data.details.nomor_tanding
-        
-        document.getElementById('atlet_red_name').innerText = data.details.atlet_red
-        document.getElementById('atlet_red_country').innerText = data.details.atlet_red_perguruan + ' - ' + data.details.atlet_red_utusan
-        document.getElementById('aka-score').innerText = '0'
-  
-        document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
-        document.getElementById('atlet_blue_country').innerText = data.details.atlet_blue_perguruan + ' - ' + data.details.atlet_blue_utusan
-        document.getElementById('ao-score').innerText = '0'
-  
-        $('#kata-aka').text(data.details.atlet_red_kata)
-        $('#kata-ao').text(data.details.atlet_blue_kata)
-  
-        document.getElementById('kata-aka').style.visibility = 'hidden';
-        document.getElementById('kata-ao').style.visibility = 'hidden';
-        if (data.details.tipe_tanding == '1') {
-          document.getElementById('kata-aka').style.visibility = 'visible';
-          document.getElementById('kata-ao').style.visibility = 'visible';
-        }
-  
-        $('#aka-name').text(data.details.atlet_red)
-        $('#ao-name').text(data.details.atlet_blue)
-        $('#kata-score-wrap').css('display', 'none')
-        for (let i=1; i<=5; i++) {
-          $(`#j${i}-score-aka`).text('0.0')
-          $(`#j${i}-score-ao`).text('0.0')
-          $(`${i}-judge-aka-flag`).css('display', 'none')
-          $(`${i}-judge-ao-flag`).css('display', 'none')
-        }
-        $('#total-aka').text('0')
-        $('#total-ao').text('0')
-        
-        totalSeconds = 0
-        milliseconds = 0
-        updateDisplay(totalSeconds, milliseconds);
-        warningVal = false
-        
-        aka_score = 0
-        ao_score = 0
-        aka_criteria = 0
-        ao_criteria = 0
-        
-        isRunning = false;
-        isShowing = false;
-        
-        $('#aka-score').removeClass('aka-senshu');
-        $('#aka-senshu-wrapper').removeClass('aka-senshu');
-        $('#ao-score').removeClass('ao-senshu');
-        $('#ao-senshu-wrapper').removeClass('ao-senshu');
-        
-        for (let i = 1; i <= 5; i++) {
-          $(`#akac${i}`).removeClass('active-red');
-        }
-        
-        for (let i = 1; i <= 5; i++) {
-          $(`#aoc${i}`).removeClass('active-blue');
-        }
-  
-        hardResetReveal()
-        reset_banners()
-      }, 1000);
-    }
-  };
-</script>
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (socket) { socket.onclose = null; socket.close(); }
+      if (socket1) { socket1.onclose = null; socket1.close(); }
+      if (timerRaf) cancelAnimationFrame(timerRaf);
+      if (timerFallbackInterval) clearInterval(timerFallbackInterval);
+      if (msInterval) clearInterval(msInterval);
+    });
+  </script>
+</body>
 </html>

@@ -1,0 +1,61 @@
+<!-- 1. Single Consolidated Dynamic Delete Modal -->
+<div class="modal fade" id="hapusBaganModal" tabindex="-1" aria-labelledby="hapusBaganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="hapusBaganModalLabel"><i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Bagan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menghapus bagan <strong id="deleteBaganName" class="text-danger"></strong>?</p>
+                <div class="alert alert-warning py-2 mb-0" style="font-size: 13px;">
+                    <i class="fas fa-info-circle me-1"></i> Seluruh rincian partai dan skor di dalam bagan ini akan terhapus. Tindakan ini tidak dapat dibatalkan.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <a href="#" id="btnConfirmDelete" class="btn btn-danger font-weight-bold">
+                    <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Bagan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 1b. Hapus Semua Bagan Modal -->
+<div class="modal fade" id="hapusSemuaBaganModal" tabindex="-1" aria-labelledby="hapusSemuaBaganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="hapusSemuaBaganModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Semua Bagan
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="mb-2">Apakah Anda yakin ingin menghapus <strong>seluruh bagan pertandingan</strong> pada event <strong>{{ event.nama_event }}</strong>?</p>
+                    <p class="text-muted small mb-3">Total <strong>{{ bagans.count }}</strong> bagan pertandingan akan dihapus dari database lokal.</p>
+
+                    <div class="alert alert-danger py-2 mb-3" style="font-size: 12.5px;">
+                        <i class="fas fa-exclamation-circle me-1"></i> Seluruh rincian partai pertandingan, skor, jadwal, dan penetapan juara untuk event ini akan <strong>dihapus secara permanen</strong>. Tindakan ini <strong>tidak dapat dibatalkan</strong>.
+                    </div>
+
+                    <div class="form-check p-2 rounded bg-dark border border-secondary mb-0">
+                        <input class="form-check-input ms-1 me-2" type="checkbox" id="confirmDeleteAllCheckbox" onchange="document.getElementById('btnSubmitDeleteAll').disabled = !this.checked;">
+                        <label class="form-check-label text-white small" for="confirmDeleteAllCheckbox" style="cursor: pointer;">
+                            Saya memahami dan yakin ingin menghapus seluruh bagan di event ini.
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="hapus_semua_bagan" class="btn btn-danger font-weight-bold" id="btnSubmitDeleteAll" disabled>
+                        <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Semua Bagan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

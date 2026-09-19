@@ -1,0 +1,43 @@
+<!-- 7. Drawing Bagan Otomatis Modal -->
+<div class="modal fade" id="drawingBaganModal" tabindex="-1" aria-labelledby="drawingBaganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="drawingBaganModalLabel"><i class="fas fa-random me-2 text-warning"></i>Drawing Bagan Otomatis</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="drawing_nomor_tanding_pk" class="form-label">Pilih Nomor Tanding:</label>
+                        <select class="form-select select2" id="drawing_nomor_tanding_pk" name="nomor_tanding_pk" multiple style="width: 100%;">
+                            <option value="semua">SEMUA NOMOR TANDING TOURNAMENT (Abaikan Festival)</option>
+                            {% for nomor_tanding in nomor_tandings %}
+                            {% if 'festival' not in nomor_tanding.nama_nomor_tanding|lower and not nomor_tanding.is_bob %}
+                            <option value="{{ nomor_tanding.pk }}">{{ nomor_tanding.nama_nomor_tanding }} ({{ nomor_tanding.jumlat_atlet }} atlet)</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted" style="font-size: 11px;">
+                            <i class="fas fa-info-circle me-1"></i>Hanya nomor tanding tournament yang di-drawing bagan. Kategori Festival diabaikan secara otomatis.
+                        </small>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="shuffle_type" class="form-label">Tipe Pemisahan (Shuffle):</label>
+                        <select class="form-select" id="shuffle_type" name="shuffle_type">
+                            <option value="perguruan">Perguruan (Atlet se-perguruan dipisah)</option>
+                            <option value="kontingen">Kontingen / Utusan (Atlet se-kontingen dipisah)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="drawing_bagan" class="btn btn-primary">
+                        <i class="fas fa-random me-1"></i> Mulai Drawing
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

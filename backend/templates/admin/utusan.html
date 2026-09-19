@@ -48,6 +48,7 @@
                 </div>
 
                 {% for utusan in utusans %}
+                {% if utusan.winners %}
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="card-title" style="margin-right: 10px;">Winner List: {{ utusan.nama_utusan }}</div>
@@ -91,6 +92,7 @@
                         </table>
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>

@@ -26,8 +26,11 @@ def get_kode_realtime(detail_bagan):
 def send_to_hosted(payload, endpoint):
     """
     Mengirim HTTP POST request ke server hosted secara sinkron.
+    Menggunakan get_hosted_base_url() dinamis (pilihan user di dashboard).
     """
-    url = f'{settings.HOSTED_BASE_URL}/{endpoint}'
+    from .sync_service import get_hosted_base_url
+    base_url = get_hosted_base_url()
+    url = f'{base_url}/{endpoint}'
     headers = {
         'Authorization': f'Bearer {settings.HOSTED_API_TOKEN}',
         'Content-Type': 'application/json',
@@ -153,4 +156,111 @@ def start_sync_queue_worker():
         t = threading.Thread(target=_background_retry_loop, daemon=True, name="SyncQueueRetryWorker")
         t.start()
         logger.info("SyncQueue persistent FIFO worker daemon started.")
-
+
+def get_athlete_kata_records(atlet, current_db=None):
+    """
+    Mengambil riwayat kata yang pernah dimainkan atlet pada nomor tanding / bagan ini.
+    Mengembalikan dict mapping string kata dan nama kata ke info babak:
+    {
+        "12 - Unsu": {"round": 1, "label": "Babak 1", "raw_kata": "12 - Unsu"},
+        "Unsu": {"round": 1, "label": "Babak 1", ...},
+    }
+    """
+    from .models import DetailBagan
+    from django.db.models import Q
+    if not atlet:
+        return {}
+
+    qs = DetailBagan.objects.filter(Q(atlet1=atlet) | Q(atlet2=atlet))
+    if current_db and current_db.bagan and current_db.bagan.nomor_tanding:
+        qs = qs.filter(bagan__nomor_tanding=current_db.bagan.nomor_tanding)
+    elif current_db and current_db.bagan:
+        qs = qs.filter(bagan=current_db.bagan)
+
+    if current_db and current_db.pk:
+        qs = qs.exclude(pk=current_db.pk)
+
+    records = {}
+    for db in qs.order_by('round', 'urutan'):
+        k = None
+        if db.atlet1_id == atlet.pk and db.kata1 and db.kata1.strip() and db.kata1 != '0 - Blank':
+            k = db.kata1.strip()
+        elif db.atlet2_id == atlet.pk and db.kata2 and db.kata2.strip() and db.kata2 != '0 - Blank':
+            k = db.kata2.strip()
+
+        if k:
+            info = {
+                "round": db.round or 1,
+                "label": f"Babak {db.round}" if db.round else "Babak Sebelumnya",
+                "raw_kata": k,
+                "nama_bagan": db.bagan.nama_bagan if db.bagan else "",
+                "is_current_round": False,
+            }
+            records[k] = info
+            if ' - ' in k:
+                pure = k.split(' - ', 1)[1].strip()
+                if pure and pure not in records:
+                    records[pure] = info
+
+    # Also include current_db if it already has a kata chosen
+    if current_db and current_db.pk:
+        curr_k = None
+        if current_db.atlet1_id == atlet.pk and current_db.kata1 and current_db.kata1.strip() and current_db.kata1 != '0 - Blank':
+            curr_k = current_db.kata1.strip()
+        elif current_db.atlet2_id == atlet.pk and current_db.kata2 and current_db.kata2.strip() and current_db.kata2 != '0 - Blank':
+            curr_k = current_db.kata2.strip()
+
+        if curr_k and curr_k not in records:
+            info = {
+                "round": current_db.round or 1,
+                "label": f"Babak {current_db.round}" if current_db.round else "Babak 1",
+                "raw_kata": curr_k,
+                "nama_bagan": current_db.bagan.nama_bagan if current_db.bagan else "",
+                "is_current_round": True,
+            }
+            records[curr_k] = info
+            if ' - ' in curr_k:
+                pure = curr_k.split(' - ', 1)[1].strip()
+                if pure and pure not in records:
+                    records[pure] = info
+
+    return records
+
+def get_category_pool_count(bagan):
+    """Menghitung jumlah pool pada nomor tanding ini (di luar pool=0 final)."""
+    if not bagan:
+        return 1
+    if bagan.nomor_tanding:
+        from .models import Bagan
+        pools = Bagan.objects.filter(nomor_tanding=bagan.nomor_tanding).exclude(pool=0)
+        cnt = pools.count()
+        if cnt > 0:
+            return cnt
+    p = getattr(bagan, 'pool', 1)
+    return p if (p and p > 0) else 1
+
+def check_is_final(detail_bagan):
+    """
+    Memeriksa apakah pertandingan ini adalah babak final / perebutan medali.
+    Aturan:
+    - 1 pool (single pool bagan): Round 4 adalah final (round >= 4)
+    - 2 pools bagan: Round 5 adalah final (round >= 5)
+    - 4 pools bagan: Round 6 adalah final (round >= 6)
+    """
+    if not detail_bagan or not detail_bagan.bagan:
+        return False
+
+    r = detail_bagan.round
+    if not r:
+        return False
+
+    bagan = detail_bagan.bagan
+    pool_count = get_category_pool_count(bagan)
+
+    if pool_count <= 1:
+        return r >= 4
+    elif pool_count <= 2:
+        return r >= 5
+    else:
+        return r >= 6
+

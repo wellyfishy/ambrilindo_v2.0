@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LO Kata Pointer &bull; Ambrilindo</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #08080a;
+            --bg-card: #111217;
+            --bg-input: #0c0d11;
+            --border-color: #22242c;
+            --border-hover: #343743;
+            --red-core: #e52525;
+            --red-hover: #ff3838;
+            --red-glow: rgba(229, 37, 37, 0.28);
+            --blue-core: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(229, 37, 37, 0.14) 0%, rgba(8, 8, 10, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
+                        0 0 35px -15px var(--red-glow);
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--red-core);
+            background: rgba(229, 37, 37, 0.1);
+            border: 1px solid rgba(229, 37, 37, 0.25);
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--red-core);
+            box-shadow: 0 0 6px var(--red-core);
+        }
+
+        .title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .alert-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(229, 37, 37, 0.1);
+            border: 1px solid rgba(229, 37, 37, 0.3);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 14px;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: var(--red-core);
+            box-shadow: 0 0 0 3px var(--red-glow);
+            background-color: #0f1015;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--red-core), #b91c1c);
+            color: #ffffff;
+            border: none;
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            box-shadow: 0 4px 15px -3px rgba(229, 37, 37, 0.4);
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, var(--red-hover), var(--red-core));
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px -3px rgba(229, 37, 37, 0.5);
+        }
+
+        .hint-text {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 14px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="brand-badge">
+            <span class="dot"></span>
+            LO Console &bull; Realtime
+        </div>
+        <h1 class="title">POINTER TATAMI KATA</h1>
+        <p class="subtitle">Akses konsol LO untuk input Kata atlet Aka & Ao langsung ke Scoring Board dan Control Panel.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-box">
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'lo-kata-entry' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label" for="event_pk">Pilih Event</label>
+                <select class="form-select" id="event_pk" name="event_pk" required>
+                    {% for event in events %}
+                        <option value="{{ event.pk }}">{{ event.nama_event }} (ID: {{ event.pk }})</option>
+                    {% empty %}
+                        <option value="" disabled selected>Tidak ada event aktif</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Nomor Tatami (Password)</label>
+                <input type="number" min="1" max="20" class="form-input" id="password" name="password" placeholder="Contoh: 1" required autofocus>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <span>Buka Konsol LO</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </form>
+
+        <p class="hint-text">
+            Format Akses Cepat: Dari halaman login utama, gunakan username <code>lo[id_event]</code> dan password <code>[no_tatami]</code>.
+        </p>
+
+        <a href="{% url 'auth' %}" class="back-link">&larr; Kembali ke Login Utama</a>
+    </div>
+</body>
+</html>

@@ -234,7 +234,7 @@
 
 {% block script %}
 <script>
-    const tatamiPk = "{{ admin_tatami.tatami.pk }}";
+    const tatamiPk = "{{ tatami.pk }}";
     let milliseconds = 0;
     let totalSeconds = 0;
 </script>
@@ -277,7 +277,7 @@
         let scoreAka = $('#totalAka').val();
         let scoreAo = $('#totalAo').val();
         $.ajax({
-            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/jury-panel/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'pemenang',
@@ -316,7 +316,7 @@
         var aka_bendera = $(this).val()
         var ao_bendera = $('#ao-bendera').val()
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'bendera',
@@ -334,7 +334,7 @@
             ms_check = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'ms-check',
@@ -352,7 +352,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-aka',
@@ -370,7 +370,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-ao',
@@ -388,7 +388,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-1-aka',
@@ -405,7 +405,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-2-aka',
@@ -422,7 +422,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-3-aka',
@@ -439,7 +439,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-1-ao',
@@ -456,7 +456,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-2-ao',
@@ -473,7 +473,7 @@
             countdown_val = 0
         }
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'countdown-3-ao',
@@ -492,7 +492,7 @@
         }
         console.log(hantei)
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'hantei',
@@ -504,7 +504,7 @@
 
     $('#ms-reset').on('click', function() {
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'reset-banner',
@@ -584,7 +584,7 @@
 
     function kirim_status_vr(value1, value2) {
         $.ajax({
-            url: '/coach-supervisor/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/coach-supervisor/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'vr_status',
@@ -596,7 +596,7 @@
 
     function kirim_vr(vr_value) {
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'vr',
@@ -624,7 +624,7 @@
 
     function kirim_senshu(senshu_value) {
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'senshu',
@@ -705,7 +705,7 @@
 
     function score(value) {
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: value,
@@ -718,7 +718,7 @@
     $('#kata-aka').on('change', function() {
         kata_val = $('#kata-aka').val()
         $.ajax({
-            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/jury-panel/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'aka-kata-kirim',
@@ -727,7 +727,7 @@
             },
          });
          $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'aka-kata-kirim',
@@ -740,7 +740,7 @@
     $('#kata-ao').on('change', function() {
         kata_val = $('#kata-ao').val()
         $.ajax({
-            url: '/jury-panel/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/jury-panel/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'ao-kata-kirim',
@@ -749,7 +749,7 @@
             },
          });
          $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'ao-kata-kirim',
@@ -779,7 +779,7 @@
         }
 
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'tampilkan-score',
@@ -801,7 +801,7 @@
         let scoreAo = $('#totalAo').val();
 
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'tampilkan-score-simple',
@@ -832,7 +832,7 @@
 
     function timer_func(value1, value2) {
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: value1,
@@ -846,7 +846,7 @@
         const status = isRunning ? 'pause' : 'start';
 
         $.ajax({
-            url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
             type: 'POST',
             data: {
                 action: 'timer-status',
@@ -857,7 +857,7 @@
 
         if (status == 'pause') {
             $.ajax({
-                url: '/scoring-board/{{ admin_tatami.tatami.pk }}/message-retriever',
+                url: '/scoring-board/{{ tatami.pk }}/message-retriever',
                 type: 'POST',
                 data: {
                     action: 'timer-sync',

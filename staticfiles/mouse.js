@@ -1,8 +1,58 @@
-let pressedKeys = new Set();
-let roundTimer = null;
-const TIMER_DURATION = 3000; // 5 seconds
+let keyTimestamps = new Map();
+let keyCleanupTimer = null;
+const TIMER_DURATION = 3000; // 3 seconds match scoring window
 
-function sendKeyState(keys) {
+function getActiveKeys() {
+    const now = Date.now();
+    for (const [k, exp] of keyTimestamps.entries()) {
+        if (exp <= now) {
+            keyTimestamps.delete(k);
+        }
+    }
+    return Array.from(keyTimestamps.keys());
+}
+
+function scheduleKeyCleanup() {
+    if (keyCleanupTimer) {
+        clearTimeout(keyCleanupTimer);
+        keyCleanupTimer = null;
+    }
+
+    const now = Date.now();
+    let minRemaining = null;
+
+    for (const exp of keyTimestamps.values()) {
+        const rem = exp - now;
+        if (rem > 0) {
+            if (minRemaining === null || rem < minRemaining) {
+                minRemaining = rem;
+            }
+        }
+    }
+
+    if (minRemaining !== null) {
+        keyCleanupTimer = setTimeout(() => {
+            const active = getActiveKeys();
+            sendKeyState(active, true);
+            if (active.length > 0) {
+                scheduleKeyCleanup();
+            } else {
+                keyCleanupTimer = null;
+            }
+        }, Math.max(minRemaining, 10));
+    }
+}
+
+function clearAllStickKeys() {
+    keyTimestamps.clear();
+    if (keyCleanupTimer) {
+        clearTimeout(keyCleanupTimer);
+        keyCleanupTimer = null;
+    }
+}
+window.clearAllStickKeys = clearAllStickKeys;
+
+function sendKeyState(keys, isDecay = false) {
     const aka_1 = ['a', 'g', 'n', 's'];
     const aka_2 = ['b', 'h', 'm', 't'];
     const aka_3 = ['c', 'i', 'o', 'u'];
@@ -16,6 +66,7 @@ function sendKeyState(keys) {
     const countAka1 = count(aka_1);
     const countAka2 = count(aka_2);
     const countAka3 = count(aka_3);
+
     const countAo1 = count(ao_1);
     const countAo2 = count(ao_2);
     const countAo3 = count(ao_3);
@@ -43,33 +94,74 @@ function sendKeyState(keys) {
     else if (countAo2 === 1 && countAo1 === 1)
         aoResult = "Ao Waza-ari";
 
-    const url = `/scoring-board/${tatamiPk}/message-retriever`;
-    const url2 = `/admin-control/${tatamiPk}/message-retriever`;
+    const isHanteiActive = ($('#hantei').length ? $('#hantei').is(':checked') : false) || (typeof window.hantei === 'number' && window.hantei === 1);
 
-    $.ajax({
-        url: url,
-        type: 'POST',
-        data: {
-            action: 'mouse',
-            details: JSON.stringify([akaResult, aoResult]),
-            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-        },
-    });
+    if (isHanteiActive) {
+        const akaAll = ['a','b','c','g','h','i','m','n','o','s','t','u'];
+        const aoAll = ['d','e','f','j','k','l','p','q','r','v','w','x'];
+        const countAka = count(akaAll);
+        const countAo = count(aoAll);
+        if (countAka > countAo) {
+            akaResult = `Hantei Aka (${countAka} - ${countAo})`;
+        } else if (countAo > countAka) {
+            aoResult = `Hantei Ao (${countAo} - ${countAka})`;
+        } else if (countAka > 0 && countAka === countAo) {
+            akaResult = `Hantei Seri (${countAka} - ${countAo})`;
+        }
+    }
 
-    $.ajax({
-        url: url2,
-        type: 'POST',
-        data: {
-            action: 'mouse',
-            details: JSON.stringify([akaResult, aoResult, keys, totalSeconds, milliseconds]),
-            csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-        },
-    });
+    const curSec = typeof totalSeconds !== 'undefined' ? totalSeconds : 0;
+    const curMs = typeof milliseconds !== 'undefined' ? milliseconds : 0;
+    const payload = JSON.stringify([akaResult, aoResult, keys, curSec, curMs, isDecay]);
 
-    console.log(`Sent state: ${keys.join(", ")}`);
+    // Direct local live monitor update if available on control panel
+    if (typeof handleMouseStickSignal === 'function') {
+        try {
+            handleMouseStickSignal([akaResult, aoResult, keys, curSec, curMs, isDecay]);
+        } catch(e) {}
+    }
+
+    // Safety: only broadcast mouse combinations when match timer is running, or during stick check, or during hantei
+    const isTimerRunning = typeof isRunning !== 'undefined' ? isRunning : false;
+    const isCheckMode = ($('#ms-check').length ? $('#ms-check').is(':checked') : false) || (typeof window.ms_check === 'number' && window.ms_check === 1);
+
+    if (isTimerRunning || isCheckMode || isHanteiActive) {
+        // High-speed WebSocket dispatch if control panel socket is open
+        if (typeof window.sendControlAction === 'function') {
+            window.sendControlAction('mouse', payload, 'all');
+        } else {
+            // Fallback HTTP AJAX dispatch
+            const csrfToken = $('input[name=csrfmiddlewaretoken]').val() || (typeof csrftoken !== 'undefined' ? csrftoken : '');
+            const targetTatamiPk = typeof tatamiPk !== 'undefined' ? tatamiPk : '';
+
+            if (targetTatamiPk) {
+                $.ajax({
+                    url: `/scoring-board/${targetTatamiPk}/message-retriever`,
+                    type: 'POST',
+                    data: {
+                        action: 'mouse',
+                        details: payload,
+                        csrfmiddlewaretoken: csrfToken
+                    },
+                });
+
+                $.ajax({
+                    url: `/admin-control/${targetTatamiPk}/message-retriever`,
+                    type: 'POST',
+                    data: {
+                        action: 'mouse',
+                        details: payload,
+                        csrfmiddlewaretoken: csrfToken
+                    },
+                });
+            }
+        }
+    }
+
+    console.log(`[StickJuri] Sent state: [${keys.join(", ")}] -> AKA: "${akaResult}" AO: "${aoResult}" (decay: ${isDecay})`);
 }
 
-// Remove conflicting keys
+// Remove conflicting keys within each individual judge's controller
 const conflictGroups = [
     { a: ['b', 'c', 'd', 'e', 'f'], b: ['a', 'c', 'd', 'e', 'f'], c: ['a', 'b', 'd', 'e', 'f'] },
     { d: ['a', 'b', 'c', 'e', 'f'], e: ['a', 'b', 'c', 'd', 'f'], f: ['a', 'b', 'c', 'd', 'e'] },
@@ -82,28 +174,33 @@ const conflictGroups = [
 ];
 
 document.addEventListener("keydown", (e) => {
+    // Don't intercept typing if user is in an input, textarea, or select field
+    const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+    if (['input', 'textarea', 'select'].includes(activeTag)) return;
+
     const key = e.key.toLowerCase();
     if (!/^[a-z]$/.test(key)) return;
 
-    // Add new key and remove conflicts
-    pressedKeys.add(key);
+    // Check if key belongs to judge button matrix (a to x)
+    if (key < 'a' || key > 'x') return;
+
+    const now = Date.now();
+
+    // Remove conflicting keys for that judge from keyTimestamps
     for (const group of conflictGroups) {
         if (group[key]) {
             for (const conflictKey of group[key]) {
-                pressedKeys.delete(conflictKey);
+                keyTimestamps.delete(conflictKey);
             }
         }
     }
 
-    // Send immediately on each press
-    sendKeyState([...pressedKeys]);
+    // Set expiration for current key
+    keyTimestamps.set(key, now + TIMER_DURATION);
 
-    // Start round timer if not running
-    if (!roundTimer) {
-        roundTimer = setTimeout(() => {
-            console.log("Timer expired — clearing keys");
-            pressedKeys.clear();
-            roundTimer = null;
-        }, TIMER_DURATION);
-    }
+    // Send immediately on each press with active unexpired keys (not decay)
+    sendKeyState(getActiveKeys(), false);
+
+    // Schedule cleanup for when the earliest key expires
+    scheduleKeyCleanup();
 });

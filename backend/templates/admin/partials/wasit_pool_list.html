@@ -1,0 +1,114 @@
+{% for w in pool_wasits %}
+    <div class="wasit-card {% if w.is_assigned_here %}assigned-here{% elif w.priority_rank == 1 %}priority-standby highlighted{% elif w.priority_rank == 2 %}priority-other-tatami{% elif w.priority_rank == 4 or w.priority_rank == 5 %}conflict-match{% elif w.is_used %}used{% endif %}"
+         data-used="{% if w.is_used %}true{% else %}false{% endif %}"
+         data-assigned-here="{% if w.is_assigned_here %}true{% else %}false{% endif %}"
+         data-in-pool-here="{% if w.is_in_pool_here %}true{% else %}false{% endif %}"
+         data-priority="{{ w.priority_rank }}"
+         data-highlight-type="{{ w.highlight_type }}"
+         data-name="{{ w.nama_wasit|lower }}"
+         data-perguruan="{{ w.perguruan.nama_perguruan|default:''|lower }}"
+         data-kab-kota="{{ w.kab_kota|default:''|lower }}"
+         data-lisensi="{{ w.lisensi|default:''|lower }}">
+        
+        <div class="wasit-card-info">
+            <div class="wasit-name-row">
+                <span class="wasit-name">{{ w.nama_wasit }}</span>
+                
+                <!-- Status / Tier Badges based on 5-tier recommendation hierarchy -->
+                {% if w.is_assigned_here %}
+                    <span class="rec-badge badge-primary">
+                        <i class="fas fa-check-circle"></i> {{ w.recommendation_label }}
+                    </span>
+                {% elif w.priority_rank == 1 %}
+                    <span class="rec-badge badge-success" title="Prioritas 1: Beda perguruan & standby di pool tatami ini">
+                        <i class="fas fa-star"></i> {{ w.recommendation_label }}
+                    </span>
+                {% elif w.priority_rank == 2 %}
+                    <span class="rec-badge badge-lendable" title="Prioritas 2: Beda perguruan & standby di pool tatami lain (bisa dipinjam)">
+                        <i class="fas fa-hands-helping"></i> {{ w.recommendation_label }}
+                    </span>
+                {% elif w.priority_rank == 3 %}
+                    <span class="rec-badge badge-dark" title="Prioritas 3: Beda perguruan namun sedang aktif bertugas di tatami lain">
+                        <i class="fas fa-user-clock"></i> {{ w.recommendation_label }}
+                    </span>
+                {% elif w.priority_rank == 4 %}
+                    <span class="rec-badge badge-warning" title="Prioritas 4: Perguruan sama & standby di pool tatami ini">
+                        <i class="fas fa-exclamation-triangle"></i> {{ w.recommendation_label }}
+                    </span>
+                {% elif w.priority_rank == 5 %}
+                    <span class="rec-badge badge-secondary" title="Prioritas 5: Perguruan sama & standby di pool tatami lain">
+                        <i class="fas fa-info-circle"></i> {{ w.recommendation_label }}
+                    </span>
+                {% elif w.is_used %}
+                    <span class="rec-badge badge-dark">
+                        <i class="fas fa-user-clock"></i> {{ w.recommendation_label }}
+                    </span>
+                {% else %}
+                    <span class="rec-badge badge-dark">Tersedia</span>
+                {% endif %}
+            </div>
+
+            <div class="wasit-meta-row">
+                <span class="perguruan-tag">
+                    <i class="fas fa-shield-alt"></i>
+                    {{ w.perguruan.nama_perguruan|default:"PB / Non-Perguruan" }}
+                </span>
+                {% if w.kab_kota %}
+                    <span class="kab-kota-tag">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ w.kab_kota }}
+                    </span>
+                {% endif %}
+                {% if w.lisensi %}
+                    <span class="license-tag">&bull; {{ w.lisensi }}</span>
+                {% endif %}
+                {% if w.no_lisensi %}
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">#{{ w.no_lisensi }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action: Quick Assign / Lend form via AJAX -->
+        <div class="assign-action-wrap">
+            {% if w.is_assigned_here %}
+                <span class="status-assigned-badge">
+                    <i class="fas fa-check-circle"></i> Sudah di Panel
+                </span>
+            {% else %}
+                <form method="POST" class="assign-form-inline ajax-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="tugaskan_wasit">
+                    <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                    <input type="hidden" name="wasit_id" value="{{ w.pk }}">
+
+                    <select name="posisi" class="select-posisi" title="Pilih Posisi">
+                        {% for code, label in posisi_choices %}
+                            <option value="{{ code }}" {% if code == 'referee' and not current_tatami_assignments %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+
+                    {% if w.priority_rank == 2 %}
+                        <button type="submit" class="btn-lend" title="Pinjam wasit {{ w.nama_wasit }} dari Tatami {{ w.assigned_tatami.tatami_number|default:'Umum' }} ke Tatami {{ selected_tatami.tatami_number }}" onclick="return confirm('Pinjam wasit {{ w.nama_wasit }} dari Tatami {{ w.assigned_tatami.tatami_number|default:'Umum' }} ke Tatami {{ selected_tatami.tatami_number }}?');">
+                            <i class="fas fa-exchange-alt"></i> Pinjam
+                        </button>
+                    {% elif w.is_used %}
+                        <button type="submit" class="btn-reassign" title="Wasit ini sedang bertugas di Tatami {{ w.assigned_tatami.tatami_number|default:'Lain' }}. Pindahkan ke Tatami {{ selected_tatami.tatami_number }}?" onclick="return confirm('Wasit {{ w.nama_wasit }} sedang bertugas aktif di Tatami {{ w.assigned_tatami.tatami_number|default:'Lain' }}. Pindahkan ke Tatami {{ selected_tatami.tatami_number }}?');">
+                            Pindah
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn-assign" title="Tugaskan ke Tatami {{ selected_tatami.tatami_number }}">
+                            + Tugaskan
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+
+    </div>
+{% empty %}
+    <div class="empty-placeholder">
+        <i class="fas fa-users-slash" style="font-size: 38px; opacity: 0.35;"></i>
+        <span style="font-size: 15px; font-weight: 700; color: var(--text-primary);">Belum ada wasit terdaftar di event ini.</span>
+        <span style="font-size: 13px; color: var(--text-secondary);">Daftarkan wasit melalui tombol <strong>+ Tambah Wasit</strong> atau <strong>Import Excel</strong> di atas.</span>
+    </div>
+{% endfor %}

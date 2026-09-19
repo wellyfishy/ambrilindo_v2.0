@@ -1,0 +1,1202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LO Input Kata &bull; Tatami {{ tatami.tatami_number }}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- jQuery for reliable AJAX fallback -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --bg-body: #08080a;
+            --bg-card: #111217;
+            --bg-card-hover: #161820;
+            --bg-input: #0c0d12;
+            --border-color: #22242c;
+            --border-focus: #3b82f6;
+            
+            /* AKA (Red) */
+            --red-core: #e52525;
+            --red-light: #ef4444;
+            --red-glow: rgba(229, 37, 37, 0.35);
+            --red-bg: rgba(229, 37, 37, 0.08);
+            --red-border: rgba(229, 37, 37, 0.3);
+
+            /* AO (Blue) */
+            --blue-core: #2563eb;
+            --blue-light: #3b82f6;
+            --blue-glow: rgba(37, 99, 235, 0.35);
+            --blue-bg: rgba(37, 99, 235, 0.08);
+            --blue-border: rgba(37, 99, 235, 0.3);
+
+            /* Text & Accents */
+            --text-primary: #f8fafc;
+            --text-secondary: #9ca3af;
+            --text-muted: #64748b;
+            --green-online: #10b981;
+            --green-glow: rgba(16, 185, 129, 0.35);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 30px;
+        }
+
+        /* Top Navbar */
+        .lo-navbar {
+            background: rgba(17, 18, 23, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 16px;
+        }
+
+        .navbar-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tatami-badge {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #e52525, #b91c1c);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px var(--red-glow);
+            white-space: nowrap;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 260px;
+        }
+
+        .lo-role-tag {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ws-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--green-online);
+            transition: var(--transition);
+        }
+
+        .ws-status-pill.disconnected {
+            border-color: rgba(229, 37, 37, 0.3);
+            background: rgba(229, 37, 37, 0.1);
+            color: #f87171;
+        }
+
+        .ws-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--green-online);
+            box-shadow: 0 0 6px var(--green-glow);
+        }
+
+        .ws-status-pill.disconnected .ws-dot {
+            background-color: #f87171;
+            box-shadow: 0 0 6px var(--red-glow);
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .btn-switch {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-switch:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        /* Container */
+        .main-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            flex: 1;
+        }
+
+        /* Match Info Card */
+        .match-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .match-title-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .match-nomor {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: #ffffff;
+        }
+
+        .match-round-tag {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .type-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+        }
+
+        /* Dual Athlete Selection Grid */
+        .athletes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 580px) {
+            .athletes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .athlete-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            user-select: none;
+        }
+
+        .athlete-card:hover {
+            border-color: #3f4251;
+            transform: translateY(-1px);
+        }
+
+        /* AKA Active & Theming */
+        .athlete-card.aka {
+            border-top: 4px solid var(--red-core);
+        }
+
+        .athlete-card.aka.active {
+            border-color: var(--red-core);
+            background: var(--red-bg);
+            box-shadow: 0 0 25px -5px var(--red-glow);
+        }
+
+        /* AO Active & Theming */
+        .athlete-card.ao {
+            border-top: 4px solid var(--blue-core);
+        }
+
+        .athlete-card.ao.active {
+            border-color: var(--blue-core);
+            background: var(--blue-bg);
+            box-shadow: 0 0 25px -5px var(--blue-glow);
+        }
+
+        .athlete-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .athlete-badge {
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .athlete-card.aka .athlete-badge {
+            background: var(--red-core);
+            color: #fff;
+        }
+
+        .athlete-card.ao .athlete-badge {
+            background: var(--blue-core);
+            color: #fff;
+        }
+
+        .active-indicator {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 999px;
+            display: none;
+        }
+
+        .athlete-card.active .active-indicator {
+            display: block;
+        }
+
+        .athlete-card.aka.active .active-indicator {
+            background: rgba(229, 37, 37, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(229, 37, 37, 0.4);
+        }
+
+        .athlete-card.ao.active .active-indicator {
+            background: rgba(37, 99, 235, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(37, 99, 235, 0.4);
+        }
+
+        .athlete-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.25;
+            min-height: 22px;
+        }
+
+        .athlete-club {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kata-display-wrap {
+            margin-top: 4px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kata-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .kata-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .athlete-card.aka.active .kata-value {
+            border-color: rgba(229, 37, 37, 0.4);
+            color: #fca5a5;
+        }
+
+        .athlete-card.ao.active .kata-value {
+            border-color: rgba(37, 99, 235, 0.4);
+            color: #93c5fd;
+        }
+
+        /* Kata Selector Panel */
+        .selector-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .selector-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selector-title {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .selector-target-pill {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .selector-target-pill.aka {
+            background: var(--red-core);
+            color: #ffffff;
+        }
+
+        .selector-target-pill.ao {
+            background: var(--blue-core);
+            color: #ffffff;
+        }
+
+        .btn-reset-kata {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-reset-kata:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* Search input */
+        .search-wrap {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 15px;
+            padding: 12px 14px 12px 40px;
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background-color: #0f1017;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 17px;
+            height: 17px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Kata List Grid */
+        .kata-list-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-input);
+            padding: 6px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 6px;
+        }
+
+        @media (max-width: 500px) {
+            .kata-list-scroll {
+                grid-template-columns: 1fr;
+                max-height: 340px;
+            }
+        }
+
+        .kata-item-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            text-align: left;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: inherit;
+            user-select: none;
+            gap: 8px;
+        }
+
+        .kata-name-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .kata-record-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+
+        .kata-item-btn.previously-played {
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+
+        .kata-item-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-focus);
+            transform: translateY(-1px);
+        }
+
+        .kata-item-btn:active {
+            transform: scale(0.98);
+        }
+
+        .kata-item-btn.selected-aka {
+            background: var(--red-bg);
+            border-color: var(--red-core);
+            color: #fca5a5;
+            font-weight: 700;
+        }
+
+        .kata-item-btn.selected-ao {
+            background: var(--blue-bg);
+            border-color: var(--blue-core);
+            color: #93c5fd;
+            font-weight: 700;
+        }
+
+        .kata-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-right: 8px;
+        }
+
+        /* Toast notification */
+        .toast-notify {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid #334155;
+            padding: 12px 20px;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+            max-width: 90vw;
+            text-align: center;
+        }
+
+        .toast-notify.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-notify.aka {
+            background: #7f1d1d;
+            border-color: #dc2626;
+        }
+
+        .toast-notify.ao {
+            background: #1e3a8a;
+            border-color: #2563eb;
+        }
+
+        .toast-notify.warning {
+            background: #451a03;
+            border-color: #f59e0b;
+            color: #fef3c7;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25);
+        }
+
+        .toast-notify.final-reminder {
+            background: #172554;
+            border-color: #38bdf8;
+            color: #e0f2fe;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25);
+        }
+
+        .final-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(202, 138, 4, 0.35));
+            color: #fde047;
+            border: 1px solid rgba(234, 179, 8, 0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Empty state in search */
+        .empty-search {
+            grid-column: 1 / -1;
+            padding: 30px 10px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="lo-navbar">
+        <div class="navbar-inner">
+            <div class="brand-info">
+                <span class="tatami-badge">TATAMI {{ tatami.tatami_number }}</span>
+                <div class="event-meta">
+                    <span class="event-name" title="{{ event.nama_event }}">{{ event.nama_event }}</span>
+                    <span class="lo-role-tag">Operator LO &bull; Input Kata</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <div class="ws-status-pill" id="wsPill">
+                    <span class="ws-dot"></span>
+                    <span id="wsText">Online</span>
+                </div>
+                <a href="{% url 'lo-kata-entry' %}?switch=1" class="btn-switch" title="Ganti arena tatami">Ganti Tatami</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- Match Info Banner -->
+        <div class="match-card">
+            <div class="match-title-wrap">
+                <div class="match-nomor" id="nomorTandingText">
+                    {% if bagan and bagan.nomor_tanding %}
+                        {{ bagan.nomor_tanding.nama_nomor_tanding }}
+                    {% else %}
+                        Menunggu Pertandingan
+                    {% endif %}
+                </div>
+                <div class="match-round-tag" id="roundUrutanText">
+                    {% if detail_bagan %}
+                        Babak {{ detail_bagan.round }} &bull; Partai {{ detail_bagan.urutan }}
+                    {% else %}
+                        Tatami siap
+                    {% endif %}
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="final-badge" id="finalMatchBadge" style="{% if not is_final_match %}display:none;{% endif %}">
+                    🏅 FINAL
+                </span>
+                <span class="type-badge" id="tipeTandingBadge">
+                    {% if bagan and bagan.tipe_tanding == '1' %}KATA{% elif bagan and bagan.tipe_tanding == '2' %}KUMITE{% else %}KATA{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Dual Athlete Selector Grid -->
+        <div class="athletes-grid">
+            <!-- AKA (Red) -->
+            <div class="athlete-card aka active" id="cardAka" onclick="selectAthleteTarget('aka')">
+                <div class="athlete-header">
+                    <span class="athlete-badge">AKA (MERAH)</span>
+                    <span class="active-indicator">Dipilih</span>
+                </div>
+                <div class="athlete-name" id="atletAkaNama">
+                    {% if detail_bagan and detail_bagan.atlet1 %}
+                        {{ detail_bagan.atlet1.nama_atlet }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+                <div class="athlete-club" id="atletAkaClub">
+                    {% if detail_bagan and detail_bagan.atlet1 and detail_bagan.atlet1.perguruan %}
+                        {{ detail_bagan.atlet1.perguruan.nama_perguruan }}
+                    {% elif detail_bagan and detail_bagan.atlet1 and detail_bagan.atlet1.utusan %}
+                        {{ detail_bagan.atlet1.utusan.nama_utusan }}
+                    {% else %}
+                        Kontingen
+                    {% endif %}
+                </div>
+                <div class="kata-display-wrap">
+                    <span class="kata-label">Kata Ditampilkan:</span>
+                    <div class="kata-value" id="displayKataAka">{{ current_kata1 }}</div>
+                </div>
+            </div>
+
+            <!-- AO (Blue) -->
+            <div class="athlete-card ao" id="cardAo" onclick="selectAthleteTarget('ao')">
+                <div class="athlete-header">
+                    <span class="athlete-badge">AO (BIRU)</span>
+                    <span class="active-indicator">Dipilih</span>
+                </div>
+                <div class="athlete-name" id="atletAoNama">
+                    {% if detail_bagan and detail_bagan.atlet2 %}
+                        {{ detail_bagan.atlet2.nama_atlet }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+                <div class="athlete-club" id="atletAoClub">
+                    {% if detail_bagan and detail_bagan.atlet2 and detail_bagan.atlet2.perguruan %}
+                        {{ detail_bagan.atlet2.perguruan.nama_perguruan }}
+                    {% elif detail_bagan and detail_bagan.atlet2 and detail_bagan.atlet2.utusan %}
+                        {{ detail_bagan.atlet2.utusan.nama_utusan }}
+                    {% else %}
+                        Kontingen
+                    {% endif %}
+                </div>
+                <div class="kata-display-wrap">
+                    <span class="kata-label">Kata Ditampilkan:</span>
+                    <div class="kata-value" id="displayKataAo">{{ current_kata2 }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kata Selector Section -->
+        <section class="selector-section">
+            <div class="selector-header">
+                <div class="selector-title">
+                    Pilih Kata untuk:
+                    <span class="selector-target-pill aka" id="targetPill">AKA (MERAH)</span>
+                </div>
+                <button type="button" class="btn-reset-kata" onclick="chooseKata('0 - Blank')">
+                    Reset (0 - Blank)
+                </button>
+            </div>
+
+            <!-- Search box -->
+            <div class="search-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-input" id="kataSearch" placeholder="Cari nama kata (contoh: Chatan, Anan, Bassai)..." autocomplete="off">
+            </div>
+
+            <!-- Scrollable Kata List -->
+            <div class="kata-list-scroll" id="kataListContainer">
+                {% for kata in kata_list %}
+                    <button type="button" class="kata-item-btn" data-kata="{{ kata }}" onclick="chooseKata('{{ kata }}')">
+                        <span class="kata-name-text">{{ kata }}</span>
+                        <span class="kata-record-tag" style="display: none;"></span>
+                    </button>
+                {% endfor %}
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Toast Notification -->
+    <div class="toast-notify" id="toastNotify">
+        <span id="toastIcon">&#10003;</span>
+        <span id="toastMsg">Kata berhasil diperbarui</span>
+    </div>
+
+    <!-- WebSocket & Interactive Logic -->
+    <script>
+        const tatamiPk = {{ tatami.pk }};
+        const allKatas = {{ kata_list_json|safe }};
+        
+        let currentTarget = 'aka'; // 'aka' or 'ao'
+        let currentKataAka = '{{ current_kata1|escapejs }}';
+        let currentKataAo = '{{ current_kata2|escapejs }}';
+        let historyAka = {{ kata_history_aka_json|safe }};
+        let historyAo = {{ kata_history_ao_json|safe }};
+        let isFinalMatch = {{ is_final_match|yesno:"true,false" }};
+        let currentRound = {{ detail_bagan.round|default:1 }};
+
+        let socket = null;
+        let reconnectInterval = 2000;
+        let toastTimeout = null;
+
+        // --- Target Athlete Switcher ---
+        function selectAthleteTarget(target) {
+            currentTarget = target;
+            if (target === 'aka') {
+                $('#cardAka').addClass('active');
+                $('#cardAo').removeClass('active');
+                $('#targetPill').removeClass('ao').addClass('aka').text('AKA (MERAH)');
+            } else {
+                $('#cardAo').addClass('active');
+                $('#cardAka').removeClass('active');
+                $('#targetPill').removeClass('aka').addClass('ao').text('AO (BIRU)');
+            }
+            highlightActiveSelections();
+            renderKataBadges();
+        }
+
+        // --- Kata Normalization & History Matcher ---
+        function normalizeKata(k) {
+            if (!k) return '';
+            let s = String(k).trim();
+            if (s.includes(' - ')) {
+                s = s.split(' - ').slice(1).join(' - ').trim();
+            }
+            return s.toLowerCase();
+        }
+
+        function getPlayedInfo(target, kataVal) {
+            if (!kataVal || kataVal === '0 - Blank') return null;
+            const history = (target === 'aka') ? historyAka : historyAo;
+            if (!history || typeof history !== 'object') return null;
+
+            if (history[kataVal]) return history[kataVal];
+
+            const norm = normalizeKata(kataVal);
+            for (const key in history) {
+                if (normalizeKata(key) === norm) {
+                    return history[key];
+                }
+            }
+            return null;
+        }
+
+        // --- Real-time Local History Helpers ---
+        function recordAthleteKataHistory(target, kataVal, roundNum) {
+            if (!kataVal || kataVal === '0 - Blank') return;
+            const history = (target === 'aka') ? historyAka : historyAo;
+            if (!history) return;
+
+            // Remove any previous entry recorded for THIS round
+            for (const k in history) {
+                if (history[k] && history[k].round === roundNum && history[k].is_current_round) {
+                    delete history[k];
+                }
+            }
+
+            const info = {
+                round: roundNum,
+                label: `Babak ${roundNum}`,
+                raw_kata: kataVal,
+                is_current_round: true,
+            };
+            history[kataVal] = info;
+            if (kataVal.includes(' - ')) {
+                const pure = kataVal.split(' - ').slice(1).join(' - ').trim();
+                if (pure) history[pure] = info;
+            }
+        }
+
+        function removeAthleteKataCurrentRound(target, roundNum) {
+            const history = (target === 'aka') ? historyAka : historyAo;
+            if (!history) return;
+            for (const k in history) {
+                if (history[k] && history[k].round === roundNum && history[k].is_current_round) {
+                    delete history[k];
+                }
+            }
+        }
+
+        // --- Render Badges for Katas Played in Rounds ---
+        function renderKataBadges() {
+            $('.kata-item-btn').each(function() {
+                const kataVal = $(this).attr('data-kata');
+                const playedInfo = getPlayedInfo(currentTarget, kataVal);
+                const $badge = $(this).find('.kata-record-tag');
+
+                if (playedInfo) {
+                    $(this).addClass('previously-played');
+                    $badge.text(`(${playedInfo.label})`).show();
+                } else {
+                    $(this).removeClass('previously-played');
+                    $badge.hide().text('');
+                }
+            });
+        }
+
+        // --- Highlight Selected Kata Buttons ---
+        function highlightActiveSelections() {
+            $('.kata-item-btn').each(function() {
+                const kataVal = $(this).attr('data-kata');
+                $(this).removeClass('selected-aka selected-ao');
+                if (currentTarget === 'aka' && kataVal === currentKataAka) {
+                    $(this).addClass('selected-aka');
+                } else if (currentTarget === 'ao' && kataVal === currentKataAo) {
+                    $(this).addClass('selected-ao');
+                }
+            });
+        }
+
+        // --- Choose Kata Action ---
+        function chooseKata(kataVal) {
+            if (currentTarget === 'aka') {
+                currentKataAka = kataVal;
+                $('#displayKataAka').text(kataVal);
+            } else {
+                currentKataAo = kataVal;
+                $('#displayKataAo').text(kataVal);
+            }
+
+            highlightActiveSelections();
+
+            // 1. Send via WebSocket
+            sendKataViaWs(currentTarget, kataVal);
+
+            // 2. Fallback via AJAX in background
+            sendKataViaAjax(currentTarget, kataVal);
+
+            // 3. History record reminder
+            const playedInfo = getPlayedInfo(currentTarget, kataVal);
+            const athleteName = currentTarget === 'aka' ? $('#atletAkaNama').text().trim() : $('#atletAoNama').text().trim();
+            const targetLabel = currentTarget.toUpperCase();
+
+            // Only warn if the kata was played in a PREVIOUS round
+            if (playedInfo && !playedInfo.is_current_round && playedInfo.round < currentRound) {
+                if (isFinalMatch) {
+                    showToast(
+                        `[${targetLabel}] ${athleteName}: Pernah mainkan kata ini di ${playedInfo.label} (Boleh diulang pada Final)`,
+                        'final-reminder',
+                        '🏅',
+                        4000
+                    );
+                } else {
+                    showToast(
+                        `⚠️ PERINGATAN [${targetLabel}]: ${athleteName} sudah memainkan kata ini di ${playedInfo.label}!`,
+                        'warning',
+                        '⚠️',
+                        4500
+                    );
+                }
+            } else {
+                showToast(`${targetLabel}: ${kataVal}`, currentTarget, '&#10003;', 2500);
+            }
+
+            // 4. Update local history & render badges immediately in real-time
+            if (kataVal && kataVal !== '0 - Blank') {
+                recordAthleteKataHistory(currentTarget, kataVal, currentRound);
+            } else {
+                removeAthleteKataCurrentRound(currentTarget, currentRound);
+            }
+            renderKataBadges();
+        }
+
+        // --- Toast Notification ---
+        function showToast(message, targetClass, iconHtml = '&#10003;', duration = 2500) {
+            clearTimeout(toastTimeout);
+            const $toast = $('#toastNotify');
+            $toast.removeClass('aka ao warning final-reminder').addClass(targetClass);
+            $('#toastIcon').html(iconHtml);
+            $('#toastMsg').text(message);
+            $toast.addClass('show');
+
+            toastTimeout = setTimeout(() => {
+                $toast.removeClass('show');
+            }, duration);
+        }
+
+        // --- WebSocket Connection ---
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const wsUrl = protocol + window.location.host + `/ws/lo-kata/${tatamiPk}`;
+
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = function() {
+                console.log('[LO WebSocket] Connected to Tatami', tatamiPk);
+                $('#wsPill').removeClass('disconnected');
+                $('#wsText').text('Online');
+            };
+
+            socket.onclose = function() {
+                console.warn('[LO WebSocket] Disconnected. Reconnecting in', reconnectInterval, 'ms');
+                $('#wsPill').addClass('disconnected');
+                $('#wsText').text('Reconnecting...');
+                setTimeout(initWebSocket, reconnectInterval);
+            };
+
+            socket.onerror = function(err) {
+                console.error('[LO WebSocket] Error:', err);
+                socket.close();
+            };
+
+            socket.onmessage = function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    console.log('[LO WebSocket] Received:', data);
+
+                    // Match updated / loaded
+                    if (data.command === 'get_atlet') {
+                        const d = data.details;
+                        if (d) {
+                            if (d.nomor_tanding) $('#nomorTandingText').text(d.nomor_tanding);
+                            if (d.round) currentRound = Number(d.round);
+                            if (d.round && d.urutan) $('#roundUrutanText').text(`Babak ${d.round} • Partai ${d.urutan}`);
+                            if (d.atlet_red) $('#atletAkaNama').text(d.atlet_red);
+                            if (d.atlet_red_perguruan) $('#atletAkaClub').text(d.atlet_red_perguruan);
+                            if (d.atlet_blue) $('#atletAoNama').text(d.atlet_blue);
+                            if (d.atlet_blue_perguruan) $('#atletAoClub').text(d.atlet_blue_perguruan);
+
+                            if (d.atlet_red_kata) {
+                                currentKataAka = d.atlet_red_kata;
+                                $('#displayKataAka').text(d.atlet_red_kata);
+                            }
+                            if (d.atlet_blue_kata) {
+                                currentKataAo = d.atlet_blue_kata;
+                                $('#displayKataAo').text(d.atlet_blue_kata);
+                            }
+
+                            if (d.kata_history_aka !== undefined) historyAka = d.kata_history_aka;
+                            if (d.kata_history_ao !== undefined) historyAo = d.kata_history_ao;
+                            if (d.is_final !== undefined) {
+                                isFinalMatch = Boolean(d.is_final);
+                                if (isFinalMatch) {
+                                    $('#finalMatchBadge').show();
+                                } else {
+                                    $('#finalMatchBadge').hide();
+                                }
+                            }
+
+                            highlightActiveSelections();
+                            renderKataBadges();
+                        }
+                    } else if (data.command === 'aka-kata-kirim') {
+                        currentKataAka = data.details;
+                        $('#displayKataAka').text(data.details);
+                        if (data.details && data.details !== '0 - Blank') {
+                            recordAthleteKataHistory('aka', data.details, currentRound);
+                        } else {
+                            removeAthleteKataCurrentRound('aka', currentRound);
+                        }
+                        highlightActiveSelections();
+                        renderKataBadges();
+                    } else if (data.command === 'ao-kata-kirim') {
+                        currentKataAo = data.details;
+                        $('#displayKataAo').text(data.details);
+                        if (data.details && data.details !== '0 - Blank') {
+                            recordAthleteKataHistory('ao', data.details, currentRound);
+                        } else {
+                            removeAthleteKataCurrentRound('ao', currentRound);
+                        }
+                        highlightActiveSelections();
+                        renderKataBadges();
+                    } else if (data.command === 'kata_updated' && data.details) {
+                        const d = data.details;
+                        if (d.atlet === 'aka') {
+                            currentKataAka = d.kata;
+                            $('#displayKataAka').text(d.kata);
+                            if (d.kata && d.kata !== '0 - Blank') {
+                                recordAthleteKataHistory('aka', d.kata, currentRound);
+                            } else {
+                                removeAthleteKataCurrentRound('aka', currentRound);
+                            }
+                        } else if (d.atlet === 'ao') {
+                            currentKataAo = d.kata;
+                            $('#displayKataAo').text(d.kata);
+                            if (d.kata && d.kata !== '0 - Blank') {
+                                recordAthleteKataHistory('ao', d.kata, currentRound);
+                            } else {
+                                removeAthleteKataCurrentRound('ao', currentRound);
+                            }
+                        }
+                        if (d.kata_history_aka) historyAka = d.kata_history_aka;
+                        if (d.kata_history_ao) historyAo = d.kata_history_ao;
+                        highlightActiveSelections();
+                        renderKataBadges();
+                    }
+                } catch (err) {
+                    console.error('[LO WebSocket] Parsing error:', err);
+                }
+            };
+        }
+
+        // --- Send via WebSocket ---
+        function sendKataViaWs(atlet, kataVal) {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const payload = {
+                    action: 'set_kata',
+                    atlet: atlet,
+                    kata: kataVal,
+                };
+                socket.send(JSON.stringify(payload));
+                console.log('[LO WebSocket] Sent:', payload);
+            } else {
+                console.warn('[LO WebSocket] Socket not ready, relied on AJAX fallback');
+            }
+        }
+
+        // --- Send via AJAX Fallback ---
+        function sendKataViaAjax(atlet, kataVal) {
+            const cmd = atlet === 'aka' ? 'aka-kata-kirim' : 'ao-kata-kirim';
+            $.ajax({
+                url: `/lo-kata/${tatamiPk}/message-retriever`,
+                type: 'POST',
+                data: {
+                    action: cmd,
+                    atlet: atlet,
+                    details: kataVal,
+                },
+                success: function() {
+                    console.log('[LO AJAX] Saved & broadcast successfully');
+                },
+                error: function(err) {
+                    console.error('[LO AJAX] Error:', err);
+                }
+            });
+        }
+
+        // --- Real-time Search Filter ---
+        $('#kataSearch').on('input', function() {
+            const query = $(this).val().toLowerCase().trim();
+            let visibleCount = 0;
+
+            $('.kata-item-btn').each(function() {
+                const kataText = $(this).find('.kata-name-text').text().toLowerCase();
+                if (kataText.includes(query)) {
+                    $(this).show();
+                    visibleCount++;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            if (visibleCount === 0) {
+                if ($('#emptySearchMsg').length === 0) {
+                    $('#kataListContainer').append('<div class="empty-search" id="emptySearchMsg">Tidak ada kata yang cocok dengan pencarian</div>');
+                }
+            } else {
+                $('#emptySearchMsg').remove();
+            }
+        });
+
+        // Initialize on DOM ready
+        $(document).ready(function() {
+            highlightActiveSelections();
+            renderKataBadges();
+            initWebSocket();
+        });
+    </script>
+</body>
+</html>

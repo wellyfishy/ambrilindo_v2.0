@@ -1,0 +1,93 @@
+{% if duplicate_perguruans %}
+    <div class="conflict-warning-banner" style="margin-bottom: 8px;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span><strong>Perhatian:</strong> Terdapat lebih dari 1 wasit dari perguruan sama (<strong>{{ duplicate_perguruans|join:", " }}</strong>) di Tatami {{ selected_tatami.tatami_number }}. Disarankan diversifikasi.</span>
+    </div>
+{% endif %}
+{% if duplicate_kab_kota %}
+    <div class="conflict-warning-banner" style="margin-bottom: 8px; background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.3); color: #fde047;">
+        <i class="fas fa-map-marker-alt"></i>
+        <span><strong>Perhatian:</strong> Terdapat lebih dari 1 wasit dari Kab/Kota sama (<strong>{{ duplicate_kab_kota|join:", " }}</strong>) di Tatami {{ selected_tatami.tatami_number }}. Disarankan diversifikasi.</span>
+    </div>
+{% endif %}
+
+{% if is_panel_complete %}
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 6px;">
+        <span style="font-size: 11.5px; font-weight: 700; color: #34d399; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-check-circle"></i> Panel Lengkap & Sesuai Kuota ({{ current_tatami_assignments|length }}/{{ panel_rule.required_positions|length }})
+        </span>
+        <span style="font-size: 11px; color: var(--text-secondary);">Siap Bertanding</span>
+    </div>
+{% endif %}
+
+{% for a in current_tatami_assignments %}
+    <div class="assigned-card" data-assignment-id="{{ a.pk }}">
+        <div class="assigned-info">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span class="role-pill {% if a.posisi == 'referee' or a.posisi == 'wasit_utama' %}referee{% elif a.posisi == 'wasit_2' %}wasit_2{% elif 'judge' in a.posisi or 'juri' in a.posisi %}judge{% elif a.posisi == 'tatami_manager' %}manager{% elif a.posisi == 'kansa' %}kansa{% else %}pool{% endif %}">
+                    {{ a.get_posisi_display }}
+                </span>
+                <span class="assigned-name">{{ a.wasit.nama_wasit }}</span>
+            </div>
+            <div class="assigned-tags">
+                <span class="perguruan-tag">
+                    <i class="fas fa-shield-alt"></i>
+                    {{ a.wasit.perguruan.nama_perguruan|default:"PB / Non-Perguruan" }}
+                </span>
+                {% if a.wasit.kab_kota %}
+                    <span class="kab-kota-tag">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ a.wasit.kab_kota }}
+                    </span>
+                {% endif %}
+                {% if a.wasit.lisensi %}
+                    <span class="license-tag">&bull; {{ a.wasit.lisensi }}</span>
+                {% endif %}
+                {% if a.has_conflict %}
+                    <span class="conflict-pill" title="Perguruan atau asal daerah sama dengan atlet yang sedang bertanding di arena!">
+                        <i class="fas fa-exclamation-triangle"></i> Konflik Atlet Partai Ini
+                    </span>
+                {% endif %}
+                {% if a.is_duplicate %}
+                    <span class="conflict-pill" style="background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.45); color: #fca5a5;" title="Terdapat wasit lain dari perguruan atau asal daerah yang sama di tatami ini">
+                        <i class="fas fa-users"></i> Perguruan / Kota Sama
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="assigned-actions">
+            <!-- Quick role changer via AJAX -->
+            <form method="POST" class="ajax-form" style="margin: 0;">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="tugaskan_wasit">
+                <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                <input type="hidden" name="wasit_id" value="{{ a.wasit.pk }}">
+                <select name="posisi" class="select-posisi ajax-role-select" title="Ganti Posisi">
+                    {% for code, label in posisi_choices %}
+                        <option value="{{ code }}" {% if a.posisi == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <!-- Unassign button via AJAX -->
+            <form method="POST" class="ajax-form" style="margin: 0;">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="lepas_wasit">
+                <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                <input type="hidden" name="wasit_tatami_id" value="{{ a.pk }}">
+                <button type="submit" class="btn-icon-danger" title="Lepas Wasit {{ a.wasit.nama_wasit }}" onclick="return confirm('Lepas wasit {{ a.wasit.nama_wasit }} dari Tatami {{ selected_tatami.tatami_number }}?');">
+                    <i class="fas fa-times"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+{% empty %}
+    <div class="empty-placeholder">
+        <i class="fas fa-user-clock" style="font-size: 38px; opacity: 0.35;"></i>
+        <span style="font-weight: 700; font-size: 15px; color: var(--text-primary);">Belum ada wasit ditugaskan di Tatami {{ selected_tatami.tatami_number }}</span>
+        <span style="font-size: 13px; color: var(--text-secondary); max-width: 420px; line-height: 1.5;">
+            Tugaskan wasit dari <strong>Pool Wasit Event</strong> di sebelah kanan atau klik tombol <strong>Auto-Susun Panel</strong> di atas.
+        </span>
+    </div>
+{% endfor %}
