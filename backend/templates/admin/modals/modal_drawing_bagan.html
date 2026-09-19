@@ -1,6 +1,6 @@
 <!-- 7. Drawing Bagan Otomatis Modal -->
 <div class="modal fade" id="drawingBaganModal" tabindex="-1" aria-labelledby="drawingBaganModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="drawingBaganModalLabel"><i class="fas fa-random me-2 text-warning"></i>Drawing Bagan Otomatis</h5>
@@ -10,7 +10,7 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group mb-3">
-                        <label for="drawing_nomor_tanding_pk" class="form-label">Pilih Nomor Tanding:</label>
+                        <label for="drawing_nomor_tanding_pk" class="form-label">Pilih Nomor Tanding untuk Di-drawing:</label>
                         <select class="form-select select2" id="drawing_nomor_tanding_pk" name="nomor_tanding_pk" multiple style="width: 100%;">
                             <option value="semua">SEMUA NOMOR TANDING TOURNAMENT (Abaikan Festival)</option>
                             {% for nomor_tanding in nomor_tandings %}
@@ -23,6 +23,50 @@
                             <i class="fas fa-info-circle me-1"></i>Hanya nomor tanding tournament yang di-drawing bagan. Kategori Festival diabaikan secara otomatis.
                         </small>
                     </div>
+
+                    <!-- Panel Konfigurasi Video Review (VR) -->
+                    <div class="card mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px;">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2 px-3" style="background: rgba(0, 0, 0, 0.25); border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-video text-primary"></i>
+                                <span class="fw-bold text-white" style="font-size: 13.5px;">Nomor Tanding dengan Video Review (VR)</span>
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" id="btn-select-all-kumite" title="Pilih Semua Kumite" style="font-size: 11px;">
+                                    <i class="fas fa-check-double me-1"></i>Semua Kumite
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm py-0 px-2" id="btn-select-official-vr" title="Kadet, Junior, U21 & Senior" style="font-size: 11px;">
+                                    <i class="fas fa-filter me-1"></i>Kadet/Junior/Senior
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" id="btn-deselect-vr" title="Kosongkan Semua" style="font-size: 11px;">
+                                    <i class="fas fa-times me-1"></i>Kosongkan
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-2" style="max-height: 220px; overflow-y: auto;">
+                            <div class="d-flex justify-content-between align-items-center px-1 mb-2">
+                                <small class="text-muted" style="font-size: 11px;">
+                                    <i class="fas fa-info-circle me-1"></i>Centang kelas tanding Kumite yang menggunakan Video Review. KATA diabaikan secara otomatis.
+                                </small>
+                                <small class="badge bg-dark text-info" style="font-size: 10px;">VR Regenerasi otomatis di Semi Final &amp; Final</small>
+                            </div>
+                            <div class="row g-2" id="vr-nomor-tanding-list">
+                                {% for nomor_tanding in nomor_tandings %}
+                                    {% if 'festival' not in nomor_tanding.nama_nomor_tanding|lower and not nomor_tanding.is_bob and 'kumite' in nomor_tanding.nama_nomor_tanding|lower %}
+                                        <div class="col-md-6 vr-item" data-nama="{{ nomor_tanding.nama_nomor_tanding|lower }}">
+                                            <div class="form-check form-switch p-2 rounded border" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.08) !important;">
+                                                <input class="form-check-input vr-checkbox ms-0 me-2" type="checkbox" name="vr_nomor_tanding_pks" value="{{ nomor_tanding.pk }}" id="vr_nt_{{ nomor_tanding.pk }}" {% if nomor_tanding.has_vr %}checked{% endif %}>
+                                                <label class="form-check-label text-truncate d-block text-light" for="vr_nt_{{ nomor_tanding.pk }}" style="font-size: 12px; cursor: pointer;" title="{{ nomor_tanding.nama_nomor_tanding }}">
+                                                    {{ nomor_tanding.nama_nomor_tanding }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group mb-0">
                         <label for="shuffle_type" class="form-label">Tipe Pemisahan (Shuffle):</label>
                         <select class="form-select" id="shuffle_type" name="shuffle_type">
@@ -41,3 +85,33 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAll = document.getElementById('btn-select-all-kumite');
+    const btnOfficial = document.getElementById('btn-select-official-vr');
+    const btnNone = document.getElementById('btn-deselect-vr');
+    const checkboxes = document.querySelectorAll('.vr-checkbox');
+
+    if (btnAll) {
+        btnAll.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = true);
+        });
+    }
+    if (btnNone) {
+        btnNone.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = false);
+        });
+    }
+    if (btnOfficial) {
+        btnOfficial.addEventListener('click', function() {
+            checkboxes.forEach(cb => {
+                const parent = cb.closest('.vr-item');
+                const nama = parent ? parent.getAttribute('data-nama') || '' : '';
+                const isOfficial = /kadet|cadet|junior|u-?21|under|senior/.test(nama);
+                cb.checked = isOfficial;
+            });
+        });
+    }
+});
+</script>

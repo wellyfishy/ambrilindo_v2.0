@@ -9,6 +9,7 @@
             <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="submit_type" value="push_bagan">
+                <input type="hidden" name="redirect_url" value="{{ request.path }}">
                 <div class="modal-body">
                     <div class="alert alert-info py-2 mb-2" style="font-size: 13px;">
                         <div><i class="fas fa-server me-1"></i> Target Server: <strong>{{ sync_config.label }}</strong> (<code>{{ sync_config.url }}</code>)</div>

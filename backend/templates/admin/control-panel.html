@@ -898,11 +898,12 @@
                 </div>
 
                 <!-- Bottom Tools (VR Review) -->
+                {% if bagan.has_vr %}
                 <div class="vr-action-bar">
                     <span class="small text-muted fw-bold">VIDEO REVIEW:</span>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-primary dropdown-toggle vr-badge-btn" type="button" id="vr-ao-btn" data-bs-toggle="dropdown">
-                            <i class="fas fa-video me-1"></i> <span id="vr-ao-status-label">VR Card Aktif</span>
+                            <i class="fas fa-video me-1"></i> <span id="vr-ao-status-label">{% if detail_bagan.vr2 %}VR Card Aktif{% else %}Kartu Hangus{% endif %}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="actionVr('ao', 'request')"><i class="fas fa-play text-warning me-2"></i>Request Review</a></li>
@@ -915,6 +916,7 @@
                         </ul>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <!-- ==================== CENTER: MASTER MATCH CONTROL HUB ==================== -->
@@ -1058,11 +1060,12 @@
                 </div>
 
                 <!-- Bottom Tools (VR Review) -->
+                {% if bagan.has_vr %}
                 <div class="vr-action-bar">
                     <span class="small text-muted fw-bold">VIDEO REVIEW:</span>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-danger dropdown-toggle vr-badge-btn" type="button" id="vr-aka-btn" data-bs-toggle="dropdown">
-                            <i class="fas fa-video me-1"></i> <span id="vr-aka-status-label">VR Card Aktif</span>
+                            <i class="fas fa-video me-1"></i> <span id="vr-aka-status-label">{% if detail_bagan.vr1 %}VR Card Aktif{% else %}Kartu Hangus{% endif %}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="actionVr('aka', 'request')"><i class="fas fa-play text-warning me-2"></i>Request Review</a></li>
@@ -1075,6 +1078,7 @@
                         </ul>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
 

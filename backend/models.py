@@ -9,6 +9,7 @@ class Admin(models.Model):
 class Event(models.Model):
     nama_event = models.CharField(max_length=150, null=True, blank=True)
     kode_event = models.CharField(max_length=50, null=True, blank=True)
+    is_live_sync_enabled = models.BooleanField(default=False, verbose_name="Live Sync Aktif")
 
     @property
     def event_code(self):
@@ -29,6 +30,7 @@ class NomorTanding(models.Model):
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_nomor_tanding = models.CharField(max_length=50, null=True, blank=True)
     is_bob = models.BooleanField(default=False)
+    has_vr = models.BooleanField(default=False, verbose_name="Video Review (VR)")
 
     def __str__(self):
         return f'{self.event} - {self.nama_nomor_tanding}'
@@ -84,6 +86,7 @@ class Bagan(models.Model):
     pool = models.IntegerField(default=1)
     kode = models.CharField(max_length=50, null=True, blank=True)
     is_bob = models.BooleanField(default=False)
+    has_vr = models.BooleanField(default=False, verbose_name="Bagan Memiliki VR")
 
     def __str__(self):
         return f'{self.nama_bagan}'
@@ -255,6 +258,7 @@ class SyncQueue(models.Model):
         ('synced', 'Synced'),
         ('failed', 'Failed'),
     ]
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE, related_name='sync_queue_items')
     endpoint = models.CharField(max_length=100)
     payload = models.JSONField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)

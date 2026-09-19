@@ -980,10 +980,13 @@
       function checkSyncFailures() {
         const badge = document.getElementById('sidebarSyncFailBadge');
         if (!badge) return;
-        fetch("{% url 'sync-queue-status' %}")
+        const statusUrl = "{% url 'sync-queue-status' %}{% if event %}?event_pk={{ event.pk }}{% endif %}";
+        fetch(statusUrl)
           .then(res => res.json())
           .then(data => {
-            if (data.failed_count > 0) {
+            if (data.is_live_sync_enabled === false) {
+              badge.style.display = 'none';
+            } else if (data.failed_count > 0) {
               badge.textContent = data.failed_count;
               badge.style.display = 'inline-block';
             } else {

@@ -531,12 +531,22 @@ def _handle_export_bagan(request, event):
     return response
 
 
+def _get_sync_redirect(request, event):
+    redirect_url = request.POST.get('redirect_url')
+    if redirect_url:
+        return redirect(redirect_url)
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('sync-monitor', event_pk=event.pk)
+
+
 def _handle_set_event_mapping(request, event):
     hosted_event_id = request.POST.get('hosted_event_id')
     hosted_event_name = (request.POST.get('hosted_event_name') or '').strip()
     if not hosted_event_id:
         messages.error(request, "Pilih salah satu event dari server web.")
-        return redirect('admin-dashboard', event_pk=event.pk)
+        return _get_sync_redirect(request, event)
 
     success, msg = set_event_mapping(event.pk, hosted_event_id, hosted_event_name)
     if success:
@@ -550,7 +560,7 @@ def _handle_set_event_mapping(request, event):
             )
     else:
         messages.error(request, msg)
-    return redirect('admin-dashboard', event_pk=event.pk)
+    return _get_sync_redirect(request, event)
 
 
 def _handle_pull_atlet(request, event):
@@ -559,20 +569,20 @@ def _handle_pull_atlet(request, event):
         messages.success(request, msg)
     else:
         messages.error(request, msg)
-    return redirect('admin-dashboard', event_pk=event.pk)
+    return _get_sync_redirect(request, event)
 
 
 def _handle_push_bagan(request, event):
     bagan_pks = request.POST.getlist('bagan_pk')
     if not bagan_pks:
         messages.error(request, "Pilih minimal satu bagan untuk dikirim ke web server.")
-        return redirect('admin-dashboard', event_pk=event.pk)
+        return _get_sync_redirect(request, event)
     success, msg = push_bagan_to_hosted(event.pk, bagan_pks=bagan_pks)
     if success:
         messages.success(request, msg)
     else:
         messages.error(request, msg)
-    return redirect('admin-dashboard', event_pk=event.pk)
+    return _get_sync_redirect(request, event)
 
 
 def _handle_force_sync_results(request, event):
@@ -581,7 +591,7 @@ def _handle_force_sync_results(request, event):
         messages.success(request, msg)
     else:
         messages.error(request, msg)
-    return redirect('admin-dashboard', event_pk=event.pk)
+    return _get_sync_redirect(request, event)
 
 
 def _handle_bob_bagan(request, event):
@@ -695,6 +705,7 @@ def _handle_bob_bagan(request, event):
 def _handle_drawing_bagan(request, event):
     nomor_tanding_pks = request.POST.getlist('nomor_tanding_pk')
     tipe_shuffle = request.POST.get('shuffle_type')
+    vr_nomor_tanding_pks = set(request.POST.getlist('vr_nomor_tanding_pks'))
     if not nomor_tanding_pks:
         messages.error(request, "Pilih minimal satu nomor tanding untuk dilakukan drawing.")
         return redirect('admin-dashboard', event_pk=event.pk)
@@ -728,6 +739,13 @@ def _handle_drawing_bagan(request, event):
             for nomor_tanding in nomor_tanding_list:
                 if 'festival' in (nomor_tanding.nama_nomor_tanding or '').lower() or nomor_tanding.is_bob:
                     continue
+
+                # Sinkronkan status VR dari pilihan modal drawing
+                is_kumite = 'kumite' in (nomor_tanding.nama_nomor_tanding or '').lower()
+                should_have_vr = is_kumite and (str(nomor_tanding.pk) in vr_nomor_tanding_pks)
+                if nomor_tanding.has_vr != should_have_vr:
+                    nomor_tanding.has_vr = should_have_vr
+                    nomor_tanding.save(update_fields=['has_vr'])
                 atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding).filter(
                     (
                         Q(nomor_tanding__nama_nomor_tanding__icontains='kumite') &
@@ -1282,7 +1300,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
             'juara_3b': bagan.juara_3b.nama_atlet if bagan.juara_3b else None,
             'juara_3b_kode': bagan.juara_3b.kode_atlet if (bagan.juara_3b and bagan.juara_3b.kode_atlet) else None,
         }
-        send_to_hosted_async(payload, endpoint='api/final-result/')
+        send_to_hosted_async(payload, endpoint='api/final-result/', event=event)
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
@@ -1329,7 +1347,8 @@ def tambah_bagan(request, event_pk, nomor_tanding_pk):
             else:
                 tipe_tanding = '2'
 
-            new_bagan = Bagan.objects.create(event=event, nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, nama_bagan=nama_bagan)
+            has_vr = bool(getattr(nomor_tanding, 'has_vr', False) and tipe_tanding == '2')
+            new_bagan = Bagan.objects.create(event=event, nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, nama_bagan=nama_bagan, has_vr=has_vr)
 
             for round_number, aka_list, ao_list in rounds_data:
                 for index, (aka_pk, ao_pk) in enumerate(zip(aka_list, ao_list), start=1):
@@ -1388,7 +1407,8 @@ def tambah_bagan_referchange(request, event_pk, nomor_tanding_pk):
             else:
                 tipe_tanding = '2'
 
-            new_bagan = Bagan.objects.create(event=event, nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, nama_bagan=nama_bagan)
+            has_vr = bool(getattr(nomor_tanding, 'has_vr', False) and tipe_tanding == '2')
+            new_bagan = Bagan.objects.create(event=event, nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, nama_bagan=nama_bagan, has_vr=has_vr)
 
             for round_number, aka_list, ao_list in rounds_data:
                 for index, (aka_pk, ao_pk) in enumerate(zip(aka_list, ao_list), start=1):
@@ -1433,7 +1453,8 @@ def tambah_bagan_round_robin(request, event_pk, nomor_tanding_pk):
     else:
         tipe_tanding = '2'
 
-    new_bagan = Bagan.objects.create(event=event, nama_bagan=f'ROUND ROBIN {nomor_tanding.nama_nomor_tanding}', nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, round_robin=True)
+    has_vr = bool(getattr(nomor_tanding, 'has_vr', False) and tipe_tanding == '2')
+    new_bagan = Bagan.objects.create(event=event, nama_bagan=f'ROUND ROBIN {nomor_tanding.nama_nomor_tanding}', nomor_tanding=nomor_tanding, tipe_tanding=tipe_tanding, round_robin=True, has_vr=has_vr)
     
     match_lookup = {}
     for atlet_1 in all_atlets:
@@ -1534,7 +1555,7 @@ def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
                 'utusan_aka': detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 else None,
                 'utusan_ao': detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 else None,
             }
-            send_to_hosted_async(payload, endpoint='api/edit-bagan/')
+            send_to_hosted_async(payload, endpoint='api/edit-bagan/', event=event)
         
         return redirect('edit-detail-bagan', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk)
 
@@ -1660,20 +1681,31 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                     detail_bagan.pemenang = '3'
 
                 if winner_atlet:
-                    if detail_bagan.urutan % 2 == 1:
+                    target_slot = 'atlet1' if detail_bagan.urutan % 2 == 1 else 'atlet2'
+                    if target_slot == 'atlet1':
                         detailbagan_next_round.atlet1 = winner_atlet
-                        target_slot = 'atlet1'
-                        if detail_bagan.vr1 and pemenang == 'aka':
-                            detailbagan_next_round.vr1 = True
-                        elif detail_bagan.vr2 and pemenang == 'ao':
-                            detailbagan_next_round.vr1 = True
                     else:
                         detailbagan_next_round.atlet2 = winner_atlet
-                        target_slot = 'atlet2'
-                        if detail_bagan.vr1 and pemenang == 'aka':
-                            detailbagan_next_round.vr2 = True
-                        elif detail_bagan.vr2 and pemenang == 'ao':
-                            detailbagan_next_round.vr2 = True
+
+                    if getattr(bagan, 'has_vr', False):
+                        if next_round_number in (3, 4):
+                            # Regain VR di Semifinal dan Final
+                            if target_slot == 'atlet1':
+                                detailbagan_next_round.vr1 = True
+                            else:
+                                detailbagan_next_round.vr2 = True
+                        else:
+                            # Babak penyisihan: pertahankan VR hanya jika tidak hangus
+                            winner_had_vr = bool(detail_bagan.vr1 if pemenang == 'aka' else detail_bagan.vr2)
+                            if target_slot == 'atlet1':
+                                detailbagan_next_round.vr1 = winner_had_vr
+                            else:
+                                detailbagan_next_round.vr2 = winner_had_vr
+                    else:
+                        if target_slot == 'atlet1':
+                            detailbagan_next_round.vr1 = False
+                        else:
+                            detailbagan_next_round.vr2 = False
 
                 detail_bagan.save()
                 detailbagan_next_round.save()
@@ -1698,7 +1730,7 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                 'next_kode_realtime': get_kode_realtime(detailbagan_next_round) if detailbagan_next_round else None,
                 'ring_number': tatami.tatami_number if tatami else '',
             }
-            send_to_hosted_async(payload, endpoint='api/result/')
+            send_to_hosted_async(payload, endpoint='api/result/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
@@ -1982,20 +2014,31 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
                 target_slot = None
                 if winner_atlet:
-                    if detail_bagan.urutan % 2 == 1:
+                    target_slot = 'atlet1' if detail_bagan.urutan % 2 == 1 else 'atlet2'
+                    if target_slot == 'atlet1':
                         detailbagan_next_round.atlet1 = winner_atlet
-                        target_slot = 'atlet1'
-                        if detail_bagan.vr1 and detail_bagan.pemenang == '1':
-                            detailbagan_next_round.vr1 = True
-                        elif detail_bagan.vr2 and detail_bagan.pemenang == '2':
-                            detailbagan_next_round.vr1 = True
                     else:
                         detailbagan_next_round.atlet2 = winner_atlet
-                        target_slot = 'atlet2'
-                        if detail_bagan.vr1 and detail_bagan.pemenang == '1':
-                            detailbagan_next_round.vr2 = True
-                        elif detail_bagan.vr2 and detail_bagan.pemenang == '2':
-                            detailbagan_next_round.vr2 = True
+
+                    if getattr(bagan, 'has_vr', False):
+                        if next_round_number in (3, 4):
+                            # Regain VR di Semifinal dan Final
+                            if target_slot == 'atlet1':
+                                detailbagan_next_round.vr1 = True
+                            else:
+                                detailbagan_next_round.vr2 = True
+                        else:
+                            # Babak penyisihan: pertahankan VR hanya jika tidak hangus
+                            winner_had_vr = bool(detail_bagan.vr1 if detail_bagan.pemenang == '1' else detail_bagan.vr2)
+                            if target_slot == 'atlet1':
+                                detailbagan_next_round.vr1 = winner_had_vr
+                            else:
+                                detailbagan_next_round.vr2 = winner_had_vr
+                    else:
+                        if target_slot == 'atlet1':
+                            detailbagan_next_round.vr1 = False
+                        else:
+                            detailbagan_next_round.vr2 = False
 
                 detail_bagan.save()
                 detailbagan_next_round.save()
@@ -2026,7 +2069,7 @@ def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
                     'next_kode_realtime': get_kode_realtime(detailbagan_next_round) if detailbagan_next_round else None,
                     'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number if Tatami.objects.filter(detail_bagan=detail_bagan).first() else '',
                 }
-                send_to_hosted_async(payload, endpoint='api/result/')
+                send_to_hosted_async(payload, endpoint='api/result/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
 
             return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
             
@@ -2312,8 +2355,11 @@ def admin_nomor_tanding(request, event_pk):
         submit_type = request.POST.get('submit_type')
         if submit_type == 'tambah_nomor_tanding':
             nama = request.POST.get('nomor_tanding', '').strip().upper()
+            has_vr = request.POST.get('has_vr') == 'on'
+            if 'KATA' in nama or 'FESTIVAL' in nama:
+                has_vr = False
             if nama:
-                NomorTanding.objects.create(event=event, nama_nomor_tanding=nama)
+                NomorTanding.objects.create(event=event, nama_nomor_tanding=nama, has_vr=has_vr)
                 messages.success(request, f"Nomor tanding '{nama}' berhasil ditambahkan.")
             else:
                 messages.error(request, "Nama nomor tanding tidak boleh kosong.")
@@ -2321,10 +2367,14 @@ def admin_nomor_tanding(request, event_pk):
         elif submit_type == 'edit_nomor_tanding':
             pk = request.POST.get('nomor_tanding_pk')
             nama_baru = request.POST.get('nomor_tanding_nama', '').strip().upper()
+            has_vr = request.POST.get('has_vr') == 'on'
+            if 'KATA' in nama_baru or 'FESTIVAL' in nama_baru:
+                has_vr = False
             nt = NomorTanding.objects.filter(pk=pk, event=event).first()
             if nt and nama_baru:
                 nt.nama_nomor_tanding = nama_baru
-                nt.save(update_fields=['nama_nomor_tanding'])
+                nt.has_vr = has_vr
+                nt.save(update_fields=['nama_nomor_tanding', 'has_vr'])
                 messages.success(request, f"Nomor tanding berhasil diubah menjadi '{nama_baru}'.")
             else:
                 messages.error(request, "Gagal mengubah nomor tanding: data tidak valid.")
@@ -3904,7 +3954,7 @@ def notify_bagan_running(request, detailbagan_pk):
         'ring_number': tatami_obj.tatami_number if (tatami_obj and tatami_obj.tatami_number is not None) else '',
     }
     if detail_bagan.round != 10:
-        send_to_hosted_async(payload, endpoint='api/status/')
+        send_to_hosted_async(payload, endpoint='api/status/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
     return JsonResponse({'success': True, 'message': 'Status queued for sync'})
 
 
@@ -3922,7 +3972,7 @@ def send_bagan_result(request, detailbagan_pk):
         'score1': detail_bagan.score1,
         'score2': detail_bagan.score2,
     }
-    send_to_hosted_async(payload, endpoint='api/result/')
+    send_to_hosted_async(payload, endpoint='api/result/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
     return JsonResponse({'success': True, 'message': 'Result queued for sync'})
 
 # SORT ------------------------------------------------
@@ -4186,7 +4236,7 @@ def generate_balanced_slots(N):
     return slots
 
 
-def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
+def build_bracket_in_memory(atlets, group_field='perguruan', pool=1, has_vr=False):
     """
     Builds the complete 5-round tournament bracket in memory.
     Enforces anti-collision (same group separated as far as possible in the tree),
@@ -4202,6 +4252,15 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
     }
 
     if not atlets:
+        if has_vr:
+            for u in range(1, 3):
+                matches[3][u]['vr1'] = True
+                matches[3][u]['vr2'] = True
+            matches[4][1]['vr1'] = True
+            matches[4][1]['vr2'] = True
+            if pool == 0:
+                matches[1][1]['vr1'] = True
+                matches[1][1]['vr2'] = True
         return matches, 0
 
     atlets = list(atlets[:16])
@@ -4266,7 +4325,8 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
     initial_round_1 = {}
     for a, (m, slot_field) in best_assignment.items():
         matches[1][m][slot_field] = a
-        matches[1][m]['vr1' if slot_field == 'atlet1' else 'vr2'] = True
+        if has_vr:
+            matches[1][m]['vr1' if slot_field == 'atlet1' else 'vr2'] = True
         initial_round_1[(m, slot_field)] = a
 
     # Count Round 1 collisions
@@ -4291,14 +4351,22 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
         m1 = matches[1][u]
         if m1['atlet1'] and not m1['atlet2']:
             matches[2][target_u][target_slot] = m1['atlet1']
-            matches[2][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
+            if has_vr:
+                matches[2][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
             m1['atlet1'] = None
             m1['vr1'] = False
         elif m1['atlet2'] and not m1['atlet1']:
             matches[2][target_u][target_slot] = m1['atlet2']
-            matches[2][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
+            if has_vr:
+                matches[2][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
             m1['atlet2'] = None
             m1['vr2'] = False
+
+    # Pre-seed Semi-Finals (Round 3) if has_vr for ALL pools
+    if has_vr:
+        for target_u in range(1, 3):
+            matches[3][target_u]['vr1'] = True
+            matches[3][target_u]['vr2'] = True
 
     # Round 2 -> 3
     for u in range(1, 5):
@@ -4306,16 +4374,13 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
         target_slot = 'atlet1' if u % 2 != 0 else 'atlet2'
         m2 = matches[2][u]
 
-        if pool == 1:
-            matches[3][target_u]['vr1'] = True
-            matches[3][target_u]['vr2'] = True
-
         # Check atlet1 (fed by R1 match 2u-1, opposing branch is R1 match 2u)
         if m2['atlet1']:
             opposing_slots = [(2 * u, 'atlet1'), (2 * u, 'atlet2')]
             if count_initial(opposing_slots) == 0:
                 matches[3][target_u][target_slot] = m2['atlet1']
-                matches[3][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
+                if has_vr:
+                    matches[3][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
                 m2['atlet1'] = None
                 m2['vr1'] = False
         # Check atlet2 (fed by R1 match 2u, opposing branch is R1 match 2u-1)
@@ -4323,12 +4388,13 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
             opposing_slots = [(2 * u - 1, 'atlet1'), (2 * u - 1, 'atlet2')]
             if count_initial(opposing_slots) == 0:
                 matches[3][target_u][target_slot] = m2['atlet2']
-                matches[3][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
+                if has_vr:
+                    matches[3][target_u]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
                 m2['atlet2'] = None
                 m2['vr2'] = False
 
-    # Round 3 -> 4
-    if pool in (1, 2):
+    # Pre-seed Finals (Round 4) if has_vr for ALL pools
+    if has_vr:
         matches[4][1]['vr1'] = True
         matches[4][1]['vr2'] = True
 
@@ -4350,13 +4416,15 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1):
         if m3['atlet1']:
             if count_initial(r3_opposing[(u, 'atlet1')]) == 0:
                 matches[4][1][target_slot] = m3['atlet1']
-                matches[4][1]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
+                if has_vr:
+                    matches[4][1]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
                 m3['atlet1'] = None
                 m3['vr1'] = False
         if m3['atlet2']:
             if count_initial(r3_opposing[(u, 'atlet2')]) == 0:
                 matches[4][1][target_slot] = m3['atlet2']
-                matches[4][1]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
+                if has_vr:
+                    matches[4][1]['vr1' if target_slot == 'atlet1' else 'vr2'] = True
                 m3['atlet2'] = None
                 m3['vr2'] = False
 
@@ -4371,7 +4439,7 @@ def build_full_bracket(
     Runs the entire pipeline for one Bagan (one pool or the whole category).
     Builds all 5 rounds and BYE advancements in-memory, then performs a single
     bulk_create of DetailBagan objects.
-    Returns: (bagan, round_5_detail_bagan)
+    Returns: (bagan, round_5_detail_bagan, collision_count)
     """
     # Normalize athletes list if passed as 5th positional arg
     if atlets_temp is None and group_counts is not None:
@@ -4382,13 +4450,20 @@ def build_full_bracket(
     elif atlets_temp is None:
         atlets_temp = []
 
-    name = nomor_tanding.nama_nomor_tanding or ''
-    if 'KATA' in name:
+    name = (nomor_tanding.nama_nomor_tanding or '') if nomor_tanding else ''
+    if 'KATA' in name.upper():
         tipe_tanding = '1'
-    elif 'KUMITE' in name:
+    elif 'KUMITE' in name.upper():
         tipe_tanding = '2'
     else:
         tipe_tanding = None
+
+    has_vr = bool(
+        nomor_tanding and
+        getattr(nomor_tanding, 'has_vr', False) and
+        tipe_tanding == '2' and
+        'festival' not in name.lower()
+    )
 
     bagan = Bagan.objects.create(
         event=event,
@@ -4396,9 +4471,12 @@ def build_full_bracket(
         nama_bagan=nama_bagan,
         pool=pool,
         tipe_tanding=tipe_tanding,
+        has_vr=has_vr,
     )
 
-    bracket_data, collision_count = build_bracket_in_memory(atlets_temp, group_field=group_field, pool=pool)
+    bracket_data, collision_count = build_bracket_in_memory(
+        atlets_temp, group_field=group_field, pool=pool, has_vr=has_vr
+    )
 
     detail_bagans = []
     for r in range(1, 5):
@@ -5059,12 +5137,34 @@ def api_fetch_hosted_events(request):
 
 def sync_queue_status(request):
     """Mengembalikan informasi status antrean sinkronisasi live FIFO."""
-    pending_count = SyncQueue.objects.filter(status='pending').count()
-    failed_count = SyncQueue.objects.filter(status='failed').count()
-    processing_count = SyncQueue.objects.filter(status='processing').count()
-    last_failed = SyncQueue.objects.filter(status='failed').order_by('-updated_at').first()
+    event_pk = request.GET.get('event_pk')
+    from django.db.models import Q
+    base_qs = SyncQueue.objects.all()
+    if event_pk:
+        event = Event.objects.filter(pk=event_pk).first()
+        if event and not event.is_live_sync_enabled:
+            return JsonResponse({
+                'pending_count': 0,
+                'failed_count': 0,
+                'processing_count': 0,
+                'total_unsynced': 0,
+                'is_live_sync_enabled': False,
+                'last_error': None,
+                'last_failed_endpoint': None,
+                'last_failed_retries': 0,
+            })
+        base_qs = base_qs.filter(Q(event_id=event_pk) | Q(event__isnull=True))
+    else:
+        # Hanya hitung antrean dari event yang mengaktifkan Live Sync (atau unassigned)
+        base_qs = base_qs.filter(Q(event__isnull=True) | Q(event__is_live_sync_enabled=True))
+
+    pending_count = base_qs.filter(status='pending').count()
+    failed_count = base_qs.filter(status='failed').count()
+    processing_count = base_qs.filter(status='processing').count()
+    last_failed = base_qs.filter(status='failed').order_by('-updated_at').first()
 
     data = {
+        'is_live_sync_enabled': True,
         'pending_count': pending_count,
         'failed_count': failed_count,
         'processing_count': processing_count,
@@ -5105,7 +5205,7 @@ def sync_monitor_view(request, event_pk):
     """
     Halaman monitoring khusus antrean sinkronisasi live (send_to_hosted).
     Menampilkan visualisasi antrean FIFO, status server web, diagnostik error,
-    serta kontrol manual untuk kirim ulang (retry), lewati (skip/mark synced), dan hapus item.
+    kontrol status Live Sync (Aktif/Nonaktif), serta kontrol manual kirim ulang dan pembersihan antrean.
     """
     if not request.user.is_authenticated:
         return redirect('auth')
@@ -5115,20 +5215,39 @@ def sync_monitor_view(request, event_pk):
         messages.error(request, "Akun Anda tidak memiliki peran yang valid.")
         return redirect('auth')
 
+    if request.method == 'POST':
+        submit_type = request.POST.get('submit_type')
+        handlers = {
+            'set_event_mapping': _handle_set_event_mapping,
+            'pull_atlet': _handle_pull_atlet,
+            'push_bagan': _handle_push_bagan,
+            'force_sync_results': _handle_force_sync_results,
+        }
+        handler = handlers.get(submit_type)
+        if handler:
+            return handler(request, event)
+        else:
+            messages.warning(request, f"Aksi tidak dikenal: {submit_type}")
+            return redirect('sync-monitor', event_pk=event.pk)
+
     status_filter = request.GET.get('status', '').strip().lower()
 
-    # Hitung statistik antrean
-    total_count = SyncQueue.objects.count()
-    failed_count = SyncQueue.objects.filter(status='failed').count()
-    pending_count = SyncQueue.objects.filter(status__in=['pending', 'processing']).count()
-    synced_count = SyncQueue.objects.filter(status='synced').count()
+    # Filter antrean untuk event ini (atau item unassigned)
+    from django.db.models import Q
+    event_filter = Q(event=event) | Q(event__isnull=True)
 
-    # Default tab: buka tab 'failed' jika ada error, jika tidak buka 'all'
+    # Hitung statistik antrean
+    total_count = SyncQueue.objects.filter(event_filter).count()
+    failed_count = SyncQueue.objects.filter(event_filter, status='failed').count()
+    pending_count = SyncQueue.objects.filter(event_filter, status__in=['pending', 'processing']).count()
+    synced_count = SyncQueue.objects.filter(event_filter, status='synced').count()
+
+    # Default tab: buka tab 'failed' jika ada error dan sync aktif, jika tidak buka 'all'
     if not status_filter:
-        status_filter = 'failed' if failed_count > 0 else 'all'
+        status_filter = 'failed' if (failed_count > 0 and event.is_live_sync_enabled) else 'all'
 
     # Filter query
-    qs = SyncQueue.objects.all()
+    qs = SyncQueue.objects.filter(event_filter)
     if status_filter == 'failed':
         qs = qs.filter(status='failed').order_by('id')  # FIFO urutan tertua
     elif status_filter == 'pending':
@@ -5159,19 +5278,25 @@ def sync_monitor_view(request, event_pk):
         item.p_json = json.dumps(p, indent=2, ensure_ascii=False) if p else "{}"
 
     event_mapping = get_event_mapping(event.pk)
+    if event_mapping and event_mapping.get('hosted_event_name'):
+        event_mapping['is_mismatch'] = (event.nama_event or '').strip().lower() != event_mapping.get('hosted_event_name', '').strip().lower()
+
+    bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
 
     context = {
         'on': 'sync-monitor',
         'event': event,
         'role': role,
         'event_mapping': event_mapping,
+        'bagans': bagans,
         'queue_items': queue_items,
         'status_filter': status_filter,
         'total_count': total_count,
         'failed_count': failed_count,
         'pending_count': pending_count,
         'synced_count': synced_count,
-        'failed_sync_count': failed_count,
+        'failed_sync_count': failed_count if event.is_live_sync_enabled else 0,
+        'is_live_sync_enabled': event.is_live_sync_enabled,
     }
     return render(request, 'admin/sync-monitor.html', context)
 
@@ -5180,6 +5305,7 @@ def sync_monitor_view(request, event_pk):
 def sync_queue_action_api(request, event_pk):
     """
     Endpoint AJAX untuk aksi-aksi manajemen antrean sinkronisasi:
+    - toggle_live_sync: Mengaktifkan atau menonaktifkan Live Sync untuk event ini
     - retry_all: Memicu pemrosesan seluruh antrean tertunda
     - retry_item: Mengirim ulang satu item spesifik dan membuka antrean
     - mark_synced: Menandai item sebagai 'synced' untuk membuka gembok FIFO
@@ -5196,10 +5322,29 @@ def sync_queue_action_api(request, event_pk):
 
     from .utils import send_to_hosted, trigger_sync_queue
     from .sync_service import get_hosted_base_url
+    from django.db.models import Q
     import requests
     import time
 
-    if action == 'retry_all':
+    event_filter = Q(event=event) | Q(event__isnull=True)
+
+    if action == 'toggle_live_sync':
+        enable_val = request.POST.get('enable')
+        if enable_val is not None:
+            event.is_live_sync_enabled = str(enable_val).strip().lower() in ['true', '1', 'yes']
+        else:
+            event.is_live_sync_enabled = not event.is_live_sync_enabled
+        event.save(update_fields=['is_live_sync_enabled'])
+        if event.is_live_sync_enabled:
+            trigger_sync_queue()
+        status_label = 'Diaktifkan' if event.is_live_sync_enabled else 'Dinonaktifkan'
+        return JsonResponse({
+            'success': True,
+            'is_live_sync_enabled': event.is_live_sync_enabled,
+            'message': f"Sinkronisasi Live untuk event '{event.nama_event}' berhasil {status_label.lower()}."
+        })
+
+    elif action == 'retry_all':
         trigger_sync_queue()
         return JsonResponse({
             'success': True,
@@ -5269,14 +5414,14 @@ def sync_queue_action_api(request, event_pk):
         })
 
     elif action == 'clear_synced':
-        deleted_count, _ = SyncQueue.objects.filter(status='synced').delete()
+        deleted_count, _ = SyncQueue.objects.filter(event_filter, status='synced').delete()
         return JsonResponse({
             'success': True,
             'message': f'{deleted_count} riwayat antrean terkirim berhasil dibersihkan.'
         })
 
     elif action == 'clear_all':
-        deleted_count, _ = SyncQueue.objects.all().delete()
+        deleted_count, _ = SyncQueue.objects.filter(event_filter).delete()
         return JsonResponse({
             'success': True,
             'message': f'Seluruh antrean sinkronisasi ({deleted_count} item) berhasil dikosongkan.'
@@ -5326,12 +5471,13 @@ def sync_queue_action_api(request, event_pk):
             })
 
     elif action == 'get_status':
-        total_count = SyncQueue.objects.count()
-        failed_count = SyncQueue.objects.filter(status='failed').count()
-        pending_count = SyncQueue.objects.filter(status__in=['pending', 'processing']).count()
-        synced_count = SyncQueue.objects.filter(status='synced').count()
+        total_count = SyncQueue.objects.filter(event_filter).count()
+        failed_count = SyncQueue.objects.filter(event_filter, status='failed').count()
+        pending_count = SyncQueue.objects.filter(event_filter, status__in=['pending', 'processing']).count()
+        synced_count = SyncQueue.objects.filter(event_filter, status='synced').count()
         return JsonResponse({
             'success': True,
+            'is_live_sync_enabled': event.is_live_sync_enabled,
             'total_count': total_count,
             'failed_count': failed_count,
             'pending_count': pending_count,

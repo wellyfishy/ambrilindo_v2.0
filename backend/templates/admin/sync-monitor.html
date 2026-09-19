@@ -62,9 +62,229 @@
             </div>
         </div>
 
-        <!-- Failure Warning Banner (High Priority) -->
+        <!-- Live Sync Main Toggle & Status Card -->
+        <div class="card mb-4 shadow-sm" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;">
+            <div class="card-body p-3 p-md-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="liveSyncIconWrap" class="p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; {% if is_live_sync_enabled %}background: rgba(34, 197, 94, 0.15); color: #22c55e; box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);{% else %}background: rgba(148, 163, 184, 0.1); color: #94a3b8;{% endif %}; transition: all 0.3s ease;">
+                            <i id="liveSyncIcon" class="fas {% if is_live_sync_enabled %}fa-satellite-dish fa-spin{% else %}fa-power-off{% endif %} fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                <h4 class="fw-bold mb-0 text-white" style="font-size: 17px;">
+                                    Status Sinkronisasi Live:
+                                </h4>
+                                <span id="liveSyncBadge" class="badge {% if is_live_sync_enabled %}bg-success text-white{% else %}bg-secondary text-light{% endif %}" style="font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; letter-spacing: 0.04em;">
+                                    {% if is_live_sync_enabled %}AKTIF (ONLINE STREAMING){% else %}NONAKTIF (OFFLINE / LOKAL ONLY){% endif %}
+                                </span>
+                            </div>
+                            <p id="liveSyncDesc" class="mb-0 text-muted" style="font-size: 13px; line-height: 1.4;">
+                                {% if is_live_sync_enabled %}
+                                    Setiap skor, pergantian status partai, dan pemenang dari tatami akan otomatis dikirimkan ke server web secara realtime.
+                                {% else %}
+                                    <strong class="text-white-50">Mode Offline (Default):</strong> Pertandingan lokal berjalan lancar dan cepat tanpa membebani jaringan atau membuat antrean gagal jika tidak ada koneksi internet.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Toggle Button -->
+                    <div class="d-flex align-items-center gap-3 ms-auto">
+                        <button type="button" id="btnToggleLiveSync" class="btn {% if is_live_sync_enabled %}btn-outline-danger{% else %}btn-success{% endif %} d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px; font-size: 13px; transition: all 0.2s ease;">
+                            <i id="toggleIcon" class="fas {% if is_live_sync_enabled %}fa-stop-circle{% else %}fa-play-circle{% endif %}"></i>
+                            <span id="toggleText">{% if is_live_sync_enabled %}Nonaktifkan Live Sync{% else %}Aktifkan Live Sync{% endif %}</span>
+                        </button>
+                    </div>
+                </div>
+
+                {% if not event_mapping or not event_mapping.hosted_event_name %}
+                <div id="unmappedWarning" class="alert alert-warning mb-0 mt-3 py-2 px-3 d-flex align-items-center justify-content-between gap-2" style="{% if not is_live_sync_enabled %}display: none;{% endif %} background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; font-size: 12.5px;">
+                    <div class="d-flex align-items-center gap-2 text-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Event lokal ini belum dihubungkan ke Event di Web Publik. Anda disarankan menghubungkannya agar antrean tidak gagal di server tujuan.</span>
+                    </div>
+                    <button type="button" class="btn btn-warning btn-xs px-2 py-1 text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#linkEventModal" style="font-size: 11px; border-radius: 6px; white-space: nowrap;">
+                        <i class="fas fa-link me-1"></i> Hubungkan Sekarang
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Web Sync & Cloud Operations Section -->
+        <div class="card mb-4 shadow-sm" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;">
+            <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt text-info"></i>
+                    <h5 class="fw-bold mb-0 text-white" style="font-size: 15px; letter-spacing: 0.02em;">
+                        OPERASI SINKRONISASI &amp; HUBUNGAN WEB CLOUD
+                    </h5>
+                </div>
+                <span class="badge bg-dark border border-secondary text-muted" style="font-size: 11px;">
+                    Pusat Kendali Data Cloud
+                </span>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <!-- 1. Target Server Switcher -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-secondary fw-semibold mb-2 d-flex align-items-center justify-content-between" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    <span><i class="fas fa-server me-1 text-warning"></i> Target Web Server</span>
+                                    <span class="badge {% if sync_config.mode == 'production' %}bg-danger text-white{% else %}bg-warning text-dark{% endif %}" style="font-size: 10px;">
+                                        {{ sync_config.label }}
+                                    </span>
+                                </div>
+                                <div class="d-flex flex-column gap-2 mb-2">
+                                    <!-- Dev Lokal -->
+                                    <form method="POST" action="{% url 'set-sync-target' %}" class="m-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="target_mode" value="local">
+                                        <input type="hidden" name="redirect_url" value="{{ request.path }}">
+                                        <button type="submit" class="w-100 btn text-start d-flex align-items-center justify-content-between p-2 rounded border {% if sync_config.mode == 'local' %}border-warning bg-black text-white shadow-sm{% else %}border-secondary bg-dark text-muted{% endif %}" style="transition: all 0.15s ease;">
+                                            <div>
+                                                <div class="fw-bold" style="font-size: 12px; color: {% if sync_config.mode == 'local' %}#ffc107{% else %}var(--text-primary){% endif %};">
+                                                    <i class="fas fa-laptop-code me-1.5 text-warning"></i>Dev Lokal
+                                                </div>
+                                                <div style="font-size: 10.5px; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);">
+                                                    http://127.0.0.1:8001/
+                                                </div>
+                                            </div>
+                                            {% if sync_config.mode == 'local' %}
+                                                <span class="badge bg-warning text-dark fw-bold ms-1" style="font-size: 9.5px;"><i class="fas fa-check"></i> AKTIF</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary text-white ms-1" style="font-size: 9.5px;">PILIH</span>
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                    <!-- Live Production -->
+                                    <form method="POST" action="{% url 'set-sync-target' %}" class="m-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="target_mode" value="production">
+                                        <input type="hidden" name="redirect_url" value="{{ request.path }}">
+                                        <button type="submit" class="w-100 btn text-start d-flex align-items-center justify-content-between p-2 rounded border {% if sync_config.mode == 'production' %}border-danger bg-black text-white shadow-sm{% else %}border-secondary bg-dark text-muted{% endif %}" style="transition: all 0.15s ease;">
+                                            <div>
+                                                <div class="fw-bold" style="font-size: 12px; color: {% if sync_config.mode == 'production' %}var(--red-hover){% else %}var(--text-primary){% endif %};">
+                                                    <i class="fas fa-globe me-1.5 text-danger"></i>Live Production
+                                                </div>
+                                                <div style="font-size: 10.5px; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);">
+                                                    https://www.ambrilindo.com/
+                                                </div>
+                                            </div>
+                                            {% if sync_config.mode == 'production' %}
+                                                <span class="badge bg-danger text-white fw-bold ms-1" style="font-size: 9.5px;"><i class="fas fa-check"></i> AKTIF</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary text-white ms-1" style="font-size: 9.5px;">PILIH</span>
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="text-muted" style="font-size: 11px;">
+                                Endpoint aktif: <code>{{ sync_config.url }}</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Event Web Mapping -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-secondary fw-semibold mb-2 d-flex align-items-center justify-content-between" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    <span><i class="fas fa-link me-1 text-info"></i> Event Web Tujuan</span>
+                                    {% if event_mapping and event_mapping.hosted_event_id %}
+                                        <span class="badge bg-success" style="font-size: 10px;"><i class="fas fa-check-circle me-1"></i> Terhubung</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark" style="font-size: 10px;"><i class="fas fa-exclamation-circle me-1"></i> Belum Terhubung</span>
+                                    {% endif %}
+                                </div>
+                                <div class="p-2.5 rounded bg-dark border mb-2">
+                                    {% if event_mapping and event_mapping.hosted_event_id %}
+                                        <div class="fw-bold text-white mb-1 text-truncate" style="font-size: 13px;" title="{{ event_mapping.hosted_event_name }}">
+                                            [ID: #{{ event_mapping.hosted_event_id }}] {{ event_mapping.hosted_event_name }}
+                                        </div>
+                                        <div class="text-muted" style="font-size: 11px;">
+                                            Event Lokal: <span class="text-white-50">{{ event.nama_event }}</span>
+                                        </div>
+                                        {% if event_mapping.is_mismatch %}
+                                        <div class="badge bg-warning text-dark mt-1 text-wrap text-start" style="font-size: 10.5px;">
+                                            <i class="fas fa-exclamation-triangle me-1"></i> Nama event lokal dan web berbeda!
+                                        </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="text-warning fw-semibold mb-1" style="font-size: 12.5px;">
+                                            <i class="fas fa-unlink me-1"></i> Belum Ada Event Web yang Dipilih
+                                        </div>
+                                        <div class="text-muted" style="font-size: 11.5px;">
+                                            Hubungkan event lokal ini ke event publik di server web agar sinkronisasi tepat sasaran.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-info btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#linkEventModal" style="border-radius: 8px; font-weight: 600; padding: 7px 12px; font-size: 12.5px;">
+                                    <i class="fas fa-plug"></i>
+                                    <span>{% if event_mapping and event_mapping.hosted_event_id %}Ubah Hubungan Event Web{% else %}Hubungkan ke Event Web{% endif %}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Batch Sync Manual Operations -->
+                    <div class="col-lg-4 col-md-12">
+                        <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color);">
+                            <div>
+                                <div class="text-secondary fw-semibold mb-2 d-flex align-items-center justify-content-between" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    <span><i class="fas fa-tasks me-1 text-success"></i> Sinkronisasi Massal</span>
+                                    <span class="badge bg-secondary" style="font-size: 10px;">{{ bagans.count }} Bagan</span>
+                                </div>
+                                <div class="d-flex flex-column gap-2 mb-2">
+                                    <!-- Tarik Atlet -->
+                                    <form method="POST" class="m-0" onsubmit="return confirm('Tarik data atlet terbaru dari web server?\n\nTarget Server: {{ sync_config.label }} ({{ sync_config.url }})\nEvent Web: [#{{ event_mapping.hosted_event_id|default:event.pk }}] {{ event_mapping.hosted_event_name|default:event.nama_event }}\n\nData atlet lokal akan diperbarui dan atlet baru akan ditambahkan tanpa duplikasi.');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="redirect_url" value="{{ request.path }}">
+                                        <button type="submit" name="submit_type" value="pull_atlet" class="w-100 btn btn-sm btn-outline-primary text-start d-flex align-items-center justify-content-between p-2 rounded" style="font-size: 12.5px; border-color: rgba(59, 130, 246, 0.4);">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fas fa-cloud-download-alt text-info"></i>
+                                                <span class="text-white fw-semibold">Tarik Atlet dari Web</span>
+                                            </div>
+                                            <span class="badge bg-primary" style="font-size: 10px;">Impor</span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Kirim Bagan -->
+                                    <button type="button" class="w-100 btn btn-sm btn-outline-success text-start d-flex align-items-center justify-content-between p-2 rounded" data-bs-toggle="modal" data-bs-target="#pushBaganModal" style="font-size: 12.5px; border-color: rgba(34, 197, 94, 0.4);">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-cloud-upload-alt text-success"></i>
+                                            <span class="text-white fw-semibold">Kirim Bagan ke Web</span>
+                                        </div>
+                                        <span class="badge bg-success" style="font-size: 10px;">Upload</span>
+                                    </button>
+
+                                    <!-- Force Sync -->
+                                    <button type="button" class="w-100 btn btn-sm btn-outline-warning text-start d-flex align-items-center justify-content-between p-2 rounded" data-bs-toggle="modal" data-bs-target="#forceSyncModal" style="font-size: 12.5px; border-color: rgba(245, 158, 11, 0.4);">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-bolt text-warning"></i>
+                                            <span class="text-white fw-semibold">Force Sync Hasil Partai</span>
+                                        </div>
+                                        <span class="badge bg-warning text-dark fw-bold" style="font-size: 10px;">Audit</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="text-muted small" style="font-size: 11px;">
+                                Sinkronisasi awal atau audit jika jaringan tatami sempat putus.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failure Warning Banner -->
         {% if failed_count > 0 %}
-        <div class="alert alert-danger d-flex align-items-start gap-3 p-3 mb-4 shadow-sm" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(153, 27, 27, 0.12) 100%); border: 1px solid #dc2626; border-radius: 12px;">
+        <div class="alert alert-danger d-flex align-items-start gap-3 p-3 mb-4 shadow-sm" style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(153, 27, 27, 0.12) 100%); border: 1px solid #dc2626; border-radius: 12px; {% if not is_live_sync_enabled %}opacity: 0.88; border-color: rgba(220, 38, 38, 0.4);{% endif %}">
             <div class="p-2 rounded-circle text-white d-flex align-items-center justify-content-center" style="background: #dc2626; width: 40px; height: 40px; flex-shrink: 0; box-shadow: 0 0 12px rgba(220, 38, 38, 0.6);">
                 <i class="fas fa-exclamation-triangle fa-lg"></i>
             </div>
@@ -74,17 +294,24 @@
                         PERHATIAN: {{ failed_count }} DATA GAGAL TERKIRIM KE SERVER WEB!
                     </h5>
                     <div class="d-flex align-items-center gap-2">
+                        {% if is_live_sync_enabled %}
                         <button type="button" class="btn btn-sm btn-danger fw-bold d-flex align-items-center gap-2" onclick="triggerRetryAll(this)">
                             <i class="fas fa-redo"></i> Coba Kirim Ulang
                         </button>
+                        {% endif %}
                         <button type="button" class="btn btn-sm btn-outline-light d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#clearAllModal" style="border-color: rgba(255,255,255,0.3); font-size: 12px;">
                             <i class="fas fa-trash-alt text-danger"></i> Kosongkan Antrean
                         </button>
                     </div>
                 </div>
                 <p class="mb-0 text-white-50" style="font-size: 13px; line-height: 1.5;">
-                    Antrean sinkronisasi FIFO otomatis dihentikan sementara pada item tertua agar hasil pertandingan tidak saling mendahului di server publik. 
-                    Anda dapat memeriksa detail error di bawah, menguji koneksi web, atau klik <strong>"Lewati / Sudah Sinkron"</strong> jika hasil pertandingan tersebut telah disinkronkan manual via <em>Push Bagan</em> atau <em>Force Sync</em>. Jika antrean menumpuk, Anda juga dapat <strong>mengosongkan antrean</strong> dan menjalankan <em>Force Sync Hasil Pertandingan</em> di Dashboard.
+                    {% if not is_live_sync_enabled %}
+                        <span class="badge bg-secondary text-light me-1">Live Sync Nonaktif</span> 
+                        Terdapat data tertunda/gagal dari sesi sebelumnya. Karena Live Sync saat ini dinonaktifkan, sistem tidak memproses antrean ini ke jaringan. Anda dapat mengosongkannya secara aman atau mengaktifkan kembali Live Sync jika ingin mengirimkannya.
+                    {% else %}
+                        Antrean sinkronisasi FIFO otomatis dihentikan sementara pada item tertua agar hasil pertandingan tidak saling mendahului di server publik. 
+                        Anda dapat memeriksa detail error di bawah, menguji koneksi web, atau klik <strong>"Lewati / Sudah Sinkron"</strong> jika hasil pertandingan tersebut telah disinkronkan manual via <em>Push Bagan</em> atau <em>Force Sync</em>. Jika antrean menumpuk, Anda juga dapat <strong>mengosongkan antrean</strong> dan menjalankan <em>Force Sync Hasil Pertandingan</em> pada kartu Sinkronisasi Massal di atas.
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -393,7 +620,7 @@
                 <div class="alert alert-warning py-3 mb-3 text-dark d-flex align-items-start gap-2" style="font-size: 13px; border-radius: 8px;">
                     <i class="fas fa-shield-alt fa-lg mt-1 text-dark"></i>
                     <div>
-                        <strong>Aman Dilakukan:</strong> Menghapus antrean ini sepenuhnya aman karena Anda dapat menyinkronkan seluruh bracket dan pemenang ke server web kapan saja menggunakan tombol <strong>"Force Sync Hasil Pertandingan"</strong> di menu Web Sync Dashboard.
+                        <strong>Aman Dilakukan:</strong> Menghapus antrean ini sepenuhnya aman karena Anda dapat menyinkronkan seluruh bracket dan pemenang ke server web kapan saja menggunakan tombol <strong>"Force Sync Hasil Pertandingan"</strong> pada kartu Sinkronisasi Massal di atas.
                     </div>
                 </div>
                 <p class="mb-0 text-muted" style="font-size: 12px;">
@@ -448,6 +675,14 @@
     </div>
 </div>
 
+<!-- ================= SYNC MODALS ================= -->
+{% include "admin/modals/modal_link_event.html" %}
+{% include "admin/modals/modal_push_bagan.html" %}
+{% include "admin/modals/modal_force_sync.html" %}
+
+{% endblock content %}
+
+{% block script %}
 <script>
     const ACTION_URL = "{% url 'sync-monitor-action' event_pk=event.pk %}";
     const CSRF_TOKEN = "{{ csrf_token }}";
@@ -501,6 +736,42 @@
             showToast('Koneksi gagal: ' + err, false);
         });
     });
+
+    // Toggle Live Sync
+    const btnToggle = document.getElementById('btnToggleLiveSync');
+    if (btnToggle) {
+        btnToggle.addEventListener('click', function() {
+            btnToggle.disabled = true;
+            const icon = document.getElementById('toggleIcon');
+            const origIconClass = icon ? icon.className : '';
+            if (icon) icon.className = 'fas fa-spinner fa-spin';
+
+            const formData = new FormData();
+            formData.append('action', 'toggle_live_sync');
+
+            fetch(ACTION_URL, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF_TOKEN },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnToggle.disabled = false;
+                if (data.success) {
+                    showToast(data.message);
+                    setTimeout(() => window.location.reload(), 700);
+                } else {
+                    if (icon) icon.className = origIconClass;
+                    showToast(data.message || 'Gagal mengubah status Live Sync', false);
+                }
+            })
+            .catch(err => {
+                btnToggle.disabled = false;
+                if (icon) icon.className = origIconClass;
+                showToast('Terjadi kesalahan: ' + err, false);
+            });
+        });
+    }
 
     // Retry All Trigger
     function triggerRetryAll(btnElement) {
@@ -801,5 +1072,204 @@
 
     toggleSwitch.addEventListener('change', setupAutoRefresh);
     setupAutoRefresh();
+
+    // --- Modal Select2 Initialization ---
+    function initModalSelect2($modal) {
+        $modal.find('.select2:not(:disabled)').each(function () {
+            if ($(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2('destroy');
+            }
+            var placeholder = $(this).data('placeholder') || 'Ketik untuk mencari nama bagan...';
+            $(this).select2({
+                dropdownParent: $modal,
+                width: '100%',
+                placeholder: placeholder,
+                language: {
+                    noResults: function () {
+                        return "Bagan tidak ditemukan";
+                    }
+                }
+            });
+        });
+    }
+
+    $('.modal').on('shown.bs.modal', function () {
+        initModalSelect2($(this));
+    });
+
+    // --- Push Bagan Scope Toggler (All vs Selected) ---
+    $(document).on('change', 'input[name="push_scope"]', function () {
+        if ($(this).val() === 'selected') {
+            $('#push_all_input').prop('disabled', true);
+            $('#push_bagan_pk').prop('disabled', false);
+            $('#pushCustomBaganWrap').stop(true, true).slideDown(200, function () {
+                if (!$('#push_bagan_pk').hasClass('select2-hidden-accessible')) {
+                    $('#push_bagan_pk').select2({
+                        dropdownParent: $('#pushBaganModal'),
+                        width: '100%',
+                        placeholder: $('#push_bagan_pk').data('placeholder') || 'Ketik untuk mencari nama bagan...',
+                        language: {
+                            noResults: function () {
+                                return "Bagan tidak ditemukan";
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            $('#push_all_input').prop('disabled', false);
+            $('#push_bagan_pk').prop('disabled', true);
+            $('#pushCustomBaganWrap').stop(true, true).slideUp(200);
+        }
+    });
+
+    $(document).on('click', '#btnSelectAllPush', function () {
+        const allVals = $('#push_bagan_pk option').map(function () { return $(this).val(); }).get();
+        $('#push_bagan_pk').val(allVals).trigger('change');
+    });
+
+    $(document).on('click', '#btnClearAllPush', function () {
+        $('#push_bagan_pk').val([]).trigger('change');
+    });
+
+    // Form submit validation for Push Modal
+    $('#pushBaganModal form').on('submit', function (e) {
+        if ($('input[name="push_scope"]:checked').val() === 'selected') {
+            var selected = $('#push_bagan_pk').val();
+            if (!selected || selected.length === 0) {
+                e.preventDefault();
+                alert('Silakan pilih minimal satu bagan untuk dikirim ke web server.');
+                return false;
+            }
+        }
+    });
+
+    // --- Hosted Events AJAX & Mismatch Check ---
+    var selectEl = document.getElementById('hosted_event_select');
+    var hiddenNameInput = document.getElementById('selected_hosted_event_name');
+    var mismatchBox = document.getElementById('mismatchAlertBox');
+    var matchBox = document.getElementById('matchAlertBox');
+    var lblHosted = document.getElementById('lblHostedName');
+    var loadingEl = document.getElementById('hostedEventsLoading');
+    var errorEl = document.getElementById('hostedEventsError');
+    var errorMsgEl = document.getElementById('hostedEventsErrorMsg');
+    var btnRefresh = document.getElementById('btnRefreshHostedEvents');
+    var refreshIcon = document.getElementById('refreshIcon');
+    var modalEl = document.getElementById('linkEventModal');
+    var localName = "{{ event.nama_event|escapejs }}".trim().toLowerCase();
+    var currentHostedId = "{{ event_mapping.hosted_event_id|default:'' }}";
+    var hostedEventsLoaded = false;
+    var isLoading = false;
+
+    function checkEventNameMismatch() {
+        if (!selectEl) return;
+        var selectedOption = selectEl.options[selectEl.selectedIndex];
+        if (!selectedOption || !selectedOption.value) {
+            if (mismatchBox) mismatchBox.style.display = 'none';
+            if (matchBox) matchBox.style.display = 'none';
+            if (hiddenNameInput) hiddenNameInput.value = '';
+            return;
+        }
+
+        var hostedName = (selectedOption.getAttribute('data-name') || '').trim();
+        if (hiddenNameInput) hiddenNameInput.value = hostedName;
+
+        if (hostedName.toLowerCase() === localName) {
+            if (mismatchBox) mismatchBox.style.display = 'none';
+            if (matchBox) matchBox.style.display = 'block';
+        } else {
+            if (matchBox) matchBox.style.display = 'none';
+            if (mismatchBox) {
+                mismatchBox.style.display = 'block';
+                if (lblHosted) lblHosted.textContent = hostedName;
+            }
+        }
+    }
+
+    function loadHostedEvents(forceRefresh) {
+        if (isLoading) return;
+        if (hostedEventsLoaded && !forceRefresh) return;
+
+        isLoading = true;
+        if (loadingEl) loadingEl.style.display = 'block';
+        if (errorEl) errorEl.style.display = 'none';
+        if (refreshIcon) refreshIcon.classList.add('fa-spin');
+        if (selectEl) selectEl.disabled = true;
+
+        var url = "{% url 'api-fetch-hosted-events' %}" + (forceRefresh ? '?force=true' : '');
+        fetch(url)
+            .then(function(res) {
+                return res.json().then(function(data) {
+                    return { status: res.status, ok: res.ok, data: data };
+                });
+            })
+            .then(function(result) {
+                if (result.ok && result.data && result.data.status === 'success') {
+                    var events = result.data.events || [];
+                    var previouslySelected = selectEl.value || currentHostedId;
+                    
+                    selectEl.innerHTML = '<option value="">-- Pilih Event dari Web Server --</option>';
+                    
+                    if (events.length === 0) {
+                        var emptyOpt = document.createElement('option');
+                        emptyOpt.value = '';
+                        emptyOpt.disabled = true;
+                        emptyOpt.textContent = 'Tidak ada event yang ditemukan di server web ini';
+                        selectEl.appendChild(emptyOpt);
+                    } else {
+                        events.forEach(function(ev) {
+                            var opt = document.createElement('option');
+                            opt.value = ev.id;
+                            opt.setAttribute('data-name', ev.nama_event || '');
+                            var dateStr = ev.tanggal_event ? ' (' + ev.tanggal_event + ')' : '';
+                            opt.textContent = '[ID: ' + ev.id + '] ' + ev.nama_event + dateStr;
+                            
+                            if (String(ev.id) === String(previouslySelected)) {
+                                opt.selected = true;
+                            }
+                            selectEl.appendChild(opt);
+                        });
+                    }
+                    hostedEventsLoaded = true;
+                    checkEventNameMismatch();
+                } else {
+                    var err = (result.data && result.data.message) ? result.data.message : 'Gagal menghubungi server web.';
+                    if (errorEl && errorMsgEl) {
+                        errorMsgEl.textContent = err;
+                        errorEl.style.display = 'block';
+                    }
+                }
+            })
+            .catch(function(err) {
+                if (errorEl && errorMsgEl) {
+                    errorMsgEl.textContent = 'Terjadi kesalahan jaringan: ' + err.message;
+                    errorEl.style.display = 'block';
+                }
+            })
+            .finally(function() {
+                isLoading = false;
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                if (selectEl) selectEl.disabled = false;
+            });
+    }
+
+    if (selectEl) {
+        selectEl.addEventListener('change', checkEventNameMismatch);
+        checkEventNameMismatch();
+    }
+
+    if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', function() {
+            loadHostedEvents(false);
+        });
+    }
+
+    if (btnRefresh) {
+        btnRefresh.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadHostedEvents(true);
+        });
+    }
 </script>
-{% endblock content %}
+{% endblock script %}

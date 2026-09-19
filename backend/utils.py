@@ -56,9 +56,12 @@ def send_to_hosted(payload, endpoint):
 def process_sync_queue():
     """
     Memproses antrean SyncQueue secara ketat FIRST-IN, FIRST-OUT (FIFO).
+    Hanya memproses antrean dari event yang memiliki is_live_sync_enabled=True
+    (atau antrean global tanpa event).
     Jika suatu item gagal (misal koneksi internet mati), antrean dihentikan
     agar tidak ada data babak selanjutnya yang melompati urutan di server publik.
     """
+    from django.db.models import Q
     from .models import SyncQueue
 
     # Cegah proses berjalan bersamaan (jaminan single-worker FIFO)
@@ -66,11 +69,13 @@ def process_sync_queue():
         return
 
     try:
+        active_filter = Q(event__isnull=True) | Q(event__is_live_sync_enabled=True)
         while True:
-            # Ambil item tertua (FIFO berdasarkan ID terkecil)
+            # Ambil item tertua aktif (FIFO berdasarkan ID terkecil)
             item = (
                 SyncQueue.objects
                 .filter(status__in=['pending', 'failed'])
+                .filter(active_filter)
                 .order_by('id')
                 .first()
             )
@@ -109,13 +114,14 @@ def trigger_sync_queue():
     """Memicu pemrosesan antrean di thread terpisah."""
     return _sync_executor.submit(process_sync_queue)
 
-def enqueue_sync(payload, endpoint):
+def enqueue_sync(payload, endpoint, event=None):
     """
     Menyimpan payload ke database lokal SyncQueue secara persisten,
     lalu langsung memicu pemrosesan antrean secara non-blocking.
     """
     from .models import SyncQueue
     queue_item = SyncQueue.objects.create(
+        event=event,
         endpoint=endpoint,
         payload=payload,
         status='pending'
@@ -123,12 +129,53 @@ def enqueue_sync(payload, endpoint):
     trigger_sync_queue()
     return queue_item
 
-def send_to_hosted_async(payload, endpoint, on_complete=None):
+def send_to_hosted_async(payload, endpoint, event=None, on_complete=None):
     """
     Wrapper yang menyimpan request ke antrean persisten FIFO (SyncQueue)
     lalu memprosesnya di latar belakang tanpa memblokir operator tatami.
+    Jika live sync dinonaktifkan untuk event ini, request diabaikan tanpa antrean.
     """
-    queue_item = enqueue_sync(payload, endpoint)
+    from .models import Event, DetailBagan
+
+    # Resolusi event jika belum diberikan eksplisit
+    if event is None and isinstance(payload, dict):
+        detail_id = payload.get('detail_bagan_id')
+        if detail_id:
+            db = DetailBagan.objects.filter(pk=detail_id).select_related('bagan__event').first()
+            if db and db.bagan:
+                event = db.bagan.event
+        if event is None and payload.get('kode_realtime'):
+            try:
+                db_pk = int(str(payload['kode_realtime']).strip().split('-')[-1])
+                db = DetailBagan.objects.filter(pk=db_pk).select_related('bagan__event').first()
+                if db and db.bagan:
+                    event = db.bagan.event
+            except Exception:
+                pass
+
+    # Cek apakah live sync aktif untuk event ini (Default: False)
+    if event is not None:
+        if not getattr(event, 'is_live_sync_enabled', False):
+            logger.debug(f"Live sync dilewati: Event #{event.pk} ('{event.nama_event}') sync dinonaktifkan.")
+            if on_complete and callable(on_complete):
+                try:
+                    on_complete(True, None)
+                except Exception as e:
+                    logger.error(f"Error in on_complete callback: {e}")
+            return None
+    else:
+        # Jika tidak ada event yang terasosiasi, periksa apakah ada event yang mengaktifkan live sync
+        has_any_active_event = Event.objects.filter(is_live_sync_enabled=True).exists()
+        if not has_any_active_event:
+            logger.debug("Live sync dilewati: Tidak ada event aktif dengan live sync diaktifkan.")
+            if on_complete and callable(on_complete):
+                try:
+                    on_complete(True, None)
+                except Exception as e:
+                    logger.error(f"Error in on_complete callback: {e}")
+            return None
+
+    queue_item = enqueue_sync(payload, endpoint, event=event)
     if on_complete and callable(on_complete):
         try:
             on_complete(True, queue_item.pk)
@@ -138,11 +185,13 @@ def send_to_hosted_async(payload, endpoint, on_complete=None):
 
 def _background_retry_loop():
     """Heartbeat background thread yang mencoba mengirim ulang antrean tertunda setiap 15 detik."""
+    from django.db.models import Q
     from .models import SyncQueue
+    active_filter = Q(event__isnull=True) | Q(event__is_live_sync_enabled=True)
     while True:
         try:
             time.sleep(15)
-            has_pending = SyncQueue.objects.filter(status__in=['pending', 'failed']).exists()
+            has_pending = SyncQueue.objects.filter(status__in=['pending', 'failed']).filter(active_filter).exists()
             if has_pending:
                 process_sync_queue()
         except Exception as e:

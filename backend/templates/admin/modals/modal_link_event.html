@@ -9,6 +9,7 @@
             <form method="POST" id="formLinkEvent">
                 {% csrf_token %}
                 <input type="hidden" name="submit_type" value="set_event_mapping">
+                <input type="hidden" name="redirect_url" value="{{ request.path }}">
                 <input type="hidden" name="hosted_event_name" id="selected_hosted_event_name" value="{{ event_mapping.hosted_event_name|default:'' }}">
                 <div class="modal-body">
                     <div class="card bg-dark border p-3 mb-3">

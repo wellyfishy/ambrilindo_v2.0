@@ -228,6 +228,18 @@
                                         <span class="text-secondary" style="font-size: 11px; font-weight: 500;">
                                             {{ nt.gender }}
                                         </span>
+
+                                        {% if nt.disiplin == 'KUMITE' %}
+                                            {% if nt.has_vr %}
+                                                <span class="badge px-2 py-0 mt-1" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 9.5px;" title="Video Review Aktif">
+                                                    <i class="fas fa-video me-1"></i>VR ON
+                                                </span>
+                                            {% else %}
+                                                <span class="badge px-2 py-0 mt-1 text-muted" style="background: rgba(255, 255, 255, 0.05); font-size: 9.5px;" title="Tanpa Video Review">
+                                                    No VR
+                                                </span>
+                                            {% endif %}
+                                        {% endif %}
                                     </div>
                                 </td>
 
@@ -267,7 +279,7 @@
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <!-- Edit Button -->
-                                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="openEditModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}')" title="Ubah nama nomor tanding">
+                                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="openEditModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.has_vr|yesno:'true,false' }})" title="Ubah nama nomor tanding">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
 
@@ -321,6 +333,15 @@
                             Otomatis diubah ke huruf besar (UPPERCASE). Gunakan kata <code>TOURNAMENT</code> atau <code>FESTIVAL</code> untuk identifikasi otomatis.
                         </small>
                     </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="tambah_has_vr" name="has_vr">
+                        <label class="form-check-label text-white" for="tambah_has_vr" style="font-size: 13px; cursor: pointer;">
+                            <i class="fas fa-video text-primary me-1"></i> Gunakan Video Review (VR)
+                        </label>
+                        <small class="form-text text-muted d-block" style="font-size: 11px;">
+                            Khusus kategori Kumite Tournament.
+                        </small>
+                    </div>
                 </div>
                 <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
@@ -352,6 +373,15 @@
                         <input type="text" class="form-control" id="edit_nt_nama" name="nomor_tanding_nama" required style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
                         <small class="form-text text-muted" style="font-size: 11px;">
                             Perubahan nama akan otomatis tersimpan untuk seluruh atlet dan bagan terkait.
+                        </small>
+                    </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="edit_nt_has_vr" name="has_vr">
+                        <label class="form-check-label text-white" for="edit_nt_has_vr" style="font-size: 13px; cursor: pointer;">
+                            <i class="fas fa-video text-primary me-1"></i> Gunakan Video Review (VR)
+                        </label>
+                        <small class="form-text text-muted d-block" style="font-size: 11px;">
+                            Khusus kategori Kumite Tournament.
                         </small>
                     </div>
                 </div>
@@ -464,9 +494,13 @@
     document.getElementById('ntSearchInput').addEventListener('input', applyFilterAndSearch);
 
     // Edit Modal prefill
-    function openEditModal(pk, name) {
+    function openEditModal(pk, name, hasVr) {
         document.getElementById('edit_nt_pk').value = pk;
         document.getElementById('edit_nt_nama').value = name;
+        const vrCheckbox = document.getElementById('edit_nt_has_vr');
+        if (vrCheckbox) {
+            vrCheckbox.checked = !!hasVr;
+        }
         const modal = new bootstrap.Modal(document.getElementById('editNomorTandingModal'));
         modal.show();
     }
