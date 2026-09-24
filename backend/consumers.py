@@ -20,16 +20,23 @@ def get_current_match_details(tatami_pk):
     total_aka_score = 0
     total_ao_score = 0
     mu = Matchup.objects.filter(db=detail_bagan).first()
-    if bagan and 'KUMITE BEREGU' in bagan.nama_bagan and mu:
-        for matchup in Matchup.objects.filter(bagan=bagan, detail_bagan=mu.detail_bagan):
-            if matchup.db.pemenang == '1':
-                total_aka_score += 1
-            elif matchup.db.pemenang == '2':
-                total_ao_score += 1
+    is_team_kumite = False
+    if bagan and mu:
+        nt_name = (bagan.nomor_tanding.nama_nomor_tanding or '').lower() if bagan.nomor_tanding else ''
+        bagan_name = (bagan.nama_bagan or '').lower()
+        is_team_kumite = (bagan.tipe_tanding == '2') and (('beregu' in nt_name) or ('beregu' in bagan_name) or ('team' in bagan_name) or ('kumite beregu' in bagan_name))
+        if is_team_kumite:
+            for matchup in Matchup.objects.filter(bagan=bagan, detail_bagan=mu.detail_bagan).select_related('db'):
+                if matchup.db and matchup.db.pemenang == '1':
+                    total_aka_score += 1
+                elif matchup.db and matchup.db.pemenang == '2':
+                    total_ao_score += 1
 
-    from backend.utils import get_athlete_kata_records, check_is_final
+    from backend.utils import get_athlete_kata_records, check_is_final, get_round_label, get_round_of_slots, get_marquee_title
 
     return {
+        "match_pk": detail_bagan.pk,
+        "bagan_pk": bagan.pk if bagan else None,
         "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
         "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 and detail_bagan.atlet1.perguruan else None,
         "atlet_red_utusan": detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 and detail_bagan.atlet1.utusan else None,
@@ -43,10 +50,14 @@ def get_current_match_details(tatami_pk):
         "atlet_blue_kata": detail_bagan.kata2 if detail_bagan.kata2 else None,
         "atlet_blue_vr": detail_bagan.vr2 if detail_bagan.vr2 else None,
         "tipe_tanding": bagan.tipe_tanding if bagan else '2',
-        "team": True if bagan and 'KUMITE BEREGU' in bagan.nama_bagan else None,
+        "team": True if is_team_kumite else None,
         "total_aka_score": total_aka_score,
         "total_ao_score": total_ao_score,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding if bagan and bagan.nomor_tanding else '',
+        "nama_bagan": bagan.nama_bagan if bagan else '',
+        "round_label": get_round_label(detail_bagan),
+        "round_of": get_round_of_slots(detail_bagan),
+        "marquee_text": get_marquee_title(detail_bagan),
         "round": detail_bagan.round,
         "urutan": detail_bagan.urutan,
         "tatami_number": tatami.tatami_number,
@@ -54,6 +65,7 @@ def get_current_match_details(tatami_pk):
         "kata_history_aka": get_athlete_kata_records(detail_bagan.atlet1, detail_bagan),
         "kata_history_ao": get_athlete_kata_records(detail_bagan.atlet2, detail_bagan),
         "is_final": check_is_final(detail_bagan),
+        "has_vr": bool(bagan.has_vr) if bagan else False,
     }
 
 class ScoreboardConsumer(AsyncWebsocketConsumer):
@@ -300,11 +312,136 @@ class CoachSupervisorRoomConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        # Send current match details immediately on load/reload
+        details = await get_current_match_details(self.tatami_pk)
+        if details:
+            await self.send(text_data=json.dumps({
+                "command": "get_atlet",
+                "details": details
+            }))
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
         )
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+        except Exception:
+            return
+
+        action = data.get('action') or data.get('command')
+        details = data.get('details')
+        if not action:
+            return
+
+        if action == 'coach-supervisor':
+            side = 'aka'
+            val = '1'
+            if isinstance(details, (list, tuple)) and len(details) >= 2:
+                side = str(details[0]).lower()
+                val = str(details[1])
+            elif isinstance(details, str):
+                try:
+                    parsed = json.loads(details)
+                    if isinstance(parsed, list) and len(parsed) >= 2:
+                        side = str(parsed[0]).lower()
+                        val = str(parsed[1])
+                except Exception:
+                    pass
+
+            # 1. Broadcast to Control Panel operator
+            await self.channel_layer.group_send(
+                f"control_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor",
+                    "details": [side, val],
+                }
+            )
+            await self.channel_layer.group_send(
+                f"admin_control_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor",
+                    "details": [side, val],
+                }
+            )
+
+            # 2. Broadcast to Scoring Board to display "VIDEO REVIEW REQUESTED" with point details
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor",
+                    "details": [side, val],
+                }
+            )
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "vr",
+                    "details": f"{side}-request-{val}",
+                }
+            )
+
+            # 3. Echo/sync to coach supervisor room
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor-pending",
+                    "details": [side, val],
+                }
+            )
+
+        elif action == 'coach-supervisor-cancel':
+            side = 'aka'
+            if isinstance(details, str):
+                side = details.lower()
+            elif isinstance(details, (list, tuple)) and len(details) > 0:
+                side = str(details[0]).lower()
+
+            # 1. Clear alert on Control Panel
+            await self.channel_layer.group_send(
+                f"control_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor-cancel",
+                    "details": side,
+                }
+            )
+            await self.channel_layer.group_send(
+                f"admin_control_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor-cancel",
+                    "details": side,
+                }
+            )
+
+            # 2. Clear Scoring Board VR appeal banner (retains athlete VR card badge)
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor-cancel",
+                    "details": side,
+                }
+            )
+
+            # 3. Echo/sync to coach supervisor room
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "broadcast_command",
+                    "message": "coach-supervisor-cleared",
+                    "details": side,
+                }
+            )
 
     async def broadcast_command(self, event):
         await self.send(text_data=json.dumps({
@@ -349,6 +486,10 @@ class LoKataConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
+        await self.channel_layer.group_add(
+            "lokata_all",
+            self.channel_name
+        )
         await self.accept()
 
         # Send current match details immediately so LO screen is never blank on load/reload
@@ -364,6 +505,10 @@ class LoKataConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
+        await self.channel_layer.group_discard(
+            "lokata_all",
+            self.channel_name
+        )
 
     async def receive(self, text_data):
         try:
@@ -372,6 +517,15 @@ class LoKataConsumer(AsyncWebsocketConsumer):
             return
 
         command = data.get('command') or data.get('action')
+        if command == 'get_current':
+            details = await get_tatami_manager_details(self.tatami_pk)
+            if details:
+                await self.send(text_data=json.dumps({
+                    "command": "get_atlet",
+                    "details": details
+                }))
+            return
+
         atlet = data.get('atlet')  # 'aka' or 'ao'
         kata = data.get('kata') or data.get('details')
 
@@ -465,39 +619,34 @@ def get_tatami_manager_details(tatami_pk):
     if not tatami:
         return None
 
-    # Auto-assign if empty or completed just like LO!
-    if not tatami.detail_bagan or tatami.detail_bagan.selesai:
-        from backend.views import find_best_match_for_tatami, broadcast_tatami_match_update
-        best_m, _ = find_best_match_for_tatami(tatami, tatami.event)
-        if best_m:
-            tatami.detail_bagan = best_m
-            tatami.save(update_fields=['detail_bagan'])
-            broadcast_tatami_match_update(tatami)
-            tatami = Tatami.objects.filter(pk=tatami_pk).select_related(
-                'event',
-                'detail_bagan__bagan__nomor_tanding',
-                'detail_bagan__atlet1__perguruan',
-                'detail_bagan__atlet1__utusan',
-                'detail_bagan__atlet2__perguruan',
-                'detail_bagan__atlet2__utusan',
-            ).first()
-
     db = tatami.detail_bagan
+    # If the match is finished, it is not currently running on tatami!
+    if db and db.selesai:
+        db = None
     bagan = db.bagan if db else None
+
+    from backend.utils import get_utusan_logo_url, get_round_label, get_round_of_slots, get_marquee_title
 
     return {
         "tatami_pk": tatami.pk,
         "tatami_number": tatami.tatami_number,
         "match_pk": db.pk if db else None,
+        "bagan_pk": bagan.pk if bagan else None,
         "atlet_red": db.atlet1.nama_atlet if (db and db.atlet1) else "-",
         "atlet_red_perguruan": db.atlet1.perguruan.nama_perguruan if (db and db.atlet1 and db.atlet1.perguruan) else "-",
         "atlet_red_perguruan_id": db.atlet1.perguruan_id if (db and db.atlet1) else None,
         "atlet_red_utusan": db.atlet1.utusan.nama_utusan if (db and db.atlet1 and db.atlet1.utusan) else "-",
+        "atlet_red_logo": get_utusan_logo_url(db.atlet1) if db else None,
         "atlet_blue": db.atlet2.nama_atlet if (db and db.atlet2) else "-",
         "atlet_blue_perguruan": db.atlet2.perguruan.nama_perguruan if (db and db.atlet2 and db.atlet2.perguruan) else "-",
         "atlet_blue_perguruan_id": db.atlet2.perguruan_id if (db and db.atlet2) else None,
         "atlet_blue_utusan": db.atlet2.utusan.nama_utusan if (db and db.atlet2 and db.atlet2.utusan) else "-",
+        "atlet_blue_logo": get_utusan_logo_url(db.atlet2) if db else None,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding if (bagan and bagan.nomor_tanding) else '',
+        "nama_bagan": bagan.nama_bagan if bagan else '',
+        "round_label": get_round_label(db) if db else '',
+        "round_of": get_round_of_slots(db) if db else '',
+        "marquee_text": get_marquee_title(db) if db else '',
         "round": db.round if db else None,
         "urutan": db.urutan if db else None,
     }
@@ -565,6 +714,10 @@ class TatamiManagerConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
+        await self.channel_layer.group_add(
+            "tatamimanager_all",
+            self.channel_name
+        )
         await self.accept()
 
         # Send current match details immediately so TM screen is live
@@ -578,6 +731,10 @@ class TatamiManagerConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.group_name,
+            self.channel_name
+        )
+        await self.channel_layer.group_discard(
+            "tatamimanager_all",
             self.channel_name
         )
 

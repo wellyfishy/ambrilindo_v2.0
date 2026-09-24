@@ -1,0 +1,318 @@
+{% load static %}
+
+<!-- Match Header & Info -->
+<div class="tm-modal-header-banner">
+    <div class="tm-meta-left">
+        <span class="tm-category-title">{{ match.bagan.nomor_tanding.nama_nomor_tanding|default:match.bagan.nama_bagan }}</span>
+        <div class="tm-meta-pills">
+            <span class="tm-pill pill-round">Babak {{ match.round }}</span>
+            <span class="tm-pill pill-match">Partai #{{ match.urutan }}</span>
+            <span class="tm-pill pill-rule"><i class="fas fa-layer-group"></i> {{ panel_rule.format_name }}</span>
+            {% if active_tatami %}
+                <span class="tm-pill pill-live"><span class="live-dot"></span> LIVE DI TATAMI {{ active_tatami.tatami_number }}</span>
+            {% elif match.selesai %}
+                <span class="tm-pill pill-finished"><i class="fas fa-check-circle"></i> Selesai</span>
+            {% else %}
+                <span class="tm-pill pill-ready"><i class="fas fa-clock"></i> Siap Tanding</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="tm-meta-right">
+        <!-- Quick Activate to Tatami -->
+        <form method="POST" class="ajax-tm-form d-inline-flex align-items-center gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="submit_type" value="set_active_match">
+            <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+            <select name="tatami_pk" class="tm-tatami-select" title="Pilih Tatami untuk menjalankan partai ini">
+                {% for t in tatamis %}
+                    <option value="{{ t.pk }}" {% if active_tatami and active_tatami.pk == t.pk %}selected{% elif not active_tatami and selected_tatami and selected_tatami.pk == t.pk %}selected{% endif %}>
+                        Tatami {{ t.tatami_number }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-tm-action btn-tm-live" title="Jadikan partai ini sebagai partai berjalan di Tatami terpilih">
+                <i class="fas fa-play"></i>
+                <span>{% if active_tatami %}Ganti Tatami{% else %}Aktifkan ke Tatami{% endif %}</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Faceoff Athletes Card -->
+<div class="tm-faceoff-card">
+    <!-- AKA Side -->
+    <div class="tm-fighter aka {% if match.pemenang == '1' %}is-winner{% endif %}">
+        <div class="tm-fighter-badge aka">AKA (MERAH)</div>
+        <div class="tm-fighter-body">
+            <div class="tm-fighter-avatar">
+                {% if match.atlet1.utusan.logo %}
+                    <img src="{{ match.atlet1.utusan.logo.url }}" alt="{{ match.atlet1.utusan.nama_utusan }}">
+                {% else %}
+                    <div class="tm-avatar-placeholder aka"><i class="fas fa-user-ninja"></i></div>
+                {% endif %}
+            </div>
+            <div class="tm-fighter-info">
+                <h4 class="tm-fighter-name">{% if match.atlet1 %}{{ match.atlet1.nama_atlet }}{% else %}BYE / Menunggu{% endif %}</h4>
+                <div class="tm-fighter-tags">
+                    {% if match.atlet1.perguruan %}
+                        <span class="tm-tag tag-perg-aka">{{ match.atlet1.perguruan.nama_perguruan }}</span>
+                    {% endif %}
+                    {% if match.atlet1.utusan %}
+                        <span class="tm-tag tag-utusan">{{ match.atlet1.utusan.nama_utusan }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if match.score1 or match.scorekecil1 %}
+                <div class="tm-fighter-score aka">{{ match.score1|default:"0" }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Center VS Badge -->
+    <div class="tm-vs-badge">VS</div>
+
+    <!-- AO Side -->
+    <div class="tm-fighter ao {% if match.pemenang == '2' %}is-winner{% endif %}">
+        <div class="tm-fighter-badge ao">AO (BIRU)</div>
+        <div class="tm-fighter-body">
+            <div class="tm-fighter-avatar">
+                {% if match.atlet2.utusan.logo %}
+                    <img src="{{ match.atlet2.utusan.logo.url }}" alt="{{ match.atlet2.utusan.nama_utusan }}">
+                {% else %}
+                    <div class="tm-avatar-placeholder ao"><i class="fas fa-user-ninja"></i></div>
+                {% endif %}
+            </div>
+            <div class="tm-fighter-info">
+                <h4 class="tm-fighter-name">{% if match.atlet2 %}{{ match.atlet2.nama_atlet }}{% else %}BYE / Menunggu{% endif %}</h4>
+                <div class="tm-fighter-tags">
+                    {% if match.atlet2.perguruan %}
+                        <span class="tm-tag tag-perg-ao">{{ match.atlet2.perguruan.nama_perguruan }}</span>
+                    {% endif %}
+                    {% if match.atlet2.utusan %}
+                        <span class="tm-tag tag-utusan">{{ match.atlet2.utusan.nama_utusan }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if match.score2 or match.scorekecil2 %}
+                <div class="tm-fighter-score ao">{{ match.score2|default:"0" }}</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Conflict Diagnostic Alerts (if any) -->
+{% if conflict_warnings %}
+    <div class="tm-conflict-alert">
+        <div class="tm-conflict-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="tm-conflict-content">
+            <strong>Peringatan Konflik Wasit & Juri:</strong>
+            <ul>
+                {% for w in conflict_warnings %}
+                    <li>{{ w }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% elif is_panel_complete %}
+    <div class="tm-conflict-success">
+        <i class="fas fa-check-circle"></i>
+        <span>Panel Wasit Lengkap ({{ assigned_count }} orang) & Bebas Konflik Perguruan / Daerah.</span>
+    </div>
+{% endif %}
+
+<!-- Workspace: Panel Slots + Wasit Pool Selector -->
+<div class="tm-slots-workspace">
+    <!-- Required Position Slots -->
+    <div class="tm-slots-section">
+        <div class="tm-section-subhead">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-user-shield text-warning"></i>
+                <span class="fw-bold">SUSUNAN WASIT & JURI PARTAI INI</span>
+                <span class="tm-count-chip {% if is_panel_complete %}complete{% endif %}">
+                    {{ assigned_count }} / {{ panel_rule.required_positions|length }} Terisi
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <form method="POST" class="ajax-tm-form d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="auto_assign_match_panel">
+                    <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+                    <button type="submit" class="btn-tm-action btn-tm-auto" title="Otomatis susun wasit bebas konflik untuk partai ini">
+                        <i class="fas fa-magic"></i> Auto-Susun Bebas Konflik
+                    </button>
+                </form>
+                {% if assigned_count > 0 %}
+                <form method="POST" class="ajax-tm-form d-inline" onsubmit="return confirm('Kosongkan semua wasit yang ditugaskan untuk partai ini?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="clear_match_panel">
+                    <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+                    <button type="submit" class="btn-tm-action btn-tm-clear" title="Kosongkan wasit partai ini">
+                        <i class="fas fa-trash-alt"></i> Kosongkan
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tm-slots-grid">
+            {% for slot in position_slots %}
+                <div class="tm-slot-card {% if slot.assigned %}is-occupied{% else %}is-vacant{% endif %} {% if slot.has_conflict %}has-conflict{% endif %}">
+                    <div class="tm-slot-header">
+                        <span class="tm-slot-role-badge {{ slot.posisi_code }}">
+                            {{ slot.posisi_label }}
+                        </span>
+                        {% if slot.has_conflict %}
+                            <span class="tm-conflict-chip" title="{{ slot.conflict_reason }}">
+                                <i class="fas fa-exclamation-triangle"></i> KONFLIK
+                            </span>
+                        {% elif slot.assigned %}
+                            <span class="tm-ok-chip"><i class="fas fa-check"></i> OK</span>
+                        {% else %}
+                            <span class="tm-vacant-chip">KOSONG</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="tm-slot-body">
+                        {% if slot.assigned %}
+                            <div class="tm-slot-assigned-info">
+                                <div class="tm-assigned-name">{{ slot.assigned.wasit.nama_wasit }}</div>
+                                <div class="tm-assigned-meta">
+                                    <span class="tm-assigned-perg">{{ slot.assigned.wasit.perguruan.nama_perguruan|default:"Umum" }}</span>
+                                    {% if slot.assigned.wasit.kab_kota %}
+                                        <span class="tm-assigned-kab">&bull; {{ slot.assigned.wasit.kab_kota }}</span>
+                                    {% endif %}
+                                    {% if slot.assigned.wasit.lisensi %}
+                                        <span class="tm-assigned-lisensi">({{ slot.assigned.wasit.lisensi }})</span>
+                                    {% endif %}
+                                </div>
+                                {% if slot.has_conflict %}
+                                    <div class="tm-conflict-desc text-danger small">
+                                        <i class="fas fa-exclamation-circle"></i> {{ slot.conflict_reason }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <form method="POST" class="ajax-tm-form tm-remove-slot-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="submit_type" value="remove_match_wasit">
+                                <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+                                <input type="hidden" name="wasit_id" value="{{ slot.assigned.wasit.pk }}">
+                                <button type="submit" class="btn-slot-remove" title="Lepas wasit dari posisi ini">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="tm-slot-empty-state">
+                                <span class="text-muted small">Pilih wasit dari pool di samping atau gunakan tombol di bawah:</span>
+                                <div class="tm-quick-assign-wrap">
+                                    <form method="POST" class="ajax-tm-form d-flex align-items-center gap-1 w-100 mt-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="submit_type" value="assign_match_wasit">
+                                        <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+                                        <input type="hidden" name="posisi" value="{{ slot.posisi_code }}">
+                                        <select name="wasit_id" class="tm-wasit-quick-select" required>
+                                            <option value="">-- Pilih Wasit Standby --</option>
+                                            {% for w in pool_candidates %}
+                                                <option value="{{ w.pk }}">
+                                                    {{ w.priority_badge_symbol }} {{ w.nama_wasit }} ({{ w.perguruan.nama_perguruan|default:"PB" }} - {{ w.kab_kota|default:"-" }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn-tm-quick-add" title="Tugaskan wasit ini">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Candidate Wasit Pool Drawer -->
+    <div class="tm-pool-drawer">
+        <div class="tm-drawer-header">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-users text-info"></i>
+                <span class="fw-bold">REKOMENDASI WASIT EVENT</span>
+            </div>
+            <span class="badge bg-secondary font-monospace" id="modalPoolCount">{{ pool_candidates|length }} Wasit</span>
+        </div>
+
+        <!-- Search in Modal -->
+        <div class="tm-modal-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="modalWasitSearch" class="tm-modal-search-input" placeholder="Cari nama, perguruan, kab/kota..." onkeyup="filterModalWasitList()">
+        </div>
+
+        <!-- Filter Chips in Modal -->
+        <div class="tm-modal-filter-chips">
+            <button type="button" class="m-chip active" data-filter="all" onclick="setModalWasitFilter('all', this)">Semua</button>
+            <button type="button" class="m-chip" data-filter="prio1" onclick="setModalWasitFilter('prio1', this)" title="Prioritas 1: Standby & Beda Perguruan/Daerah">★ Prioritas 1</button>
+            <button type="button" class="m-chip" data-filter="avail" onclick="setModalWasitFilter('avail', this)">Standby</button>
+        </div>
+
+        <!-- Wasit List in Modal -->
+        <div class="tm-modal-wasit-list" id="modalWasitListContainer">
+            {% for w in pool_candidates %}
+                <div class="tm-wasit-item priority-{{ w.priority_rank }} {% if w.is_assigned_to_this_match %}is-assigned-here{% endif %}"
+                     data-name="{{ w.nama_wasit|lower }}"
+                     data-perguruan="{{ w.perguruan.nama_perguruan|default:''|lower }}"
+                     data-kab="{{ w.kab_kota|default:''|lower }}"
+                     data-priority="{{ w.priority_rank }}"
+                     data-available="{% if w.is_available %}true{% else %}false{% endif %}">
+                    
+                    <div class="tm-item-info">
+                        <div class="tm-item-name-row">
+                            <span class="tm-item-name">{{ w.nama_wasit }}</span>
+                            <span class="tm-prio-badge badge-{{ w.recommendation_badge }}">
+                                {{ w.recommendation_label }}
+                            </span>
+                        </div>
+                        <div class="tm-item-meta">
+                            <span class="perg">{{ w.perguruan.nama_perguruan|default:"PB / Umum" }}</span>
+                            {% if w.kab_kota %}
+                                <span>&bull; {{ w.kab_kota }}</span>
+                            {% endif %}
+                            {% if w.lisensi %}
+                                <span>&bull; {{ w.lisensi }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="tm-item-actions">
+                        {% if w.is_assigned_to_this_match %}
+                            <span class="tm-duty-tag"><i class="fas fa-check"></i> Bertugas</span>
+                        {% else %}
+                            <div class="dropdown">
+                                <button class="btn-tm-assign dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-plus"></i> Tugaskan
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                    {% for slot in position_slots %}
+                                        <li>
+                                            <form method="POST" class="ajax-tm-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="submit_type" value="assign_match_wasit">
+                                                <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+                                                <input type="hidden" name="wasit_id" value="{{ w.pk }}">
+                                                <input type="hidden" name="posisi" value="{{ slot.posisi_code }}">
+                                                <button type="submit" class="dropdown-item">
+                                                    Ke {{ slot.posisi_label }} {% if slot.assigned %}(Ganti {{ slot.assigned.wasit.nama_wasit }}){% endif %}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center text-muted py-4 small">Tidak ada data wasit yang tersedia.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

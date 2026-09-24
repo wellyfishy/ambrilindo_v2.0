@@ -15,6 +15,7 @@ from django.http import JsonResponse, HttpResponse # type: ignore
 from collections import defaultdict # type: ignore
 from itertools import groupby # type: ignore
 import json # type: ignore
+import re
 from django.views.decorators.http import require_POST # type: ignore
 from .utils import send_to_hosted, send_to_hosted_async, get_kode_realtime 
 from openpyxl import Workbook # type: ignore
@@ -171,10 +172,24 @@ def jury_panel(request, tatami_pk):
     return render(request, 'jury/jury-panel.html', context)
 
 def coach_supervisor(request, tatami_pk):
-    tatami = Tatami.objects.get(pk=tatami_pk)
+    tatami = get_object_or_404(
+        Tatami.objects.select_related(
+            'event',
+            'detail_bagan__bagan__nomor_tanding',
+            'detail_bagan__atlet1__perguruan',
+            'detail_bagan__atlet1__utusan',
+            'detail_bagan__atlet2__perguruan',
+            'detail_bagan__atlet2__utusan',
+        ),
+        pk=tatami_pk
+    )
+    detail_bagan = tatami.detail_bagan
+    bagan = detail_bagan.bagan if detail_bagan else None
 
     context = {
         'tatami': tatami,
+        'detail_bagan': detail_bagan,
+        'bagan': bagan,
     }
     return render(request, 'jury/coach-supervisor.html', context)
 
@@ -259,6 +274,52 @@ def message_retriever_coach_supervisor(request, tatami_pk):
             }
         )
 
+        if action == 'coach-supervisor':
+            side = 'aka'
+            val = '1'
+            try:
+                parsed = json.loads(details) if isinstance(details, str) else details
+                if isinstance(parsed, (list, tuple)) and len(parsed) >= 2:
+                    side = str(parsed[0]).lower()
+                    val = str(parsed[1])
+            except Exception:
+                pass
+            async_to_sync(channel_layer.group_send)(
+                f"control_{tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor", "details": [side, val]}
+            )
+            async_to_sync(channel_layer.group_send)(
+                f"admin_control_{tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor", "details": [side, val]}
+            )
+            async_to_sync(channel_layer.group_send)(
+                f"scoring_{tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor", "details": [side, val]}
+            )
+            async_to_sync(channel_layer.group_send)(
+                f"scoring_{tatami_pk}",
+                {"type": "broadcast_command", "message": "vr", "details": f"{side}-request-{val}"}
+            )
+        elif action == 'coach-supervisor-cancel':
+            side = 'aka'
+            try:
+                parsed = json.loads(details) if isinstance(details, str) else details
+                side = str(parsed).lower() if isinstance(parsed, str) else str(parsed[0]).lower()
+            except Exception:
+                pass
+            async_to_sync(channel_layer.group_send)(
+                f"control_{tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cancel", "details": side}
+            )
+            async_to_sync(channel_layer.group_send)(
+                f"admin_control_{tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cancel", "details": side}
+            )
+            async_to_sync(channel_layer.group_send)(
+                f"scoring_{tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cancel", "details": side}
+            )
+
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'error': 'Invalid method'}, status=405)
 
@@ -283,8 +344,146 @@ OFFICIAL_KATA_LIST = [
 
 @csrf_exempt
 def message_retriever_lo(request, tatami_pk):
+    if request.method == 'GET':
+        action = request.GET.get('action')
+        if action == 'get_match_detail':
+            detailbagan_pk = request.GET.get('detailbagan_pk')
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk).select_related(
+                'bagan__nomor_tanding', 'atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami'
+            ).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak ditemukan.'}, status=404)
+
+            from .utils import get_athlete_kata_records, check_is_final
+            kata_history_aka = get_athlete_kata_records(match_obj.atlet1, match_obj) if match_obj.atlet1 else {}
+            kata_history_ao = get_athlete_kata_records(match_obj.atlet2, match_obj) if match_obj.atlet2 else {}
+            is_final = check_is_final(match_obj)
+            active_tatami = Tatami.objects.filter(detail_bagan=match_obj).first()
+
+            return JsonResponse({
+                'status': 'success',
+                'match_pk': match_obj.pk,
+                'urutan': match_obj.urutan,
+                'round': match_obj.round,
+                'category_name': str(match_obj.bagan.nomor_tanding) if match_obj.bagan and match_obj.bagan.nomor_tanding else (match_obj.bagan.nama_bagan if match_obj.bagan else ''),
+                'atlet1': {
+                    'id': match_obj.atlet1.pk if match_obj.atlet1 else None,
+                    'nama': match_obj.atlet1.nama_atlet if match_obj.atlet1 else 'BYE',
+                    'perguruan': match_obj.atlet1.perguruan.nama_perguruan if (match_obj.atlet1 and match_obj.atlet1.perguruan) else '-',
+                    'utusan': match_obj.atlet1.utusan.nama_utusan if (match_obj.atlet1 and match_obj.atlet1.utusan) else '-',
+                    'logo': match_obj.atlet1.utusan.logo.url if (match_obj.atlet1 and match_obj.atlet1.utusan and match_obj.atlet1.utusan.logo) else None,
+                },
+                'atlet2': {
+                    'id': match_obj.atlet2.pk if match_obj.atlet2 else None,
+                    'nama': match_obj.atlet2.nama_atlet if match_obj.atlet2 else 'BYE',
+                    'perguruan': match_obj.atlet2.perguruan.nama_perguruan if (match_obj.atlet2 and match_obj.atlet2.perguruan) else '-',
+                    'utusan': match_obj.atlet2.utusan.nama_utusan if (match_obj.atlet2 and match_obj.atlet2.utusan) else '-',
+                    'logo': match_obj.atlet2.utusan.logo.url if (match_obj.atlet2 and match_obj.atlet2.utusan and match_obj.atlet2.utusan.logo) else None,
+                },
+                'kata1': match_obj.kata1 or '0 - Blank',
+                'kata2': match_obj.kata2 or '0 - Blank',
+                'kata_history_aka': kata_history_aka,
+                'kata_history_ao': kata_history_ao,
+                'is_final': is_final,
+                'selesai': match_obj.selesai,
+                'pemenang': match_obj.pemenang,
+                'active_tatami_number': active_tatami.tatami_number if active_tatami else None,
+                'is_active_on_current_tatami': bool(active_tatami and str(active_tatami.pk) == str(tatami_pk)),
+            })
+        return JsonResponse({'error': 'Invalid action'}, status=400)
+
     if request.method == 'POST':
         action = request.POST.get('action')
+        channel_layer = get_channel_layer()
+
+        if action == 'save_match_kata':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            kata1 = request.POST.get('kata1')
+            kata2 = request.POST.get('kata2')
+            push_live = request.POST.get('push_live') in ('1', 'true', 'True')
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk).select_related(
+                'atlet1', 'atlet2', 'bagan__nomor_tanding'
+            ).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak ditemukan.'}, status=404)
+
+            update_fields = []
+            if kata1 is not None:
+                match_obj.kata1 = kata1
+                update_fields.append('kata1')
+            if kata2 is not None:
+                match_obj.kata2 = kata2
+                update_fields.append('kata2')
+            if update_fields:
+                match_obj.save(update_fields=update_fields)
+
+            has_k1 = bool(match_obj.kata1 and match_obj.kata1 != '0 - Blank' and match_obj.kata1.strip())
+            has_k2 = bool(match_obj.kata2 and match_obj.kata2 != '0 - Blank' and match_obj.kata2.strip())
+            is_complete = has_k1 and has_k2
+
+            tatami = Tatami.objects.filter(pk=tatami_pk).first()
+            active_tatamis = list(Tatami.objects.filter(detail_bagan=match_obj))
+            target_tatami_pks = set(t.pk for t in active_tatamis)
+            if tatami and tatami.detail_bagan_id == match_obj.pk:
+                target_tatami_pks.add(tatami.pk)
+
+            # If match is active on any arena, broadcast immediately to scoring board, control panel, etc.
+            for tpk in target_tatami_pks:
+                for grp in [f"scoring_{tpk}", f"control_{tpk}", f"admin_control_{tpk}", f"juryroom_{tpk}"]:
+                    if match_obj.kata1:
+                        async_to_sync(channel_layer.group_send)(
+                            grp,
+                            {
+                                "type": "broadcast_command",
+                                "message": "aka-kata-kirim",
+                                "details": match_obj.kata1,
+                            }
+                        )
+                    if match_obj.kata2:
+                        async_to_sync(channel_layer.group_send)(
+                            grp,
+                            {
+                                "type": "broadcast_command",
+                                "message": "ao-kata-kirim",
+                                "details": match_obj.kata2,
+                            }
+                        )
+
+            # Broadcast update to LO kata clients
+            for grp in [f"lokata_{tatami_pk}", "lokata_all"]:
+                try:
+                    async_to_sync(channel_layer.group_send)(
+                        grp,
+                        {
+                            "type": "broadcast_command",
+                            "message": "match_kata_updated",
+                            "details": {
+                                "match_pk": match_obj.pk,
+                                "kata1": match_obj.kata1,
+                                "kata2": match_obj.kata2,
+                                "has_kata1": has_k1,
+                                "has_kata2": has_k2,
+                                "is_kata_complete": is_complete,
+                            }
+                        }
+                    )
+                except Exception:
+                    pass
+
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Kata partai #{match_obj.urutan} berhasil disimpan.",
+                'match_pk': match_obj.pk,
+                'kata1': match_obj.kata1,
+                'kata2': match_obj.kata2,
+                'has_kata1': has_k1,
+                'has_kata2': has_k2,
+                'is_kata_complete': is_complete,
+                'pushed_live': bool(target_tatami_pks),
+            })
+
+        # Legacy LO single-athlete submission handler
         details = request.POST.get('details')
         atlet = request.POST.get('atlet')
 
@@ -314,7 +513,6 @@ def message_retriever_lo(request, tatami_pk):
             kata_history_aka = get_athlete_kata_records(db.atlet1, db)
             kata_history_ao = get_athlete_kata_records(db.atlet2, db)
 
-        channel_layer = get_channel_layer()
         cmd = action or ('aka-kata-kirim' if atlet == 'aka' else 'ao-kata-kirim')
 
         for grp in [f"scoring_{tatami_pk}", f"control_{tatami_pk}", f"admin_control_{tatami_pk}", f"juryroom_{tatami_pk}"]:
@@ -401,28 +599,152 @@ def lo_kata_view(request, tatami_pk):
     request.session['view_only_role'] = 'lo_kata'
     request.session['view_only_tatami_pk'] = tatami.pk
 
-    detail_bagan = tatami.detail_bagan
-    bagan = detail_bagan.bagan if detail_bagan else None
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1'
+    if is_ajax and request.GET.get('action') == 'get_match_detail':
+        detailbagan_pk = request.GET.get('detailbagan_pk')
+        match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=tatami.event).select_related(
+            'bagan__nomor_tanding', 'atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami'
+        ).first()
+        if not match_obj:
+            return JsonResponse({'status': 'error', 'message': 'Partai tidak ditemukan.'}, status=404)
+
+        from .utils import get_athlete_kata_records, check_is_final
+        kata_history_aka = get_athlete_kata_records(match_obj.atlet1, match_obj) if match_obj.atlet1 else {}
+        kata_history_ao = get_athlete_kata_records(match_obj.atlet2, match_obj) if match_obj.atlet2 else {}
+        is_final = check_is_final(match_obj)
+        active_tatami = Tatami.objects.filter(detail_bagan=match_obj).first() if not match_obj.selesai else None
+        if active_tatami and active_tatami.detail_bagan and active_tatami.detail_bagan.selesai:
+            active_tatami = None
+
+        return JsonResponse({
+            'status': 'success',
+            'match_pk': match_obj.pk,
+            'urutan': match_obj.urutan,
+            'round': match_obj.round,
+            'category_name': str(match_obj.bagan.nomor_tanding) if match_obj.bagan and match_obj.bagan.nomor_tanding else (match_obj.bagan.nama_bagan if match_obj.bagan else ''),
+            'atlet1': {
+                'id': match_obj.atlet1.pk if match_obj.atlet1 else None,
+                'nama': match_obj.atlet1.nama_atlet if match_obj.atlet1 else 'BYE',
+                'perguruan': match_obj.atlet1.perguruan.nama_perguruan if (match_obj.atlet1 and match_obj.atlet1.perguruan) else '-',
+                'utusan': match_obj.atlet1.utusan.nama_utusan if (match_obj.atlet1 and match_obj.atlet1.utusan) else '-',
+                'logo': match_obj.atlet1.utusan.logo.url if (match_obj.atlet1 and match_obj.atlet1.utusan and match_obj.atlet1.utusan.logo) else None,
+            },
+            'atlet2': {
+                'id': match_obj.atlet2.pk if match_obj.atlet2 else None,
+                'nama': match_obj.atlet2.nama_atlet if match_obj.atlet2 else 'BYE',
+                'perguruan': match_obj.atlet2.perguruan.nama_perguruan if (match_obj.atlet2 and match_obj.atlet2.perguruan) else '-',
+                'utusan': match_obj.atlet2.utusan.nama_utusan if (match_obj.atlet2 and match_obj.atlet2.utusan) else '-',
+                'logo': match_obj.atlet2.utusan.logo.url if (match_obj.atlet2 and match_obj.atlet2.utusan and match_obj.atlet2.utusan.logo) else None,
+            },
+            'kata1': match_obj.kata1 or '0 - Blank',
+            'kata2': match_obj.kata2 or '0 - Blank',
+            'kata_history_aka': kata_history_aka,
+            'kata_history_ao': kata_history_ao,
+            'is_final': is_final,
+            'selesai': match_obj.selesai,
+            'pemenang': match_obj.pemenang,
+            'active_tatami_number': active_tatami.tatami_number if (active_tatami and not match_obj.selesai) else None,
+            'is_active_on_current_tatami': bool(active_tatami and active_tatami.pk == tatami.pk and not match_obj.selesai),
+        })
+
+    all_tatamis = list(Tatami.objects.filter(event=tatami.event).select_related('detail_bagan').order_by('tatami_number'))
+    all_bagans = list(Bagan.objects.filter(event=tatami.event).select_related('nomor_tanding').order_by('kode', 'nama_bagan'))
+
+    bagan_pk = request.GET.get('bagan')
+    selected_bagan = None
+    if bagan_pk:
+        selected_bagan = next((b for b in all_bagans if str(b.pk) == str(bagan_pk)), None)
+    if not selected_bagan and tatami.detail_bagan and tatami.detail_bagan.bagan:
+        selected_bagan = tatami.detail_bagan.bagan
+    if not selected_bagan:
+        selected_bagan = next((b for b in all_bagans if b.tipe_tanding == '1'), None) or (all_bagans[0] if all_bagans else None)
+
+    detail_bagans_round_1 = []
+    detail_bagans_round_2 = []
+    detail_bagans_round_3 = []
+    detail_bagans_round_4 = []
+    detail_bagan_round_5 = None
+    referchange = False
+
+    active_tatami_map = {
+        t.detail_bagan_id: t for t in all_tatamis 
+        if t.detail_bagan_id and t.detail_bagan and not t.detail_bagan.selesai
+    }
+
+    def annotate_kata_match(m):
+        m.active_on_tatami = active_tatami_map.get(m.pk) if not m.selesai else None
+        m.has_kata1 = bool(m.kata1 and m.kata1 != '0 - Blank' and m.kata1.strip())
+        m.has_kata2 = bool(m.kata2 and m.kata2 != '0 - Blank' and m.kata2.strip())
+        m.is_kata_complete = m.has_kata1 and m.has_kata2
+        return m
+
+    if selected_bagan:
+        referchange = 'REFERCHANGE' in selected_bagan.nama_bagan.upper()
+        detail_bagans_round_1 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=1)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .order_by('urutan')
+        )
+        detail_bagans_round_2 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=2)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .order_by('urutan')
+        )
+        detail_bagans_round_3 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=3)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .order_by('urutan')
+        )
+        detail_bagans_round_4 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=4)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .order_by('urutan')
+        )
+        detail_bagan_round_5 = (
+            DetailBagan.objects.filter(bagan=selected_bagan, round=5)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .first()
+        )
+
+        all_matches = detail_bagans_round_1 + detail_bagans_round_2 + detail_bagans_round_3 + detail_bagans_round_4
+        for m in all_matches:
+            annotate_kata_match(m)
+        if detail_bagan_round_5:
+            annotate_kata_match(detail_bagan_round_5)
+    else:
+        all_matches = []
+
+    total_matches = len(all_matches)
+    ready_matches = sum(1 for m in all_matches if m.is_kata_complete)
+    partial_matches = sum(1 for m in all_matches if (m.has_kata1 or m.has_kata2) and not m.is_kata_complete)
+    pending_matches = sum(1 for m in all_matches if not m.has_kata1 and not m.has_kata2)
+    finished_matches = sum(1 for m in all_matches if m.selesai)
 
     indexed_katas = [f"{idx} - {name}" for idx, name in enumerate(OFFICIAL_KATA_LIST)]
-
-    from .utils import get_athlete_kata_records, check_is_final
-    kata_history_aka = get_athlete_kata_records(detail_bagan.atlet1, detail_bagan) if detail_bagan else {}
-    kata_history_ao = get_athlete_kata_records(detail_bagan.atlet2, detail_bagan) if detail_bagan else {}
-    is_final_match = check_is_final(detail_bagan)
 
     context = {
         'tatami': tatami,
         'event': tatami.event,
-        'detail_bagan': detail_bagan,
-        'bagan': bagan,
+        'all_tatamis': all_tatamis,
+        'all_bagans': all_bagans,
+        'selected_bagan': selected_bagan,
+        'detail_bagans_round_1': detail_bagans_round_1,
+        'detail_bagans_round_2': detail_bagans_round_2,
+        'detail_bagans_round_3': detail_bagans_round_3,
+        'detail_bagans_round_4': detail_bagans_round_4,
+        'detail_bagan_round_5': detail_bagan_round_5,
+        'referchange': referchange,
         'kata_list': indexed_katas,
         'kata_list_json': json.dumps(indexed_katas),
-        'current_kata1': detail_bagan.kata1 if detail_bagan and detail_bagan.kata1 else '0 - Blank',
-        'current_kata2': detail_bagan.kata2 if detail_bagan and detail_bagan.kata2 else '0 - Blank',
-        'kata_history_aka_json': json.dumps(kata_history_aka),
-        'kata_history_ao_json': json.dumps(kata_history_ao),
-        'is_final_match': is_final_match,
+        'metrics': {
+            'total_matches': total_matches,
+            'ready_matches': ready_matches,
+            'partial_matches': partial_matches,
+            'pending_matches': pending_matches,
+            'finished_matches': finished_matches,
+            'total_bagan': len(all_bagans),
+            'total_tatami': len(all_tatamis),
+        }
     }
     return render(request, 'lo/kata.html', context)
 
@@ -746,18 +1068,7 @@ def _handle_drawing_bagan(request, event):
                 if nomor_tanding.has_vr != should_have_vr:
                     nomor_tanding.has_vr = should_have_vr
                     nomor_tanding.save(update_fields=['has_vr'])
-                atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding).filter(
-                    (
-                        Q(nomor_tanding__nama_nomor_tanding__icontains='kumite') &
-                        Q(nomor_tanding__nama_nomor_tanding__icontains='beregu') &
-                        Q(nama_atlet__icontains='team')
-                    )
-                    |
-                    ~(
-                        Q(nomor_tanding__nama_nomor_tanding__icontains='kumite') &
-                        Q(nomor_tanding__nama_nomor_tanding__icontains='beregu')
-                    )
-                ))
+                atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
                 if not atlets_temp_all:
                     continue
 
@@ -1229,11 +1540,27 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     if bagan.round_robin:
         return redirect('admin-bagan-detail-round-robin', event_pk=event_pk, bagan_pk=bagan_pk)
     all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
-    detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
-    detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
-    detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
-    detail_bagans_round_4 = DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan')
+    detail_bagans_round_1 = list(DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan'))
+    detail_bagans_round_2 = list(DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan'))
+    detail_bagans_round_3 = list(DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan'))
+    detail_bagans_round_4 = list(DetailBagan.objects.filter(bagan=bagan, round=4).order_by('urutan'))
     detail_bagan_round_5 = DetailBagan.objects.filter(bagan=bagan, round=5).first()
+
+    all_tatamis = list(Tatami.objects.filter(event=event).select_related('detail_bagan'))
+    active_tatami_map = {
+        t.detail_bagan_id: t for t in all_tatamis 
+        if t.detail_bagan_id and t.detail_bagan and not t.detail_bagan.selesai
+    }
+    for m in detail_bagans_round_1:
+        m.active_on_tatami = active_tatami_map.get(m.pk) if not m.selesai else None
+    for m in detail_bagans_round_2:
+        m.active_on_tatami = active_tatami_map.get(m.pk) if not m.selesai else None
+    for m in detail_bagans_round_3:
+        m.active_on_tatami = active_tatami_map.get(m.pk) if not m.selesai else None
+    for m in detail_bagans_round_4:
+        m.active_on_tatami = active_tatami_map.get(m.pk) if not m.selesai else None
+    if detail_bagan_round_5:
+        detail_bagan_round_5.active_on_tatami = active_tatami_map.get(detail_bagan_round_5.pk) if not detail_bagan_round_5.selesai else None
 
 
     if 'REFERCHANGE' in bagan.nama_bagan:
@@ -1593,27 +1920,232 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
     if not ao_score_obj:
         ao_score_obj = Score.objects.create(detail_bagan=detail_bagan, atlet=1)
 
+    nt_name = (bagan.nomor_tanding.nama_nomor_tanding or '').lower() if bagan.nomor_tanding else ''
+    bagan_name = (bagan.nama_bagan or '').lower()
+    is_kumite_cat = (bagan.tipe_tanding == '2') or ('kumite' in bagan_name)
+    is_beregu_cat = ('beregu' in nt_name) or ('beregu' in bagan_name) or ('team' in bagan_name)
+    is_kumite_beregu = is_kumite_cat and is_beregu_cat
+
+    # If this is master match for Kumite Beregu, route to the active child bout
+    if is_kumite_beregu and not detail_bagan.team:
+        existing_mus = Matchup.objects.filter(bagan=bagan, detail_bagan=detail_bagan).order_by('round')
+        if not existing_mus.exists():
+            default_count = 3 if any(k in (nt_name + ' ' + bagan_name) for k in ['putri', 'cadet', 'junior', 'pemula', 'usia dini', '3']) else 5
+            for r in range(1, default_count + 1):
+                child_db = DetailBagan.objects.create(
+                    bagan=bagan,
+                    round=10,
+                    urutan=r,
+                    atlet1=detail_bagan.atlet1,
+                    atlet2=detail_bagan.atlet2,
+                    score1='0',
+                    score2='0',
+                    vr1=getattr(bagan, 'has_vr', False),
+                    vr2=getattr(bagan, 'has_vr', False),
+                    team=True,
+                )
+                Matchup.objects.create(
+                    bagan=bagan,
+                    detail_bagan=detail_bagan,
+                    db=child_db,
+                    round=r,
+                )
+            existing_mus = Matchup.objects.filter(bagan=bagan, detail_bagan=detail_bagan).order_by('round')
+
+        target_mu = existing_mus.filter(db__selesai=False).first() or existing_mus.first()
+        if target_mu and target_mu.db:
+            return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=target_mu.db.pk, tatami_pk=tatami_pk)
+
     match_changed = (tatami.detail_bagan_id != detail_bagan.pk)
     if match_changed:
         tatami.detail_bagan = detail_bagan
         tatami.save(update_fields=['detail_bagan'])
         broadcast_tatami_match_update(tatami)
 
-    total_aka_score = 0
-    total_ao_score = 0
+    mu = Matchup.objects.filter(db=detail_bagan).select_related('detail_bagan', 'detail_bagan__atlet1', 'detail_bagan__atlet2').first()
+    parent_match = mu.detail_bagan if mu else None
+    if parent_match:
+        is_kumite_beregu = True
 
-    mu = Matchup.objects.filter(db=detail_bagan).first()
+    all_matchups = []
+    team_aka_score = 0
+    team_ao_score = 0
+    team_aka_lil_score = 0
+    team_ao_lil_score = 0
+    candidate_atlets_aka = Atlet.objects.none()
+    candidate_atlets_ao = Atlet.objects.none()
 
-    if 'KUMITE BEREGU' in bagan.nama_bagan and mu:
-        for matchup in Matchup.objects.filter(bagan=bagan, detail_bagan=mu.detail_bagan).select_related('db'):
-            if matchup.db and matchup.db.pemenang == '1':
-                total_aka_score += 1
-            elif matchup.db and matchup.db.pemenang == '2':
-                total_ao_score += 1
+    if is_kumite_beregu and parent_match:
+        all_matchups = list(Matchup.objects.filter(bagan=bagan, detail_bagan=parent_match).select_related('db', 'db__atlet1', 'db__atlet2').order_by('round'))
+        for m in all_matchups:
+            if m.db and m.db.score1 and str(m.db.score1).isdigit():
+                team_aka_lil_score += int(m.db.score1)
+            if m.db and m.db.score2 and str(m.db.score2).isdigit():
+                team_ao_lil_score += int(m.db.score2)
+            if m.db and m.db.pemenang == '1':
+                team_aka_score += 1
+            elif m.db and m.db.pemenang == '2':
+                team_ao_score += 1
+
+        if parent_match.atlet1 and parent_match.atlet1.utusan:
+            candidate_atlets_aka = Atlet.objects.filter(event=event, utusan=parent_match.atlet1.utusan).exclude(pk=parent_match.atlet1.pk).order_by('nama_atlet')
+        if parent_match.atlet2 and parent_match.atlet2.utusan:
+            candidate_atlets_ao = Atlet.objects.filter(event=event, utusan=parent_match.atlet2.utusan).exclude(pk=parent_match.atlet2.pk).order_by('nama_atlet')
+
+    total_aka_score = team_aka_score
+    total_ao_score = team_ao_score
 
     if request.method == 'POST':
         pemenang = request.POST.get('pemenang')
-        if request.POST.get('submit_type') == 'kata-simpan':
+        submit_type = request.POST.get('submit_type')
+
+        if submit_type == 'assign-bout-athletes':
+            aka_pk = request.POST.get('bout_aka_atlet')
+            ao_pk = request.POST.get('bout_ao_atlet')
+            aka_custom = request.POST.get('bout_aka_custom_name', '').strip()
+            ao_custom = request.POST.get('bout_ao_custom_name', '').strip()
+
+            if aka_pk and aka_pk != '-':
+                detail_bagan.atlet1 = Atlet.objects.filter(pk=aka_pk).first()
+            elif aka_custom and parent_match and parent_match.atlet1:
+                a_obj, _ = Atlet.objects.get_or_create(
+                    event=event,
+                    nama_atlet=aka_custom.upper(),
+                    utusan=parent_match.atlet1.utusan,
+                    defaults={'perguruan': parent_match.atlet1.perguruan, 'nomor_tanding': bagan.nomor_tanding}
+                )
+                detail_bagan.atlet1 = a_obj
+
+            if ao_pk and ao_pk != '-':
+                detail_bagan.atlet2 = Atlet.objects.filter(pk=ao_pk).first()
+            elif ao_custom and parent_match and parent_match.atlet2:
+                b_obj, _ = Atlet.objects.get_or_create(
+                    event=event,
+                    nama_atlet=ao_custom.upper(),
+                    utusan=parent_match.atlet2.utusan,
+                    defaults={'perguruan': parent_match.atlet2.perguruan, 'nomor_tanding': bagan.nomor_tanding}
+                )
+                detail_bagan.atlet2 = b_obj
+
+            detail_bagan.save(update_fields=['atlet1', 'atlet2'])
+            messages.success(request, f"Atlet untuk Partai {mu.round if mu else ''} berhasil disimpan.")
+            return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detail_bagan.pk, tatami_pk=tatami_pk)
+
+        elif submit_type == 'add-team-bout' and parent_match:
+            next_partai = len(all_matchups) + 1
+            new_child = DetailBagan.objects.create(
+                bagan=bagan,
+                round=10,
+                urutan=next_partai,
+                atlet1=parent_match.atlet1,
+                atlet2=parent_match.atlet2,
+                score1='0',
+                score2='0',
+                vr1=getattr(bagan, 'has_vr', False),
+                vr2=getattr(bagan, 'has_vr', False),
+                team=True,
+            )
+            Matchup.objects.create(
+                bagan=bagan,
+                detail_bagan=parent_match,
+                db=new_child,
+                round=next_partai,
+            )
+            messages.success(request, f"Partai {next_partai} berhasil ditambahkan.")
+            return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=new_child.pk, tatami_pk=tatami_pk)
+
+        elif submit_type == 'finish-team-match' and parent_match:
+            t_aka_score = 0
+            t_ao_score = 0
+            t_aka_lil = 0
+            t_ao_lil = 0
+            for m in all_matchups:
+                if m.db and m.db.score1 and str(m.db.score1).isdigit():
+                    t_aka_lil += int(m.db.score1)
+                if m.db and m.db.score2 and str(m.db.score2).isdigit():
+                    t_ao_lil += int(m.db.score2)
+                if m.db and m.db.pemenang == '1':
+                    t_aka_score += 1
+                elif m.db and m.db.pemenang == '2':
+                    t_ao_score += 1
+
+            team_winner_choice = request.POST.get('team_winner')
+            if team_winner_choice == 'aka':
+                final_pemenang = '1'
+            elif team_winner_choice == 'ao':
+                final_pemenang = '2'
+            else:
+                if t_aka_score > t_ao_score:
+                    final_pemenang = '1'
+                elif t_ao_score > t_aka_score:
+                    final_pemenang = '2'
+                elif t_aka_lil > t_ao_lil:
+                    final_pemenang = '1'
+                elif t_ao_lil > t_aka_lil:
+                    final_pemenang = '2'
+                else:
+                    final_pemenang = '1'
+
+            final_winner = parent_match.atlet1 if final_pemenang == '1' else parent_match.atlet2
+
+            parent_match.score1 = str(t_aka_score)
+            parent_match.score2 = str(t_ao_score)
+            parent_match.scorekecil1 = str(t_aka_lil)
+            parent_match.scorekecil2 = str(t_ao_lil)
+            parent_match.pemenang = final_pemenang
+            parent_match.selesai = True
+            parent_match.save()
+
+            target_slot = None
+            detailbagan_next_round = None
+            if not bagan.round_robin:
+                next_round_number = parent_match.round + 1
+                next_round_urutan = (parent_match.urutan + 1) // 2
+                detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
+                if detailbagan_next_round and final_winner:
+                    target_slot = 'atlet1' if parent_match.urutan % 2 == 1 else 'atlet2'
+                    if target_slot == 'atlet1':
+                        detailbagan_next_round.atlet1 = final_winner
+                    else:
+                        detailbagan_next_round.atlet2 = final_winner
+                    detailbagan_next_round.save()
+
+            payload = {
+                'status': 'finished',
+                'pemenang': 'aka' if final_pemenang == '1' else 'ao',
+                'target_slot': target_slot,
+                'round': parent_match.round,
+                'urutan': parent_match.urutan,
+                'kode_realtime': get_kode_realtime(parent_match),
+                'score_aka': parent_match.score1,
+                'score_ao': parent_match.score2,
+                'lil_score_aka': parent_match.scorekecil1,
+                'lil_score_ao': parent_match.scorekecil2,
+                'vr1': parent_match.vr1,
+                'vr2': parent_match.vr2,
+                'winner_atlet': final_winner.nama_atlet if final_winner else None,
+                'next_kode_realtime': get_kode_realtime(detailbagan_next_round) if detailbagan_next_round else None,
+                'ring_number': tatami.tatami_number if tatami else '',
+            }
+            send_to_hosted_async(payload, endpoint='api/result/', event=bagan.event if bagan else None)
+
+            broadcast_match_finished(
+                detail_bagan=parent_match,
+                winner_atlet=final_winner,
+                target_slot=target_slot,
+                next_detail_bagan=detailbagan_next_round,
+                tatami=tatami,
+            )
+
+            if tatami:
+                tatami.detail_bagan = None
+                tatami.save(update_fields=['detail_bagan'])
+                broadcast_tatami_match_update(tatami)
+
+            messages.success(request, f"Pertandingan Beregu selesai! Pemenang: {final_winner.nama_atlet} ({t_aka_score} - {t_ao_score})")
+            return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+
+        elif submit_type == 'kata-simpan':
             aka_scores = request.POST.getlist('akaScores')
             ao_scores = request.POST.getlist('aoScores')
             total_aka = request.POST.get('totalAka')
@@ -1639,7 +2171,7 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
             detail_bagan.kata1 = kata_aka
             detail_bagan.kata2 = kata_ao
         
-        elif request.POST.get('submit_type') == 'kumite-simpan':
+        elif submit_type == 'kumite-simpan':
             aka_score = request.POST.get('akaScore')
             ao_score = request.POST.get('aoScore')
             aka_vr = bool(request.POST.get('aka-vr'))
@@ -1647,23 +2179,67 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
             detail_bagan.score1 = aka_score
             detail_bagan.score2 = ao_score
-
             detail_bagan.vr1 = aka_vr
             detail_bagan.vr2 = ao_vr
-        
+
+            if pemenang == 'aka':
+                detail_bagan.pemenang = '1'
+            elif pemenang == 'ao':
+                detail_bagan.pemenang = '2'
+            elif pemenang == 'seri':
+                detail_bagan.pemenang = '3'
+            else:
+                s1 = int(aka_score) if aka_score and str(aka_score).isdigit() else 0
+                s2 = int(ao_score) if ao_score and str(ao_score).isdigit() else 0
+                if s1 > s2:
+                    detail_bagan.pemenang = '1'
+                elif s2 > s1:
+                    detail_bagan.pemenang = '2'
+                else:
+                    detail_bagan.pemenang = '3'
+
+            detail_bagan.selesai = True
+            detail_bagan.save()
+
+            if is_kumite_beregu and parent_match:
+                next_unfinished = Matchup.objects.filter(
+                    bagan=bagan,
+                    detail_bagan=parent_match,
+                    db__selesai=False
+                ).exclude(db=detail_bagan).order_by('round').first()
+
+                if next_unfinished and next_unfinished.db:
+                    tatami.detail_bagan = next_unfinished.db
+                    tatami.save(update_fields=['detail_bagan'])
+                    broadcast_tatami_match_update(tatami)
+                    messages.success(request, f"Partai {mu.round if mu else ''} tersimpan! Melanjutkan ke Partai {next_unfinished.round}.")
+                    return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=next_unfinished.db.pk, tatami_pk=tatami_pk)
+                else:
+                    messages.info(request, f"Partai {mu.round if mu else ''} tersimpan. Semua partai telah dimainkan! Silakan periksa skor tim dan klik 'Selesaikan Pertandingan Beregu'.")
+                    return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detail_bagan.pk, tatami_pk=tatami_pk)
+
         if pemenang == 'aka':
             detail_bagan.pemenang = '1'
         elif pemenang == 'ao':
             detail_bagan.pemenang = '2'
-        else:
+        elif pemenang == 'seri':
             detail_bagan.pemenang = '3'
+        else:
+            s1 = int(detail_bagan.score1) if detail_bagan.score1 and str(detail_bagan.score1).isdigit() else 0
+            s2 = int(detail_bagan.score2) if detail_bagan.score2 and str(detail_bagan.score2).isdigit() else 0
+            if s1 > s2:
+                detail_bagan.pemenang = '1'
+            elif s2 > s1:
+                detail_bagan.pemenang = '2'
+            else:
+                detail_bagan.pemenang = '3'
 
         detail_bagan.selesai = True
         detail_bagan.save()
 
         winner_atlet = None
-        
         target_slot = None
+        detailbagan_next_round = None
         if not bagan.round_robin and not detail_bagan.team:
             next_round_number = detail_bagan.round + 1
             next_round_urutan = (detail_bagan.urutan + 1) // 2
@@ -1732,29 +2308,51 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
             }
             send_to_hosted_async(payload, endpoint='api/result/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
 
+        broadcast_match_finished(
+            detail_bagan=detail_bagan,
+            winner_atlet=winner_atlet,
+            target_slot=target_slot,
+            next_detail_bagan=detailbagan_next_round,
+            tatami=tatami,
+        )
+
+        if tatami:
+            tatami.detail_bagan = None
+            tatami.save(update_fields=['detail_bagan'])
+            broadcast_tatami_match_update(tatami)
+
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
-    from .utils import get_athlete_kata_records, check_is_final
+    from .utils import get_athlete_kata_records, check_is_final, get_utusan_logo_url, get_round_label, get_round_of_slots, get_marquee_title
     kata_history_aka = get_athlete_kata_records(detail_bagan.atlet1, detail_bagan)
     kata_history_ao = get_athlete_kata_records(detail_bagan.atlet2, detail_bagan)
     is_final = check_is_final(detail_bagan)
+    round_label = get_round_label(detail_bagan)
+    round_of = get_round_of_slots(detail_bagan)
+    marquee_text = get_marquee_title(detail_bagan)
 
     detail_data = {
         "atlet_red": detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else None,
         "atlet_red_perguruan": detail_bagan.atlet1.perguruan.nama_perguruan if detail_bagan.atlet1 and detail_bagan.atlet1.perguruan else None,
         "atlet_red_utusan": detail_bagan.atlet1.utusan.nama_utusan if detail_bagan.atlet1 and detail_bagan.atlet1.utusan else None,
+        "atlet_red_logo": get_utusan_logo_url(detail_bagan.atlet1),
         "atlet_red_kata": detail_bagan.kata1 if detail_bagan.kata1 else None,
         "atlet_red_vr": detail_bagan.vr1 if detail_bagan.vr1 else None,
         "atlet_blue": detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else None,
         "atlet_blue_perguruan": detail_bagan.atlet2.perguruan.nama_perguruan if detail_bagan.atlet2 and detail_bagan.atlet2.perguruan else None,
         "atlet_blue_utusan": detail_bagan.atlet2.utusan.nama_utusan if detail_bagan.atlet2 and detail_bagan.atlet2.utusan else None,
+        "atlet_blue_logo": get_utusan_logo_url(detail_bagan.atlet2),
         "atlet_blue_kata": detail_bagan.kata2 if detail_bagan.kata2 else None,
         "atlet_blue_vr": detail_bagan.vr2 if detail_bagan.vr2 else None,
         "tipe_tanding": bagan.tipe_tanding,
-        "team": True if 'KUMITE BEREGU' in bagan.nama_bagan else None,
+        "team": True if (is_kumite_beregu and parent_match) else None,
         "total_aka_score": total_aka_score,
         "total_ao_score": total_ao_score,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding if bagan and bagan.nomor_tanding else '',
+        "nama_bagan": bagan.nama_bagan if bagan else '',
+        "round_label": round_label,
+        "round_of": round_of,
+        "marquee_text": marquee_text,
         "round": detail_bagan.round,
         "urutan": detail_bagan.urutan,
         "tatami_number": tatami.tatami_number,
@@ -1821,6 +2419,16 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         'aka_score': aka_score_obj,
         'ao_score': ao_score_obj,
         'tatami': tatami,
+        'is_kumite_beregu': is_kumite_beregu,
+        'parent_match': parent_match,
+        'current_matchup': mu,
+        'matchups': all_matchups,
+        'team_aka_score': team_aka_score,
+        'team_ao_score': team_ao_score,
+        'team_aka_lil_score': team_aka_lil_score,
+        'team_ao_lil_score': team_ao_lil_score,
+        'candidate_atlets_aka': candidate_atlets_aka,
+        'candidate_atlets_ao': candidate_atlets_ao,
     }
 
     return render(request, 'admin/control-panel.html', context)
@@ -1893,205 +2501,7 @@ def control_panel_fest(request, event_pk, tatami_pk):
     return render(request, 'admin/control-panel-fest.html', context)
 
 def control_panel_team(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
-    if not request.user.is_authenticated:
-        return redirect('auth')
-    event = get_object_or_404(Event, pk=event_pk)
-    tatami = get_object_or_404(Tatami, pk=tatami_pk)
-    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
-    bagan = get_object_or_404(Bagan, pk=bagan_pk)
-    detail_bagan = get_object_or_404(
-        DetailBagan.objects.select_related('atlet1__utusan', 'atlet1__nomor_tanding', 'atlet2__utusan', 'atlet2__nomor_tanding'),
-        pk=detailbagan_pk
-    )
-
-    if tatami.detail_bagan_id != detail_bagan.pk:
-        tatami.detail_bagan = detail_bagan
-        tatami.save(update_fields=['detail_bagan'])
-
-    team_aka = Atlet.objects.none()
-    team_ao = Atlet.objects.none()
-    if detail_bagan.atlet1 and detail_bagan.atlet1.utusan and detail_bagan.atlet1.nomor_tanding:
-        team_aka = Atlet.objects.filter(utusan=detail_bagan.atlet1.utusan, nomor_tanding=detail_bagan.atlet1.nomor_tanding).exclude(nama_atlet__icontains='team')
-    if detail_bagan.atlet2 and detail_bagan.atlet2.utusan and detail_bagan.atlet2.nomor_tanding:
-        team_ao = Atlet.objects.filter(utusan=detail_bagan.atlet2.utusan, nomor_tanding=detail_bagan.atlet2.nomor_tanding).exclude(nama_atlet__icontains='team')
-
-    matchups = Matchup.objects.filter(bagan=bagan, detail_bagan=detail_bagan).select_related('db').order_by('round')
-    team_aka_score = 0
-    team_ao_score = 0 
-    team_aka_lil_score = 0
-    team_ao_lil_score = 0
-
-    for matchup in matchups:
-        team_aka_lil_score += int(matchup.db.score1) if matchup.db.score1 else 0
-        team_ao_lil_score += int(matchup.db.score2) if matchup.db.score2 else 0
-        if matchup.db.pemenang == '1':
-            team_aka_score += 1
-        elif matchup.db.pemenang == '2':
-            team_ao_score += 1 
-    
-    if request.method == 'POST':
-        if request.POST.get('submit_type') == 'save':
-            i = 1
-            while True:
-                aka = request.POST.get(f'aka_{i}')
-                ao = request.POST.get(f'ao_{i}')
-                if aka is None:
-                    break
-                if aka == '-' or ao == '-':
-                    i += 1
-                    continue
-                aka_atlet = Atlet.objects.get(pk=aka)
-                ao_atlet = Atlet.objects.get(pk=ao)
-                already_exists = Matchup.objects.filter(
-                    bagan=bagan,
-                    detail_bagan=detail_bagan,
-                    round=i
-                ).exists()
-
-                if not already_exists:
-                    new_detail_bagan = DetailBagan.objects.create(
-                        bagan=bagan,
-                        round=10,
-                        urutan=1,
-                        atlet1=aka_atlet,
-                        atlet2=ao_atlet,
-                        score1=0,
-                        score2=0,
-                        vr1=True,
-                        vr2=True,
-                        team=True,
-                    )
-                    Matchup.objects.create(
-                        bagan=bagan,
-                        detail_bagan=detail_bagan,
-                        db=new_detail_bagan,
-                        round=i,
-                    )
-
-                i += 1
-        elif request.POST.get('submit_type') == 'delete':
-            matchup_pk = request.POST.get('matchup')
-            matchup = Matchup.objects.get(pk=matchup_pk)
-            matchup.db.delete()
-            matchup.delete()
-        
-        elif request.POST.get('submit_type') == 'simpan':
-            if team_aka_score > team_ao_score:
-                detail_bagan.pemenang = '1'
-            elif team_ao_score > team_aka_score:
-                detail_bagan.pemenang = '2'
-            elif team_aka_lil_score > team_ao_lil_score:
-                detail_bagan.pemenang = '1'
-            elif team_ao_lil_score > team_aka_lil_score:
-                detail_bagan.pemenang = '2'
-            else:
-                detail_bagan.pemenang = '3'
-
-
-            detail_bagan.score1 = team_aka_score
-            detail_bagan.score2 = team_ao_score
-            detail_bagan.scorekecil1 = team_aka_lil_score
-            detail_bagan.scorekecil2 = team_ao_lil_score
-            detail_bagan.selesai = True
-            detail_bagan.save()
-            
-            next_round_number = detail_bagan.round + 1
-            next_round_urutan = (detail_bagan.urutan + 1) // 2
-            detailbagan_next_round = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
-
-            if detailbagan_next_round:
-                if team_aka_score > team_ao_score:
-                    winner_atlet = detail_bagan.atlet1
-                elif team_ao_score > team_aka_score:
-                    winner_atlet = detail_bagan.atlet2
-                elif team_aka_lil_score > team_ao_lil_score:
-                    winner_atlet = detail_bagan.atlet1
-                elif team_ao_lil_score > team_aka_lil_score:
-                    winner_atlet = detail_bagan.atlet2
-                else:
-                    winner_atlet = None
-                    detail_bagan.pemenang = '3'
-
-                target_slot = None
-                if winner_atlet:
-                    target_slot = 'atlet1' if detail_bagan.urutan % 2 == 1 else 'atlet2'
-                    if target_slot == 'atlet1':
-                        detailbagan_next_round.atlet1 = winner_atlet
-                    else:
-                        detailbagan_next_round.atlet2 = winner_atlet
-
-                    if getattr(bagan, 'has_vr', False):
-                        if next_round_number in (3, 4):
-                            # Regain VR di Semifinal dan Final
-                            if target_slot == 'atlet1':
-                                detailbagan_next_round.vr1 = True
-                            else:
-                                detailbagan_next_round.vr2 = True
-                        else:
-                            # Babak penyisihan: pertahankan VR hanya jika tidak hangus
-                            winner_had_vr = bool(detail_bagan.vr1 if detail_bagan.pemenang == '1' else detail_bagan.vr2)
-                            if target_slot == 'atlet1':
-                                detailbagan_next_round.vr1 = winner_had_vr
-                            else:
-                                detailbagan_next_round.vr2 = winner_had_vr
-                    else:
-                        if target_slot == 'atlet1':
-                            detailbagan_next_round.vr1 = False
-                        else:
-                            detailbagan_next_round.vr2 = False
-
-                detail_bagan.save()
-                detailbagan_next_round.save()
-
-                if winner_atlet == detail_bagan.atlet1:
-                    pemenang = 'aka'
-                elif winner_atlet == detail_bagan.atlet2:
-                    pemenang = 'ao'
-                else:
-                    pemenang = '3'
-
-                payload = {
-                    'status': 'finished',
-                    'pemenang': pemenang,
-                    'target_slot': target_slot,
-                    'round': detail_bagan.round,
-                    'urutan': detail_bagan.urutan,
-                    'kode_realtime': get_kode_realtime(detail_bagan),
-                    'score_aka': detail_bagan.score1,
-                    'score_ao': detail_bagan.score2,
-                    'lil_score_aka': detail_bagan.scorekecil1,
-                    'lil_score_ao': detail_bagan.scorekecil2,
-                    'vr1': detail_bagan.vr1,
-                    'vr2': detail_bagan.vr2,
-                    'next_vr1': detailbagan_next_round.vr1 if detailbagan_next_round else False,
-                    'next_vr2': detailbagan_next_round.vr2 if detailbagan_next_round else False,
-                    'winner_atlet': winner_atlet.nama_atlet if winner_atlet else None,
-                    'next_kode_realtime': get_kode_realtime(detailbagan_next_round) if detailbagan_next_round else None,
-                    'ring_number': Tatami.objects.filter(detail_bagan=detail_bagan).first().tatami_number if Tatami.objects.filter(detail_bagan=detail_bagan).first() else '',
-                }
-                send_to_hosted_async(payload, endpoint='api/result/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
-
-            return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
-            
-        return redirect("control-panel-team", event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk, tatami_pk=tatami_pk)
-
-    context = {
-        'on': 'utama',
-        'event': event,
-        'admin_tatami': admin_tatami,
-        'bagan': bagan,
-        'detail_bagan': detail_bagan,
-        'tatami': tatami,
-        'team_aka': team_aka,
-        'team_ao': team_ao,
-        'matchups': matchups,
-        'team_aka_score': team_aka_score,
-        'team_ao_score': team_ao_score,
-        'team_aka_lil_score': team_aka_lil_score,
-        'team_ao_lil_score': team_ao_lil_score,
-    }
-
-    return render(request, 'admin/control-panel-team.html', context)
+    return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=detailbagan_pk, tatami_pk=tatami_pk)
 
 @csrf_exempt
 def message_retriever(request, tatami_pk):
@@ -2150,32 +2560,95 @@ def admin_atlet(request, event_pk):
                 nt_cache = {nt.nama_nomor_tanding.upper(): nt for nt in NomorTanding.objects.filter(event=event)}
 
                 created_count = 0
+                priority_count = 0
+                placeholder_logo = 'logo_utusan/inkanas_balikpapan.webp'
+
+                rows_iter = sheet.iter_rows(values_only=True)
+                header_row = next(rows_iter, None)
+                if not header_row:
+                    messages.error(request, "File Excel kosong.")
+                    return redirect('admin-atlet', event_pk=event_pk)
+
+                # Header detection map
+                header_map = {}
+                for idx, cell in enumerate(header_row):
+                    if cell is None:
+                        continue
+                    h = str(cell).strip().lower()
+                    if 'kta' in h or 'additional' in h or 'no. kta' in h:
+                        header_map['kta'] = idx
+                    elif 'nama' in h:
+                        header_map['nama'] = idx
+                    elif 'perguruan' in h:
+                        header_map['perguruan'] = idx
+                    elif 'cabang' in h or 'utusan' in h or 'kontingen' in h or 'dojo' in h:
+                        header_map['utusan'] = idx
+                    elif 'kelas' in h or 'nomor' in h or 'kategori' in h:
+                        header_map['nomor_tanding'] = idx
+                    elif 'ket' in h or 'prioritas' in h or 'seed' in h or 'priority' in h:
+                        header_map['ket'] = idx
+                    elif 'nik' in h:
+                        header_map['nik'] = idx
+
+                has_named_headers = 'nama' in header_map and ('nomor_tanding' in header_map or 'kelas' in header_map)
+
                 with transaction.atomic():
-                    for row in sheet.iter_rows(min_row=2, values_only=True):
+                    for row in rows_iter:
                         if not row or not any(row):
                             continue
 
                         cells = [str(c).strip() if c is not None else '' for c in row]
-
-                        # Support 5 columns (Nama, NIK, Perguruan, Utusan, Nomor Tanding)
-                        # or 4 columns (Nama, Perguruan, Utusan, Nomor Tanding)
-                        if len(cells) >= 5:
-                            nama = cells[0]
-                            nik = cells[1]
-                            perguruan_name = cells[2].upper()
-                            utusan_name = cells[3].upper()
-                            nomor_tanding_name = cells[4].upper()
-                        elif len(cells) == 4:
-                            nama = cells[0]
-                            nik = ''
-                            perguruan_name = cells[1].upper()
-                            utusan_name = cells[2].upper()
-                            nomor_tanding_name = cells[3].upper()
-                        else:
+                        if not any(cells):
                             continue
+
+                        nama = ''
+                        additional_code = ''
+                        nik = ''
+                        perguruan_name = ''
+                        utusan_name = ''
+                        nomor_tanding_name = ''
+                        is_priority = False
+
+                        if has_named_headers:
+                            nama = cells[header_map['nama']] if header_map.get('nama') is not None and header_map['nama'] < len(cells) else ''
+                            additional_code = cells[header_map['kta']] if header_map.get('kta') is not None and header_map['kta'] < len(cells) else ''
+                            nik = cells[header_map['nik']] if header_map.get('nik') is not None and header_map['nik'] < len(cells) else ''
+                            perguruan_name = cells[header_map['perguruan']].upper() if header_map.get('perguruan') is not None and header_map['perguruan'] < len(cells) else ''
+                            utusan_name = cells[header_map['utusan']].upper() if header_map.get('utusan') is not None and header_map['utusan'] < len(cells) else ''
+                            nomor_tanding_name = cells[header_map['nomor_tanding']].upper() if header_map.get('nomor_tanding') is not None and header_map['nomor_tanding'] < len(cells) else ''
+                            if header_map.get('ket') is not None and header_map['ket'] < len(cells):
+                                raw_ket = str(cells[header_map['ket']]).strip().upper()
+                                is_priority = raw_ket in ['1', '1.0', 'YA', 'Y', 'TRUE', 'TRUE()']
+                        else:
+                            # Positional fallback
+                            if len(cells) >= 6:
+                                # 6-column INKANAS: NO. KTA AKTIF, NAMA LENGKAP, PERGURUAN, CABANG, KELAS TANDING, KET
+                                additional_code = cells[0]
+                                nama = cells[1]
+                                perguruan_name = cells[2].upper()
+                                utusan_name = cells[3].upper()
+                                nomor_tanding_name = cells[4].upper()
+                                raw_ket = cells[5].upper()
+                                is_priority = raw_ket in ['1', '1.0', 'YA', 'Y', 'TRUE']
+                            elif len(cells) == 5:
+                                nama = cells[0]
+                                nik = cells[1]
+                                perguruan_name = cells[2].upper()
+                                utusan_name = cells[3].upper()
+                                nomor_tanding_name = cells[4].upper()
+                            elif len(cells) == 4:
+                                nama = cells[0]
+                                perguruan_name = cells[1].upper()
+                                utusan_name = cells[2].upper()
+                                nomor_tanding_name = cells[3].upper()
+                            else:
+                                continue
 
                         if not nama:
                             continue
+
+                        if additional_code in ['-', '', 'None', 'NONE']:
+                            additional_code = ''
 
                         perguruan_obj = None
                         if perguruan_name:
@@ -2186,8 +2659,15 @@ def admin_atlet(request, event_pk):
                         utusan_obj = None
                         if utusan_name:
                             if utusan_name not in utusan_cache:
-                                utusan_cache[utusan_name] = Utusan.objects.create(event=event, nama_utusan=utusan_name)
+                                utusan_cache[utusan_name] = Utusan.objects.create(
+                                    event=event,
+                                    nama_utusan=utusan_name,
+                                    logo=placeholder_logo
+                                )
                             utusan_obj = utusan_cache[utusan_name]
+                            if not utusan_obj.logo:
+                                utusan_obj.logo = placeholder_logo
+                                utusan_obj.save(update_fields=['logo'])
 
                         nt_obj = None
                         if nomor_tanding_name:
@@ -2199,13 +2679,22 @@ def admin_atlet(request, event_pk):
                             event=event,
                             nama_atlet=nama.upper(),
                             nik=nik or None,
+                            additional_code=additional_code or None,
+                            is_priority=is_priority,
                             perguruan=perguruan_obj,
                             utusan=utusan_obj,
                             nomor_tanding=nt_obj
                         )
                         created_count += 1
+                        if is_priority:
+                            priority_count += 1
 
-                messages.success(request, f"Data atlet berhasil diimport ({created_count} atlet ditambahkan).")
+                msg = f"Data atlet berhasil diimport ({created_count} atlet ditambahkan"
+                if priority_count > 0:
+                    msg += f", {priority_count} atlet diprioritaskan untuk BYE)"
+                else:
+                    msg += ")"
+                messages.success(request, msg)
             except Exception as e:
                 messages.error(request, f"Gagal mengimport file: {str(e)}")
             return redirect('admin-atlet', event_pk=event_pk)
@@ -2236,10 +2725,14 @@ def admin_atlet(request, event_pk):
                 return redirect('admin-atlet', event_pk=event_pk)
 
             nik = request.POST.get('nik', '').strip()
+            additional_code = request.POST.get('additional_code', '').strip()
+            is_priority = bool(request.POST.get('is_priority'))
             Atlet.objects.create(
                 event=event,
                 nama_atlet=nama,
                 nik=nik or None,
+                additional_code=additional_code or None,
+                is_priority=is_priority,
                 perguruan_id=request.POST.get('perguruan') or None,
                 utusan_id=request.POST.get('utusan') or None,
                 nomor_tanding_id=request.POST.get('nomor_tanding') or None,
@@ -2321,7 +2814,9 @@ def edit_atlet_ajax(request):
         return JsonResponse({'success': False, 'message': 'Nama atlet wajib diisi.'}, status=400)
 
     atlet.nama_atlet = nama_atlet
-    atlet.nik = request.POST.get('nik', '').strip()
+    atlet.nik = request.POST.get('nik', '').strip() or None
+    atlet.additional_code = request.POST.get('additional_code', '').strip() or None
+    atlet.is_priority = bool(request.POST.get('is_priority') in ['1', 'true', 'True', True])
     atlet.perguruan_id = request.POST.get('perguruan') or None
     atlet.utusan_id = request.POST.get('utusan') or None
     atlet.nomor_tanding_id = request.POST.get('nomor_tanding') or None
@@ -2331,7 +2826,9 @@ def edit_atlet_ajax(request):
         'success': True,
         'atlet_id': atlet.pk,
         'nama_atlet': atlet.nama_atlet,
-        'nik': atlet.nik,
+        'nik': atlet.nik or '',
+        'additional_code': atlet.additional_code or '',
+        'is_priority': atlet.is_priority,
         'perguruan_id': atlet.perguruan_id or '',
         'perguruan_nama': atlet.perguruan.nama_perguruan if atlet.perguruan else '',
         'utusan_id': atlet.utusan_id or '',
@@ -2770,39 +3267,55 @@ def broadcast_tatami_match_update(tatami):
         return
 
     db = tatami.detail_bagan
-    bagan = db.bagan if db else None
+    # Match is only running if present and not finished
+    is_running = bool(db and not db.selesai)
+    active_db = db if is_running else None
+    bagan = active_db.bagan if active_db else None
     event = tatami.event
 
-    from .utils import get_athlete_kata_records, check_is_final
-    kata_history_aka = get_athlete_kata_records(db.atlet1, db) if (db and db.atlet1) else {}
-    kata_history_ao = get_athlete_kata_records(db.atlet2, db) if (db and db.atlet2) else {}
-    is_final = check_is_final(db) if db else False
+    from .utils import get_athlete_kata_records, check_is_final, get_utusan_logo_url, get_round_label, get_round_of_slots, get_marquee_title
+    kata_history_aka = get_athlete_kata_records(active_db.atlet1, active_db) if (active_db and active_db.atlet1) else {}
+    kata_history_ao = get_athlete_kata_records(active_db.atlet2, active_db) if (active_db and active_db.atlet2) else {}
+    is_final = check_is_final(active_db) if active_db else False
+    round_label = get_round_label(active_db) if active_db else ""
+    round_of = get_round_of_slots(active_db) if active_db else ""
+    marquee_text = get_marquee_title(active_db) if active_db else ""
 
     detail_data = {
         "tatami_pk": tatami.pk,
         "tatami_number": tatami.tatami_number,
-        "match_pk": db.pk if db else None,
-        "atlet_red": db.atlet1.nama_atlet if (db and db.atlet1) else "-",
-        "atlet_red_perguruan": db.atlet1.perguruan.nama_perguruan if (db and db.atlet1 and db.atlet1.perguruan) else "-",
-        "atlet_red_utusan": db.atlet1.utusan.nama_utusan if (db and db.atlet1 and db.atlet1.utusan) else "-",
-        "atlet_red_kata": db.kata1 if db else "-",
-        "atlet_red_vr": db.vr1 if db else None,
-        "atlet_blue": db.atlet2.nama_atlet if (db and db.atlet2) else "-",
-        "atlet_blue_perguruan": db.atlet2.perguruan.nama_perguruan if (db and db.atlet2 and db.atlet2.perguruan) else "-",
-        "atlet_blue_utusan": db.atlet2.utusan.nama_utusan if (db and db.atlet2 and db.atlet2.utusan) else "-",
-        "atlet_blue_kata": db.kata2 if db else "-",
-        "atlet_blue_vr": db.vr2 if db else None,
+        "match_pk": active_db.pk if active_db else None,
+        "bagan_pk": bagan.pk if bagan else None,
+        "is_running": is_running,
+        "selesai": db.selesai if db else False,
+        "atlet_red": active_db.atlet1.nama_atlet if (active_db and active_db.atlet1) else "-",
+        "atlet_red_perguruan": active_db.atlet1.perguruan.nama_perguruan if (active_db and active_db.atlet1 and active_db.atlet1.perguruan) else "-",
+        "atlet_red_utusan": active_db.atlet1.utusan.nama_utusan if (active_db and active_db.atlet1 and active_db.atlet1.utusan) else "-",
+        "atlet_red_logo": get_utusan_logo_url(active_db.atlet1) if active_db else None,
+        "atlet_red_kata": active_db.kata1 if active_db else "-",
+        "atlet_red_vr": active_db.vr1 if active_db else None,
+        "atlet_blue": active_db.atlet2.nama_atlet if (active_db and active_db.atlet2) else "-",
+        "atlet_blue_perguruan": active_db.atlet2.perguruan.nama_perguruan if (active_db and active_db.atlet2 and active_db.atlet2.perguruan) else "-",
+        "atlet_blue_utusan": active_db.atlet2.utusan.nama_utusan if (active_db and active_db.atlet2 and active_db.atlet2.utusan) else "-",
+        "atlet_blue_logo": get_utusan_logo_url(active_db.atlet2) if active_db else None,
+        "atlet_blue_kata": active_db.kata2 if active_db else "-",
+        "atlet_blue_vr": active_db.vr2 if active_db else None,
         "tipe_tanding": bagan.tipe_tanding if bagan else '2',
         "team": True if (bagan and 'KUMITE BEREGU' in bagan.nama_bagan) else None,
         "total_aka_score": 0,
         "total_ao_score": 0,
         "nomor_tanding": bagan.nomor_tanding.nama_nomor_tanding if (bagan and bagan.nomor_tanding) else '',
-        "round": db.round if db else None,
-        "urutan": db.urutan if db else None,
+        "nama_bagan": bagan.nama_bagan if bagan else '',
+        "round_label": round_label,
+        "round_of": round_of,
+        "marquee_text": marquee_text,
+        "round": active_db.round if active_db else None,
+        "urutan": active_db.urutan if active_db else None,
         "nama_event": event.nama_event if event else '',
         "kata_history_aka": kata_history_aka,
         "kata_history_ao": kata_history_ao,
         "is_final": is_final,
+        "has_vr": bool(bagan.has_vr) if bagan else False,
     }
 
     groups = [
@@ -2823,6 +3336,62 @@ def broadcast_tatami_match_update(tatami):
                     "type": "broadcast_command",
                     "message": "get_atlet",
                     "details": detail_data,
+                }
+            )
+        except Exception:
+            pass
+
+
+def broadcast_match_finished(detail_bagan, winner_atlet=None, target_slot=None, next_detail_bagan=None, tatami=None):
+    if not detail_bagan:
+        return
+    channel_layer = get_channel_layer()
+    if not channel_layer:
+        return
+
+    bagan = detail_bagan.bagan
+    if not winner_atlet:
+        if detail_bagan.pemenang == '1':
+            winner_atlet = detail_bagan.atlet1
+        elif detail_bagan.pemenang == '2':
+            winner_atlet = detail_bagan.atlet2
+
+    from .utils import get_utusan_logo_url
+    finish_data = {
+        "match_pk": detail_bagan.pk,
+        "bagan_pk": bagan.pk if bagan else None,
+        "round": detail_bagan.round,
+        "urutan": detail_bagan.urutan,
+        "pemenang": detail_bagan.pemenang,
+        "score_aka": detail_bagan.score1 if detail_bagan.score1 is not None else "0",
+        "score_ao": detail_bagan.score2 if detail_bagan.score2 is not None else "0",
+        "winner_name": winner_atlet.nama_atlet if winner_atlet else "-",
+        "winner_perguruan": winner_atlet.perguruan.nama_perguruan if (winner_atlet and winner_atlet.perguruan) else "-",
+        "winner_utusan": winner_atlet.utusan.nama_utusan if (winner_atlet and winner_atlet.utusan) else "-",
+        "winner_logo": get_utusan_logo_url(winner_atlet) if winner_atlet else None,
+        "next_match_pk": next_detail_bagan.pk if next_detail_bagan else None,
+        "target_slot": target_slot,
+        "tatami_pk": tatami.pk if tatami else None,
+    }
+
+    groups = ["tatamimanager_all", "lokata_all"]
+    if tatami:
+        groups.extend([
+            f"tatamimanager_{tatami.pk}",
+            f"scoring_{tatami.pk}",
+            f"control_{tatami.pk}",
+            f"admin_control_{tatami.pk}",
+            f"lokata_{tatami.pk}",
+        ])
+
+    for grp in groups:
+        try:
+            async_to_sync(channel_layer.group_send)(
+                grp,
+                {
+                    "type": "broadcast_command",
+                    "message": "match_finished",
+                    "details": finish_data,
                 }
             )
         except Exception:
@@ -2989,6 +3558,267 @@ def get_dynamic_panel_rule(active_match):
             }
 
 
+def sync_match_wasits_to_tatami(detail_bagan, tatami):
+    """
+    Synchronizes the officiating crew assigned in WasitDetailBagan for a match
+    into WasitTatami for the active tatami, keeping live scoring boards and panels updated.
+    """
+    if not detail_bagan or not tatami:
+        return
+    match_assignments = list(
+        WasitDetailBagan.objects.filter(detail_bagan=detail_bagan).select_related('wasit')
+    )
+    if not match_assignments:
+        return
+
+    with transaction.atomic():
+        chosen_wasit_ids = [ma.wasit_id for ma in match_assignments]
+        # Any wasit currently on tatami not in match_assignments is set to 'pool'
+        WasitTatami.objects.filter(event=tatami.event, tatami=tatami).exclude(wasit_id__in=chosen_wasit_ids).update(posisi='pool')
+        for ma in match_assignments:
+            wt = WasitTatami.objects.filter(event=tatami.event, wasit=ma.wasit).first()
+            if wt:
+                wt.tatami = tatami
+                wt.posisi = ma.posisi
+                wt.save(update_fields=['tatami', 'posisi'])
+            else:
+                WasitTatami.objects.create(
+                    event=tatami.event,
+                    tatami=tatami,
+                    wasit=ma.wasit,
+                    posisi=ma.posisi
+                )
+
+
+def auto_assign_panel_for_match(match, event):
+    """
+    Automated conflict-free referee assignment tailored specifically to a match's AKA and AO athletes.
+    Strictly prevents wasits from the same perguruan or kab/kota as the fighters.
+    """
+    if not match or not match.bagan:
+        return []
+    panel_rule = get_dynamic_panel_rule(match)
+    req_positions = panel_rule['required_positions']
+    needed_count = len(req_positions)
+
+    conflict_perguruan_ids = set()
+    conflict_kab_kota = set()
+    if match.atlet1:
+        if match.atlet1.perguruan_id:
+            conflict_perguruan_ids.add(match.atlet1.perguruan_id)
+        if match.atlet1.utusan and match.atlet1.utusan.nama_utusan:
+            conflict_kab_kota.add(match.atlet1.utusan.nama_utusan.strip().upper())
+    if match.atlet2:
+        if match.atlet2.perguruan_id:
+            conflict_perguruan_ids.add(match.atlet2.perguruan_id)
+        if match.atlet2.utusan and match.atlet2.utusan.nama_utusan:
+            conflict_kab_kota.add(match.atlet2.utusan.nama_utusan.strip().upper())
+
+    all_event_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan'))
+    all_tatami_assignments = {a.wasit_id: a for a in WasitTatami.objects.filter(event=event)}
+
+    pool_1 = []  # Diff perg & kab, available
+    pool_2 = []  # Diff perg & kab, on duty elsewhere (can borrow)
+    pool_3 = []  # Fallback if referee numbers are limited
+
+    for w in all_event_wasits:
+        w_kab = (w.kab_kota or '').strip().upper()
+        is_conflict = bool(
+            (w.perguruan_id and w.perguruan_id in conflict_perguruan_ids) or
+            (w_kab and w_kab in conflict_kab_kota)
+        )
+        wt = all_tatami_assignments.get(w.pk)
+        is_available = (wt is None or wt.posisi == 'pool')
+
+        if not is_conflict:
+            if is_available:
+                pool_1.append(w)
+            else:
+                pool_2.append(w)
+        else:
+            pool_3.append(w)
+
+    chosen = []
+    used_pergs = set()
+    used_kabs = set()
+
+    def try_pick(wasit_list, check_perg=True, check_kab=True):
+        for w in wasit_list:
+            if len(chosen) >= needed_count:
+                break
+            if w in chosen:
+                continue
+            p_id = w.perguruan_id
+            w_k = (w.kab_kota or '').strip().upper()
+            if check_perg and p_id and p_id in used_pergs:
+                continue
+            if check_kab and w_k and w_k in used_kabs:
+                continue
+            chosen.append(w)
+            if p_id:
+                used_pergs.add(p_id)
+            if w_k:
+                used_kabs.add(w_k)
+
+    try_pick(pool_1, check_perg=True, check_kab=True)
+    if len(chosen) < needed_count:
+        try_pick(pool_1, check_perg=True, check_kab=False)
+    if len(chosen) < needed_count:
+        try_pick(pool_1, check_perg=False, check_kab=False)
+    if len(chosen) < needed_count:
+        try_pick(pool_2, check_perg=True, check_kab=False)
+    if len(chosen) < needed_count:
+        try_pick(pool_2, check_perg=False, check_kab=False)
+    if len(chosen) < needed_count:
+        try_pick(pool_3, check_perg=False, check_kab=False)
+
+    with transaction.atomic():
+        WasitDetailBagan.objects.filter(detail_bagan=match).delete()
+        for idx, w in enumerate(chosen):
+            pos = req_positions[idx] if idx < len(req_positions) else 'pool'
+            WasitDetailBagan.objects.create(
+                event=event,
+                detail_bagan=match,
+                wasit=w,
+                posisi=pos
+            )
+
+    return chosen
+
+
+def get_match_tatami_modal_context(match, event, selected_tatami=None):
+    """
+    Builds the detailed context for the Tatami Manager Match Referee modal.
+    """
+    panel_rule = get_dynamic_panel_rule(match)
+    req_positions = panel_rule['required_positions']
+
+    active_tatami = Tatami.objects.filter(event=event, detail_bagan=match).first()
+    tatamis = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
+
+    assignments = list(
+        WasitDetailBagan.objects.filter(detail_bagan=match)
+        .select_related('wasit__perguruan')
+    )
+    assigned_by_pos = {a.posisi: a for a in assignments}
+    assigned_wasit_ids = {a.wasit_id for a in assignments}
+
+    conflict_perguruan_ids = set()
+    conflict_kab_kota = set()
+    if match.atlet1:
+        if match.atlet1.perguruan_id:
+            conflict_perguruan_ids.add(match.atlet1.perguruan_id)
+        if match.atlet1.utusan and match.atlet1.utusan.nama_utusan:
+            conflict_kab_kota.add(match.atlet1.utusan.nama_utusan.strip().upper())
+    if match.atlet2:
+        if match.atlet2.perguruan_id:
+            conflict_perguruan_ids.add(match.atlet2.perguruan_id)
+        if match.atlet2.utusan and match.atlet2.utusan.nama_utusan:
+            conflict_kab_kota.add(match.atlet2.utusan.nama_utusan.strip().upper())
+
+    pos_display_dict = dict(WasitTatami.POSISI_CHOICES)
+
+    perg_counts = Counter(a.wasit.perguruan.nama_perguruan for a in assignments if a.wasit.perguruan)
+    kab_counts = Counter((a.wasit.kab_kota or '').strip().upper() for a in assignments if a.wasit.kab_kota)
+
+    conflict_warnings = []
+    position_slots = []
+    for pos_code in req_positions:
+        asg = assigned_by_pos.get(pos_code)
+        has_conflict = False
+        conflict_reason = ''
+        if asg:
+            w = asg.wasit
+            w_kab = (w.kab_kota or '').strip().upper()
+            reasons = []
+            if w.perguruan_id and w.perguruan_id in conflict_perguruan_ids:
+                reasons.append(f"Perguruan sama dengan atlet ({w.perguruan.nama_perguruan})")
+            if w_kab and w_kab in conflict_kab_kota:
+                reasons.append(f"Asal daerah sama dengan atlet ({w_kab})")
+            if w.perguruan and perg_counts[w.perguruan.nama_perguruan] > 1:
+                reasons.append(f"Duplikat perguruan ({w.perguruan.nama_perguruan}) pada panel")
+            if w_kab and kab_counts[w_kab] > 1:
+                reasons.append(f"Duplikat daerah ({w_kab}) pada panel")
+            if reasons:
+                has_conflict = True
+                conflict_reason = "; ".join(reasons)
+                conflict_warnings.append(f"{asg.get_posisi_display()}: {w.nama_wasit} — {conflict_reason}")
+
+        position_slots.append({
+            'posisi_code': pos_code,
+            'posisi_label': pos_display_dict.get(pos_code, pos_code),
+            'assigned': asg,
+            'has_conflict': has_conflict,
+            'conflict_reason': conflict_reason,
+        })
+
+    all_tatami_assignments = {a.wasit_id: a for a in WasitTatami.objects.filter(event=event)}
+    all_event_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan').order_by('nama_wasit'))
+
+    pool_candidates = []
+    for w in all_event_wasits:
+        w_kab = (w.kab_kota or '').strip().upper()
+        is_same_perg = bool(w.perguruan_id and w.perguruan_id in conflict_perguruan_ids)
+        is_same_kab = bool(w_kab and w_kab in conflict_kab_kota)
+        is_conflict = is_same_perg or is_same_kab
+
+        wt = all_tatami_assignments.get(w.pk)
+        is_assigned_to_this_match = (w.pk in assigned_wasit_ids)
+        is_on_duty_other = bool(wt and wt.posisi != 'pool')
+        is_available = not is_on_duty_other
+
+        tatami_label = f"Tatami {wt.tatami.tatami_number}" if (wt and wt.tatami) else "Pool Event"
+
+        if is_assigned_to_this_match:
+            prio_rank = 6
+            prio_symbol = "✓"
+            rec_badge = "primary"
+            rec_label = "Ditugaskan di Partai Ini"
+        elif not is_conflict and is_available:
+            prio_rank = 1
+            prio_symbol = "★"
+            rec_badge = "success"
+            rec_label = "Prioritas 1: Standby (Beda Perguruan & Daerah)"
+        elif not is_conflict and is_on_duty_other:
+            prio_rank = 2
+            prio_symbol = "★"
+            rec_badge = "lendable"
+            rec_label = f"Prioritas 2: Bertugas di {tatami_label} (Bisa Pinjam)"
+        elif is_conflict and is_available:
+            prio_rank = 3
+            prio_symbol = "▲"
+            rec_badge = "warning"
+            rec_label = f"Konflik: Perguruan/Daerah Sama ({w.perguruan.nama_perguruan if w.perguruan else w_kab}) - Standby"
+        else:
+            prio_rank = 4
+            prio_symbol = "▲"
+            rec_badge = "dark"
+            rec_label = f"Konflik: Perguruan/Daerah Sama - Bertugas di {tatami_label}"
+
+        w.priority_rank = prio_rank
+        w.priority_badge_symbol = prio_symbol
+        w.recommendation_badge = rec_badge
+        w.recommendation_label = rec_label
+        w.is_available = is_available
+        w.is_assigned_to_this_match = is_assigned_to_this_match
+        pool_candidates.append(w)
+
+    pool_candidates.sort(key=lambda x: (x.priority_rank, x.nama_wasit))
+
+    return {
+        'match': match,
+        'panel_rule': panel_rule,
+        'active_tatami': active_tatami,
+        'selected_tatami': selected_tatami,
+        'tatamis': tatamis,
+        'position_slots': position_slots,
+        'pool_candidates': pool_candidates,
+        'assigned_count': len(assignments),
+        'is_panel_complete': len(assignments) >= len(req_positions),
+        'conflict_warnings': conflict_warnings,
+    }
+
+
 def admin_tatami_manager(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
 
@@ -3036,98 +3866,197 @@ def admin_tatami_manager(request, event_pk):
     if not selected_tatami:
         selected_tatami = tatamis.first()
 
-    # Auto-assign partai if tatami has none or if current match is completed
-    if selected_tatami and (not selected_tatami.detail_bagan or selected_tatami.detail_bagan.selesai):
-        best_auto_match, _ = find_best_match_for_tatami(selected_tatami, event)
-        if best_auto_match:
-            selected_tatami.detail_bagan = best_auto_match
-            selected_tatami.save(update_fields=['detail_bagan'])
-            broadcast_tatami_match_update(selected_tatami)
-            # Reload with select_related so related athlete objects are immediately populated
-            selected_tatami = Tatami.objects.filter(pk=selected_tatami.pk).select_related(
-                'detail_bagan__bagan__nomor_tanding',
-                'detail_bagan__atlet1__perguruan',
-                'detail_bagan__atlet1__utusan',
-                'detail_bagan__atlet2__perguruan',
-                'detail_bagan__atlet2__utusan',
-            ).first()
+    all_bagans = Bagan.objects.filter(event=event).select_related('nomor_tanding').order_by('kode', 'nama_bagan')
 
-    perguruans = Perguruan.objects.filter(event=event).order_by('nama_perguruan')
+    # Resolve selected bagan:
+    # If explicitly flagged as manual selection, honor requested bagan_pk.
+    # Otherwise, default to the tatami's active match bagan so reconnecting/reopening dead tabs always follows the arena.
+    bagan_pk = request.GET.get('bagan')
+    is_manual = request.GET.get('manual') == '1'
+    selected_bagan = None
+    if is_manual and bagan_pk:
+        selected_bagan = all_bagans.filter(pk=bagan_pk).first()
+    if not selected_bagan and selected_tatami and selected_tatami.detail_bagan and not selected_tatami.detail_bagan.selesai and selected_tatami.detail_bagan.bagan:
+        selected_bagan = selected_tatami.detail_bagan.bagan
+    if not selected_bagan and bagan_pk:
+        selected_bagan = all_bagans.filter(pk=bagan_pk).first()
+    if not selected_bagan:
+        selected_bagan = all_bagans.first()
 
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('ajax') == '1' or request.GET.get('ajax') == '1'
-    msg = None
-    reload_page = False
+
+    # --- AJAX Handlers for Match Modal ---
+    if is_ajax and request.GET.get('action') == 'get_match_detail':
+        detailbagan_pk = request.GET.get('detailbagan_pk')
+        match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).select_related(
+            'bagan__nomor_tanding', 'atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami'
+        ).first()
+        if not match_obj:
+            return JsonResponse({'status': 'error', 'message': 'Partai tidak ditemukan.'}, status=404)
+        modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+        html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+        winner_name = None
+        if match_obj.pemenang == '1' and match_obj.atlet1:
+            winner_name = match_obj.atlet1.nama_atlet
+        elif match_obj.pemenang == '2' and match_obj.atlet2:
+            winner_name = match_obj.atlet2.nama_atlet
+
+        return JsonResponse({
+            'status': 'success',
+            'html': html,
+            'match_pk': match_obj.pk,
+            'category_name': str(match_obj.bagan.nomor_tanding) if match_obj.bagan and match_obj.bagan.nomor_tanding else '',
+            'round': match_obj.round,
+            'urutan': match_obj.urutan,
+            'selesai': match_obj.selesai,
+            'pemenang': match_obj.pemenang,
+            'score1': match_obj.score1,
+            'score2': match_obj.score2,
+            'winner_name': winner_name,
+        })
 
     if request.method == 'POST':
         submit_type = request.POST.get('submit_type')
 
-        if submit_type in ('tugaskan_wasit', 'pinjam_wasit'):
+        # --- Match-Level Referee Modal Operations ---
+        if submit_type == 'assign_match_wasit':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
             wasit_id = request.POST.get('wasit_id')
-            target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
-            posisi = request.POST.get('posisi', 'pool')
-
-            target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).first()
+            posisi = request.POST.get('posisi')
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
             wasit = Wasit.objects.filter(pk=wasit_id, event=event).first()
 
-            if not target_tatami or not wasit:
-                err_msg = "Data Tatami atau Wasit tidak valid."
-                if is_ajax:
-                    return JsonResponse({'status': 'error', 'message': err_msg}, status=400)
-                messages.error(request, err_msg)
-                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={selected_tatami.pk if selected_tatami else ''}")
+            if not match_obj or not wasit:
+                return JsonResponse({'status': 'error', 'message': 'Data partai atau wasit tidak valid.'}, status=400)
 
-            # Position replacement: if someone already holds this exact role on this tatami, demote them to pool rather than deleting them
-            if posisi != 'pool':
-                WasitTatami.objects.filter(tatami=target_tatami, posisi=posisi).exclude(wasit=wasit).update(posisi='pool')
+            with transaction.atomic():
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj, posisi=posisi).exclude(wasit=wasit).delete()
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj, wasit=wasit).delete()
+                WasitDetailBagan.objects.create(
+                    event=event,
+                    detail_bagan=match_obj,
+                    wasit=wasit,
+                    posisi=posisi
+                )
+                active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                if active_t:
+                    sync_match_wasits_to_tatami(match_obj, active_t)
 
-            # Remove previous assignment of this wasit anywhere in the event (supports lending/moving)
-            WasitTatami.objects.filter(event=event, wasit=wasit).delete()
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Wasit '{wasit.nama_wasit}' berhasil ditugaskan.",
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+            })
 
-            WasitTatami.objects.create(
-                event=event,
-                tatami=target_tatami,
-                wasit=wasit,
-                posisi=posisi
-            )
-            posisi_display = dict(WasitTatami.POSISI_CHOICES).get(posisi, posisi)
-            msg = f"Wasit '{wasit.nama_wasit}' berhasil ditugaskan ke Tatami {target_tatami.tatami_number} sebagai {posisi_display}."
-            if not is_ajax:
-                messages.success(request, msg)
-                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
-
-        elif submit_type == 'lepas_wasit':
-            wasit_tatami_id = request.POST.get('wasit_tatami_id')
+        elif submit_type == 'remove_match_wasit':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
             wasit_id = request.POST.get('wasit_id')
-            assignment = None
-            if wasit_tatami_id:
-                assignment = WasitTatami.objects.filter(pk=wasit_tatami_id, event=event).select_related('wasit', 'tatami').first()
-            elif wasit_id:
-                assignment = WasitTatami.objects.filter(wasit_id=wasit_id, event=event).select_related('wasit', 'tatami').first()
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
 
-            if assignment:
-                wasit_nama = assignment.wasit.nama_wasit
-                tatami_num = assignment.tatami.tatami_number
-                target_pk = assignment.tatami_id
-                assignment.delete()
-                msg = f"Wasit '{wasit_nama}' dilepas dari tugas di Tatami {tatami_num}."
-                if not is_ajax:
-                    messages.success(request, msg)
-                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_pk}")
-            elif not is_ajax:
-                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={selected_tatami.pk if selected_tatami else ''}")
+            if match_obj and wasit_id:
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj, wasit_id=wasit_id).delete()
+                active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                if active_t:
+                    sync_match_wasits_to_tatami(match_obj, active_t)
 
-        elif submit_type == 'kosongkan_tatami':
+                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+                html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+                return JsonResponse({
+                    'status': 'success',
+                    'message': "Wasit berhasil dilepas dari partai ini.",
+                    'html': html,
+                    'assigned_count': modal_ctx['assigned_count'],
+                    'is_panel_complete': modal_ctx['is_panel_complete'],
+                    'match_pk': match_obj.pk,
+                })
+
+        elif submit_type == 'auto_assign_match_panel':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
+
+            chosen = auto_assign_panel_for_match(match_obj, event)
+            active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+            if active_t:
+                sync_match_wasits_to_tatami(match_obj, active_t)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Sukses menyusun {len(chosen)} wasit bebas konflik untuk partai ini!",
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+            })
+
+        elif submit_type == 'clear_match_panel':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if match_obj:
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj).delete()
+                active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                if active_t:
+                    sync_match_wasits_to_tatami(match_obj, active_t)
+
+                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+                html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+                return JsonResponse({
+                    'status': 'success',
+                    'message': "Seluruh penugasan wasit untuk partai ini berhasil dikosongkan.",
+                    'html': html,
+                    'assigned_count': 0,
+                    'is_panel_complete': False,
+                    'match_pk': match_obj.pk,
+                })
+
+        elif submit_type == 'set_active_match':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
+            target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).first()
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+
+            if target_tatami and match_obj:
+                target_tatami.detail_bagan = match_obj
+                target_tatami.save(update_fields=['detail_bagan'])
+                sync_match_wasits_to_tatami(match_obj, target_tatami)
+                broadcast_tatami_match_update(target_tatami)
+                selected_tatami = target_tatami
+
+                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+                html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+                if is_ajax:
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': f"Partai #{match_obj.urutan} berhasil diaktifkan ke Tatami {target_tatami.tatami_number}!",
+                        'html': html,
+                        'reload_bracket': True,
+                        'active_tatami_number': target_tatami.tatami_number,
+                        'match_pk': match_obj.pk,
+                    })
+                messages.success(request, f"Partai #{match_obj.urutan} berhasil diaktifkan ke Tatami {target_tatami.tatami_number}.")
+                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}&bagan={match_obj.bagan_id}")
+
+        elif submit_type == 'reset_match':
             target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
             target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).first()
             if target_tatami:
-                count = WasitTatami.objects.filter(event=event, tatami=target_tatami).count()
-                WasitTatami.objects.filter(event=event, tatami=target_tatami).delete()
-                msg = f"Seluruh wasit ({count} orang) pada Tatami {target_tatami.tatami_number} berhasil dikosongkan."
-                if not is_ajax:
-                    messages.success(request, msg)
-                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
-            elif not is_ajax:
-                return redirect(reverse('tatami-manager', args=[event_pk]))
+                target_tatami.detail_bagan = None
+                target_tatami.save(update_fields=['detail_bagan'])
+                broadcast_tatami_match_update(target_tatami)
+                selected_tatami = target_tatami
+                msg = f"Arena Tatami {target_tatami.tatami_number} berhasil dikosongkan dari partai berjalan."
+                if is_ajax:
+                    return JsonResponse({'status': 'success', 'message': msg, 'reload': True})
+                messages.success(request, msg)
+                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
 
         elif submit_type == 'tambah_wasit':
             nama = request.POST.get('nama_wasit', '').strip().upper()
@@ -3149,441 +4078,103 @@ def admin_tatami_manager(request, event_pk):
                     lisensi=lisensi or None,
                     no_lisensi=no_lisensi or None,
                 )
-                tatami_id = request.POST.get('tatami_id') or (selected_tatami.pk if selected_tatami else None)
-                posisi = request.POST.get('posisi', 'pool')
-                if tatami_id and str(tatami_id) != 'unassign':
-                    target_tatami = Tatami.objects.filter(pk=tatami_id, event=event).first()
-                    if target_tatami:
-                        if posisi != 'pool':
-                            WasitTatami.objects.filter(tatami=target_tatami, posisi=posisi).update(posisi='pool')
-                        WasitTatami.objects.create(
-                            event=event,
-                            tatami=target_tatami,
-                            wasit=wasit,
-                            posisi=posisi
-                        )
                 msg = f"Wasit '{nama}' berhasil ditambahkan ke master event."
-                if not is_ajax:
-                    messages.success(request, msg)
-                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={selected_tatami.pk if selected_tatami else ''}")
-
-        elif submit_type == 'set_match':
-            target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
-            detailbagan_pk = request.POST.get('detailbagan_pk')
-            target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).first()
-            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).select_related(
-                'bagan__nomor_tanding', 'atlet1', 'atlet2'
-            ).first()
-            if target_tatami and match_obj:
-                target_tatami.detail_bagan = match_obj
-                target_tatami.save(update_fields=['detail_bagan'])
-                broadcast_tatami_match_update(target_tatami)
-                selected_tatami = target_tatami
-                msg = f"Partai pertandingan berhasil diaktifkan ke Tatami {target_tatami.tatami_number}."
-                reload_page = True
-                if not is_ajax:
-                    messages.success(request, msg)
-                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
-            else:
-                err_msg = "Partai atau Tatami tidak valid."
                 if is_ajax:
-                    return JsonResponse({'status': 'error', 'message': err_msg}, status=400)
-                messages.error(request, err_msg)
-
-        elif submit_type == 'next_match':
-            target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
-            target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).first()
-            if target_tatami:
-                best_m, info = find_best_match_for_tatami(target_tatami, event, exclude_current=True)
-                if not best_m:
-                    best_m, info = find_best_match_for_tatami(target_tatami, event, exclude_current=False)
-                if best_m:
-                    target_tatami.detail_bagan = best_m
-                    target_tatami.save(update_fields=['detail_bagan'])
-                    broadcast_tatami_match_update(target_tatami)
-                    selected_tatami = target_tatami
-                    msg = f"Partai berikutnya ({info}) berhasil diaktifkan ke Tatami {target_tatami.tatami_number}."
-                    reload_page = True
-                else:
-                    msg = "Tidak ada partai berikutnya yang tersedia dalam antrean."
-                if not is_ajax:
-                    messages.info(request, msg)
-                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
-            else:
-                err_msg = "Pilih tatami terlebih dahulu."
-                if is_ajax:
-                    return JsonResponse({'status': 'error', 'message': err_msg}, status=400)
-                messages.error(request, err_msg)
-
-        elif submit_type == 'reset_match':
-            target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
-            target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).first()
-            if target_tatami:
-                target_tatami.detail_bagan = None
-                target_tatami.save(update_fields=['detail_bagan'])
-                broadcast_tatami_match_update(target_tatami)
-                selected_tatami = target_tatami
-                msg = f"Arena Tatami {target_tatami.tatami_number} berhasil dikosongkan dari partai berjalan."
-                reload_page = True
-                if not is_ajax:
-                    messages.success(request, msg)
-                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
-
-        elif submit_type == 'auto_assign_panel':
-            target_tatami_pk = request.POST.get('tatami_pk') or (selected_tatami.pk if selected_tatami else None)
-            target_tatami = Tatami.objects.filter(pk=target_tatami_pk, event=event).select_related(
-                'detail_bagan__bagan__nomor_tanding', 'detail_bagan__atlet1__perguruan', 'detail_bagan__atlet1__utusan', 'detail_bagan__atlet2__perguruan', 'detail_bagan__atlet2__utusan'
-            ).first()
-            if not target_tatami:
-                err_msg = "Pilih tatami terlebih dahulu."
-                if is_ajax:
-                    return JsonResponse({'status': 'error', 'message': err_msg}, status=400)
-                messages.error(request, err_msg)
-                return redirect(reverse('tatami-manager', args=[event_pk]))
-
-            panel_rule = get_dynamic_panel_rule(target_tatami.detail_bagan)
-            req_positions = panel_rule['required_positions']
-            needed_count = len(req_positions)
-
-            # Conflict perguruan and kab_kota from active match
-            conflict_perguruan_ids = set()
-            conflict_kab_kota = set()
-            if target_tatami.detail_bagan:
-                db = target_tatami.detail_bagan
-                if db.atlet1 and db.atlet1.perguruan_id:
-                    conflict_perguruan_ids.add(db.atlet1.perguruan_id)
-                if db.atlet2 and db.atlet2.perguruan_id:
-                    conflict_perguruan_ids.add(db.atlet2.perguruan_id)
-                if db.atlet1 and db.atlet1.utusan and db.atlet1.utusan.nama_utusan:
-                    conflict_kab_kota.add(db.atlet1.utusan.nama_utusan.strip().upper())
-                if db.atlet2 and db.atlet2.utusan and db.atlet2.utusan.nama_utusan:
-                    conflict_kab_kota.add(db.atlet2.utusan.nama_utusan.strip().upper())
-
-            all_event_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan'))
-            all_assignments = list(WasitTatami.objects.filter(event=event))
-            assigned_map = {a.wasit_id: a for a in all_assignments}
-
-            # Candidate pools based on user-defined priority hierarchy:
-            # 1. Different perguruan, same tatami pool, available (or on target_tatami)
-            # 2. Different perguruan, different tatami pool, available (posisi=='pool' or unassigned)
-            # 3. IGNORED during auto-assign: Different perguruan, different tatami pool, on assign (they are busy on work!)
-            # 4. Same perguruan, same tatami pool, available
-            # 5. Same perguruan, different tatami pool, available
-
-            pool_1 = []
-            pool_2 = []
-            pool_4 = []
-            pool_5 = []
-
-            for w in all_event_wasits:
-                assignment = assigned_map.get(w.pk)
-                is_same_tatami = bool(assignment and assignment.tatami_id == target_tatami.pk)
-                is_diff_tatami = bool(assignment and assignment.tatami_id != target_tatami.pk)
-                is_unassigned = (assignment is None)
-                is_available = bool(is_unassigned or assignment.posisi == 'pool')
-
-                w_kab = (w.kab_kota or '').strip().upper()
-                is_conflict = bool(
-                    (w.perguruan_id and w.perguruan_id in conflict_perguruan_ids) or
-                    (w_kab and w_kab in conflict_kab_kota)
-                )
-                is_diff_perguruan = not is_conflict
-
-                if is_diff_perguruan:
-                    if is_same_tatami:
-                        pool_1.append(w)
-                    elif (is_diff_tatami or is_unassigned) and is_available:
-                        pool_2.append(w)
-                    # Note: is_diff_tatami and is_on_duty (Tier 3) is IGNORED!
-                else:
-                    if is_same_tatami:
-                        pool_4.append(w)
-                    elif (is_diff_tatami or is_unassigned) and is_available:
-                        pool_5.append(w)
-
-            chosen_wasits = []
-            used_perguruan_ids = set()
-            used_kab_kota = set()
-
-            def try_add(wasit, check_perguruan=True, check_kab=True):
-                if wasit in chosen_wasits:
-                    return False
-                perg_id = wasit.perguruan_id
-                w_kab = (wasit.kab_kota or '').strip().upper()
-                if check_perguruan and perg_id and perg_id in used_perguruan_ids:
-                    return False
-                if check_kab and w_kab and w_kab in used_kab_kota:
-                    return False
-                chosen_wasits.append(wasit)
-                if perg_id:
-                    used_perguruan_ids.add(perg_id)
-                if w_kab:
-                    used_kab_kota.add(w_kab)
-                return True
-
-            # Step 1: Priority 1 (Diff perguruan, same tatami pool) - strict distinct perguruan & kab
-            for w in pool_1:
-                if len(chosen_wasits) == needed_count:
-                    break
-                try_add(w, check_perguruan=True, check_kab=True)
-
-            # Step 1b: Priority 1 - relax kab/kota if needed, but maintain distinct perguruan
-            if len(chosen_wasits) < needed_count:
-                for w in pool_1:
-                    if len(chosen_wasits) == needed_count:
-                        break
-                    try_add(w, check_perguruan=True, check_kab=False)
-
-            # Step 2: Priority 2 (Diff perguruan, diff tatami pool, available) - strict distinct perguruan & kab
-            if len(chosen_wasits) < needed_count:
-                for w in pool_2:
-                    if len(chosen_wasits) == needed_count:
-                        break
-                    try_add(w, check_perguruan=True, check_kab=True)
-
-            # Step 2b: Priority 2 - relax kab/kota
-            if len(chosen_wasits) < needed_count:
-                for w in pool_2:
-                    if len(chosen_wasits) == needed_count:
-                        break
-                    try_add(w, check_perguruan=True, check_kab=False)
-
-            # Step 2c: Priority 2 - relax perguruan among borrowed if still needed
-            if len(chosen_wasits) < needed_count:
-                for w in pool_2:
-                    if len(chosen_wasits) == needed_count:
-                        break
-                    try_add(w, check_perguruan=False, check_kab=False)
-
-            # (IGNORE Priority 3 completely: on assign on other tatamis)
-
-            # Step 4: Priority 4 (Same perguruan, same tatami pool, available)
-            if len(chosen_wasits) < needed_count:
-                for w in pool_4:
-                    if len(chosen_wasits) == needed_count:
-                        break
-                    try_add(w, check_perguruan=False, check_kab=False)
-
-            # Step 5: Priority 5 (Same perguruan, diff tatami pool, available)
-            if len(chosen_wasits) < needed_count:
-                for w in pool_5:
-                    if len(chosen_wasits) == needed_count:
-                        break
-                    try_add(w, check_perguruan=False, check_kab=False)
-
-            with transaction.atomic():
-                # Any wasit on target_tatami not in chosen is moved to 'pool' so tatami keeps its pool!
-                WasitTatami.objects.filter(event=event, tatami=target_tatami).exclude(wasit__in=chosen_wasits).update(posisi='pool')
-                # Assign chosen wasits
-                for idx, wasit in enumerate(chosen_wasits):
-                    pos = req_positions[idx] if idx < len(req_positions) else 'pool'
-                    existing = WasitTatami.objects.filter(event=event, wasit=wasit).first()
-                    if existing:
-                        existing.tatami = target_tatami
-                        existing.posisi = pos
-                        existing.save(update_fields=['tatami', 'posisi'])
-                    else:
-                        WasitTatami.objects.create(
-                            event=event,
-                            tatami=target_tatami,
-                            wasit=wasit,
-                            posisi=pos
-                        )
-
-            msg = f"Sukses menyusun panel {panel_rule['format_name']} ({len(chosen_wasits)} wasit) untuk Tatami {target_tatami.tatami_number}!"
-            if not is_ajax:
+                    return JsonResponse({'status': 'success', 'message': msg, 'reload': True})
                 messages.success(request, msg)
-                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={target_tatami.pk}")
+                return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={selected_tatami.pk if selected_tatami else ''}")
 
-    # Process live assignments and referee pool prioritization
-    conflict_perguruan_ids = set()
-    conflict_kab_kota = set()
-    active_match = None
-    if selected_tatami and selected_tatami.detail_bagan:
-        active_match = selected_tatami.detail_bagan
-        if active_match.atlet1:
-            if active_match.atlet1.perguruan_id:
-                conflict_perguruan_ids.add(active_match.atlet1.perguruan_id)
-            if active_match.atlet1.utusan and active_match.atlet1.utusan.nama_utusan:
-                conflict_kab_kota.add(active_match.atlet1.utusan.nama_utusan.strip().upper())
-        if active_match.atlet2:
-            if active_match.atlet2.perguruan_id:
-                conflict_perguruan_ids.add(active_match.atlet2.perguruan_id)
-            if active_match.atlet2.utusan and active_match.atlet2.utusan.nama_utusan:
-                conflict_kab_kota.add(active_match.atlet2.utusan.nama_utusan.strip().upper())
+    # --- Prepare Bagan Tournament Bracket Structure ---
+    detail_bagans_round_1 = []
+    detail_bagans_round_2 = []
+    detail_bagans_round_3 = []
+    detail_bagans_round_4 = []
+    detail_bagan_round_5 = None
+    referchange = False
 
-    all_assignments = list(
-        WasitTatami.objects.filter(event=event)
-        .select_related('tatami', 'wasit__perguruan')
-    )
-    assigned_map = {a.wasit_id: a for a in all_assignments}
-
-    # Active panel assignments on selected tatami (posisi != 'pool')
-    current_tatami_assignments = [
-        a for a in all_assignments if selected_tatami and a.tatami_id == selected_tatami.pk and a.posisi != 'pool'
-    ]
-    current_tatami_pool = [
-        a for a in all_assignments if selected_tatami and a.tatami_id == selected_tatami.pk and a.posisi == 'pool'
-    ]
-    assigned_perguruan_ids = {
-        a.wasit.perguruan_id for a in current_tatami_assignments if a.wasit.perguruan_id
-    }
-    assigned_kab_kota = {
-        (a.wasit.kab_kota or '').strip().upper() for a in current_tatami_assignments if a.wasit.kab_kota
+    active_tatami_map = {
+        t.detail_bagan_id: t for t in tatamis 
+        if t.detail_bagan_id and t.detail_bagan and not t.detail_bagan.selesai
     }
 
-    perguruan_counter_on_tatami = Counter(
-        a.wasit.perguruan.nama_perguruan for a in current_tatami_assignments if a.wasit.perguruan
-    )
-    duplicate_perguruans = [p for p, c in perguruan_counter_on_tatami.items() if c > 1]
+    def annotate_match_bracket(m):
+        m.active_on_tatami = active_tatami_map.get(m.pk) if not m.selesai else None
+        m_wasits = list(m.wasit_assignments.all())
+        m.assigned_wasit_count = len(m_wasits)
+        rule = get_dynamic_panel_rule(m)
+        m.required_wasit_count = len(rule['required_positions'])
+        m.is_panel_complete = m.assigned_wasit_count >= m.required_wasit_count
 
-    kab_counter_on_tatami = Counter(
-        (a.wasit.kab_kota or '').strip().upper() for a in current_tatami_assignments if a.wasit.kab_kota
-    )
-    duplicate_kab_kota = [k for k, c in kab_counter_on_tatami.items() if c > 1]
+        conflict = False
+        m_pergs = set()
+        if m.atlet1 and m.atlet1.perguruan_id:
+            m_pergs.add(m.atlet1.perguruan_id)
+        if m.atlet2 and m.atlet2.perguruan_id:
+            m_pergs.add(m.atlet2.perguruan_id)
+        for wa in m_wasits:
+            if wa.wasit.perguruan_id and wa.wasit.perguruan_id in m_pergs:
+                conflict = True
+                break
+        m.has_wasit_conflict = conflict
+        return m
 
-    # Add conflict flags to currently assigned wasits
-    for a in current_tatami_assignments:
-        a_kab = (a.wasit.kab_kota or '').strip().upper()
-        a.has_conflict = bool(
-            (a.wasit.perguruan_id and a.wasit.perguruan_id in conflict_perguruan_ids) or
-            (a_kab and a_kab in conflict_kab_kota)
+    if selected_bagan:
+        referchange = 'REFERCHANGE' in selected_bagan.nama_bagan.upper()
+        detail_bagans_round_1 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=1)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .prefetch_related('wasit_assignments__wasit__perguruan')
+            .order_by('urutan')
         )
-        a.is_duplicate = bool(
-            (a.wasit.perguruan and perguruan_counter_on_tatami[a.wasit.perguruan.nama_perguruan] > 1) or
-            (a_kab and kab_counter_on_tatami[a_kab] > 1)
+        detail_bagans_round_2 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=2)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .prefetch_related('wasit_assignments__wasit__perguruan')
+            .order_by('urutan')
+        )
+        detail_bagans_round_3 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=3)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .prefetch_related('wasit_assignments__wasit__perguruan')
+            .order_by('urutan')
+        )
+        detail_bagans_round_4 = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round=4)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .prefetch_related('wasit_assignments__wasit__perguruan')
+            .order_by('urutan')
+        )
+        detail_bagan_round_5 = (
+            DetailBagan.objects.filter(bagan=selected_bagan, round=5)
+            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
+            .prefetch_related('wasit_assignments__wasit__perguruan')
+            .first()
         )
 
+        for m in detail_bagans_round_1:
+            annotate_match_bracket(m)
+        for m in detail_bagans_round_2:
+            annotate_match_bracket(m)
+        for m in detail_bagans_round_3:
+            annotate_match_bracket(m)
+        for m in detail_bagans_round_4:
+            annotate_match_bracket(m)
+        if detail_bagan_round_5:
+            annotate_match_bracket(detail_bagan_round_5)
+
+    # Master Wasit Statistics for Top Bar
     all_wasits = list(Wasit.objects.filter(event=event).select_related('perguruan').order_by('nama_wasit'))
+    all_tatami_assignments = list(WasitTatami.objects.filter(event=event))
     total_wasit = len(all_wasits)
-    assigned_wasit_count = len([a for a in all_assignments if a.posisi != 'pool'])
-    available_wasit_count = total_wasit - assigned_wasit_count
-    same_tatami_pool_count = len(current_tatami_pool)
-    other_tatami_pool_count = len([a for a in all_assignments if selected_tatami and a.tatami_id != selected_tatami.pk and a.posisi == 'pool']) + len([w for w in all_wasits if w.pk not in assigned_map])
+    assigned_wasit_count = len([a for a in all_tatami_assignments if a.posisi != 'pool'])
+    available_wasit_count = max(0, total_wasit - assigned_wasit_count)
 
-    pool_wasits = []
-    for w in all_wasits:
-        assignment = assigned_map.get(w.pk)
-        is_same_tatami = bool(selected_tatami and assignment and assignment.tatami_id == selected_tatami.pk)
-        is_diff_tatami = bool(selected_tatami and assignment and assignment.tatami_id != selected_tatami.pk)
-        is_unassigned = (assignment is None)
+    perguruans = Perguruan.objects.filter(event=event).order_by('nama_perguruan')
 
-        is_available = bool(is_unassigned or assignment.posisi == 'pool')
-        is_on_duty = bool(assignment and assignment.posisi != 'pool')
-
-        is_on_panel_here = bool(is_same_tatami and is_on_duty)
-        is_in_pool_here = bool(is_same_tatami and is_available)
-        is_on_panel_other = bool(is_diff_tatami and is_on_duty)
-        is_in_pool_other = bool(is_diff_tatami and is_available)
-
-        w_kab = (w.kab_kota or '').strip().upper()
-        is_conflict_with_match = bool(
-            (w.perguruan_id and w.perguruan_id in conflict_perguruan_ids) or
-            (w_kab and w_kab in conflict_kab_kota)
-        )
-        is_diff_perguruan = not is_conflict_with_match
-        is_same_perguruan = is_conflict_with_match
-
-        tatami_num = assignment.tatami.tatami_number if (assignment and assignment.tatami) else "Umum"
-
-        # User-Specified 5 Priority Tiers:
-        if is_on_panel_here:
-            pos_label = dict(WasitTatami.POSISI_CHOICES).get(assignment.posisi, assignment.posisi)
-            priority_rank = 7
-            recommendation_label = f"Sedang Bertugas ({pos_label})"
-            recommendation_badge = "primary"
-            highlight_type = "assigned-here"
-
-        elif is_diff_perguruan and is_in_pool_here:
-            # 1. Different perguruan, same tatami pool, available
-            priority_rank = 1
-            recommendation_label = "★ Prioritas 1: Pool Tatami Ini (Beda Perguruan & Standby)"
-            recommendation_badge = "success"
-            highlight_type = "priority-standby"
-
-        elif is_diff_perguruan and (is_in_pool_other or is_unassigned):
-            # 2. Different perguruan, different tatami pool, available
-            priority_rank = 2
-            recommendation_label = f"★ Prioritas 2: Pool Tatami {tatami_num} (Beda Perguruan & Standby - Bisa Pinjam)"
-            recommendation_badge = "lendable"
-            highlight_type = "priority-other-tatami"
-
-        elif is_diff_perguruan and is_on_panel_other:
-            # 3. Different perguruan, different tatami pool, on assign (not available)
-            priority_rank = 3
-            pos_label = dict(WasitTatami.POSISI_CHOICES).get(assignment.posisi, assignment.posisi)
-            recommendation_label = f"Prioritas 3: Bertugas di Tatami {tatami_num} ({pos_label} - Beda Perguruan)"
-            recommendation_badge = "dark"
-            highlight_type = "priority-other-tatami-onduty"
-
-        elif is_same_perguruan and is_in_pool_here:
-            # 4. Same perguruan, same tatami pool, available
-            priority_rank = 4
-            recommendation_label = "Prioritas 4: Pool Tatami Ini (Perguruan Sama & Standby)"
-            recommendation_badge = "warning"
-            highlight_type = "conflict-match"
-
-        elif is_same_perguruan and (is_in_pool_other or is_unassigned):
-            # 5. Same perguruan, different tatami pool, available
-            priority_rank = 5
-            recommendation_label = f"Prioritas 5: Pool Tatami {tatami_num} (Perguruan Sama & Standby)"
-            recommendation_badge = "secondary"
-            highlight_type = "conflict-match"
-
-        else:
-            # Lowest: Same perguruan, different tatami pool, on assign
-            priority_rank = 6
-            recommendation_label = f"Bertugas di Tatami {tatami_num} (Perguruan Sama)"
-            recommendation_badge = "dark"
-            highlight_type = "used"
-
-        w.is_used = is_on_duty
-        w.is_assigned_here = is_on_panel_here
-        w.is_in_pool_here = is_in_pool_here
-        w.is_same_tatami = is_same_tatami
-        w.is_available = is_available
-        w.is_on_duty = is_on_duty
-        w.is_assigned_other = is_diff_tatami
-        w.assigned_tatami = assignment.tatami if assignment else None
-        w.assigned_posisi = assignment.posisi if assignment else None
-        w.assigned_posisi_display = assignment.get_posisi_display() if assignment else None
-        w.is_different_perguruan = is_diff_perguruan
-        w.is_conflict_with_match = is_conflict_with_match
-        w.priority_rank = priority_rank
-        w.recommendation_label = recommendation_label
-        w.recommendation_badge = recommendation_badge
-        w.highlight_type = highlight_type
-
-        pool_wasits.append(w)
-
-    pool_wasits.sort(key=lambda x: (x.priority_rank, x.nama_wasit))
-
-    # Calculate assigned wasit count per tatami for tatami selector tabs
-    tatami_panel_counts = Counter(a.tatami_id for a in all_assignments if a.posisi != 'pool')
+    # Count assigned wasits per tatami
+    tatami_panel_counts = Counter(a.tatami_id for a in all_tatami_assignments if a.posisi != 'pool')
     for t in tatamis:
         t.assigned_count = tatami_panel_counts.get(t.pk, 0)
-
-    recommended_wasit_count = sum(1 for w in pool_wasits if w.priority_rank in (1, 2))
-
-    # Matches list for tatami manager assignment: only query on initial page load, not during AJAX calls!
-    available_matches = []
-    if not is_ajax:
-        available_matches = list(
-            DetailBagan.objects.filter(bagan__event=event)
-            .select_related(
-                'bagan__nomor_tanding',
-                'atlet1__perguruan',
-                'atlet1__utusan',
-                'atlet2__perguruan',
-                'atlet2__utusan',
-            )
-            .order_by('selesai', 'bagan__nomor_tanding__nama_nomor_tanding', 'round', 'urutan')[:150]
-        )
-
-    panel_rule = get_dynamic_panel_rule(active_match)
-
-    # Next match prediction
-    next_match, next_match_info = find_best_match_for_tatami(selected_tatami, event, exclude_current=True)
 
     context = {
         'on': 'tatami-manager',
@@ -3592,51 +4183,24 @@ def admin_tatami_manager(request, event_pk):
         'is_admin': is_admin,
         'tatamis': tatamis,
         'selected_tatami': selected_tatami,
-        'active_match': active_match,
-        'next_match': next_match,
-        'next_match_info': next_match_info,
-        'panel_rule': panel_rule,
-        'available_matches': available_matches,
-        'current_tatami_assignments': current_tatami_assignments,
-        'duplicate_perguruans': duplicate_perguruans,
-        'duplicate_kab_kota': duplicate_kab_kota,
-        'pool_wasits': pool_wasits,
+        'all_bagans': all_bagans,
+        'selected_bagan': selected_bagan,
+        'detail_bagans_round_1': detail_bagans_round_1,
+        'detail_bagans_round_2': detail_bagans_round_2,
+        'detail_bagans_round_3': detail_bagans_round_3,
+        'detail_bagans_round_4': detail_bagans_round_4,
+        'detail_bagan_round_5': detail_bagan_round_5,
+        'referchange': referchange,
         'perguruans': perguruans,
         'posisi_choices': WasitTatami.POSISI_CHOICES,
-        'is_panel_complete': len(current_tatami_assignments) >= len(panel_rule['required_positions']),
         'metrics': {
             'total_wasit': total_wasit,
             'assigned_wasit': assigned_wasit_count,
             'available_wasit': available_wasit_count,
-            'recommended_wasit': recommended_wasit_count,
-            'same_tatami_pool_count': same_tatami_pool_count,
-            'other_tatami_pool_count': other_tatami_pool_count,
             'total_tatami': len(tatamis),
+            'total_bagan': len(all_bagans),
         }
     }
-
-    if is_ajax:
-        if reload_page:
-            return JsonResponse({
-                'status': 'success',
-                'reload': True,
-                'message': msg or 'Data berhasil diperbarui.',
-            })
-        panel_html = render_to_string('admin/partials/tatami_panel_list.html', context, request=request)
-        pool_html = render_to_string('admin/partials/wasit_pool_list.html', context, request=request)
-        return JsonResponse({
-            'status': 'success',
-            'message': msg or 'Data berhasil diperbarui.',
-            'panel_html': panel_html,
-            'pool_html': pool_html,
-            'metrics': context['metrics'],
-            'assigned_count': len(current_tatami_assignments),
-            'required_count': len(panel_rule['required_positions']),
-            'format_name': panel_rule['format_name'],
-            'is_panel_complete': context['is_panel_complete'],
-            'duplicate_perguruans': duplicate_perguruans,
-            'duplicate_kab_kota': duplicate_kab_kota,
-        })
 
     return render(request, 'admin/tatami-manager.html', context)
 
@@ -3898,21 +4462,28 @@ def scoring_board(request, tatami_pk):
     atlet_merah = detail_bagan.atlet1 if detail_bagan else None
     atlet_biru = detail_bagan.atlet2 if detail_bagan else None
 
+    from .utils import get_utusan_logo_url, get_round_label, get_round_of_slots, get_marquee_title
+    initial_marquee_text = get_marquee_title(detail_bagan) if detail_bagan else ""
+
     # Support AJAX get_atlet fallback
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('action') == 'get_atlet':
         bagan = detail_bagan.bagan if detail_bagan else None
         nomor_tanding = bagan.nomor_tanding.nama_nomor_tanding if (bagan and bagan.nomor_tanding) else ''
+        nama_bagan = bagan.nama_bagan if bagan else ''
+        round_label = get_round_label(detail_bagan) if detail_bagan else ''
+        round_of = get_round_of_slots(detail_bagan) if detail_bagan else ''
+        marquee_text = get_marquee_title(detail_bagan) if detail_bagan else ''
         data = {
             "atlet_red": atlet_merah.nama_atlet if atlet_merah else None,
             "atlet_red_perguruan": atlet_merah.perguruan.nama_perguruan if (atlet_merah and atlet_merah.perguruan) else None,
             "atlet_red_utusan": atlet_merah.utusan.nama_utusan if (atlet_merah and atlet_merah.utusan) else None,
-            "atlet_red_logo": atlet_merah.utusan.logo.url if (atlet_merah and atlet_merah.utusan and atlet_merah.utusan.logo) else None,
+            "atlet_red_logo": get_utusan_logo_url(atlet_merah),
             "atlet_red_kata": detail_bagan.kata1 if (detail_bagan and detail_bagan.kata1) else None,
             "atlet_red_vr": detail_bagan.vr1 if (detail_bagan and detail_bagan.vr1) else None,
             "atlet_blue": atlet_biru.nama_atlet if atlet_biru else None,
             "atlet_blue_perguruan": atlet_biru.perguruan.nama_perguruan if (atlet_biru and atlet_biru.perguruan) else None,
             "atlet_blue_utusan": atlet_biru.utusan.nama_utusan if (atlet_biru and atlet_biru.utusan) else None,
-            "atlet_blue_logo": atlet_biru.utusan.logo.url if (atlet_biru and atlet_biru.utusan and atlet_biru.utusan.logo) else None,
+            "atlet_blue_logo": get_utusan_logo_url(atlet_biru),
             "atlet_blue_kata": detail_bagan.kata2 if (detail_bagan and detail_bagan.kata2) else None,
             "atlet_blue_vr": detail_bagan.vr2 if (detail_bagan and detail_bagan.vr2) else None,
             "tipe_tanding": bagan.tipe_tanding if bagan else '2',
@@ -3920,6 +4491,10 @@ def scoring_board(request, tatami_pk):
             "total_aka_score": 0,
             "total_ao_score": 0,
             "nomor_tanding": nomor_tanding,
+            "nama_bagan": nama_bagan,
+            "round_label": round_label,
+            "round_of": round_of,
+            "marquee_text": marquee_text,
             "round": detail_bagan.round if detail_bagan else 1,
             "urutan": detail_bagan.urutan if detail_bagan else 1,
             "tatami_number": tatami.tatami_number,
@@ -3932,6 +4507,7 @@ def scoring_board(request, tatami_pk):
         'detail_bagan': detail_bagan,
         'atlet_merah': atlet_merah,
         'atlet_biru': atlet_biru,
+        'initial_marquee_text': initial_marquee_text,
     }
     return render(request, 'admin/scoring-board.html', context)
 
@@ -4033,8 +4609,9 @@ def split_athletes_into_pools(atlets, num_pools, group_field='perguruan'):
     """
     Distributes athletes across `num_pools` pools such that:
     1. Total athlete count in every pool differs by at most 1 (|pool_i| - |pool_j| <= 1).
-    2. Athletes from each delegation are split as evenly as possible across all pools.
-    3. Remainder athletes are assigned to pools with the greatest remaining capacity,
+    2. Priority athletes (is_priority=True) are distributed as evenly as possible across pools.
+    3. Athletes from each delegation are split as evenly as possible across all pools.
+    4. Remainder athletes are assigned to pools with the greatest remaining capacity,
        with randomized tie-breaking to eliminate pool bias.
     """
     total_atlets = len(atlets)
@@ -4049,8 +4626,39 @@ def split_athletes_into_pools(atlets, num_pools, group_field='perguruan'):
     for p in rem_pools[:remainder]:
         target_counts[p] += 1
 
+    priority_atlets = [a for a in atlets if getattr(a, 'is_priority', False)]
+    regular_atlets = [a for a in atlets if not getattr(a, 'is_priority', False)]
+
+    pools_atlets = [[] for _ in range(num_pools)]
+
+    # 1. Distribute priority athletes across pools first
+    if priority_atlets:
+        p_delegations = defaultdict(list)
+        for a in priority_atlets:
+            gid = getattr(a, f'{group_field}_id', None) or getattr(a, group_field, None) or f'_ind_{getattr(a, "pk", id(a))}'
+            p_delegations[gid].append(a)
+
+        p_groups = list(p_delegations.values())
+        random.shuffle(p_groups)
+        p_groups.sort(key=len, reverse=True)
+
+        for p_list in p_groups:
+            random.shuffle(p_list)
+            for a in p_list:
+                eligible_pools = [p for p in range(num_pools) if len(pools_atlets[p]) < target_counts[p]]
+                if not eligible_pools:
+                    eligible_pools = list(range(num_pools))
+                # Sort by: fewest priority athletes in pool, fewest total athletes in pool, random tiebreak
+                eligible_pools.sort(key=lambda p: (
+                    sum(1 for x in pools_atlets[p] if getattr(x, 'is_priority', False)),
+                    len(pools_atlets[p]),
+                    random.random()
+                ))
+                pools_atlets[eligible_pools[0]].append(a)
+
+    # 2. Distribute regular athletes across pools balancing delegations
     delegations = defaultdict(list)
-    for a in atlets:
+    for a in regular_atlets:
         gid = getattr(a, f'{group_field}_id', None)
         if gid is None:
             gid = getattr(a, group_field, None)
@@ -4068,8 +4676,6 @@ def split_athletes_into_pools(atlets, num_pools, group_field='perguruan'):
         random.shuffle(tier_list)
         tiered_groups.extend(tier_list)
 
-    pools_atlets = [[] for _ in range(num_pools)]
-
     for gid, a_list in tiered_groups:
         k = len(a_list)
         base_give = k // num_pools
@@ -4078,19 +4684,27 @@ def split_athletes_into_pools(atlets, num_pools, group_field='perguruan'):
         curr = 0
         if base_give > 0:
             for p in range(num_pools):
-                pools_atlets[p].extend(a_list[curr:curr + base_give])
-                curr += base_give
+                space = target_counts[p] - len(pools_atlets[p])
+                to_add = min(base_give, max(0, space))
+                if to_add > 0:
+                    pools_atlets[p].extend(a_list[curr:curr + to_add])
+                    curr += to_add
 
-        if rem > 0:
+        remaining_athletes = a_list[curr:]
+        for a in remaining_athletes:
             pool_capacities = []
             for p in range(num_pools):
                 cap = target_counts[p] - len(pools_atlets[p])
-                pool_capacities.append((cap, random.random(), p))
-            pool_capacities.sort(key=lambda x: (x[0], x[1]), reverse=True)
-            for i in range(rem):
-                p = pool_capacities[i][2]
-                pools_atlets[p].append(a_list[curr])
-                curr += 1
+                if cap > 0:
+                    same_del = sum(1 for x in pools_atlets[p] if (getattr(x, f'{group_field}_id', None) or getattr(x, group_field, None)) == (getattr(a, f'{group_field}_id', None) or getattr(a, group_field, None)))
+                    pool_capacities.append((same_del, -cap, random.random(), p))
+            if pool_capacities:
+                pool_capacities.sort()
+                best_p = pool_capacities[0][3]
+                pools_atlets[best_p].append(a)
+            else:
+                p_min = min(range(num_pools), key=lambda p: len(pools_atlets[p]))
+                pools_atlets[p_min].append(a)
 
     return pools_atlets
 
@@ -4265,21 +4879,25 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1, has_vr=Fals
 
     atlets = list(atlets[:16])
 
-    # 1. Group athletes by delegation
-    delegations = defaultdict(list)
-    for a in atlets:
+    # Separate priority athletes and regular athletes
+    priority_atlets = [a for a in atlets if (getattr(a, 'is_priority', False) if not isinstance(a, dict) else a.get('is_priority', False))]
+    regular_atlets = [a for a in atlets if not (getattr(a, 'is_priority', False) if not isinstance(a, dict) else a.get('is_priority', False))]
+
+    def get_gid(a):
         gid = getattr(a, f'{group_field}_id', None)
         if gid is None:
             gid = getattr(a, group_field, None)
+        if gid is None and isinstance(a, dict):
+            gid = a.get(f'{group_field}_id') or a.get(group_field)
         if gid is None:
             gid = f'_individual_{getattr(a, "pk", id(a))}'
-        delegations[gid].append(a)
+        return gid
 
     total_atlets = len(atlets)
     best_candidates = []
     best_score = float('inf')
 
-    # Multi-trial optimization to maximize delegation separation and randomness
+    # Multi-trial optimization to maximize priority BYE placement, delegation separation, and tree balance
     num_trials = 60
     for _ in range(num_trials):
         slots = generate_balanced_slots(total_atlets)
@@ -4287,31 +4905,86 @@ def build_bracket_in_memory(atlets, group_field='perguruan', pool=1, has_vr=Fals
         available = list(slots)
         assignment = {}
         placed_by_gid = defaultdict(list)
+        placed_priority_slots = []
         trial_score = 0
 
-        # Sort groups descending by count, shuffle ties
-        groups = list(delegations.items())
-        random.shuffle(groups)
-        groups.sort(key=lambda x: len(x[1]), reverse=True)
+        match_counts = Counter(m for m, _ in slots)
 
-        for gid, a_list in groups:
-            shuffled_a = list(a_list)
-            random.shuffle(shuffled_a)
-            for a in shuffled_a:
+        def get_slot_bye_level(s):
+            m, _ = s
+            if match_counts[m] > 1:
+                return 0  # No BYE (Round 1 fight)
+            # Match m has only 1 athlete, so guaranteed at least Round 1 BYE
+            paired_m = (m + 1) if (m % 2 != 0) else (m - 1)
+            if match_counts.get(paired_m, 0) > 0:
+                return 1  # Single BYE (advances to Quarterfinal / Round 2)
+            # Check if opposing quadrant is completely empty
+            half = HALF_OF_MATCH[m]
+            opposing_quad_matches = [om for om in (1, 2, 3, 4, 5, 6, 7, 8) if HALF_OF_MATCH[om] == half and QUADRANT_OF_MATCH[om] != QUADRANT_OF_MATCH[m]]
+            if sum(match_counts.get(om, 0) for om in opposing_quad_matches) == 0:
+                return 3  # Triple BYE (advances to Final / Round 4)
+            return 2  # Double BYE (advances to Semifinal / Round 3)
+
+        # 1. Place priority athletes into highest BYE level slots first
+        if priority_atlets:
+            shuffled_prio = list(priority_atlets)
+            random.shuffle(shuffled_prio)
+            for a in shuffled_prio:
+                gid = get_gid(a)
+                max_bye = max(get_slot_bye_level(s) for s in available)
+                candidate_slots = [s for s in available if get_slot_bye_level(s) == max_bye]
+
                 best_p = float('inf')
                 candidates = []
-                for s in available:
-                    p = sum(slot_penalty(s, prev_s) for prev_s in placed_by_gid[gid])
+                for s in candidate_slots:
+                    # Penalize collision with other priority athletes and same delegation
+                    p_prio = sum(slot_penalty(s, prev_s) for prev_s in placed_priority_slots)
+                    p_del = sum(slot_penalty(s, prev_s) for prev_s in placed_by_gid[gid])
+                    p = 2 * p_prio + p_del
                     if p < best_p:
                         best_p = p
                         candidates = [s]
                     elif p == best_p:
                         candidates.append(s)
+
                 chosen = random.choice(candidates)
                 available.remove(chosen)
                 assignment[a] = chosen
+                placed_priority_slots.append(chosen)
                 placed_by_gid[gid].append(chosen)
                 trial_score += best_p
+                # Penalty if priority athlete couldn't get a BYE slot
+                if max_bye == 0:
+                    trial_score += 500_000
+
+        # 2. Place regular athletes balancing delegations
+        if regular_atlets:
+            reg_delegations = defaultdict(list)
+            for a in regular_atlets:
+                reg_delegations[get_gid(a)].append(a)
+
+            groups = list(reg_delegations.items())
+            random.shuffle(groups)
+            groups.sort(key=lambda x: len(x[1]), reverse=True)
+
+            for gid, a_list in groups:
+                shuffled_a = list(a_list)
+                random.shuffle(shuffled_a)
+                for a in shuffled_a:
+                    best_p = float('inf')
+                    candidates = []
+                    for s in available:
+                        p = sum(slot_penalty(s, prev_s) for prev_s in placed_by_gid[gid])
+                        if p < best_p:
+                            best_p = p
+                            candidates = [s]
+                        elif p == best_p:
+                            candidates.append(s)
+                    chosen = random.choice(candidates)
+                    available.remove(chosen)
+                    assignment[a] = chosen
+                    placed_by_gid[gid].append(chosen)
+                    trial_score += best_p
 
         if trial_score < best_score:
             best_score = trial_score
@@ -4529,7 +5202,7 @@ def get_age_group(name):
     if 'kadet' in name_lower or 'cadet' in name_lower:
         return 'Kadet'
     if 'junior' in name_lower:
-        return 'ior'
+        return 'Junior'
     if any(k in name_lower for k in ['under-21', 'under 21', 'u-21', 'u21']):
         return 'Under-21'
     if 'senior' in name_lower:
@@ -4579,7 +5252,6 @@ def timetable_editor(request, event_pk):
     )
 
     # 1. Collect individual athlete names across non-beregu categories
-    import re
     individual_athletes = set()
     individual_by_utusan = defaultdict(list)
     for a in all_atlets:
@@ -4685,6 +5357,9 @@ def timetable_editor(request, event_pk):
     tatami_count = tatamis.count() or 1
     festival_atlets_per_tatami = round(festival_total_atlets / tatami_count) if tatami_count else 0
 
+    # Pre-build duration lookup from computed nt_with_group data
+    nt_duration_map = {nt['pk']: nt['est_duration_minutes'] for nt in nt_with_group}
+
     days_data = []
     for day in days:
         cell_map = {row.id: {c.tatami_id: c for c in row.cells.all()} for row in day.rows.all()}
@@ -4706,7 +5381,7 @@ def timetable_editor(request, event_pk):
                         if c.nomor_tanding:
                             c.cell_title = c.nomor_tanding.nama_nomor_tanding
                             c.atlet_count = atlet_counts.get(c.nomor_tanding_id, 0)
-                            c.cell_duration = getattr(c.nomor_tanding, 'est_duration_minutes', 15) or 15
+                            c.cell_duration = nt_duration_map.get(c.nomor_tanding_id, 15) or 15
                             ct = c.custom_text or ''
                             time_m = re.search(r'(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})', ct)
                             if time_m:
@@ -4783,8 +5458,8 @@ def timetable_editor(request, event_pk):
         'keterangan_text': keterangan.text,
         'festival_total_atlets': festival_total_atlets,
         'festival_atlets_per_tatami': festival_atlets_per_tatami,
-        'conflict_data_json': json.dumps(conflict_data),
-        'categories_meta_json': json.dumps(nt_with_group),
+        'conflict_data_json': conflict_data,
+        'categories_meta_json': nt_with_group,
     }
     return render(request, 'admin/timetable_editor.html', context)
 
@@ -4904,7 +5579,11 @@ def kop_surat_save(request, event_pk):
     kop.alamat = request.POST.get('alamat', '')
     kop.kontak = request.POST.get('kontak', '')
 
-    if request.FILES.get('logo'):
+    if request.POST.get('remove_logo') == 'true':
+        if kop.logo:
+            kop.logo.delete(save=False)
+            kop.logo = None
+    elif request.FILES.get('logo'):
         kop.logo = request.FILES['logo']
 
     kop.save()

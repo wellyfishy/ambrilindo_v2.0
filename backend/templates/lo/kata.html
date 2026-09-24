@@ -5,152 +5,200 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LO Input Kata &bull; Tatami {{ tatami.tatami_number }}</title>
+    <meta name="theme-color" content="#08080a">
+    <title>LO Kata Manager &bull; {% if selected_bagan %}{{ selected_bagan.nama_bagan }}{% else %}Bagan Arena{% endif %} &bull; Tatami {{ tatami.tatami_number }}</title>
 
-    <!-- Fonts -->
+    <!-- Stylesheets & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-
-    <!-- jQuery for reliable AJAX fallback -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'icons/fontawesome-free/css/all.min.css' %}">
 
     <style>
         :root {
             --bg-body: #08080a;
-            --bg-card: #111217;
-            --bg-card-hover: #161820;
-            --bg-input: #0c0d12;
-            --border-color: #22242c;
-            --border-focus: #3b82f6;
-            
-            /* AKA (Red) */
-            --red-core: #e52525;
-            --red-light: #ef4444;
-            --red-glow: rgba(229, 37, 37, 0.35);
-            --red-bg: rgba(229, 37, 37, 0.08);
-            --red-border: rgba(229, 37, 37, 0.3);
-
-            /* AO (Blue) */
-            --blue-core: #2563eb;
-            --blue-light: #3b82f6;
-            --blue-glow: rgba(37, 99, 235, 0.35);
-            --blue-bg: rgba(37, 99, 235, 0.08);
-            --blue-border: rgba(37, 99, 235, 0.3);
-
-            /* Text & Accents */
+            --bg-surface: #111217;
+            --bg-surface-elevated: #161822;
+            --bg-card: rgba(18, 23, 34, 0.94);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.18);
+            --cal-red: #ef4444;
+            --cal-blue: #3b82f6;
+            --cal-gold: #f59e0b;
+            --cal-green: #10b981;
             --text-primary: #f8fafc;
-            --text-secondary: #9ca3af;
+            --text-secondary: #94a3b8;
             --text-muted: #64748b;
-            --green-online: #10b981;
-            --green-glow: rgba(16, 185, 129, 0.35);
-
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            --radius-card: 10px;
+            --radius-control: 8px;
+            --radius-pill: 9999px;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', Consolas, monospace;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-primary);
+            font-family: var(--font-sans);
             min-height: 100vh;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 32px 32px;
             display: flex;
             flex-direction: column;
-            padding-bottom: 30px;
         }
 
-        /* Top Navbar */
-        .lo-navbar {
-            background: rgba(17, 18, 23, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
+        /* Top Navigation Header (Bagan + Tatami Selector) */
+        .tm-header {
+            background: rgba(13, 15, 22, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-glass);
             position: sticky;
             top: 0;
             z-index: 100;
-            padding: 10px 16px;
+            padding: 10px 18px;
         }
 
-        .navbar-inner {
-            max-width: 900px;
-            margin: 0 auto;
+        .tm-nav-strip {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .tm-nav-left {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .brand-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tatami-badge {
+        .tm-badge-brand {
             font-family: 'Oswald', sans-serif;
-            font-size: 16px;
+            font-size: 14.5px;
             font-weight: 700;
             letter-spacing: 0.05em;
             background: linear-gradient(135deg, #e52525, #b91c1c);
             color: #fff;
-            padding: 4px 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px var(--red-glow);
+            padding: 5px 12px;
+            border-radius: var(--radius-control);
+            box-shadow: 0 2px 10px rgba(229, 37, 37, 0.35);
             white-space: nowrap;
-        }
-
-        .event-meta {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .event-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 260px;
-        }
-
-        .lo-role-tag {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .nav-actions {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .ws-status-pill {
+        .tm-badge-tatami {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #38bdf8;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 9px;
+            border-radius: 6px;
+        }
+
+        .tm-breadcrumb {
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .tm-breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .tm-breadcrumb a:hover {
+            color: #ffffff;
+        }
+
+        /* Center: Bagan Selector Dropdown */
+        .tm-nav-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tm-bagan-selector-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        .tm-category-badge {
+            font-family: var(--font-mono);
             font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            padding: 5px 9px;
+            border-radius: var(--radius-control);
+            background: rgba(239, 68, 68, 0.18);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            white-space: nowrap;
+        }
+
+        .tm-select-bagan {
+            background: #111217;
+            border: 1px solid var(--border-glass);
+            color: #ffffff;
+            font-size: 13.5px;
             font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--green-online);
-            transition: var(--transition);
+            padding: 7px 12px;
+            border-radius: var(--radius-control);
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.18s ease;
+        }
+
+        .tm-select-bagan:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+        }
+
+        /* Right: Nav Actions & Live Sync */
+        .tm-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ws-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 5px 11px;
+            border-radius: var(--radius-pill);
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            transition: all 0.2s ease;
         }
 
         .ws-status-pill.disconnected {
-            border-color: rgba(229, 37, 37, 0.3);
-            background: rgba(229, 37, 37, 0.1);
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.35);
             color: #f87171;
         }
 
@@ -158,1045 +206,2023 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: var(--green-online);
-            box-shadow: 0 0 6px var(--green-glow);
+            background: currentColor;
+            box-shadow: 0 0 6px currentColor;
+            animation: pulseDot 2s infinite;
         }
 
-        .ws-status-pill.disconnected .ws-dot {
-            background-color: #f87171;
-            box-shadow: 0 0 6px var(--red-glow);
-            animation: pulse 1.2s infinite;
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .btn-switch {
-            font-size: 11.5px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 5px 10px;
-            border-radius: var(--radius-sm);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .btn-switch:hover {
-            color: var(--text-primary);
-            border-color: var(--border-hover);
-        }
-
-        /* Container */
-        .main-container {
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 16px;
-            flex: 1;
-        }
-
-        /* Match Info Card */
-        .match-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .match-title-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .match-nomor {
-            font-family: 'Oswald', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            color: #ffffff;
-        }
-
-        .match-round-tag {
+        .btn-tm {
             font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .type-badge {
-            font-size: 11px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 3px 8px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #cbd5e1;
-        }
-
-        /* Dual Athlete Selection Grid */
-        .athletes-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 580px) {
-            .athletes-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .athlete-card {
-            position: relative;
-            background: var(--bg-card);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 16px;
+            padding: 6px 12px;
+            border-radius: var(--radius-control);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
             cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            user-select: none;
-        }
-
-        .athlete-card:hover {
-            border-color: #3f4251;
-            transform: translateY(-1px);
-        }
-
-        /* AKA Active & Theming */
-        .athlete-card.aka {
-            border-top: 4px solid var(--red-core);
-        }
-
-        .athlete-card.aka.active {
-            border-color: var(--red-core);
-            background: var(--red-bg);
-            box-shadow: 0 0 25px -5px var(--red-glow);
-        }
-
-        /* AO Active & Theming */
-        .athlete-card.ao {
-            border-top: 4px solid var(--blue-core);
-        }
-
-        .athlete-card.ao.active {
-            border-color: var(--blue-core);
-            background: var(--blue-bg);
-            box-shadow: 0 0 25px -5px var(--blue-glow);
-        }
-
-        .athlete-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .athlete-badge {
-            font-family: 'Oswald', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            padding: 2px 10px;
-            border-radius: 4px;
-            letter-spacing: 0.05em;
-        }
-
-        .athlete-card.aka .athlete-badge {
-            background: var(--red-core);
-            color: #fff;
-        }
-
-        .athlete-card.ao .athlete-badge {
-            background: var(--blue-core);
-            color: #fff;
-        }
-
-        .active-indicator {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 2px 8px;
-            border-radius: 999px;
-            display: none;
-        }
-
-        .athlete-card.active .active-indicator {
-            display: block;
-        }
-
-        .athlete-card.aka.active .active-indicator {
-            background: rgba(229, 37, 37, 0.2);
-            color: #fca5a5;
-            border: 1px solid rgba(229, 37, 37, 0.4);
-        }
-
-        .athlete-card.ao.active .active-indicator {
-            background: rgba(37, 99, 235, 0.2);
-            color: #93c5fd;
-            border: 1px solid rgba(37, 99, 235, 0.4);
-        }
-
-        .athlete-name {
-            font-size: 17px;
-            font-weight: 700;
-            color: #ffffff;
-            line-height: 1.25;
-            min-height: 22px;
-        }
-
-        .athlete-club {
-            font-size: 12px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .kata-display-wrap {
-            margin-top: 4px;
-            padding-top: 10px;
-            border-top: 1px dashed var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .kata-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-        }
-
-        .kata-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 15px;
-            font-weight: 700;
-            color: #ffffff;
-            background: rgba(0, 0, 0, 0.35);
-            padding: 6px 10px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            text-overflow: ellipsis;
+            transition: all 0.18s ease;
+            text-decoration: none;
             white-space: nowrap;
         }
 
-        .athlete-card.aka.active .kata-value {
-            border-color: rgba(229, 37, 37, 0.4);
-            color: #fca5a5;
+        .btn-tm-outline {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
         }
 
-        .athlete-card.ao.active .kata-value {
-            border-color: rgba(37, 99, 235, 0.4);
-            color: #93c5fd;
+        .btn-tm-outline:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-highlight);
+            color: #ffffff;
         }
 
-        /* Kata Selector Panel */
-        .selector-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 18px;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-        }
-
-        .selector-header {
+        /* Tatami Tabs Strip */
+        .tatami-tabs-strip {
+            background: rgba(17, 18, 23, 0.7);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 7px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            gap: 10px;
+            gap: 16px;
+            overflow-x: auto;
         }
 
-        .selector-title {
-            font-size: 14px;
-            font-weight: 700;
+        .tatami-tabs-list {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .selector-target-pill {
-            font-family: 'Oswald', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 4px;
-            letter-spacing: 0.05em;
-        }
-
-        .selector-target-pill.aka {
-            background: var(--red-core);
-            color: #ffffff;
-        }
-
-        .selector-target-pill.ao {
-            background: var(--blue-core);
-            color: #ffffff;
-        }
-
-        .btn-reset-kata {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
+        .tatami-tab-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 6px;
             font-size: 12px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: var(--transition);
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            transition: all 0.15s ease;
+            white-space: nowrap;
         }
 
-        .btn-reset-kata:hover {
-            background: rgba(255, 255, 255, 0.12);
+        .tatami-tab-item:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .tatami-tab-item.active {
+            background: linear-gradient(135deg, rgba(229, 37, 37, 0.2), rgba(185, 28, 28, 0.3));
+            border-color: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .tatami-stats-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* Tournament Bracket Viewport */
+        .bracket-scroll-viewport {
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 24px 24px 60px;
+            min-height: 720px;
+            flex: 1;
+        }
+
+        .bracket-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.035;
+        }
+
+        .bracket-watermark img {
+            max-width: 480px;
+            height: auto;
+        }
+
+        .bracket-outer {
+            position: relative;
+            width: 100%;
+            min-width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #connector-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+        }
+
+        .bracket-grid {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: clamp(24px, 3.5vw, 60px);
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            min-height: 800px;
+        }
+
+        /* Bracket Column */
+        .round-col {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0;
+            min-width: 270px;
+            max-width: 420px;
+            position: relative;
+            align-self: stretch;
+        }
+
+        .round-col.is-final {
+            flex: 1.25 1 0;
+            min-width: 310px;
+            max-width: 470px;
+        }
+
+        .round-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            flex-shrink: 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .round-step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 9.5px;
             color: #ffffff;
         }
 
-        /* Search input */
-        .search-wrap {
+        .round-matches {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1;
+            gap: 18px;
+        }
+
+        /* Match Card Styles */
+        .match {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-glass);
+            border-radius: var(--radius-control);
+            overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
             position: relative;
-            margin-bottom: 14px;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .search-input {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 15px;
-            padding: 12px 14px 12px 40px;
-            border-radius: var(--radius-md);
-            outline: none;
-            transition: var(--transition);
-            font-family: inherit;
+        .match:hover {
+            border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), 0 8px 24px rgba(0, 0, 0, 0.6);
+            transform: translateY(-2px);
         }
 
-        .search-input:focus {
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-            background-color: #0f1017;
+        .match.is-active-match {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.35) !important;
         }
 
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 17px;
-            height: 17px;
-            color: var(--text-muted);
-            pointer-events: none;
+        .match.is-finished {
+            border-color: rgba(255, 255, 255, 0.14);
+            opacity: 0.92;
         }
 
-        /* Kata List Grid */
-        .kata-list-scroll {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: var(--bg-input);
-            padding: 6px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        .match-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 11px;
+        }
+
+        .match-header-left {
+            display: flex;
+            align-items: center;
             gap: 6px;
         }
 
-        @media (max-width: 500px) {
-            .kata-list-scroll {
-                grid-template-columns: 1fr;
-                max-height: 340px;
-            }
-        }
-
-        .kata-item-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            text-align: left;
-            font-size: 13.5px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: inherit;
-            user-select: none;
-            gap: 8px;
-        }
-
-        .kata-name-text {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .kata-record-tag {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 4px;
-            background: rgba(245, 158, 11, 0.18);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            white-space: nowrap;
-            letter-spacing: 0.02em;
-        }
-
-        .kata-item-btn.previously-played {
-            border-color: rgba(245, 158, 11, 0.35);
-        }
-
-        .kata-item-btn:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--border-focus);
-            transform: translateY(-1px);
-        }
-
-        .kata-item-btn:active {
-            transform: scale(0.98);
-        }
-
-        .kata-item-btn.selected-aka {
-            background: var(--red-bg);
-            border-color: var(--red-core);
-            color: #fca5a5;
-            font-weight: 700;
-        }
-
-        .kata-item-btn.selected-ao {
-            background: var(--blue-bg);
-            border-color: var(--blue-core);
-            color: #93c5fd;
-            font-weight: 700;
-        }
-
-        .kata-number {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-right: 8px;
-        }
-
-        /* Toast notification */
-        .toast-notify {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #1e293b;
-            color: #ffffff;
-            border: 1px solid #334155;
-            padding: 12px 20px;
-            border-radius: 999px;
-            font-size: 13.5px;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            opacity: 0;
-            pointer-events: none;
-            max-width: 90vw;
-            text-align: center;
-        }
-
-        .toast-notify.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast-notify.aka {
-            background: #7f1d1d;
-            border-color: #dc2626;
-        }
-
-        .toast-notify.ao {
-            background: #1e3a8a;
-            border-color: #2563eb;
-        }
-
-        .toast-notify.warning {
-            background: #451a03;
-            border-color: #f59e0b;
-            color: #fef3c7;
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25);
-        }
-
-        .toast-notify.final-reminder {
-            background: #172554;
-            border-color: #38bdf8;
-            color: #e0f2fe;
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25);
-        }
-
-        .final-badge {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
+        .match-num {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            color: var(--text-secondary);
             letter-spacing: 0.05em;
-            padding: 3px 8px;
-            border-radius: 4px;
-            background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(202, 138, 4, 0.35));
-            color: #fde047;
-            border: 1px solid rgba(234, 179, 8, 0.5);
+        }
+
+        .badge-live-tatami {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #34d399;
+            font-weight: 800;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 3px;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
 
-        /* Empty state in search */
-        .empty-search {
-            grid-column: 1 / -1;
-            padding: 30px 10px;
-            text-align: center;
+        .live-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 6px #10b981;
+            animation: pulseDot 1.4s infinite;
+        }
+
+        .match-badge-finish {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+
+        .badge-kata-status {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-kata-status.ready {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #34d399;
+        }
+
+        .badge-kata-status.partial {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: #fbbf24;
+        }
+
+        .badge-kata-status.pending {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #f87171;
+        }
+
+        /* Player Rows */
+        .player {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            gap: 10px;
+            position: relative;
+            transition: background 0.15s ease;
+        }
+
+        .player-aka {
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .player.is-winner {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), transparent);
+        }
+
+        .player-side {
+            width: 26px;
+            height: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            color: #ffffff !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .player-side.aka {
+            background: #dc2626;
+            border: 1px solid #ef4444;
+        }
+
+        .player-side.ao {
+            background: #2563eb;
+            border: 1px solid #3b82f6;
+        }
+
+        .player-dojo-logo {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+        }
+
+        .player-name.empty {
             color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .player-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 1px;
+        }
+
+        .match-kata-slot {
+            flex-shrink: 0;
+            max-width: 140px;
+        }
+
+        .match-kata-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 135px;
+            transition: all 0.15s ease;
+        }
+
+        .match-kata-chip.aka {
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .match-kata-chip.ao {
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+
+        .match-kata-chip.empty {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+        }
+
+        /* Match Kata Assignment Modal - High Precision Broadcast UI */
+        .tm-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1050;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .tm-modal-backdrop.is-open {
+            display: flex;
+        }
+
+        .tm-modal-window {
+            background: #111217;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-card);
+            width: 100%;
+            max-width: 1160px;
+            height: 90vh;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.88);
+            animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .tm-modal-header {
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(18, 23, 34, 0.95);
+            flex-shrink: 0;
+        }
+
+        .tm-modal-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tm-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .tm-modal-close:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tm-modal-body {
+            padding: 16px 22px;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: hidden;
+        }
+
+        @media (max-width: 900px) {
+            .tm-modal-window {
+                height: 94vh;
+                max-height: none;
+            }
+            .tm-modal-body {
+                overflow-y: auto;
+            }
+            .tm-kata-workspace {
+                grid-template-columns: 1fr !important;
+            }
+            .kata-col-panel {
+                height: auto !important;
+            }
+            .kata-picker-grid {
+                max-height: 280px !important;
+            }
+        }
+
+        /* Faceoff Athletes Card */
+        .tm-faceoff-card {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 16px;
+            background: rgba(18, 23, 34, 0.65);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-card);
+            padding: 10px 16px;
+            flex-shrink: 0;
+        }
+
+        .tm-fighter {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tm-fighter-badge {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+        .tm-fighter-badge.aka { background: #dc2626; color: #fff; }
+        .tm-fighter-badge.ao { background: #2563eb; color: #fff; }
+
+        .tm-fighter-body {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tm-fighter-avatar img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+        }
+
+        .tm-avatar-placeholder {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-control);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .tm-avatar-placeholder.aka { background: rgba(220, 38, 38, 0.15); color: #f87171; }
+        .tm-avatar-placeholder.ao { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+
+        .tm-fighter-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .tm-fighter-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .tm-vs-badge {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.4);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-glass);
+        }
+
+        /* 2-Column Kata Workspace */
+        .tm-kata-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            flex: 1;
+            min-height: 0;
+            align-items: stretch;
+        }
+
+        .kata-col-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-card);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+            min-height: 0;
+        }
+
+        .kata-col-panel.aka {
+            border-top: 3px solid #ef4444;
+        }
+
+        .kata-col-panel.ao {
+            border-top: 3px solid #3b82f6;
+        }
+
+        .kata-col-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .kata-col-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kata-col-title.aka { color: #f87171; }
+        .kata-col-title.ao { color: #60a5fa; }
+
+        /* Selected Active Kata Big Banner */
+        .active-kata-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid var(--border-glass);
+            border-radius: var(--radius-control);
+            padding: 9px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .active-kata-display.has-selection.aka {
+            border-color: rgba(239, 68, 68, 0.55);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .active-kata-display.has-selection.ao {
+            border-color: rgba(59, 130, 246, 0.55);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .active-kata-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .active-kata-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        .active-kata-name {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 1px;
+        }
+
+        /* WKF History Chips & Conflict Warning */
+        .wkf-history-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 6px;
+            padding: 8px 10px;
+            flex-shrink: 0;
+        }
+
+        .wkf-history-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+        }
+
+        .wkf-history-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .wkf-hist-chip {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .wkf-history-empty {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #cbd5e1 !important;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-sm, 6px);
+        }
+
+        .wkf-repeat-alert {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            padding: 7px 10px;
+            flex-shrink: 0;
+        }
+
+        /* Kata Search Box */
+        .kata-search-input {
+            width: 100%;
+            background: #090a0e;
+            border: 1px solid var(--border-glass);
+            color: #ffffff;
+            font-size: 12.5px;
+            padding: 7px 12px;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .kata-search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        /* 102 WKF Kata Buttons Grid - Clean 2-column per panel */
+        .kata-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 6px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 6px;
+            align-content: start;
+        }
+
+        .kata-picker-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .kata-picker-grid::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+        }
+        .kata-picker-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .kata-picker-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .kata-pick-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            color: #e2e8f0;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.25;
+            min-height: 38px;
+            text-align: left;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .kata-pick-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .kata-num-pill {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .kata-name-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .kata-pick-btn.selected-aka {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            border-color: #f87171 !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(239, 68, 68, 0.45);
+        }
+        .kata-pick-btn.selected-aka .kata-num-pill {
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+        }
+
+        .kata-pick-btn.selected-ao {
+            background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+            border-color: #60a5fa !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.45);
+        }
+        .kata-pick-btn.selected-ao .kata-num-pill {
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+        }
+
+        .kata-pick-btn.was-played {
+            border: 1px dashed rgba(245, 158, 11, 0.45);
+        }
+
+        .kata-badge-played {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+
+        /* Modal Footer */
+        .tm-modal-footer {
+            padding: 12px 22px;
+            border-top: 1px solid var(--border-glass);
+            background: rgba(18, 23, 34, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .modal-footer-status {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .modal-footer-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-modal-save:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+        }
+
+        /* Toast Notifications */
+        .toast-notify {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(18, 23, 34, 0.96);
+            border: 1px solid var(--border-highlight);
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: var(--radius-control);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
             font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast-notify.success { border-color: #10b981; color: #34d399; }
+        .toast-notify.error { border-color: #ef4444; color: #f87171; }
+        .toast-notify.info { border-color: #3b82f6; color: #60a5fa; }
+
+        @keyframes toastIn {
+            from { transform: translateY(16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation -->
-    <nav class="lo-navbar">
-        <div class="navbar-inner">
-            <div class="brand-info">
-                <span class="tatami-badge">TATAMI {{ tatami.tatami_number }}</span>
-                <div class="event-meta">
-                    <span class="event-name" title="{{ event.nama_event }}">{{ event.nama_event }}</span>
-                    <span class="lo-role-tag">Operator LO &bull; Input Kata</span>
-                </div>
-            </div>
-            <div class="nav-actions">
-                <div class="ws-status-pill" id="wsPill">
-                    <span class="ws-dot"></span>
-                    <span id="wsText">Online</span>
-                </div>
-                <a href="{% url 'lo-kata-entry' %}?switch=1" class="btn-switch" title="Ganti arena tatami">Ganti Tatami</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Container -->
-    <main class="main-container">
-
-        <!-- Match Info Banner -->
-        <div class="match-card">
-            <div class="match-title-wrap">
-                <div class="match-nomor" id="nomorTandingText">
-                    {% if bagan and bagan.nomor_tanding %}
-                        {{ bagan.nomor_tanding.nama_nomor_tanding }}
-                    {% else %}
-                        Menunggu Pertandingan
-                    {% endif %}
-                </div>
-                <div class="match-round-tag" id="roundUrutanText">
-                    {% if detail_bagan %}
-                        Babak {{ detail_bagan.round }} &bull; Partai {{ detail_bagan.urutan }}
-                    {% else %}
-                        Tatami siap
-                    {% endif %}
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="final-badge" id="finalMatchBadge" style="{% if not is_final_match %}display:none;{% endif %}">
-                    🏅 FINAL
+    <!-- Top Navigation Header -->
+    <header class="tm-header">
+        <div class="tm-nav-strip">
+            <!-- Left: Brand, Tatami & Breadcrumb -->
+            <div class="tm-nav-left">
+                <span class="tm-badge-brand">
+                    <i class="fas fa-scroll"></i> LO KATA MANAGER
                 </span>
-                <span class="type-badge" id="tipeTandingBadge">
-                    {% if bagan and bagan.tipe_tanding == '1' %}KATA{% elif bagan and bagan.tipe_tanding == '2' %}KUMITE{% else %}KATA{% endif %}
-                </span>
+                <span class="tm-badge-tatami">TATAMI {{ tatami.tatami_number }}</span>
+                <nav class="tm-breadcrumb" aria-label="Breadcrumb">
+                    <a href="{% url 'lo-kata-entry' %}?switch=1" title="Ganti Tatami atau Keluar">
+                        <i class="fas fa-sign-out-alt"></i> Ganti Tatami
+                    </a>
+                    <span>/</span>
+                    <span class="text-truncate" style="max-width: 200px;" title="{{ event.nama_event }}">{{ event.nama_event }}</span>
+                </nav>
+            </div>
+
+            <!-- Center: Bagan / Category Selector Dropdown -->
+            <div class="tm-nav-center">
+                <div class="tm-bagan-selector-wrap">
+                    <span class="tm-category-badge">BAGAN</span>
+                    <select id="baganSelector" class="tm-select-bagan" onchange="switchBagan(this.value)">
+                        {% for b in all_bagans %}
+                            <option value="{{ b.pk }}" {% if selected_bagan and selected_bagan.pk == b.pk %}selected{% endif %}>
+                                {% if b.tipe_tanding == '1' %}[KATA] {% endif %}({{ b.kode }}) {{ b.nomor_tanding.nama_nomor_tanding|default:b.nama_bagan }}
+                                {% if b.pool and b.pool > 1 %} &bull; Pool {{ b.pool }}{% endif %}
+                            </option>
+                        {% empty %}
+                            <option value="">Belum ada bagan yang dibuat</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Right: Live Sync & Auto Follow -->
+            <div class="tm-nav-actions">
+                <div class="ws-status-pill" id="wsPill" title="Status sinkronisasi real-time via WebSocket">
+                    <div class="ws-dot"></div>
+                    <span id="wsText">Live Sync</span>
+                </div>
+
+                <button type="button" class="btn-tm btn-tm-outline" id="autoFollowToggle" onclick="toggleAutoFollow()" title="Otomatis beralih bagan saat operator tatami menjalankan partai baru">
+                    <i class="fas fa-satellite-dish text-success" id="autoFollowIcon"></i>
+                    <span id="autoFollowText">Auto-Follow: ON</span>
+                </button>
+
+                <button type="button" class="btn-tm btn-tm-outline" onclick="window.location.reload()" title="Muat Ulang Halaman">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
             </div>
         </div>
+    </header>
 
-        <!-- Dual Athlete Selector Grid -->
-        <div class="athletes-grid">
-            <!-- AKA (Red) -->
-            <div class="athlete-card aka active" id="cardAka" onclick="selectAthleteTarget('aka')">
-                <div class="athlete-header">
-                    <span class="athlete-badge">AKA (MERAH)</span>
-                    <span class="active-indicator">Dipilih</span>
-                </div>
-                <div class="athlete-name" id="atletAkaNama">
-                    {% if detail_bagan and detail_bagan.atlet1 %}
-                        {{ detail_bagan.atlet1.nama_atlet }}
-                    {% else %}
-                        -
+    <!-- Tatami Tabs Strip -->
+    <div class="tatami-tabs-strip">
+        <div class="tatami-tabs-list">
+            <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase;">
+                ARENA:
+            </span>
+            {% for t in all_tatamis %}
+                <a href="{% url 'lo-kata' tatami_pk=t.pk %}{% if selected_bagan %}?bagan={{ selected_bagan.pk }}{% endif %}"
+                   class="tatami-tab-item {% if tatami.pk == t.pk %}active{% endif %}">
+                    <span>Tatami {{ t.tatami_number }}</span>
+                    {% if t.detail_bagan %}
+                        <span class="live-dot" title="Sedang bertanding: Partai #{{ t.detail_bagan.urutan }}"></span>
                     {% endif %}
-                </div>
-                <div class="athlete-club" id="atletAkaClub">
-                    {% if detail_bagan and detail_bagan.atlet1 and detail_bagan.atlet1.perguruan %}
-                        {{ detail_bagan.atlet1.perguruan.nama_perguruan }}
-                    {% elif detail_bagan and detail_bagan.atlet1 and detail_bagan.atlet1.utusan %}
-                        {{ detail_bagan.atlet1.utusan.nama_utusan }}
-                    {% else %}
-                        Kontingen
-                    {% endif %}
-                </div>
-                <div class="kata-display-wrap">
-                    <span class="kata-label">Kata Ditampilkan:</span>
-                    <div class="kata-value" id="displayKataAka">{{ current_kata1 }}</div>
-                </div>
-            </div>
-
-            <!-- AO (Blue) -->
-            <div class="athlete-card ao" id="cardAo" onclick="selectAthleteTarget('ao')">
-                <div class="athlete-header">
-                    <span class="athlete-badge">AO (BIRU)</span>
-                    <span class="active-indicator">Dipilih</span>
-                </div>
-                <div class="athlete-name" id="atletAoNama">
-                    {% if detail_bagan and detail_bagan.atlet2 %}
-                        {{ detail_bagan.atlet2.nama_atlet }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </div>
-                <div class="athlete-club" id="atletAoClub">
-                    {% if detail_bagan and detail_bagan.atlet2 and detail_bagan.atlet2.perguruan %}
-                        {{ detail_bagan.atlet2.perguruan.nama_perguruan }}
-                    {% elif detail_bagan and detail_bagan.atlet2 and detail_bagan.atlet2.utusan %}
-                        {{ detail_bagan.atlet2.utusan.nama_utusan }}
-                    {% else %}
-                        Kontingen
-                    {% endif %}
-                </div>
-                <div class="kata-display-wrap">
-                    <span class="kata-label">Kata Ditampilkan:</span>
-                    <div class="kata-value" id="displayKataAo">{{ current_kata2 }}</div>
-                </div>
-            </div>
+                </a>
+            {% empty %}
+                <span class="text-muted small">Belum ada tatami yang dibuat.</span>
+            {% endfor %}
         </div>
 
-        <!-- Kata Selector Section -->
-        <section class="selector-section">
-            <div class="selector-header">
-                <div class="selector-title">
-                    Pilih Kata untuk:
-                    <span class="selector-target-pill aka" id="targetPill">AKA (MERAH)</span>
+        <div class="tatami-stats-pill">
+            <span class="text-success"><i class="fas fa-check-circle"></i> <strong>{{ metrics.ready_matches }}</strong>/{{ metrics.total_matches }} Kata Siap</span>
+            <span>&bull;</span>
+            <span class="text-warning"><i class="fas fa-adjust"></i> <strong>{{ metrics.partial_matches }}</strong> 1/2 Kata</span>
+            <span>&bull;</span>
+            <span class="text-danger"><i class="fas fa-clock"></i> <strong>{{ metrics.pending_matches }}</strong> Belum Input</span>
+        </div>
+    </div>
+
+    <!-- Tournament Bracket Viewport -->
+    <main class="bracket-scroll-viewport">
+        <div class="bracket-watermark" aria-hidden="true">
+            <img src="{% static 'img/ambrilindo-logo.webp' %}" alt="">
+        </div>
+
+        <div class="bracket-outer">
+            <svg id="connector-svg" aria-hidden="true"></svg>
+
+            {% if selected_bagan %}
+            <div class="bracket-grid" id="bracket-grid">
+
+                {% if not referchange %}
+                <!-- ================= STANDARD ELIMINATION BRACKET ================= -->
+
+                <!-- ROUND 1 -->
+                {% if detail_bagans_round_1 %}
+                <div class="round-col" data-round="1">
+                    <div class="round-label">
+                        <span class="round-step">R1</span>
+                        {% if selected_bagan.pool == 2 %}BABAK 32 BESAR{% elif selected_bagan.pool == 4 %}BABAK 64 BESAR{% else %}BABAK 16 BESAR{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_1 %}
+                            {% include "lo/partials/kata_bracket_match_card.html" with db=db %}
+                        {% endfor %}
+                    </div>
                 </div>
-                <button type="button" class="btn-reset-kata" onclick="chooseKata('0 - Blank')">
-                    Reset (0 - Blank)
+                {% endif %}
+
+                <!-- ROUND 2 -->
+                {% if detail_bagans_round_2 %}
+                <div class="round-col" data-round="2">
+                    <div class="round-label">
+                        <span class="round-step">R2</span>
+                        {% if selected_bagan.pool == 2 %}BABAK 16 BESAR{% elif selected_bagan.pool == 4 %}BABAK 32 BESAR{% else %}PEREMPAT FINAL{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_2 %}
+                            {% include "lo/partials/kata_bracket_match_card.html" with db=db %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ROUND 3 -->
+                {% if detail_bagans_round_3 %}
+                <div class="round-col" data-round="3">
+                    <div class="round-label">
+                        <span class="round-step">R3</span>
+                        {% if selected_bagan.pool == 2 %}PEREMPAT FINAL{% elif selected_bagan.pool == 4 %}BABAK 16 BESAR{% else %}SEMIFINAL{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_3 %}
+                            {% include "lo/partials/kata_bracket_match_card.html" with db=db %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ROUND 4 (FINAL) -->
+                {% if detail_bagans_round_4 %}
+                <div class="round-col is-final" data-round="4">
+                    <div class="round-label text-warning">
+                        <span class="round-step text-warning border-warning"><i class="fas fa-trophy"></i></span>
+                        {% if selected_bagan.pool == 2 %}SEMIFINAL{% elif selected_bagan.pool == 4 %}PEREMPAT FINAL{% else %}FINAL{% endif %}
+                    </div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_4 %}
+                            {% include "lo/partials/kata_bracket_match_card.html" with db=db %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <!-- ================= REFERCHANGE / REPECHAGE BRACKET ================= -->
+                {% if detail_bagans_round_1 %}
+                <div class="round-col" data-round="1">
+                    <div class="round-label"><span class="round-step">1</span> REFERCHANGE 1</div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_1 %}
+                            {% include "lo/partials/kata_bracket_match_card.html" with db=db %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if detail_bagans_round_2 %}
+                <div class="round-col is-final" data-round="2">
+                    <div class="round-label"><span class="round-step">2</span> PEREBUTAN JUARA 3</div>
+                    <div class="round-matches">
+                        {% for db in detail_bagans_round_2 %}
+                            {% include "lo/partials/kata_bracket_match_card.html" with db=db %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% endif %}
+
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+                <h5 class="text-light">Pilih atau Buat Bagan Pertandingan</h5>
+                <p class="text-muted">Gunakan pemilih bagan di atas untuk melihat bagan arena.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Interactive Match Kata Assignment Modal -->
+    <div class="tm-modal-backdrop" id="matchKataModalBackdrop" onclick="handleBackdropClick(event)">
+        <div class="tm-modal-window" role="dialog" aria-modal="true" aria-labelledby="modalMatchTitle">
+            
+            <!-- Modal Header -->
+            <div class="tm-modal-header">
+                <div class="tm-modal-title" id="modalMatchTitle">
+                    <i class="fas fa-scroll text-danger"></i>
+                    <span>ATUR KATA PARTAI</span>
+                    <span class="badge bg-secondary ms-2" id="modalMatchNumberBadge">Partai #-</span>
+                    <span class="badge bg-primary ms-1" id="modalRoundBadge">Babak -</span>
+                    <span class="badge bg-success ms-1 d-none" id="modalLiveTatamiBadge">LIVE ARENA</span>
+                </div>
+                <button type="button" class="tm-modal-close" onclick="closeMatchKataModal()" title="Tutup Modal (Esc)">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
 
-            <!-- Search box -->
-            <div class="search-wrap">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" class="search-input" id="kataSearch" placeholder="Cari nama kata (contoh: Chatan, Anan, Bassai)..." autocomplete="off">
+            <!-- Modal Body -->
+            <div class="tm-modal-body">
+                
+                <!-- Faceoff Athletes Card -->
+                <div class="tm-faceoff-card">
+                    <!-- AKA Fighter -->
+                    <div class="tm-fighter aka">
+                        <span class="tm-fighter-badge aka">AKA (MERAH)</span>
+                        <div class="tm-fighter-body">
+                            <div class="tm-fighter-avatar" id="modalAkaAvatar">
+                                <div class="tm-avatar-placeholder aka"><i class="fas fa-user-ninja"></i></div>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="tm-fighter-name text-truncate" id="modalAkaName">Nama Atlet Aka</div>
+                                <div class="tm-fighter-sub text-truncate" id="modalAkaSub">Perguruan &bull; Kontingen</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VS Badge -->
+                    <div class="tm-vs-badge">VS</div>
+
+                    <!-- AO Fighter -->
+                    <div class="tm-fighter ao">
+                        <span class="tm-fighter-badge ao">AO (BIRU)</span>
+                        <div class="tm-fighter-body">
+                            <div class="tm-fighter-avatar" id="modalAoAvatar">
+                                <div class="tm-avatar-placeholder ao"><i class="fas fa-user-ninja"></i></div>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="tm-fighter-name text-truncate" id="modalAoName">Nama Atlet Ao</div>
+                                <div class="tm-fighter-sub text-truncate" id="modalAoSub">Perguruan &bull; Kontingen</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2-Column Kata Workspace -->
+                <div class="tm-kata-workspace">
+                    
+                    <!-- AKA Column Panel -->
+                    <div class="kata-col-panel aka">
+                        <div class="kata-col-head">
+                            <span class="kata-col-title aka"><i class="fas fa-fire"></i> KATA ATLET AKA</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 11px;" onclick="resetAkaKata()">
+                                <i class="fas fa-eraser"></i> Kosongkan
+                            </button>
+                        </div>
+
+                        <!-- Active Selected Kata Display -->
+                        <div class="active-kata-display aka" id="akaDisplayBox">
+                            <div class="active-kata-meta">
+                                <span class="active-kata-label">Kata Terpilih (Aka):</span>
+                                <span class="active-kata-name" id="akaSelectedKataText">0 - Blank</span>
+                            </div>
+                            <i class="fas fa-check-circle text-danger fs-4" id="akaSelectedCheck" style="display:none;"></i>
+                        </div>
+
+                        <!-- WKF Rule History & Repeat Warning -->
+                        <div class="wkf-history-section">
+                            <div class="wkf-history-title">
+                                <i class="fas fa-history"></i> Riwayat Kata Babak Sebelumnya (WKF):
+                            </div>
+                            <div class="wkf-history-chips" id="akaWkfHistoryChips">
+                                <span class="text-muted small">Belum ada riwayat kata sebelumnya.</span>
+                            </div>
+                        </div>
+
+                        <div class="wkf-repeat-alert" id="akaRepeatAlert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="akaRepeatAlertText">Peringatan: Kata ini sudah pernah dimainkan di babak sebelumnya!</span>
+                        </div>
+
+                        <!-- Search Filter -->
+                        <input type="text" class="kata-search-input" id="akaKataSearch" placeholder="Cari 102 Kata WKF (Nomor / Nama)..." oninput="filterKataGrid('aka')">
+
+                        <!-- Kata Buttons Grid -->
+                        <div class="kata-picker-grid" id="akaKataGrid">
+                            <!-- Populated dynamically from 102 official Katas -->
+                        </div>
+                    </div>
+
+                    <!-- AO Column Panel -->
+                    <div class="kata-col-panel ao">
+                        <div class="kata-col-head">
+                            <span class="kata-col-title ao"><i class="fas fa-water"></i> KATA ATLET AO</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 11px;" onclick="resetAoKata()">
+                                <i class="fas fa-eraser"></i> Kosongkan
+                            </button>
+                        </div>
+
+                        <!-- Active Selected Kata Display -->
+                        <div class="active-kata-display ao" id="aoDisplayBox">
+                            <div class="active-kata-meta">
+                                <span class="active-kata-label">Kata Terpilih (Ao):</span>
+                                <span class="active-kata-name" id="aoSelectedKataText">0 - Blank</span>
+                            </div>
+                            <i class="fas fa-check-circle text-primary fs-4" id="aoSelectedCheck" style="display:none;"></i>
+                        </div>
+
+                        <!-- WKF Rule History & Repeat Warning -->
+                        <div class="wkf-history-section">
+                            <div class="wkf-history-title">
+                                <i class="fas fa-history"></i> Riwayat Kata Babak Sebelumnya (WKF):
+                            </div>
+                            <div class="wkf-history-chips" id="aoWkfHistoryChips">
+                                <span class="text-muted small">Belum ada riwayat kata sebelumnya.</span>
+                            </div>
+                        </div>
+
+                        <div class="wkf-repeat-alert" id="aoRepeatAlert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="aoRepeatAlertText">Peringatan: Kata ini sudah pernah dimainkan di babak sebelumnya!</span>
+                        </div>
+
+                        <!-- Search Filter -->
+                        <input type="text" class="kata-search-input" id="aoKataSearch" placeholder="Cari 102 Kata WKF (Nomor / Nama)..." oninput="filterKataGrid('ao')">
+
+                        <!-- Kata Buttons Grid -->
+                        <div class="kata-picker-grid" id="aoKataGrid">
+                            <!-- Populated dynamically from 102 official Katas -->
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
-            <!-- Scrollable Kata List -->
-            <div class="kata-list-scroll" id="kataListContainer">
-                {% for kata in kata_list %}
-                    <button type="button" class="kata-item-btn" data-kata="{{ kata }}" onclick="chooseKata('{{ kata }}')">
-                        <span class="kata-name-text">{{ kata }}</span>
-                        <span class="kata-record-tag" style="display: none;"></span>
+            <!-- Modal Footer Actions (Single Primary Save Button) -->
+            <div class="tm-modal-footer">
+                <div class="modal-footer-status" id="modalFooterStatus">
+                    Pilih kata untuk kedua atlet, lalu tekan Simpan Kata Partai.
+                </div>
+                <div class="modal-footer-btns">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="closeMatchKataModal()">
+                        Batal
                     </button>
-                {% endfor %}
+                    <button type="button" class="btn-modal-save" id="btnSaveKata" onclick="saveMatchKata()">
+                        <i class="fas fa-save"></i> Simpan Kata Partai
+                    </button>
+                </div>
             </div>
-        </section>
 
-    </main>
-
-    <!-- Floating Toast Notification -->
-    <div class="toast-notify" id="toastNotify">
-        <span id="toastIcon">&#10003;</span>
-        <span id="toastMsg">Kata berhasil diperbarui</span>
+        </div>
     </div>
 
-    <!-- WebSocket & Interactive Logic -->
+    <!-- Scripts -->
     <script>
-        const tatamiPk = {{ tatami.pk }};
-        const allKatas = {{ kata_list_json|safe }};
-        
-        let currentTarget = 'aka'; // 'aka' or 'ao'
-        let currentKataAka = '{{ current_kata1|escapejs }}';
-        let currentKataAo = '{{ current_kata2|escapejs }}';
-        let historyAka = {{ kata_history_aka_json|safe }};
-        let historyAo = {{ kata_history_ao_json|safe }};
-        let isFinalMatch = {{ is_final_match|yesno:"true,false" }};
-        let currentRound = {{ detail_bagan.round|default:1 }};
+        const OFFICIAL_KATAS = {{ kata_list_json|safe }};
+        const currentTatamiPk = "{{ tatami.pk }}";
+        const currentBaganPk = "{{ selected_bagan.pk|default:'' }}";
+        const retrieverUrl = "{% url 'message-retriever-lo' tatami_pk=tatami.pk %}";
 
+        let currentActiveMatchPk = null;
+        let selectedAkaKata = '0 - Blank';
+        let selectedAoKata = '0 - Blank';
+        let currentMatchData = null;
+        let isSaving = false;
+
+        /* Switch Bagan Dropdown */
+        function switchBagan(baganPk) {
+            if (!baganPk) return;
+            window.location.href = `?bagan=${baganPk}`;
+        }
+
+        /* Toast Notifications */
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast-notify');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notify ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle');
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        /* SVG Bracket Connectors Engine */
+        function drawConnectors() {
+            const svg = document.getElementById('connector-svg');
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const outer = svg.parentElement.getBoundingClientRect();
+            const cols = Array.from(document.querySelectorAll('.round-col'));
+            const strokeColor = 'rgba(239, 68, 68, 0.4)';
+            const strokeWidth = '1.5';
+
+            for (let ri = 0; ri < cols.length - 1; ri++) {
+                const fromCards = Array.from(cols[ri].querySelectorAll('.match'));
+                const toCards = Array.from(cols[ri + 1].querySelectorAll('.match'));
+                if (fromCards.length === 0 || toCards.length === 0) continue;
+
+                if (fromCards.length === 1 && toCards.length === 1) {
+                    const cardA = fromCards[0];
+                    const cardOut = toCards[0];
+                    if (!cardA || !cardOut) continue;
+                    const rA = cardA.getBoundingClientRect();
+                    const rOut = cardOut.getBoundingClientRect();
+                    const yA = rA.top + rA.height / 2 - outer.top;
+                    const yTo = rOut.top + rOut.height / 2 - outer.top;
+                    const xFrom = rA.right - outer.left;
+                    const xTo = rOut.left - outer.left;
+                    const xMid = xFrom + (xTo - xFrom) / 2;
+
+                    seg(svg, xFrom, yA, xMid, yA, strokeColor, strokeWidth);
+                    seg(svg, xMid, yA, xMid, yTo, strokeColor, strokeWidth);
+                    seg(svg, xMid, yTo, xTo, yTo, strokeColor, strokeWidth);
+                } else {
+                    for (let i = 0; i < toCards.length; i++) {
+                        const cardA = fromCards[i * 2];
+                        const cardB = fromCards[i * 2 + 1];
+                        const cardOut = toCards[i];
+                        if (!cardA || !cardOut) continue;
+
+                        const rA = cardA.getBoundingClientRect();
+                        const rOut = cardOut.getBoundingClientRect();
+                        const yA = rA.top + rA.height / 2 - outer.top;
+                        const yTo = rOut.top + rOut.height / 2 - outer.top;
+                        const xFrom = rA.right - outer.left;
+                        const xTo = rOut.left - outer.left;
+                        const xMid = xFrom + (xTo - xFrom) / 2;
+
+                        if (cardB) {
+                            const rB = cardB.getBoundingClientRect();
+                            const yB = rB.top + rB.height / 2 - outer.top;
+                            const yMid = (yA + yB) / 2;
+                            seg(svg, xFrom, yA, xMid, yA, strokeColor, strokeWidth);
+                            seg(svg, xFrom, yB, xMid, yB, strokeColor, strokeWidth);
+                            seg(svg, xMid, yA, xMid, yB, strokeColor, strokeWidth);
+                            seg(svg, xMid, yMid, xMid, yTo, strokeColor, strokeWidth);
+                            seg(svg, xMid, yTo, xTo, yTo, strokeColor, strokeWidth);
+                        } else {
+                            seg(svg, xFrom, yA, xMid, yA, strokeColor, strokeWidth);
+                            seg(svg, xMid, yA, xMid, yTo, strokeColor, strokeWidth);
+                            seg(svg, xMid, yTo, xTo, yTo, strokeColor, strokeWidth);
+                        }
+                    }
+                }
+            }
+        }
+
+        function seg(svg, x1, y1, x2, y2, strokeColor, strokeWidth) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', strokeColor);
+            line.setAttribute('stroke-width', strokeWidth);
+            line.setAttribute('stroke-linecap', 'round');
+            svg.appendChild(line);
+        }
+
+        window.addEventListener('load', () => setTimeout(drawConnectors, 100));
+        window.addEventListener('resize', () => setTimeout(drawConnectors, 80));
+
+        /* Modal Open & Loading */
+        async function openMatchKataModal(matchPk) {
+            currentActiveMatchPk = matchPk;
+            const backdrop = document.getElementById('matchKataModalBackdrop');
+            if (backdrop) backdrop.classList.add('is-open');
+
+            showToast('Memuat data partai...', 'info');
+
+            try {
+                const res = await fetch(`${retrieverUrl}?action=get_match_detail&detailbagan_pk=${matchPk}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!res.ok) throw new Error('Gagal mengambil data partai.');
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message || 'Error data partai');
+
+                currentMatchData = data;
+                renderModalData(data);
+            } catch (err) {
+                console.error(err);
+                showToast(err.message || 'Terjadi kesalahan memuat modal', 'error');
+                closeMatchKataModal();
+            }
+        }
+
+        function closeMatchKataModal() {
+            const backdrop = document.getElementById('matchKataModalBackdrop');
+            if (backdrop) backdrop.classList.remove('is-open');
+            currentActiveMatchPk = null;
+            currentMatchData = null;
+        }
+
+        function handleBackdropClick(e) {
+            if (e.target && e.target.id === 'matchKataModalBackdrop') {
+                closeMatchKataModal();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMatchKataModal();
+        });
+
+        /* Render Data into Modal */
+        function renderModalData(data) {
+            // Header
+            document.getElementById('modalMatchNumberBadge').textContent = `Partai #${data.urutan || '-'}`;
+            document.getElementById('modalRoundBadge').textContent = `Babak ${data.round || '-'}`;
+
+            const liveBadge = document.getElementById('modalLiveTatamiBadge');
+            if (data.active_tatami_number) {
+                liveBadge.textContent = `LIVE TATAMI ${data.active_tatami_number}`;
+                liveBadge.classList.remove('d-none');
+            } else {
+                liveBadge.classList.add('d-none');
+            }
+
+            // Athletes
+            document.getElementById('modalAkaName').textContent = data.atlet1 ? data.atlet1.nama : 'BYE';
+            document.getElementById('modalAkaSub').textContent = data.atlet1 ? `${data.atlet1.perguruan || '-'} • ${data.atlet1.utusan || '-'}` : '—';
+            const akaAvatar = document.getElementById('modalAkaAvatar');
+            if (data.atlet1 && data.atlet1.logo) {
+                akaAvatar.innerHTML = `<img src="${data.atlet1.logo}" alt="Logo">`;
+            } else {
+                akaAvatar.innerHTML = `<div class="tm-avatar-placeholder aka"><i class="fas fa-user-ninja"></i></div>`;
+            }
+
+            document.getElementById('modalAoName').textContent = data.atlet2 ? data.atlet2.nama : 'BYE';
+            document.getElementById('modalAoSub').textContent = data.atlet2 ? `${data.atlet2.perguruan || '-'} • ${data.atlet2.utusan || '-'}` : '—';
+            const aoAvatar = document.getElementById('modalAoAvatar');
+            if (data.atlet2 && data.atlet2.logo) {
+                aoAvatar.innerHTML = `<img src="${data.atlet2.logo}" alt="Logo">`;
+            } else {
+                aoAvatar.innerHTML = `<div class="tm-avatar-placeholder ao"><i class="fas fa-user-ninja"></i></div>`;
+            }
+
+            // Selected Katas
+            selectedAkaKata = data.kata1 || '0 - Blank';
+            selectedAoKata = data.kata2 || '0 - Blank';
+            updateActiveKataDisplays();
+
+            // Render WKF History Chips
+            renderWkfHistory('aka', data.kata_history_aka);
+            renderWkfHistory('ao', data.kata_history_ao);
+
+            // Populate Katas Grid
+            populateKataGrid('aka', data.kata_history_aka);
+            populateKataGrid('ao', data.kata_history_ao);
+
+            // Check WKF repeats
+            checkWkfRepeat('aka');
+            checkWkfRepeat('ao');
+        }
+
+        function renderWkfHistory(side, historyMap) {
+            const container = document.getElementById(`${side}WkfHistoryChips`);
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!historyMap || typeof historyMap !== 'object') {
+                container.innerHTML = '<span class="wkf-history-empty"><i class="fas fa-info-circle me-1 opacity-75"></i>Belum ada riwayat kata di babak sebelumnya.</span>';
+                return;
+            }
+
+            // Extract unique previous katas where !is_current_round
+            const seen = new Set();
+            const items = [];
+            Object.values(historyMap).forEach(info => {
+                if (!info || info.is_current_round) return;
+                const raw = info.raw_kata || '';
+                if (!raw || raw === '0 - Blank' || seen.has(raw)) return;
+                seen.add(raw);
+                items.push(info);
+            });
+
+            if (items.length === 0) {
+                container.innerHTML = '<span class="wkf-history-empty"><i class="fas fa-info-circle me-1 opacity-75"></i>Belum ada riwayat kata di babak sebelumnya.</span>';
+                return;
+            }
+
+            items.sort((a, b) => (a.round || 0) - (b.round || 0));
+
+            items.forEach(info => {
+                const chip = document.createElement('span');
+                chip.className = 'wkf-hist-chip';
+                const label = info.label || `Babak ${info.round || '-'}`;
+                chip.innerHTML = `<i class="fas fa-history opacity-50 me-1"></i><strong>${label}:</strong> ${info.raw_kata}`;
+                container.appendChild(chip);
+            });
+        }
+
+        function populateKataGrid(side, historyMap) {
+            const grid = document.getElementById(`${side}KataGrid`);
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const playedKatas = new Set();
+            if (historyMap && typeof historyMap === 'object') {
+                Object.values(historyMap).forEach(info => {
+                    if (info && !info.is_current_round && info.raw_kata) {
+                        playedKatas.add(info.raw_kata);
+                        if (info.raw_kata.includes(' - ')) {
+                            playedKatas.add(info.raw_kata.split(' - ')[1].trim());
+                        }
+                    }
+                });
+            }
+
+            const currentSelected = side === 'aka' ? selectedAkaKata : selectedAoKata;
+
+            OFFICIAL_KATAS.forEach(kata => {
+                let num = '';
+                let name = kata;
+                if (kata.includes(' - ')) {
+                    const parts = kata.split(' - ');
+                    num = parts[0].trim();
+                    name = parts.slice(1).join(' - ').trim();
+                }
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'kata-pick-btn';
+                btn.setAttribute('data-kata', kata);
+                btn.setAttribute('data-search', `${num} ${name}`.toLowerCase());
+
+                const wasPlayed = playedKatas.has(kata) || playedKatas.has(name);
+
+                btn.innerHTML = `
+                    <span class="kata-num-pill">${num ? '#' + num : '-'}</span>
+                    <span class="kata-name-text">${name}</span>
+                    ${wasPlayed ? '<span class="kata-badge-played" title="Pernah dimainkan di babak sebelumnya">WKF</span>' : ''}
+                `;
+
+                if (kata === currentSelected) {
+                    btn.classList.add(side === 'aka' ? 'selected-aka' : 'selected-ao');
+                }
+
+                if (wasPlayed) {
+                    btn.classList.add('was-played');
+                }
+
+                btn.onclick = () => selectKata(side, kata);
+                grid.appendChild(btn);
+            });
+        }
+
+        function filterKataGrid(side) {
+            const query = (document.getElementById(`${side}KataSearch`)?.value || '').toLowerCase().trim();
+            const btns = document.querySelectorAll(`#${side}KataGrid .kata-pick-btn`);
+            btns.forEach(btn => {
+                const searchStr = btn.getAttribute('data-search') || '';
+                btn.style.display = searchStr.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function selectKata(side, kata) {
+            if (side === 'aka') {
+                selectedAkaKata = kata;
+                document.querySelectorAll('#akaKataGrid .kata-pick-btn').forEach(b => {
+                    b.classList.toggle('selected-aka', b.getAttribute('data-kata') === kata);
+                });
+            } else {
+                selectedAoKata = kata;
+                document.querySelectorAll('#aoKataGrid .kata-pick-btn').forEach(b => {
+                    b.classList.toggle('selected-ao', b.getAttribute('data-kata') === kata);
+                });
+            }
+            updateActiveKataDisplays();
+            checkWkfRepeat(side);
+        }
+
+        function resetAkaKata() { selectKata('aka', '0 - Blank'); }
+        function resetAoKata() { selectKata('ao', '0 - Blank'); }
+
+        function updateActiveKataDisplays() {
+            const akaText = document.getElementById('akaSelectedKataText');
+            const akaBox = document.getElementById('akaDisplayBox');
+            const akaCheck = document.getElementById('akaSelectedCheck');
+            if (akaText) akaText.textContent = selectedAkaKata;
+            const hasAka = selectedAkaKata && selectedAkaKata !== '0 - Blank';
+            if (akaBox) akaBox.classList.toggle('has-selection', hasAka);
+            if (akaCheck) akaCheck.style.display = hasAka ? 'block' : 'none';
+
+            const aoText = document.getElementById('aoSelectedKataText');
+            const aoBox = document.getElementById('aoDisplayBox');
+            const aoCheck = document.getElementById('aoSelectedCheck');
+            if (aoText) aoText.textContent = selectedAoKata;
+            const hasAo = selectedAoKata && selectedAoKata !== '0 - Blank';
+            if (aoBox) aoBox.classList.toggle('has-selection', hasAo);
+            if (aoCheck) aoCheck.style.display = hasAo ? 'block' : 'none';
+
+            const status = document.getElementById('modalFooterStatus');
+            if (status) {
+                if (hasAka && hasAo) {
+                    status.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> Kedua Kata Siap Disimpan</span>`;
+                } else if (hasAka || hasAo) {
+                    status.innerHTML = `<span class="text-warning"><i class="fas fa-adjust"></i> 1 dari 2 Kata Terpilih</span>`;
+                } else {
+                    status.innerHTML = `<span>Silakan pilih Kata untuk AKA dan AO</span>`;
+                }
+            }
+        }
+
+        function checkWkfRepeat(side) {
+            const isFinal = currentMatchData && currentMatchData.is_final;
+            const historyMap = side === 'aka' ? (currentMatchData?.kata_history_aka || {}) : (currentMatchData?.kata_history_ao || {});
+            const selectedKata = side === 'aka' ? selectedAkaKata : selectedAoKata;
+            const alertEl = document.getElementById(`${side}RepeatAlert`);
+            const alertText = document.getElementById(`${side}RepeatAlertText`);
+
+            if (!alertEl || !alertText) return;
+
+            if (selectedKata && selectedKata !== '0 - Blank') {
+                let matchedRecord = null;
+                for (const [key, item] of Object.entries(historyMap)) {
+                    if (item && !item.is_current_round) {
+                        if (key === selectedKata || item.raw_kata === selectedKata) {
+                            matchedRecord = item;
+                            break;
+                        }
+                    }
+                }
+
+                if (matchedRecord) {
+                    alertEl.style.display = 'flex';
+                    const roundLabel = matchedRecord.label || `Babak ${matchedRecord.round || '-'}`;
+                    if (isFinal) {
+                        alertEl.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                        alertEl.style.color = '#fbbf24';
+                        alertEl.style.background = 'rgba(245, 158, 11, 0.12)';
+                        alertText.innerHTML = `<strong>Info:</strong> Kata ini pernah dimainkan di ${roundLabel}. <span class="badge bg-warning text-dark ms-1">Babak Final: Bebas Memilih</span>`;
+                    } else {
+                        alertEl.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                        alertEl.style.color = '#f87171';
+                        alertEl.style.background = 'rgba(239, 68, 68, 0.14)';
+                        alertText.innerHTML = `<strong>Peringatan WKF:</strong> Kata ini sudah dimainkan di ${roundLabel}! Tidak boleh diulang sebelum Final.`;
+                    }
+                    return;
+                }
+            }
+            alertEl.style.display = 'none';
+        }
+
+        /* Save Kata Partai (Single Unified Save & Sync Action) */
+        async function saveMatchKata() {
+            if (!currentActiveMatchPk || isSaving) return;
+            isSaving = true;
+
+            const btnSave = document.getElementById('btnSaveKata');
+            if (btnSave) btnSave.disabled = true;
+
+            showToast('Menyimpan kata partai...', 'info');
+
+            const formData = new FormData();
+            formData.append('action', 'save_match_kata');
+            formData.append('detailbagan_pk', currentActiveMatchPk);
+            formData.append('kata1', selectedAkaKata);
+            formData.append('kata2', selectedAoKata);
+
+            try {
+                const res = await fetch(retrieverUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Gagal menyimpan kata ke server.');
+                const resData = await res.json();
+                if (resData.status !== 'success') throw new Error(resData.message || 'Terjadi kesalahan sistem.');
+
+                showToast('Kata partai berhasil disimpan & disinkronkan ke Arena!', 'success');
+
+                // Update Match Card on Bracket Tree DOM instantly
+                updateCardOnBracket(currentActiveMatchPk, selectedAkaKata, selectedAoKata, resData.is_kata_complete);
+
+                setTimeout(() => {
+                    closeMatchKataModal();
+                }, 350);
+            } catch (err) {
+                console.error(err);
+                showToast(err.message || 'Gagal menyimpan kata', 'error');
+            } finally {
+                isSaving = false;
+                if (btnSave) btnSave.disabled = false;
+            }
+        }
+
+        function updateCardOnBracket(matchPk, kata1, kata2, isComplete) {
+            const card = document.getElementById(`db-${matchPk}`);
+            if (!card) return;
+
+            // AKA Kata Chip
+            const akaChip = card.querySelector(`#card-kata1-${matchPk}`);
+            if (akaChip) {
+                const hasK1 = kata1 && kata1 !== '0 - Blank';
+                akaChip.classList.toggle('empty', !hasK1);
+                const span = akaChip.querySelector('span');
+                if (span) span.textContent = hasK1 ? kata1 : 'Pilih Kata';
+            }
+
+            // AO Kata Chip
+            const aoChip = card.querySelector(`#card-kata2-${matchPk}`);
+            if (aoChip) {
+                const hasK2 = kata2 && kata2 !== '0 - Blank';
+                aoChip.classList.toggle('empty', !hasK2);
+                const span = aoChip.querySelector('span');
+                if (span) span.textContent = hasK2 ? kata2 : 'Pilih Kata';
+            }
+
+            // Readiness Badge
+            const statusBadge = card.querySelector(`#card-status-${matchPk}`);
+            if (statusBadge) {
+                const hasK1 = kata1 && kata1 !== '0 - Blank';
+                const hasK2 = kata2 && kata2 !== '0 - Blank';
+                if (hasK1 && hasK2) {
+                    statusBadge.className = 'badge-kata-status ready';
+                    statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Kata Siap';
+                } else if (hasK1 || hasK2) {
+                    statusBadge.className = 'badge-kata-status partial';
+                    statusBadge.innerHTML = '<i class="fas fa-adjust"></i> 1/2 Kata';
+                } else {
+                    statusBadge.className = 'badge-kata-status pending';
+                    statusBadge.innerHTML = '<i class="fas fa-plus-circle"></i> Input Kata';
+                }
+            }
+        }
+
+        /* Auto-Follow Tatami Operator Controls */
+        let autoFollowEnabled = localStorage.getItem('lo_auto_follow') !== 'false';
+
+        function updateAutoFollowUI() {
+            const btn = document.getElementById('autoFollowToggle');
+            const icon = document.getElementById('autoFollowIcon');
+            const text = document.getElementById('autoFollowText');
+            if (!btn) return;
+            if (autoFollowEnabled) {
+                btn.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+                btn.style.background = 'rgba(16, 185, 129, 0.1)';
+                if (icon) icon.className = 'fas fa-satellite-dish text-success';
+                if (text) text.textContent = 'Auto-Follow: ON';
+            } else {
+                btn.style.borderColor = 'rgba(245, 158, 11, 0.45)';
+                btn.style.background = 'rgba(245, 158, 11, 0.1)';
+                if (icon) icon.className = 'fas fa-pause-circle text-warning';
+                if (text) text.textContent = 'Auto-Follow: PAUSED';
+            }
+        }
+
+        function toggleAutoFollow() {
+            autoFollowEnabled = !autoFollowEnabled;
+            localStorage.setItem('lo_auto_follow', autoFollowEnabled ? 'true' : 'false');
+            updateAutoFollowUI();
+            if (autoFollowEnabled) {
+                showToast('Auto-Follow diaktifkan. Memeriksa partai aktif arena...', 'info');
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({ command: 'get_current' }));
+                } else {
+                    window.location.reload();
+                }
+            } else {
+                showToast('Auto-Follow dijeda. Bagan tidak akan berpindah otomatis.', 'info');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateAutoFollowUI);
+
+        /* WebSocket Live Sync */
         let socket = null;
-        let reconnectInterval = 2000;
-        let toastTimeout = null;
-
-        // --- Target Athlete Switcher ---
-        function selectAthleteTarget(target) {
-            currentTarget = target;
-            if (target === 'aka') {
-                $('#cardAka').addClass('active');
-                $('#cardAo').removeClass('active');
-                $('#targetPill').removeClass('ao').addClass('aka').text('AKA (MERAH)');
-            } else {
-                $('#cardAo').addClass('active');
-                $('#cardAka').removeClass('active');
-                $('#targetPill').removeClass('aka').addClass('ao').text('AO (BIRU)');
-            }
-            highlightActiveSelections();
-            renderKataBadges();
-        }
-
-        // --- Kata Normalization & History Matcher ---
-        function normalizeKata(k) {
-            if (!k) return '';
-            let s = String(k).trim();
-            if (s.includes(' - ')) {
-                s = s.split(' - ').slice(1).join(' - ').trim();
-            }
-            return s.toLowerCase();
-        }
-
-        function getPlayedInfo(target, kataVal) {
-            if (!kataVal || kataVal === '0 - Blank') return null;
-            const history = (target === 'aka') ? historyAka : historyAo;
-            if (!history || typeof history !== 'object') return null;
-
-            if (history[kataVal]) return history[kataVal];
-
-            const norm = normalizeKata(kataVal);
-            for (const key in history) {
-                if (normalizeKata(key) === norm) {
-                    return history[key];
-                }
-            }
-            return null;
-        }
-
-        // --- Real-time Local History Helpers ---
-        function recordAthleteKataHistory(target, kataVal, roundNum) {
-            if (!kataVal || kataVal === '0 - Blank') return;
-            const history = (target === 'aka') ? historyAka : historyAo;
-            if (!history) return;
-
-            // Remove any previous entry recorded for THIS round
-            for (const k in history) {
-                if (history[k] && history[k].round === roundNum && history[k].is_current_round) {
-                    delete history[k];
-                }
-            }
-
-            const info = {
-                round: roundNum,
-                label: `Babak ${roundNum}`,
-                raw_kata: kataVal,
-                is_current_round: true,
-            };
-            history[kataVal] = info;
-            if (kataVal.includes(' - ')) {
-                const pure = kataVal.split(' - ').slice(1).join(' - ').trim();
-                if (pure) history[pure] = info;
-            }
-        }
-
-        function removeAthleteKataCurrentRound(target, roundNum) {
-            const history = (target === 'aka') ? historyAka : historyAo;
-            if (!history) return;
-            for (const k in history) {
-                if (history[k] && history[k].round === roundNum && history[k].is_current_round) {
-                    delete history[k];
-                }
-            }
-        }
-
-        // --- Render Badges for Katas Played in Rounds ---
-        function renderKataBadges() {
-            $('.kata-item-btn').each(function() {
-                const kataVal = $(this).attr('data-kata');
-                const playedInfo = getPlayedInfo(currentTarget, kataVal);
-                const $badge = $(this).find('.kata-record-tag');
-
-                if (playedInfo) {
-                    $(this).addClass('previously-played');
-                    $badge.text(`(${playedInfo.label})`).show();
-                } else {
-                    $(this).removeClass('previously-played');
-                    $badge.hide().text('');
-                }
-            });
-        }
-
-        // --- Highlight Selected Kata Buttons ---
-        function highlightActiveSelections() {
-            $('.kata-item-btn').each(function() {
-                const kataVal = $(this).attr('data-kata');
-                $(this).removeClass('selected-aka selected-ao');
-                if (currentTarget === 'aka' && kataVal === currentKataAka) {
-                    $(this).addClass('selected-aka');
-                } else if (currentTarget === 'ao' && kataVal === currentKataAo) {
-                    $(this).addClass('selected-ao');
-                }
-            });
-        }
-
-        // --- Choose Kata Action ---
-        function chooseKata(kataVal) {
-            if (currentTarget === 'aka') {
-                currentKataAka = kataVal;
-                $('#displayKataAka').text(kataVal);
-            } else {
-                currentKataAo = kataVal;
-                $('#displayKataAo').text(kataVal);
-            }
-
-            highlightActiveSelections();
-
-            // 1. Send via WebSocket
-            sendKataViaWs(currentTarget, kataVal);
-
-            // 2. Fallback via AJAX in background
-            sendKataViaAjax(currentTarget, kataVal);
-
-            // 3. History record reminder
-            const playedInfo = getPlayedInfo(currentTarget, kataVal);
-            const athleteName = currentTarget === 'aka' ? $('#atletAkaNama').text().trim() : $('#atletAoNama').text().trim();
-            const targetLabel = currentTarget.toUpperCase();
-
-            // Only warn if the kata was played in a PREVIOUS round
-            if (playedInfo && !playedInfo.is_current_round && playedInfo.round < currentRound) {
-                if (isFinalMatch) {
-                    showToast(
-                        `[${targetLabel}] ${athleteName}: Pernah mainkan kata ini di ${playedInfo.label} (Boleh diulang pada Final)`,
-                        'final-reminder',
-                        '🏅',
-                        4000
-                    );
-                } else {
-                    showToast(
-                        `⚠️ PERINGATAN [${targetLabel}]: ${athleteName} sudah memainkan kata ini di ${playedInfo.label}!`,
-                        'warning',
-                        '⚠️',
-                        4500
-                    );
-                }
-            } else {
-                showToast(`${targetLabel}: ${kataVal}`, currentTarget, '&#10003;', 2500);
-            }
-
-            // 4. Update local history & render badges immediately in real-time
-            if (kataVal && kataVal !== '0 - Blank') {
-                recordAthleteKataHistory(currentTarget, kataVal, currentRound);
-            } else {
-                removeAthleteKataCurrentRound(currentTarget, currentRound);
-            }
-            renderKataBadges();
-        }
-
-        // --- Toast Notification ---
-        function showToast(message, targetClass, iconHtml = '&#10003;', duration = 2500) {
-            clearTimeout(toastTimeout);
-            const $toast = $('#toastNotify');
-            $toast.removeClass('aka ao warning final-reminder').addClass(targetClass);
-            $('#toastIcon').html(iconHtml);
-            $('#toastMsg').text(message);
-            $toast.addClass('show');
-
-            toastTimeout = setTimeout(() => {
-                $toast.removeClass('show');
-            }, duration);
-        }
-
-        // --- WebSocket Connection ---
         function initWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-            const wsUrl = protocol + window.location.host + `/ws/lo-kata/${tatamiPk}`;
+            if (socket) {
+                try { socket.close(); } catch(e) {}
+            }
 
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const wsUrl = `${protocol}${window.location.host}/ws/lo-kata/${currentTatamiPk}`;
             socket = new WebSocket(wsUrl);
 
+            const pill = document.getElementById('wsPill');
+            const txt = document.getElementById('wsText');
+
             socket.onopen = function() {
-                console.log('[LO WebSocket] Connected to Tatami', tatamiPk);
-                $('#wsPill').removeClass('disconnected');
-                $('#wsText').text('Online');
+                if (pill) pill.classList.remove('disconnected');
+                if (txt) txt.textContent = 'Live Sync';
             };
 
             socket.onclose = function() {
-                console.warn('[LO WebSocket] Disconnected. Reconnecting in', reconnectInterval, 'ms');
-                $('#wsPill').addClass('disconnected');
-                $('#wsText').text('Reconnecting...');
-                setTimeout(initWebSocket, reconnectInterval);
-            };
-
-            socket.onerror = function(err) {
-                console.error('[LO WebSocket] Error:', err);
-                socket.close();
+                if (pill) pill.classList.add('disconnected');
+                if (txt) txt.textContent = 'Disconnected';
+                setTimeout(() => {
+                    if (document.visibilityState !== 'hidden') {
+                        initWebSocket();
+                    }
+                }, 3000);
             };
 
             socket.onmessage = function(e) {
                 try {
                     const data = JSON.parse(e.data);
-                    console.log('[LO WebSocket] Received:', data);
 
-                    // Match updated / loaded
-                    if (data.command === 'get_atlet') {
+                    // Match Finished Signal
+                    if (data.command === 'match_finished' && data.details) {
+                        applyMatchFinished(data.details);
+                    }
+
+                    // Realtime Match Kata Updated
+                    if (data.command === 'match_kata_updated' && data.details) {
                         const d = data.details;
-                        if (d) {
-                            if (d.nomor_tanding) $('#nomorTandingText').text(d.nomor_tanding);
-                            if (d.round) currentRound = Number(d.round);
-                            if (d.round && d.urutan) $('#roundUrutanText').text(`Babak ${d.round} • Partai ${d.urutan}`);
-                            if (d.atlet_red) $('#atletAkaNama').text(d.atlet_red);
-                            if (d.atlet_red_perguruan) $('#atletAkaClub').text(d.atlet_red_perguruan);
-                            if (d.atlet_blue) $('#atletAoNama').text(d.atlet_blue);
-                            if (d.atlet_blue_perguruan) $('#atletAoClub').text(d.atlet_blue_perguruan);
+                        updateCardOnBracket(d.match_pk, d.kata1, d.kata2, d.is_kata_complete);
+                    }
 
-                            if (d.atlet_red_kata) {
-                                currentKataAka = d.atlet_red_kata;
-                                $('#displayKataAka').text(d.atlet_red_kata);
-                            }
-                            if (d.atlet_blue_kata) {
-                                currentKataAo = d.atlet_blue_kata;
-                                $('#displayKataAo').text(d.atlet_blue_kata);
-                            }
+                    // Arena Operator Match / Bagan Switch
+                    if (data.command === 'get_atlet' && data.details) {
+                        const newMatchPk = data.details.match_pk ? String(data.details.match_pk) : null;
+                        const newBaganPk = data.details.bagan_pk ? String(data.details.bagan_pk) : null;
 
-                            if (d.kata_history_aka !== undefined) historyAka = d.kata_history_aka;
-                            if (d.kata_history_ao !== undefined) historyAo = d.kata_history_ao;
-                            if (d.is_final !== undefined) {
-                                isFinalMatch = Boolean(d.is_final);
-                                if (isFinalMatch) {
-                                    $('#finalMatchBadge').show();
-                                } else {
-                                    $('#finalMatchBadge').hide();
+                        if (newBaganPk && newBaganPk !== String(currentBaganPk)) {
+                            if (autoFollowEnabled) {
+                                const baganName = data.details.nomor_tanding || data.details.nama_bagan || 'Bagan Baru';
+                                showToast(`Operator arena menjalankan partai di <strong>${baganName}</strong>. Memperbarui...`, 'info');
+                                setTimeout(() => {
+                                    window.location.href = `?bagan=${newBaganPk}`;
+                                }, 500);
+                                return;
+                            }
+                        }
+
+                        // Highlight active match on bracket - ONLY if currently running on arena and not finished
+                        document.querySelectorAll('.match.is-active-match').forEach(m => m.classList.remove('is-active-match'));
+                        document.querySelectorAll('.badge-live-tatami').forEach(b => b.remove());
+                        if (newMatchPk && !data.details.selesai) {
+                            const activeCard = document.getElementById(`db-${newMatchPk}`);
+                            if (activeCard && !activeCard.classList.contains('is-finished')) {
+                                activeCard.classList.add('is-active-match');
+                                const headerLeft = activeCard.querySelector('.match-header-left');
+                                if (headerLeft && !headerLeft.querySelector('.badge-live-tatami')) {
+                                    const tNum = data.details.tatami_number || '';
+                                    const badge = document.createElement('span');
+                                    badge.className = 'badge-live-tatami';
+                                    badge.innerHTML = `<span class="live-dot"></span> LIVE T${tNum}`;
+                                    headerLeft.appendChild(badge);
                                 }
                             }
-
-                            highlightActiveSelections();
-                            renderKataBadges();
                         }
-                    } else if (data.command === 'aka-kata-kirim') {
-                        currentKataAka = data.details;
-                        $('#displayKataAka').text(data.details);
-                        if (data.details && data.details !== '0 - Blank') {
-                            recordAthleteKataHistory('aka', data.details, currentRound);
-                        } else {
-                            removeAthleteKataCurrentRound('aka', currentRound);
-                        }
-                        highlightActiveSelections();
-                        renderKataBadges();
-                    } else if (data.command === 'ao-kata-kirim') {
-                        currentKataAo = data.details;
-                        $('#displayKataAo').text(data.details);
-                        if (data.details && data.details !== '0 - Blank') {
-                            recordAthleteKataHistory('ao', data.details, currentRound);
-                        } else {
-                            removeAthleteKataCurrentRound('ao', currentRound);
-                        }
-                        highlightActiveSelections();
-                        renderKataBadges();
-                    } else if (data.command === 'kata_updated' && data.details) {
-                        const d = data.details;
-                        if (d.atlet === 'aka') {
-                            currentKataAka = d.kata;
-                            $('#displayKataAka').text(d.kata);
-                            if (d.kata && d.kata !== '0 - Blank') {
-                                recordAthleteKataHistory('aka', d.kata, currentRound);
-                            } else {
-                                removeAthleteKataCurrentRound('aka', currentRound);
-                            }
-                        } else if (d.atlet === 'ao') {
-                            currentKataAo = d.kata;
-                            $('#displayKataAo').text(d.kata);
-                            if (d.kata && d.kata !== '0 - Blank') {
-                                recordAthleteKataHistory('ao', d.kata, currentRound);
-                            } else {
-                                removeAthleteKataCurrentRound('ao', currentRound);
-                            }
-                        }
-                        if (d.kata_history_aka) historyAka = d.kata_history_aka;
-                        if (d.kata_history_ao) historyAo = d.kata_history_ao;
-                        highlightActiveSelections();
-                        renderKataBadges();
                     }
-                } catch (err) {
-                    console.error('[LO WebSocket] Parsing error:', err);
+                } catch(err) {
+                    console.error(err);
                 }
             };
         }
 
-        // --- Send via WebSocket ---
-        function sendKataViaWs(atlet, kataVal) {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                const payload = {
-                    action: 'set_kata',
-                    atlet: atlet,
-                    kata: kataVal,
-                };
-                socket.send(JSON.stringify(payload));
-                console.log('[LO WebSocket] Sent:', payload);
-            } else {
-                console.warn('[LO WebSocket] Socket not ready, relied on AJAX fallback');
-            }
-        }
+        initWebSocket();
 
-        // --- Send via AJAX Fallback ---
-        function sendKataViaAjax(atlet, kataVal) {
-            const cmd = atlet === 'aka' ? 'aka-kata-kirim' : 'ao-kata-kirim';
-            $.ajax({
-                url: `/lo-kata/${tatamiPk}/message-retriever`,
-                type: 'POST',
-                data: {
-                    action: cmd,
-                    atlet: atlet,
-                    details: kataVal,
-                },
-                success: function() {
-                    console.log('[LO AJAX] Saved & broadcast successfully');
-                },
-                error: function(err) {
-                    console.error('[LO AJAX] Error:', err);
-                }
-            });
-        }
-
-        // --- Real-time Search Filter ---
-        $('#kataSearch').on('input', function() {
-            const query = $(this).val().toLowerCase().trim();
-            let visibleCount = 0;
-
-            $('.kata-item-btn').each(function() {
-                const kataText = $(this).find('.kata-name-text').text().toLowerCase();
-                if (kataText.includes(query)) {
-                    $(this).show();
-                    visibleCount++;
+        // Reconnect on tab wakeup & network online
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                if (!socket || socket.readyState !== WebSocket.OPEN) {
+                    initWebSocket();
                 } else {
-                    $(this).hide();
+                    socket.send(JSON.stringify({ command: 'get_current' }));
                 }
-            });
-
-            if (visibleCount === 0) {
-                if ($('#emptySearchMsg').length === 0) {
-                    $('#kataListContainer').append('<div class="empty-search" id="emptySearchMsg">Tidak ada kata yang cocok dengan pencarian</div>');
-                }
-            } else {
-                $('#emptySearchMsg').remove();
             }
         });
 
-        // Initialize on DOM ready
-        $(document).ready(function() {
-            highlightActiveSelections();
-            renderKataBadges();
-            initWebSocket();
+        window.addEventListener('online', () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) initWebSocket();
         });
+
+        /* Handle Match Finished Live Update */
+        function applyMatchFinished(details) {
+            if (!details || !details.match_pk) return;
+            const matchCard = document.getElementById(`db-${details.match_pk}`);
+            if (matchCard) {
+                matchCard.classList.add('is-finished');
+                matchCard.classList.remove('is-active-match');
+
+                const headerLeft = matchCard.querySelector('.match-header-left');
+                if (headerLeft) {
+                    const liveBadge = headerLeft.querySelector('.badge-live-tatami');
+                    if (liveBadge) liveBadge.remove();
+                    if (!headerLeft.querySelector('.match-badge-finish')) {
+                        const finishBadge = document.createElement('span');
+                        finishBadge.className = 'match-badge-finish';
+                        finishBadge.innerHTML = '<i class="fas fa-check-circle"></i> Selesai';
+                        headerLeft.appendChild(finishBadge);
+                    }
+                }
+
+                // Advance winner to next round card if present
+                if (details.next_match_pk && details.target_slot && details.winner_name) {
+                    const nextCard = document.getElementById(`db-${details.next_match_pk}`);
+                    if (nextCard) {
+                        const sideClass = details.target_slot === 'atlet1' ? '.player-aka' : '.player-ao';
+                        const targetPlayer = nextCard.querySelector(sideClass);
+                        if (targetPlayer) {
+                            const nameEl = targetPlayer.querySelector('.player-name');
+                            if (nameEl) {
+                                nameEl.classList.remove('empty');
+                                let span = nameEl.querySelector('span') || document.createElement('span');
+                                span.textContent = details.winner_name;
+                                nameEl.appendChild(span);
+                            }
+                            const subEl = targetPlayer.querySelector('.player-sub');
+                            if (subEl) {
+                                subEl.textContent = `${details.winner_perguruan || '-'} • ${details.winner_utusan || '-'}`;
+                            }
+                        }
+                    }
+                }
+
+                setTimeout(drawConnectors, 100);
+            }
+        }
     </script>
 </body>
 </html>

@@ -497,7 +497,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 250px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -512,7 +512,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>{% if detail_bagan.atlet2.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 250px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -536,7 +536,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 230px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -551,7 +551,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>{% if detail_bagan.atlet2.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -574,7 +574,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 230px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -589,7 +589,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>{% if detail_bagan.atlet2.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -611,7 +611,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: red; padding-top: -20px; max-width: 500px;"><b>{% if detail_bagan.atlet1.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet1 %}{{ detail_bagan.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; font-size: 25px; color: red; margin-left: 230px;" class="scores"><b>{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -626,7 +626,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                   <span style="font-size: 12px;"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                  <span style="color: blue"><b>{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                  <span style="color: blue"><b>{% if detail_bagan.atlet2.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan.atlet2 %}{{ detail_bagan.atlet2.nama_atlet }}{% else %}-{% endif %}</b></span> 
                   <span style="position: absolute; margin-left: 230px; font-size: 25px; color: blue;"><b>{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}{% endif %}</b></span>
                 </td>
               </tbody>
@@ -647,7 +647,7 @@ h2 {
               <tbody class="tournament-bracket">
                 <td class="tournament-bracket__team">
                     <span style="font-size: 12px"><b>{% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.perguruan.nama_perguruan }}{% else %}-{% endif %} | {% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.utusan.nama_utusan }}{% else %}-{% endif %}</b></span>
-                    <span style="padding-top: -20px;"><b>{% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
+                    <span style="padding-top: -20px;"><b>{% if detail_bagan_round_5.atlet1.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if detail_bagan_round_5.atlet1 %}{{ detail_bagan_round_5.atlet1.nama_atlet }}{% else %}-{% endif %}</b></span> 
                 </td>
               </tbody>
             </table>

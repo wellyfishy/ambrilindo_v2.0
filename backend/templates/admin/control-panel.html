@@ -627,6 +627,270 @@
   background: rgba(0, 0, 0, 0.3);
   margin-top: 10px;
 }
+
+/* ==================== KATA MATCH 5-JUDGE PANEL STYLING ==================== */
+.kata-card-header {
+  background: linear-gradient(180deg, #111827 0%, #0b0f19 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px 20px;
+}
+
+.kata-scoring-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.kata-scoring-table th {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.juri-th {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 110px;
+}
+
+.juri-th:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.juri-th-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #f1f5f9;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.juri-decision-wrap {
+  margin-top: 6px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decision-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+}
+
+.decision-aka {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
+}
+
+.decision-ao {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
+}
+
+.decision-seri {
+  background: #475569;
+  color: #f8fafc;
+}
+
+.decision-empty {
+  background: rgba(255, 255, 255, 0.06);
+  color: #64748b;
+  font-size: 14px;
+}
+
+.kata-scoring-table td {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.kata-atlet-name {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.kata-atlet-sub {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.kata-score-input {
+  width: 92px;
+  height: 54px;
+  font-family: 'JetBrains Mono', 'Barlow Condensed', monospace, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.kata-score-input.ao {
+  background: rgba(30, 58, 138, 0.25);
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+}
+
+.kata-score-input.ao:focus {
+  background: rgba(30, 58, 138, 0.45);
+  border-color: #3b82f6;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
+  color: #ffffff;
+}
+
+.kata-score-input.aka {
+  background: rgba(127, 29, 29, 0.25);
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.kata-score-input.aka:focus {
+  background: rgba(127, 29, 29, 0.45);
+  border-color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+  color: #ffffff;
+}
+
+.kata-bendera-val,
+.kata-bendera-val:read-only,
+.kata-bendera-val[readonly] {
+  width: 85px;
+  height: 54px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  border-radius: 10px;
+  background: rgba(30, 58, 138, 0.45) !important;
+  border: 2.5px solid #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+  opacity: 1 !important;
+}
+
+.kata-bendera-select {
+  width: 85px;
+  height: 54px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  text-align: center;
+  border-radius: 10px;
+  background-color: rgba(127, 29, 29, 0.45) !important;
+  border: 2.5px solid #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+  cursor: pointer;
+}
+
+.kata-bendera-select option {
+  background-color: #1e1e2d;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.kata-total-point {
+  width: 100px;
+  height: 60px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 38px;
+  font-weight: 900;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.kata-total-point.ao {
+  background: rgba(37, 99, 235, 0.2);
+  border: 2.5px solid #3b82f6;
+  color: #60a5fa;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+}
+
+.kata-total-point.aka {
+  background: rgba(220, 38, 38, 0.2);
+  border: 2.5px solid #ef4444;
+  color: #f87171;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+}
+
+.btn-wasit-tab {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+}
+
+.btn-wasit-tab.active {
+  background: #f59e0b !important;
+  color: #000000 !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-glow-pulse {
+  animation: btnGlowPulse 1.2s infinite alternate;
+}
+@keyframes btnGlowPulse {
+  0% { box-shadow: 0 0 5px rgba(255,255,255,0.4); transform: scale(1); }
+  100% { box-shadow: 0 0 18px rgba(255,255,255,0.9); transform: scale(1.03); }
+}
+
+.btn-ao-blue {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border: 1px solid #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+}
+.btn-ao-blue:hover, .btn-ao-blue:focus {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5) !important;
+}
+
+.btn-aka-red {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  border: 1px solid #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
+}
+.btn-aka-red:hover, .btn-aka-red:focus {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5) !important;
+}
+
+.badge-ao-blue {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.badge-aka-red {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
 </style>
 {% endblock style %}
 
@@ -636,7 +900,7 @@
     <!-- ========================================================
          KATA MATCH OPERATOR PANEL (5 JUDGES SCORING)
          ======================================================== -->
-    <form method="POST">
+    <form method="POST" id="kata-form" novalidate>
     {% csrf_token %}
     <input type="hidden" name="submit_type" value="kata-simpan">
 
@@ -658,8 +922,11 @@
 
             <div class="d-flex align-items-center gap-2">
                 <span id="ws-status-badge" class="badge bg-secondary py-2 px-3"><i class="fas fa-network-wired me-1"></i> WS Connect...</span>
-                <button type="button" class="btn btn-sm btn-secondary" id="tampilkan-score">
-                    <i class="fas fa-eye me-1"></i> Tampilkan Skor di Board
+                <button type="button" class="btn btn-sm btn-info fw-bold px-3 py-2 shadow-sm" id="tampilkan-poin" title="Kirim hanya poin total ke scoreboard (tanpa tabel skor juri)">
+                    <i class="fas fa-tv me-1"></i> Tampilkan Poin di Board
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary fw-bold px-3 py-2 shadow-sm" id="tampilkan-score" title="Buka / tutup overlay tabel skor 5 juri di scoreboard">
+                    <i class="fas fa-table me-1"></i> Tampilkan Skor 5 Juri
                 </button>
                 <span id="status-success" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Online</span>
             </div>
@@ -667,59 +934,106 @@
 
         <!-- Kata 5-Judge Scoring Table Card -->
         <div class="card bg-dark border-secondary mb-3 shadow-lg">
-            <div class="card-header bg-black py-2 d-flex align-items-center justify-content-between">
-                <span class="fw-bold text-warning text-uppercase fs-6">Penilaian Juri Kata (5 Juri)</span>
-                <span class="small text-muted">Input skor atau terima otomatis dari panel juri</span>
+            <div class="card-header kata-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold text-warning text-uppercase fs-5">
+                        <i class="fas fa-gavel me-2"></i>Penilaian Juri Kata (5 Juri)
+                    </span>
+                    <span class="small text-muted d-none d-md-inline">Rentang nilai 5.0 - 10.0 • Komparasi skor otomatis menentukan pemenang (+1 poin)</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-warning fw-bold px-3 py-2 shadow-sm" id="btn-open-kata-modal" data-bs-toggle="modal" data-bs-target="#kataScoreModal" style="font-size: 14px;">
+                        <i class="fas fa-keyboard me-1"></i> Input Skor Wasit (Pop-Up)
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 text-center align-middle">
+                    <table class="table table-dark table-hover kata-scoring-table mb-0 text-center align-middle">
                         <thead>
-                            <tr class="text-muted small text-uppercase">
-                                <th style="text-align: left; padding-left: 20px;">Atlet</th>
-                                <th>J1</th>
-                                <th>J2</th>
-                                <th>J3</th>
-                                <th>J4</th>
-                                <th>J5</th>
-                                <th>Manual Bendera</th>
-                                <th>Total Poin</th>
-                                <th>Pemenang</th>
+                            <tr class="text-light">
+                                <th style="text-align: left; padding-left: 24px; min-width: 220px;">
+                                    <span class="text-uppercase" style="font-size: 16px; font-weight: 800; color: #94a3b8; letter-spacing: 0.05em;">Atlet</span>
+                                </th>
+                                <th class="juri-th" id="th-j1" data-juri="1" title="Klik untuk membuka popup input Wasit 1">
+                                    <div class="juri-th-title">J1 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-decision-wrap" id="j1-decision">
+                                        <span class="decision-badge decision-empty">-</span>
+                                    </div>
+                                </th>
+                                <th class="juri-th" id="th-j2" data-juri="2" title="Klik untuk membuka popup input Wasit 2">
+                                    <div class="juri-th-title">J2 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-decision-wrap" id="j2-decision">
+                                        <span class="decision-badge decision-empty">-</span>
+                                    </div>
+                                </th>
+                                <th class="juri-th" id="th-j3" data-juri="3" title="Klik untuk membuka popup input Wasit 3">
+                                    <div class="juri-th-title">J3 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-decision-wrap" id="j3-decision">
+                                        <span class="decision-badge decision-empty">-</span>
+                                    </div>
+                                </th>
+                                <th class="juri-th" id="th-j4" data-juri="4" title="Klik untuk membuka popup input Wasit 4">
+                                    <div class="juri-th-title">J4 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-decision-wrap" id="j4-decision">
+                                        <span class="decision-badge decision-empty">-</span>
+                                    </div>
+                                </th>
+                                <th class="juri-th" id="th-j5" data-juri="5" title="Klik untuk membuka popup input Wasit 5">
+                                    <div class="juri-th-title">J5 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-decision-wrap" id="j5-decision">
+                                        <span class="decision-badge decision-empty">-</span>
+                                    </div>
+                                </th>
+                                <th style="min-width: 110px;">
+                                    <span class="text-uppercase" style="font-size: 15px; font-weight: 800; color: #94a3b8;">Manual Bendera</span>
+                                </th>
+                                <th style="min-width: 120px;">
+                                    <span class="text-uppercase text-warning" style="font-size: 17px; font-weight: 900; letter-spacing: 0.05em;">Total Poin</span>
+                                </th>
+                                <th style="min-width: 110px;">
+                                    <span class="text-uppercase" style="font-size: 15px; font-weight: 800; color: #94a3b8;">Pemenang</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- AO (BIRU) ROW -->
                             <tr>
-                                <td style="text-align: left; padding-left: 20px;">
-                                    <div class="fw-bold text-primary fs-6">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</div>
-                                    <div class="small text-muted">{{ detail_bagan.atlet2.perguruan.nama_perguruan }} • {{ detail_bagan.atlet2.utusan.nama_utusan }}</div>
+                                <td style="text-align: left; padding-left: 24px;">
+                                    <div class="kata-atlet-name text-primary">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</div>
+                                    <div class="kata-atlet-sub">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</div>
                                 </td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="aoj1" name="aoScores" value="{{ ao_score.score1 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="aoj2" name="aoScores" value="{{ ao_score.score2 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="aoj3" name="aoScores" value="{{ ao_score.score3 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="aoj4" name="aoScores" value="{{ ao_score.score4 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="aoj5" name="aoScores" value="{{ ao_score.score5 }}"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj1" name="aoScores" value="{{ ao_score.score1|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj2" name="aoScores" value="{{ ao_score.score2|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj3" name="aoScores" value="{{ ao_score.score3|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj4" name="aoScores" value="{{ ao_score.score4|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj5" name="aoScores" value="{{ ao_score.score5|default:'0.0' }}" placeholder="0.0"></td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 70px;" id="ao-bendera" value="0" readonly>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control form-control-sm text-center fw-bold mx-auto fs-6 text-primary" style="width: 80px;" id="totalAo" name="totalAo" value="{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}0.0{% endif %}">
+                                    <input type="text" class="form-control kata-bendera-val mx-auto" id="ao-bendera" value="0" readonly style="background: rgba(30, 58, 138, 0.5) !important; color: #ffffff !important; border: 2.5px solid #3b82f6 !important; font-size: 28px; font-weight: 900;">
                                 </td>
                                 <td>
-                                    <input class="form-check-input" type="radio" name="pemenang" value="ao" style="transform: scale(1.5);" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
+                                    <input type="text" class="form-control kata-total-point ao mx-auto" id="totalAo" name="totalAo" value="{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}0{% endif %}">
+                                </td>
+                                <td>
+                                    <div class="form-check d-flex justify-content-center">
+                                        <input class="form-check-input" type="radio" name="pemenang" id="winner-ao-radio" value="ao" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
+                                    </div>
                                 </td>
                             </tr>
+
+                            <!-- AKA (MERAH) ROW -->
                             <tr>
-                                <td style="text-align: left; padding-left: 20px;">
-                                    <div class="fw-bold text-danger fs-6">{{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}</div>
-                                    <div class="small text-muted">{{ detail_bagan.atlet1.perguruan.nama_perguruan }} • {{ detail_bagan.atlet1.utusan.nama_utusan }}</div>
+                                <td style="text-align: left; padding-left: 24px;">
+                                    <div class="kata-atlet-name text-danger">{{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}</div>
+                                    <div class="kata-atlet-sub">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</div>
                                 </td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="akaj1" name="akaScores" value="{{ aka_score.score1 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="akaj2" name="akaScores" value="{{ aka_score.score2 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="akaj3" name="akaScores" value="{{ aka_score.score3 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="akaj4" name="akaScores" value="{{ aka_score.score4 }}"></td>
-                                <td><input type="text" class="form-control form-control-sm text-center mx-auto" style="width: 65px;" id="akaj5" name="akaScores" value="{{ aka_score.score5 }}"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input aka mx-auto" id="akaj1" name="akaScores" value="{{ aka_score.score1|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input aka mx-auto" id="akaj2" name="akaScores" value="{{ aka_score.score2|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input aka mx-auto" id="akaj3" name="akaScores" value="{{ aka_score.score3|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input aka mx-auto" id="akaj4" name="akaScores" value="{{ aka_score.score4|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input aka mx-auto" id="akaj5" name="akaScores" value="{{ aka_score.score5|default:'0.0' }}" placeholder="0.0"></td>
                                 <td>
-                                    <select class="form-select form-select-sm mx-auto" style="width: 70px;" id="aka-bendera">
+                                    <select class="form-select kata-bendera-select mx-auto" id="aka-bendera">
                                         <option value="-">-</option>
                                         <option value="0">0</option>
                                         <option value="1">1</option>
@@ -730,14 +1044,174 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="text" class="form-control form-control-sm text-center fw-bold mx-auto fs-6 text-danger" style="width: 80px;" id="totalAka" name="totalAka" value="{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}0.0{% endif %}">
+                                    <input type="text" class="form-control kata-total-point aka mx-auto" id="totalAka" name="totalAka" value="{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}0{% endif %}">
                                 </td>
                                 <td>
-                                    <input class="form-check-input" type="radio" name="pemenang" value="aka" style="transform: scale(1.5);" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
+                                    <div class="form-check d-flex justify-content-center">
+                                        <input class="form-check-input" type="radio" name="pemenang" id="winner-aka-radio" value="aka" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== MODAL INPUT SKOR WASIT KATA ==================== -->
+        <div class="modal fade" id="kataScoreModal" tabindex="-1" aria-labelledby="kataScoreModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-dark border-secondary text-light shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                    <div class="modal-header border-secondary" style="background: #111827; padding: 18px 24px;">
+                        <div>
+                            <h5 class="modal-title fw-bold text-warning d-flex align-items-center gap-2" id="kataScoreModalLabel" style="font-size: 20px;">
+                                <i class="fas fa-keyboard text-warning"></i> Input Skor Wasit / Juri Kata
+                            </h5>
+                            <div class="small text-muted mt-1">Rentang nilai: <strong>5.0 s/d 10.0</strong> • Wasit dengan nilai lebih tinggi memberikan <strong>1 Poin</strong></div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" style="background: #0f172a;">
+                        <!-- Wasit Selector Tabs -->
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="small fw-bold text-uppercase text-muted" style="letter-spacing: 0.06em;">Pilih Wasit:</span>
+                            <span class="badge bg-secondary" style="font-size: 13px;" id="modal-active-status">Wasit 1 aktif</span>
+                        </div>
+                        <ul class="nav nav-pills nav-fill mb-4 gap-2" id="modal-wasit-pills">
+                            <li class="nav-item">
+                                <button class="nav-link active fw-bold btn-wasit-tab w-100" id="btn-modal-w1" data-juri="1" type="button">
+                                    Wasit 1 <span class="badge ms-1" id="tab-badge-1">-</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold btn-wasit-tab w-100" id="btn-modal-w2" data-juri="2" type="button">
+                                    Wasit 2 <span class="badge ms-1" id="tab-badge-2">-</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold btn-wasit-tab w-100" id="btn-modal-w3" data-juri="3" type="button">
+                                    Wasit 3 <span class="badge ms-1" id="tab-badge-3">-</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold btn-wasit-tab w-100" id="btn-modal-w4" data-juri="4" type="button">
+                                    Wasit 4 <span class="badge ms-1" id="tab-badge-4">-</span>
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold btn-wasit-tab w-100" id="btn-modal-w5" data-juri="5" type="button">
+                                    Wasit 5 <span class="badge ms-1" id="tab-badge-5">-</span>
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Scoring Row for Selected Wasit (Left: AO, Right: AKA) -->
+                        <div class="row g-3 align-items-stretch">
+                            <!-- AO (BIRU) CARD -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-primary shadow-sm" style="background: rgba(30, 58, 138, 0.18); border-width: 2px; border-radius: 12px;">
+                                    <div class="card-header bg-primary text-white py-2 px-3 d-flex justify-content-between align-items-center" style="border-radius: 10px 10px 0 0;">
+                                        <span class="fw-bold fs-6"><i class="fas fa-user-ninja me-1"></i> AO (BIRU)</span>
+                                        <span class="badge bg-light text-primary fw-bold">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</span>
+                                    </div>
+                                    <div class="card-body p-3 text-center">
+                                        <div class="small text-muted mb-3">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</div>
+
+                                        <!-- Big Input & Steppers -->
+                                        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                                            <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="-0.5">-0.5</button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="-0.1">-0.1</button>
+                                            <input type="number" step="0.1" min="0.0" max="10.0" id="modal-ao-input" class="form-control text-center fw-bold text-primary" style="font-size: 34px; width: 130px; height: 62px; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.4); border: 2px solid #3b82f6; border-radius: 10px;" value="7.5">
+                                            <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="0.1">+0.1</button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="0.5">+0.5</button>
+                                        </div>
+
+                                        <!-- Slider -->
+                                        <div class="mb-3 px-2">
+                                            <input type="range" class="form-range" id="modal-ao-slider" min="5.0" max="10.0" step="0.1" value="7.5" style="cursor: pointer;">
+                                            <div class="d-flex justify-content-between text-muted" style="font-size: 11px; font-family: monospace;">
+                                                <span>5.0</span><span>6.0</span><span>7.0</span><span>8.0</span><span>9.0</span><span>10.0</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Presets -->
+                                        <div class="d-flex flex-wrap justify-content-center gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="6.5">6.5</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="7.0">7.0</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="7.5">7.5</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="8.0">8.0</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="8.2">8.2</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="8.5">8.5</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="ao" data-val="9.0">9.0</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AKA (MERAH) CARD -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-danger shadow-sm" style="background: rgba(127, 29, 29, 0.18); border-width: 2px; border-radius: 12px;">
+                                    <div class="card-header bg-danger text-white py-2 px-3 d-flex justify-content-between align-items-center" style="border-radius: 10px 10px 0 0;">
+                                        <span class="fw-bold fs-6"><i class="fas fa-user-ninja me-1"></i> AKA (MERAH)</span>
+                                        <span class="badge bg-light text-danger fw-bold">{{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}</span>
+                                    </div>
+                                    <div class="card-body p-3 text-center">
+                                        <div class="small text-muted mb-3">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</div>
+
+                                        <!-- Big Input & Steppers -->
+                                        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                                            <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="-0.5">-0.5</button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="-0.1">-0.1</button>
+                                            <input type="number" step="0.1" min="0.0" max="10.0" id="modal-aka-input" class="form-control text-center fw-bold text-danger" style="font-size: 34px; width: 130px; height: 62px; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.4); border: 2px solid #ef4444; border-radius: 10px;" value="7.5">
+                                            <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="0.1">+0.1</button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="0.5">+0.5</button>
+                                        </div>
+
+                                        <!-- Slider -->
+                                        <div class="mb-3 px-2">
+                                            <input type="range" class="form-range" id="modal-aka-slider" min="5.0" max="10.0" step="0.1" value="7.5" style="cursor: pointer;">
+                                            <div class="d-flex justify-content-between text-muted" style="font-size: 11px; font-family: monospace;">
+                                                <span>5.0</span><span>6.0</span><span>7.0</span><span>8.0</span><span>9.0</span><span>10.0</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Presets -->
+                                        <div class="d-flex flex-wrap justify-content-center gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="6.5">6.5</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="7.0">7.0</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="7.5">7.5</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="8.0">8.0</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="8.2">8.2</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="8.5">8.5</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary preset-score" data-side="aka" data-val="9.0">9.0</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Judge Decision Outcome Banner in Modal -->
+                        <div class="mt-4 p-3 rounded text-center fw-bold shadow-sm" id="modal-decision-banner" style="background: #1e293b; font-size: 17px; border: 1px solid rgba(255,255,255,0.1);">
+                            <span id="modal-decision-text">Membandingkan skor Wasit 1...</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-secondary justify-content-between" style="background: #111827; padding: 14px 24px;">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="modal-btn-prev">
+                                <i class="fas fa-chevron-left me-1"></i> Wasit Sebelumnya
+                            </button>
+                            <button type="button" class="btn btn-outline-warning btn-sm px-3" id="modal-btn-next">
+                                Wasit Berikutnya <i class="fas fa-chevron-right ms-1"></i>
+                            </button>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-success fw-bold px-4 shadow" data-bs-dismiss="modal">
+                                <i class="fas fa-check me-1"></i> Selesai
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -770,13 +1244,52 @@
                         <div class="hub-timer-digits my-2" id="timer-display">
                             <span id="minutes">00</span>:<span id="seconds">00</span>.<span class="ms-part" id="milliseconds">00</span>
                         </div>
-                        <div class="d-flex align-items-center justify-content-center gap-2">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
                             <button type="button" class="btn btn-secondary btn-sm" id="timer-decrement">-1s</button>
                             <button type="button" class="btn-master-start start-state btn-sm py-2 px-4" style="max-width: 180px;" id="start-timer">
                                 <i class="fas fa-play me-1" id="start-timer-icon"></i>
                                 <span id="start-timer-text">Start</span>
                             </button>
                             <button type="button" class="btn btn-secondary btn-sm" id="timer-increment">+1s</button>
+                        </div>
+
+                        <!-- Match Timer Presets (Bunkai 5 Minutes) -->
+                        <div class="d-flex flex-wrap gap-2 justify-content-center py-2 border-top border-secondary">
+                            <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 shadow-sm" onclick="setTimerPreset(300)" title="Set timer 5:00 untuk Bunkai Team Kata">
+                                <i class="fas fa-stopwatch me-1"></i> 5:00 (Bunkai)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-light fw-bold px-3 shadow-sm" onclick="setTimerPreset(240)">
+                                4:00
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-light fw-bold px-3 shadow-sm" onclick="setTimerPreset(180)">
+                                3:00
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger fw-bold px-3 shadow-sm" onclick="setTimerPreset(0)">
+                                <i class="fas fa-undo me-1"></i> Reset
+                            </button>
+                        </div>
+
+                        <!-- 35s Preparation Countdown Timer for AKA and AO -->
+                        <div class="mt-3 pt-2 border-top border-secondary text-start">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="text-uppercase fw-bold text-secondary" style="font-size: 11px; letter-spacing: 0.08em;">
+                                    <i class="fas fa-hourglass-start me-1 text-info"></i> Timer Persiapan (35 Detik)
+                                </span>
+                                <span class="badge bg-secondary" id="kata-countdown-status" style="font-size: 11px; display: none;">
+                                    <span class="spinner-grow spinner-grow-sm me-1 text-warning" role="status"></span> Active
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-ao-blue flex-fill fw-bold py-2 shadow-sm" id="btn-cd-ao" onclick="triggerKataCountdown('ao')" title="Mulai Countdown 35s AO (Biru)">
+                                    <i class="fas fa-stopwatch me-1"></i> 35s AO (Biru)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-aka-red flex-fill fw-bold py-2 shadow-sm" id="btn-cd-aka" onclick="triggerKataCountdown('aka')" title="Mulai Countdown 35s AKA (Merah)">
+                                    <i class="fas fa-stopwatch me-1"></i> 35s AKA (Merah)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary fw-bold px-3" id="btn-cd-stop" onclick="stopKataCountdown()" title="Hentikan / Tutup Countdown Overlay">
+                                    <i class="fas fa-stop-circle text-danger me-1"></i> Stop
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -789,7 +1302,7 @@
     <!-- ========================================================
          KUMITE COMMAND COCKPIT (UNIFIED 3-COLUMN DASHBOARD)
          ======================================================== -->
-    <form method="POST" id="kumite-form">
+    <form method="POST" id="kumite-form" novalidate>
     {% csrf_token %}
     <input type="hidden" name="submit_type" value="kumite-simpan">
 
@@ -802,10 +1315,77 @@
     <input type="checkbox" id="ao-senshu-input" name="ao-senshu" style="display:none;">
     <input type="checkbox" id="aka-vr-input" name="aka-vr" style="display:none;" {% if detail_bagan.vr1 %}checked{% endif %}>
     <input type="checkbox" id="ao-vr-input" name="ao-vr" style="display:none;" {% if detail_bagan.vr2 %}checked{% endif %}>
-    <input type="radio" id="pemenang-aka-radio" name="pemenang" value="aka" style="display:none;" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
-    <input type="radio" id="pemenang-ao-radio" name="pemenang" value="ao" style="display:none;" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
+    <input type="hidden" id="pemenang-input" name="pemenang" value="{% if detail_bagan.pemenang == '1' %}aka{% elif detail_bagan.pemenang == '2' %}ao{% elif detail_bagan.pemenang == '3' %}seri{% else %}{% endif %}">
+    <input type="radio" id="pemenang-aka-radio" name="pemenang_radio" value="aka" style="display:none;" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
+    <input type="radio" id="pemenang-ao-radio" name="pemenang_radio" value="ao" style="display:none;" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
 
     <div class="page-inner">
+        {% if is_kumite_beregu %}
+        <!-- ========================================================
+             KUMITE BEREGU TEAM MATCH COMMAND HUB
+             ======================================================== -->
+        <div class="card bg-dark border-secondary shadow-lg mb-3">
+            <div class="card-header bg-black py-2 px-3 d-flex flex-wrap align-items-center justify-content-between gap-2 border-bottom border-secondary">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-danger text-uppercase px-2 py-1"><i class="fas fa-users me-1"></i> Kumite Beregu</span>
+                    <span class="fw-bold text-light" style="font-size: 15px;">
+                        <span class="text-primary">{{ parent_match.atlet2.nama_atlet|default:"TIM AO" }}</span>
+                        <span class="text-secondary mx-2">VS</span>
+                        <span class="text-danger">{{ parent_match.atlet1.nama_atlet|default:"TIM AKA" }}</span>
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Aggregate Team Score -->
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary fs-6 px-3 py-1 shadow-sm">AO: {{ team_ao_score }} Menang ({{ team_ao_lil_score }} Pts)</span>
+                        <span class="text-secondary fw-bold">:</span>
+                        <span class="badge bg-danger fs-6 px-3 py-1 shadow-sm">AKA: {{ team_aka_score }} Menang ({{ team_aka_lil_score }} Pts)</span>
+                    </div>
+                    <!-- Action to Finalize Team Match -->
+                    <button type="button" class="btn btn-warning btn-sm fw-bold px-3 shadow" data-bs-toggle="modal" data-bs-target="#modal-finish-team">
+                        <i class="fas fa-trophy me-1"></i> Selesaikan Pertandingan Beregu
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-2 bg-black bg-opacity-50">
+                <!-- Partai Pills Nav -->
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="text-secondary text-uppercase fw-bold ps-1" style="font-size: 12px; letter-spacing: 0.05em;">Partai:</span>
+                    {% for m in matchups %}
+                    <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=m.db.pk tatami_pk=tatami.pk %}"
+                       class="btn btn-sm {% if m.db.pk == detail_bagan.pk %}btn-warning fw-bold shadow border-warning{% elif m.db.selesai %}btn-outline-light{% else %}btn-outline-secondary text-secondary{% endif %} d-inline-flex align-items-center gap-1"
+                       style="font-size: 13px;">
+                        <span>Partai {{ m.round }}</span>
+                        {% if m.db.pk == detail_bagan.pk %}
+                            <span class="badge bg-dark text-warning border border-warning ms-1" style="font-size: 10px;">LIVE</span>
+                        {% elif m.db.selesai %}
+                            {% if m.db.pemenang == '2' %}
+                                <span class="badge bg-primary ms-1" style="font-size: 10px;">AO {{ m.db.score2 }}-{{ m.db.score1 }}</span>
+                            {% elif m.db.pemenang == '1' %}
+                                <span class="badge bg-danger ms-1" style="font-size: 10px;">AKA {{ m.db.score1 }}-{{ m.db.score2 }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary ms-1" style="font-size: 10px;">SERI</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-black text-secondary ms-1" style="font-size: 10px;">Pending</span>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+
+                    <!-- Add Extra Bout Button -->
+                    <button type="submit" form="add-bout-form" class="btn btn-sm btn-outline-info" title="Tambah Partai Baru">
+                        <i class="fas fa-plus"></i> Partai
+                    </button>
+
+                    <!-- Quick Assign Fighter Button -->
+                    <button type="button" class="btn btn-sm btn-outline-light ms-auto" data-bs-toggle="modal" data-bs-target="#modal-assign-fighters" title="Pilih Atlet yang Turun di Partai Ini">
+                        <i class="fas fa-user-edit me-1"></i> Atur Atlet Partai {{ current_matchup.round|default:"Ini" }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Top Operations Bar with Prominent Save Button -->
         <div class="cockpit-page-header">
             <div class="d-flex align-items-center gap-2">
@@ -813,7 +1393,10 @@
                     <i class="fas fa-arrow-left me-1"></i> <b>Kembali</b>
                 </a>
                 <button type="submit" class="btn btn-success fw-bold px-4 py-2 shadow" id="simpan-keluar-btn" style="font-size: 15px;">
-                    <span id="simpan-btn-text"><i class="fas fa-save me-1"></i> <b>Simpan & Keluar</b></span>
+                    <span id="simpan-btn-text">
+                        <i class="fas {% if is_kumite_beregu %}fa-forward{% else %}fa-save{% endif %} me-1"></i>
+                        <b>{% if is_kumite_beregu %}Simpan Partai {{ current_matchup.round|default:"" }}{% else %}Simpan & Keluar{% endif %}</b>
+                    </span>
                     <span id="simpan-btn-spinner" style="display:none;">
                         <span class="spinner-border spinner-border-sm me-1" role="status"></span> Menyimpan...
                     </span>
@@ -821,8 +1404,8 @@
             </div>
 
             <div class="match-identity-pill">
-                <span class="badge-tag">KUMITE</span>
-                <span>{{ bagan.nomor_tanding.nama_nomor_tanding|default:bagan.nama_bagan }} • Tatami {{ tatami.tatami_number }}</span>
+                <span class="badge-tag">KUMITE{% if is_kumite_beregu %} BEREGU{% endif %}</span>
+                <span>{{ bagan.nomor_tanding.nama_nomor_tanding|default:bagan.nama_bagan }}{% if is_kumite_beregu %} • PARTAI {{ current_matchup.round|default:"1" }}{% endif %} • Tatami {{ tatami.tatami_number }}</span>
             </div>
 
             <div class="d-flex align-items-center gap-2">
@@ -849,6 +1432,11 @@
                             <span class="pod-side-tag">AO • BIRU</span>
                             <div class="pod-athlete-name">{{ detail_bagan.atlet2.nama_atlet|default:"-" }}</div>
                             <div class="pod-athlete-sub">{{ detail_bagan.atlet2.perguruan.nama_perguruan }} • {{ detail_bagan.atlet2.utusan.nama_utusan }}</div>
+                            {% if is_kumite_beregu %}
+                            <button type="button" class="btn btn-outline-info btn-xs py-0 px-2 mt-1" style="font-size: 11px;" data-bs-toggle="modal" data-bs-target="#modal-assign-fighters">
+                                <i class="fas fa-user-edit me-1"></i> Ganti Atlet Partai
+                            </button>
+                            {% endif %}
                         </div>
                         <button type="button" class="btn-winner-select {% if detail_bagan.pemenang == '2' %}selected-ao{% endif %}" id="btn-win-ao" onclick="selectWinner('ao')">
                             <i class="fas fa-trophy"></i> Menang
@@ -949,6 +1537,7 @@
                         <option value="180">03:00</option>
                         <option value="210">03:30</option>
                         <option value="240">04:00</option>
+                        <option value="300">05:00 (Bunkai)</option>
                     </select>
                     <button type="button" class="btn-time-step flex-fill" id="timer-increment" title="Tambah 1 Detik">
                         <i class="fas fa-plus me-1"></i> 1s
@@ -1011,6 +1600,11 @@
                             <span class="pod-side-tag">AKA • MERAH</span>
                             <div class="pod-athlete-name">{{ detail_bagan.atlet1.nama_atlet|default:"-" }}</div>
                             <div class="pod-athlete-sub">{{ detail_bagan.atlet1.perguruan.nama_perguruan }} • {{ detail_bagan.atlet1.utusan.nama_utusan }}</div>
+                            {% if is_kumite_beregu %}
+                            <button type="button" class="btn btn-outline-danger btn-xs py-0 px-2 mt-1" style="font-size: 11px;" data-bs-toggle="modal" data-bs-target="#modal-assign-fighters">
+                                <i class="fas fa-user-edit me-1"></i> Ganti Atlet Partai
+                            </button>
+                            {% endif %}
                         </div>
                         <button type="button" class="btn-winner-select {% if detail_bagan.pemenang == '1' %}selected-aka{% endif %}" id="btn-win-aka" onclick="selectWinner('aka')">
                             <i class="fas fa-trophy"></i> Menang
@@ -1145,6 +1739,149 @@
 {% endif %}
 </div>
 
+{% if is_kumite_beregu %}
+<!-- Hidden Form for Adding Extra Bout -->
+<form method="POST" id="add-bout-form" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="submit_type" value="add-team-bout">
+</form>
+
+<!-- Modal Pilih Atlet Partai -->
+<div class="modal fade" id="modal-assign-fighters" tabindex="-1" aria-labelledby="modalAssignLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+            <div class="modal-header bg-black border-secondary py-3">
+                <h5 class="modal-title fw-bold" id="modalAssignLabel">
+                    <i class="fas fa-users-cog text-warning me-2"></i>Atur Atlet Partai {{ current_matchup.round|default:"Ini" }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="assign-bout-athletes">
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <!-- AO Side -->
+                        <div class="col-md-6 border-end border-secondary">
+                            <div class="p-3 rounded bg-black border border-primary">
+                                <span class="badge bg-primary text-uppercase mb-2"><i class="fas fa-shield-alt me-1"></i> Sisi AO (Biru)</span>
+                                <h6 class="fw-bold text-light mb-1">{{ parent_match.atlet2.nama_atlet|default:"TIM AO" }}</h6>
+                                <p class="text-secondary small mb-3">{{ parent_match.atlet2.utusan.nama_utusan }}</p>
+
+                                <label class="form-label small fw-bold text-light">Pilih dari Anggota Terdaftar:</label>
+                                <select class="form-select bg-dark text-light border-secondary mb-3" name="bout_ao_atlet">
+                                    <option value="-">-- Gunakan Nama Tim ({{ parent_match.atlet2.nama_atlet }}) --</option>
+                                    {% for a in candidate_atlets_ao %}
+                                    <option value="{{ a.pk }}" {% if detail_bagan.atlet2.pk == a.pk %}selected{% endif %}>
+                                        {{ a.nama_atlet }} {% if a.perguruan %}({{ a.perguruan.nama_perguruan }}){% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                                <label class="form-label small fw-bold text-secondary">Atau Ketik Nama Atlet Baru (Bila belum ada):</label>
+                                <input type="text" class="form-control bg-dark text-light border-secondary" name="bout_ao_custom_name" placeholder="Nama atlet AO partai ini...">
+                            </div>
+                        </div>
+
+                        <!-- AKA Side -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded bg-black border border-danger">
+                                <span class="badge bg-danger text-uppercase mb-2"><i class="fas fa-shield-alt me-1"></i> Sisi AKA (Merah)</span>
+                                <h6 class="fw-bold text-light mb-1">{{ parent_match.atlet1.nama_atlet|default:"TIM AKA" }}</h6>
+                                <p class="text-secondary small mb-3">{{ parent_match.atlet1.utusan.nama_utusan }}</p>
+
+                                <label class="form-label small fw-bold text-light">Pilih dari Anggota Terdaftar:</label>
+                                <select class="form-select bg-dark text-light border-secondary mb-3" name="bout_aka_atlet">
+                                    <option value="-">-- Gunakan Nama Tim ({{ parent_match.atlet1.nama_atlet }}) --</option>
+                                    {% for a in candidate_atlets_aka %}
+                                    <option value="{{ a.pk }}" {% if detail_bagan.atlet1.pk == a.pk %}selected{% endif %}>
+                                        {{ a.nama_atlet }} {% if a.perguruan %}({{ a.perguruan.nama_perguruan }}){% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                                <label class="form-label small fw-bold text-secondary">Atau Ketik Nama Atlet Baru (Bila belum ada):</label>
+                                <input type="text" class="form-control bg-dark text-light border-secondary" name="bout_aka_custom_name" placeholder="Nama atlet AKA partai ini...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-black border-secondary py-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4">
+                        <i class="fas fa-save me-1"></i> Simpan Atlet Partai
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Selesaikan Pertandingan Beregu -->
+<div class="modal fade" id="modal-finish-team" tabindex="-1" aria-labelledby="modalFinishTeamLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-warning shadow-lg">
+            <div class="modal-header bg-black border-warning py-3">
+                <h5 class="modal-title fw-bold text-warning" id="modalFinishTeamLabel">
+                    <i class="fas fa-trophy me-2"></i>Konfirmasi Final Pertandingan Beregu
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="finish-team-match">
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">Hasil akumulasi seluruh partai yang telah dimainkan:</p>
+
+                    <div class="d-flex justify-content-between align-items-center p-3 mb-3 bg-black rounded border border-secondary">
+                        <div class="text-center flex-fill border-end border-secondary">
+                            <span class="badge bg-primary text-uppercase">AO (Biru)</span>
+                            <div class="fw-bold fs-5 text-light mt-1">{{ parent_match.atlet2.nama_atlet|default:"TIM AO" }}</div>
+                            <div class="text-info fs-4 fw-bold">{{ team_ao_score }} Menang</div>
+                            <div class="text-secondary small">{{ team_ao_lil_score }} Total Poin</div>
+                        </div>
+                        <div class="text-center flex-fill">
+                            <span class="badge bg-danger text-uppercase">AKA (Merah)</span>
+                            <div class="fw-bold fs-5 text-light mt-1">{{ parent_match.atlet1.nama_atlet|default:"TIM AKA" }}</div>
+                            <div class="text-danger fs-4 fw-bold">{{ team_aka_score }} Menang</div>
+                            <div class="text-secondary small">{{ team_aka_lil_score }} Total Poin</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-light">Tentukan Pemenang Pertandingan:</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="form-check p-2 rounded bg-black border border-secondary d-flex align-items-center gap-2">
+                                <input class="form-check-input ms-1" type="radio" name="team_winner" value="auto" checked>
+                                <span>Otomatis (Sesuai Aturan: Partai Menang &rarr; Selisih Poin)</span>
+                            </label>
+                            <label class="form-check p-2 rounded bg-black border border-primary d-flex align-items-center gap-2">
+                                <input class="form-check-input ms-1" type="radio" name="team_winner" value="ao">
+                                <span class="text-primary fw-bold">Pemenang: AO &mdash; {{ parent_match.atlet2.nama_atlet }}</span>
+                            </label>
+                            <label class="form-check p-2 rounded bg-black border border-danger d-flex align-items-center gap-2">
+                                <input class="form-check-input ms-1" type="radio" name="team_winner" value="aka">
+                                <span class="text-danger fw-bold">Pemenang: AKA &mdash; {{ parent_match.atlet1.nama_atlet }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning py-2 px-3 small mb-0">
+                        <i class="fas fa-exclamation-triangle me-1"></i> Setelah disimpan, tim pemenang akan langsung dimajukan ke babak berikutnya di bagan turnamen.
+                    </div>
+                </div>
+                <div class="modal-footer bg-black border-secondary py-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+                    <button type="submit" class="btn btn-warning fw-bold px-4">
+                        <i class="fas fa-check-double me-1"></i> Kunci & Majukan ke Bagan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <input type="hidden" id="tipe-tanding" value="{{ bagan.tipe_tanding }}">
 {% endblock content %}
 
@@ -1181,10 +1918,12 @@
 
     // Smooth Form Submit with Loading Spinner & Winner Validation
     const mainForm = document.querySelector('form');
+    const isKumiteBereguMatch = {% if is_kumite_beregu %}true{% else %}false{% endif %};
     if (mainForm) {
         mainForm.addEventListener('submit', function (e) {
-            const pemenangChecked = document.querySelector('input[name="pemenang"]:checked');
-            if (tipeTanding !== '1' && !pemenangChecked) {
+            const pemenangInput = document.getElementById('pemenang-input');
+            const pemenangVal = pemenangInput ? pemenangInput.value : '';
+            if (tipeTanding !== '1' && !pemenangVal && !isKumiteBereguMatch) {
                 const proceed = confirm("Perhatian: Anda belum memilih Pemenang Pertandingan (AKA atau AO).\n\nApakah Anda yakin ingin menyimpan pertandingan tanpa pemenang definitif?");
                 if (!proceed) {
                     e.preventDefault();
@@ -1427,6 +2166,7 @@
     // ==================== VR ACTION CONTROLS ====================
     function actionVr(side, actionType) {
         const prefix = side;
+        $(`#vr-${prefix}-btn`).removeClass('btn-glow-pulse border-warning shadow-lg');
         if (actionType === 'request') {
             sendControlAction('vr', `${prefix}-request`, 'all');
             sendControlAction('vr_status', JSON.stringify([prefix, '1']), 'coach');
@@ -1449,16 +2189,30 @@
 
     // ==================== WINNER SELECTION ====================
     function selectWinner(side) {
+        if (selectedWinner === side) {
+            // Deselect to make it Seri (Draw)
+            selectedWinner = null;
+            $('#btn-win-aka').removeClass('selected-aka');
+            $('#btn-win-ao').removeClass('selected-ao');
+            $('#pemenang-input').val('seri');
+            $('#pemenang-aka-radio').prop('checked', false);
+            $('#pemenang-ao-radio').prop('checked', false);
+            sendControlAction('pemenang', 'seri', 'jury');
+            return;
+        }
+
         selectedWinner = side;
         if (side === 'aka') {
             $('#btn-win-aka').addClass('selected-aka');
             $('#btn-win-ao').removeClass('selected-ao');
+            $('#pemenang-input').val('aka');
             $('#pemenang-aka-radio').prop('checked', true);
             $('#pemenang-ao-radio').prop('checked', false);
             sendControlAction('pemenang', 'aka', 'jury');
         } else {
             $('#btn-win-ao').addClass('selected-ao');
             $('#btn-win-aka').removeClass('selected-aka');
+            $('#pemenang-input').val('ao');
             $('#pemenang-ao-radio').prop('checked', true);
             $('#pemenang-aka-radio').prop('checked', false);
             sendControlAction('pemenang', 'ao', 'jury');
@@ -1600,8 +2354,55 @@
         sendControlAction(`countdown-${minutes}-${side}`, 1, 'scoring');
     }
 
+    let kataCountdownInterval = null;
+    let kataCountdownSeconds = 0;
+
+    function triggerKataCountdown(side) {
+        if (kataCountdownInterval) {
+            clearInterval(kataCountdownInterval);
+            kataCountdownInterval = null;
+        }
+
+        // Send to scoreboard
+        sendControlAction(`countdown-35-${side}`, 1, 'scoring');
+
+        // Update UI state in control panel
+        $('#kata-countdown-status').show();
+        if (side === 'aka') {
+            $('#kata-countdown-status').removeClass('badge-ao-blue bg-primary bg-secondary').addClass('badge-aka-red').html('<span class="spinner-grow spinner-grow-sm me-1 text-light"></span> 35s AKA Aktif');
+            $('#btn-cd-aka').addClass('btn-glow-pulse');
+            $('#btn-cd-ao').removeClass('btn-glow-pulse');
+        } else {
+            $('#kata-countdown-status').removeClass('badge-aka-red bg-danger bg-secondary').addClass('badge-ao-blue').html('<span class="spinner-grow spinner-grow-sm me-1 text-light"></span> 35s AO Aktif');
+            $('#btn-cd-ao').addClass('btn-glow-pulse');
+            $('#btn-cd-aka').removeClass('btn-glow-pulse');
+        }
+
+        kataCountdownSeconds = 35;
+        kataCountdownInterval = setInterval(() => {
+            kataCountdownSeconds--;
+            if (kataCountdownSeconds <= 0) {
+                stopKataCountdown(false);
+            }
+        }, 1000);
+    }
+
+    function stopKataCountdown(sendWs = true) {
+        if (kataCountdownInterval) {
+            clearInterval(kataCountdownInterval);
+            kataCountdownInterval = null;
+        }
+        $('#kata-countdown-status').hide();
+        $('#btn-cd-aka').removeClass('btn-glow-pulse');
+        $('#btn-cd-ao').removeClass('btn-glow-pulse');
+
+        if (sendWs) {
+            sendControlAction('countdown', 0, 'scoring');
+        }
+    }
+
     function stopCountdown() {
-        sendControlAction('countdown', 0, 'scoring');
+        stopKataCountdown(true);
     }
 
     // ==================== LIVE JUDGE STICK FEED HANDLER ====================
@@ -1848,16 +2649,82 @@
                     recalculateKataScores();
                 }
             }
+        } else if (data.command === 'aka-kata-kirim') {
+            const val = data.details;
+            if (val && $('#kata-aka').length) {
+                if ($('#kata-aka').val() !== val) {
+                    $('#kata-aka').val(val).trigger('change', [true]);
+                    if ($('#kata-aka').data('select2')) {
+                        $('#kata-aka').trigger('change.select2');
+                    }
+                }
+            }
+        } else if (data.command === 'ao-kata-kirim') {
+            const val = data.details;
+            if (val && $('#kata-ao').length) {
+                if ($('#kata-ao').val() !== val) {
+                    $('#kata-ao').val(val).trigger('change', [true]);
+                    if ($('#kata-ao').data('select2')) {
+                        $('#kata-ao').trigger('change.select2');
+                    }
+                }
+            }
+        } else if (data.command === 'coach-supervisor') {
+            let detailsArray;
+            try {
+                detailsArray = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+            } catch(err) { detailsArray = data.details; }
+            if (Array.isArray(detailsArray) && detailsArray.length >= 2) {
+                const side = String(detailsArray[0]).toLowerCase();
+                const val = String(detailsArray[1]);
+                const pointLabel = val === '1' ? 'Yuko (+1)' : (val === '2' ? 'Waza-ari (+2)' : (val === '3' ? 'Ippon (+3)' : `+${val} Poin`));
+                $(`#vr-${side}-status-label`).html(`<span class="text-warning fw-bold"><i class="fas fa-exclamation-triangle fa-beat me-1"></i>APPEAL: ${pointLabel}</span>`);
+                $(`#vr-${side}-btn`).addClass('btn-glow-pulse border-warning shadow-lg');
+                $(`#${side}-vr-input`).prop('checked', true);
+
+                // Play short audio chime
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.35);
+                } catch(e) {}
+            }
+        } else if (data.command === 'coach-supervisor-cancel') {
+            const side = typeof data.details === 'string' ? data.details.toLowerCase() : (Array.isArray(data.details) ? String(data.details[0]).toLowerCase() : 'aka');
+            $(`#vr-${side}-status-label`).text('VR Card Aktif');
+            $(`#vr-${side}-btn`).removeClass('btn-glow-pulse border-warning shadow-lg');
         }
     }
 
-    // Kata Tampilkan Score Handler
+    // Kata Tampilkan Poin di Board Handler (Hanya kirim poin total untuk komparasi skor tanpa manual bendera)
+    $('#tampilkan-poin').on('click', function() {
+        let scoreAka = $('#totalAka').val() || '0';
+        let scoreAo = $('#totalAo').val() || '0';
+        sendControlAction('tampilkan-score-simple', JSON.stringify([scoreAka, scoreAo]), 'all');
+
+        const btn = $(this);
+        const origHtml = btn.html();
+        btn.removeClass('btn-info').addClass('btn-success').html('<i class="fas fa-check-circle me-1"></i> Poin Terkirim!');
+        setTimeout(function() {
+            btn.removeClass('btn-success').addClass('btn-info').html(origHtml);
+        }, 1500);
+    });
+
+    // Kata Tampilkan Score 5 Juri Handler (Overlay tabel detail 5 juri di scoreboard)
     $('#tampilkan-score').on('click', function() {
         isKataScoreShowing = !isKataScoreShowing;
-        $(this).html(isKataScoreShowing ? '<i class="fas fa-eye-slash me-1"></i> Sembunyikan Skor di Board' : '<i class="fas fa-eye me-1"></i> Tampilkan Skor di Board');
+        $(this).html(isKataScoreShowing ? '<i class="fas fa-eye-slash me-1"></i> Sembunyikan Skor 5 Juri' : '<i class="fas fa-table me-1"></i> Tampilkan Skor 5 Juri');
         
-        let scoreAka = $('#totalAka').val();
-        let scoreAo = $('#totalAo').val();
+        let scoreAka = $('#totalAka').val() || '0';
+        let scoreAo = $('#totalAo').val() || '0';
         let akaScores = [];
         let aoScores = [];
 
@@ -1889,38 +2756,196 @@
         "Unshu", "Unsu", "Useishi", "Wankan", "Wanshu"
     ];
 
-    // ==================== KATA MATCH HANDLERS & AUTO-SUM ====================
+    // ==================== KATA MATCH HANDLERS & 1-POINT COMPARATIVE SCORING ====================
     function recalculateKataScores() {
-        let sumAka = 0.0;
-        let sumAo = 0.0;
-        let hasAka = false;
-        let hasAo = false;
+        let pointsAka = 0;
+        let pointsAo = 0;
+        let validJudgesCount = 0;
 
         for (let i = 1; i <= 5; i++) {
-            const vAka = parseFloat($('#akaj' + i).val());
-            if (!isNaN(vAka) && vAka > 0) {
-                sumAka += vAka;
-                hasAka = true;
-            }
-            const vAo = parseFloat($('#aoj' + i).val());
-            if (!isNaN(vAo) && vAo > 0) {
-                sumAo += vAo;
-                hasAo = true;
+            const rawAka = $('#akaj' + i).val() ? String($('#akaj' + i).val()).trim() : '';
+            const rawAo = $('#aoj' + i).val() ? String($('#aoj' + i).val()).trim() : '';
+            const vAka = parseFloat(rawAka);
+            const vAo = parseFloat(rawAo);
+            const decisionEl = $(`#j${i}-decision`);
+            const tabBadge = $(`#tab-badge-${i}`);
+
+            const hasAka = !isNaN(vAka) && vAka >= 5.0 && vAka <= 10.0;
+            const hasAo = !isNaN(vAo) && vAo >= 5.0 && vAo <= 10.0;
+
+            if (hasAka && hasAo) {
+                validJudgesCount++;
+                if (vAka > vAo) {
+                    pointsAka += 1;
+                    const html = `<span class="decision-badge decision-aka shadow-sm"><i class="fas fa-flag me-1"></i>AKA (${vAka.toFixed(1)})</span>`;
+                    decisionEl.html(html);
+                    if (tabBadge.length) tabBadge.attr('class', 'badge bg-danger ms-1').text('AKA');
+                } else if (vAo > vAka) {
+                    pointsAo += 1;
+                    const html = `<span class="decision-badge decision-ao shadow-sm"><i class="fas fa-flag me-1"></i>AO (${vAo.toFixed(1)})</span>`;
+                    decisionEl.html(html);
+                    if (tabBadge.length) tabBadge.attr('class', 'badge bg-primary ms-1').text('AO');
+                } else {
+                    const html = `<span class="decision-badge decision-seri">SERI (${vAka.toFixed(1)})</span>`;
+                    decisionEl.html(html);
+                    if (tabBadge.length) tabBadge.attr('class', 'badge bg-secondary ms-1').text('SERI');
+                }
+            } else if (hasAka && !hasAo) {
+                decisionEl.html(`<span class="decision-badge border border-danger text-danger">AKA ${vAka.toFixed(1)}</span>`);
+                if (tabBadge.length) tabBadge.attr('class', 'badge bg-outline-danger text-danger ms-1').text(vAka.toFixed(1));
+            } else if (!hasAka && hasAo) {
+                decisionEl.html(`<span class="decision-badge border border-primary text-primary">AO ${vAo.toFixed(1)}</span>`);
+                if (tabBadge.length) tabBadge.attr('class', 'badge bg-outline-primary text-primary ms-1').text(vAo.toFixed(1));
+            } else {
+                decisionEl.html(`<span class="decision-badge decision-empty">-</span>`);
+                if (tabBadge.length) tabBadge.attr('class', 'badge bg-secondary ms-1').text('-');
             }
         }
 
-        if (hasAka) $('#totalAka').val(sumAka.toFixed(1));
-        if (hasAo) $('#totalAo').val(sumAo.toFixed(1));
+        // Comparative scoring: update points & auto winner
+        if (validJudgesCount > 0) {
+            $('#totalAka').val(pointsAka);
+            $('#totalAo').val(pointsAo);
+            $('#aka-bendera').val(pointsAka);
+            $('#ao-bendera').val(pointsAo);
 
-        if (hasAka && hasAo) {
-            if (sumAka > sumAo) {
+            if (pointsAka > pointsAo) {
                 $('input[name="pemenang"][value="aka"]').prop('checked', true);
-            } else if (sumAo > sumAka) {
+            } else if (pointsAo > pointsAka) {
                 $('input[name="pemenang"][value="ao"]').prop('checked', true);
             }
         }
     }
     window.recalculateKataScores = recalculateKataScores;
+
+    // ==================== KATA POPUP MODAL ENGINE ====================
+    let currentModalJuri = 1;
+
+    function formatScore(val) {
+        let num = parseFloat(val);
+        if (isNaN(num)) num = 7.5;
+        num = Math.max(5.0, Math.min(10.0, num));
+        return num.toFixed(1);
+    }
+
+    function syncModalFromTable(juriNum) {
+        currentModalJuri = juriNum;
+
+        // Update pills
+        $('.btn-wasit-tab').removeClass('active');
+        $(`#btn-modal-w${juriNum}`).addClass('active');
+        $('#modal-active-status').text(`Wasit ${juriNum} aktif`);
+
+        // Load values
+        let rawAo = $(`#aoj${juriNum}`).val();
+        let rawAka = $(`#akaj${juriNum}`).val();
+        let valAo = rawAo && !isNaN(parseFloat(rawAo)) ? formatScore(rawAo) : '7.5';
+        let valAka = rawAka && !isNaN(parseFloat(rawAka)) ? formatScore(rawAka) : '7.5';
+
+        $('#modal-ao-input').val(valAo);
+        $('#modal-ao-slider').val(valAo);
+        $('#modal-aka-input').val(valAka);
+        $('#modal-aka-slider').val(valAka);
+
+        updateModalDecisionBanner();
+    }
+
+    function updateModalDecisionBanner() {
+        const valAo = parseFloat($('#modal-ao-input').val());
+        const valAka = parseFloat($('#modal-aka-input').val());
+        const banner = $('#modal-decision-banner');
+        const text = $('#modal-decision-text');
+
+        if (isNaN(valAo) || isNaN(valAka)) {
+            banner.css({ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)' });
+            text.html(`Masukkan skor untuk Wasit ${currentModalJuri}`);
+            return;
+        }
+
+        if (valAka > valAo) {
+            banner.css({ background: 'rgba(220, 38, 38, 0.25)', border: '2px solid #ef4444' });
+            text.html(`<span class="text-danger"><i class="fas fa-trophy me-2"></i>Wasit ${currentModalJuri} Memilih: <strong>AKA (Merah)</strong> &bull; Skor: ${valAka.toFixed(1)} vs ${valAo.toFixed(1)} (+1 Poin AKA)</span>`);
+        } else if (valAo > valAka) {
+            banner.css({ background: 'rgba(37, 99, 235, 0.25)', border: '2px solid #3b82f6' });
+            text.html(`<span class="text-primary"><i class="fas fa-trophy me-2"></i>Wasit ${currentModalJuri} Memilih: <strong>AO (Biru)</strong> &bull; Skor: ${valAo.toFixed(1)} vs ${valAka.toFixed(1)} (+1 Poin AO)</span>`);
+        } else {
+            banner.css({ background: 'rgba(100, 116, 139, 0.25)', border: '2px solid #64748b' });
+            text.html(`<span class="text-light"><i class="fas fa-handshake me-2"></i>Wasit ${currentModalJuri}: <strong>SKOR SERI</strong> (${valAka.toFixed(1)}) &bull; Belum ada poin tambahan</span>`);
+        }
+    }
+
+    function applyModalScore(side, scoreStr) {
+        const validScore = formatScore(scoreStr);
+        $(`#modal-${side}-input`).val(validScore);
+        $(`#modal-${side}-slider`).val(validScore);
+        $(`#${side}j${currentModalJuri}`).val(validScore);
+        recalculateKataScores();
+        updateModalDecisionBanner();
+    }
+
+    // Modal Events
+    $(document).on('click', '.btn-wasit-tab', function() {
+        const juri = parseInt($(this).data('juri'), 10);
+        if (juri >= 1 && juri <= 5) syncModalFromTable(juri);
+    });
+
+    $(document).on('click', '.juri-th', function() {
+        const juri = parseInt($(this).data('juri'), 10);
+        if (juri >= 1 && juri <= 5) {
+            syncModalFromTable(juri);
+            const modalEl = document.getElementById('kataScoreModal');
+            if (modalEl) {
+                const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                bsModal.show();
+            }
+        }
+    });
+
+    $('#modal-btn-prev').on('click', function() {
+        const prev = Math.max(1, currentModalJuri - 1);
+        syncModalFromTable(prev);
+    });
+
+    $('#modal-btn-next').on('click', function() {
+        const next = Math.min(5, currentModalJuri + 1);
+        syncModalFromTable(next);
+    });
+
+    // Modal Stepper buttons
+    $(document).on('click', '.step-score', function() {
+        const side = $(this).data('side');
+        const step = parseFloat($(this).data('step'));
+        const currentVal = parseFloat($(`#modal-${side}-input`).val()) || 7.5;
+        applyModalScore(side, currentVal + step);
+    });
+
+    // Modal Preset chips
+    $(document).on('click', '.preset-score', function() {
+        const side = $(this).data('side');
+        const val = $(this).data('val');
+        applyModalScore(side, val);
+    });
+
+    // Modal Sliders
+    $('#modal-ao-slider').on('input change', function() {
+        applyModalScore('ao', $(this).val());
+    });
+    $('#modal-aka-slider').on('input change', function() {
+        applyModalScore('aka', $(this).val());
+    });
+
+    // Modal Direct Input
+    $('#modal-ao-input').on('input change', function() {
+        applyModalScore('ao', $(this).val());
+    });
+    $('#modal-aka-input').on('input change', function() {
+        applyModalScore('aka', $(this).val());
+    });
+
+    // When modal opens, sync current juri
+    $('#kataScoreModal').on('show.bs.modal', function() {
+        syncModalFromTable(currentModalJuri);
+    });
 
     if (tipeTanding === '1') {
         const kataAka = document.getElementById('kata-aka');
@@ -1947,11 +2972,13 @@
         $('.select2').select2({ width: '100%' });
 
         // Broadcast kata selection changes to scoreboard
-        $('#kata-aka').on('change', function() {
+        $('#kata-aka').on('change', function(e, fromSync) {
+            if (fromSync) return;
             const val = $(this).val();
             if (val) sendControlAction('aka-kata-kirim', val, 'all');
         });
-        $('#kata-ao').on('change', function() {
+        $('#kata-ao').on('change', function(e, fromSync) {
+            if (fromSync) return;
             const val = $(this).val();
             if (val) sendControlAction('ao-kata-kirim', val, 'all');
         });
@@ -1980,6 +3007,11 @@
 
         // Manual score input listeners
         $('input[name="akaScores"], input[name="aoScores"]').on('input change', function() {
+            recalculateKataScores();
+        });
+
+        // Run on initial load to calculate points and output header decisions
+        $(document).ready(function() {
             recalculateKataScores();
         });
     }

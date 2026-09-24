@@ -313,3 +313,108 @@ def check_is_final(detail_bagan):
     else:
         return r >= 6
 
+def get_utusan_logo_url(atlet):
+    """
+    Mengambil URL logo kontingen/utusan atlet dengan aman.
+    Mengembalikan None jika tidak ada logo atau terjadi kesalahan.
+    """
+    try:
+        if atlet and atlet.utusan and atlet.utusan.logo:
+            return atlet.utusan.logo.url
+    except Exception:
+        pass
+    return None
+
+def get_round_label(detail_bagan):
+    """
+    Menghasilkan label babak untuk marquee / display:
+    'Round 1', 'Round 2', 'Semi', 'Final'.
+    Menyesuaikan jumlah pool kategori:
+    - 1 pool: Round 3 = Semi, Round 4+ = Final
+    - 2 pools: Round 4 = Semi, Round 5+ = Final
+    - 4 pools: Round 5 = Semi, Round 6+ = Final
+    """
+    if not detail_bagan or not detail_bagan.round:
+        return ""
+
+    r = detail_bagan.round
+    bagan = detail_bagan.bagan
+    pool_count = get_category_pool_count(bagan)
+
+    if pool_count <= 1:
+        final_round = 4
+        semi_round = 3
+    elif pool_count <= 2:
+        final_round = 5
+        semi_round = 4
+    else:
+        final_round = 6
+        semi_round = 5
+
+    # Bagan pool 0 adalah bagan khusus final
+    if bagan and getattr(bagan, 'pool', 1) == 0:
+        return "Final"
+
+    if r >= final_round:
+        return "Final"
+    elif r == semi_round:
+        return "Semi"
+    elif r == 10:
+        return "Perebutan Juara 3"
+    else:
+        return f"Round {r}"
+
+def get_round_of_slots(detail_bagan):
+    """
+    Menghasilkan label 'Round of 16/32/64' (atau 'Round of 8', 'Round of 4', 'Round of 2')
+    berdasarkan posisi babak terhadap total pool kategori.
+    """
+    if not detail_bagan or not detail_bagan.round:
+        return ""
+
+    r = detail_bagan.round
+    bagan = detail_bagan.bagan
+    pool_count = get_category_pool_count(bagan)
+
+    if pool_count <= 1:
+        final_round = 4
+    elif pool_count <= 2:
+        final_round = 5
+    else:
+        final_round = 6
+
+    # Bagan pool 0 adalah babak final (Round of 2)
+    if bagan and getattr(bagan, 'pool', 1) == 0:
+        return "Round of 2"
+
+    if r >= final_round:
+        return "Round of 2"
+    elif r == 10:
+        return ""
+
+    slots = 2 ** (final_round - r + 1)
+    return f"Round of {slots}"
+
+def get_marquee_title(detail_bagan):
+    """
+    Menghasilkan template teks marquee:
+    '{Nama bagan} • {Round 1/Round 2/Semi/Final} • {Round of 16/32/64}'
+    """
+    if not detail_bagan or not detail_bagan.bagan:
+        return ""
+
+    bagan = detail_bagan.bagan
+    nama_bagan = bagan.nama_bagan or (bagan.nomor_tanding.nama_nomor_tanding if bagan.nomor_tanding else "")
+    if not nama_bagan:
+        return ""
+
+    import re
+    clean_nama_bagan = re.sub(r'\s*-\s*Final$', '', nama_bagan, flags=re.IGNORECASE).strip()
+    round_label = get_round_label(detail_bagan)
+    round_of = get_round_of_slots(detail_bagan)
+
+    parts = [clean_nama_bagan, round_label, round_of]
+    return " • ".join(p for p in parts if p)
+
+
+

@@ -1,4 +1,4 @@
-{% load custom_tags %}
+{% load custom_tags static %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -471,6 +471,7 @@
             flex-direction: column;
             justify-content: center;
             overflow: hidden;
+            min-height: 20px !important; /* Ensure very short durations remain readable */
         }
 
         .tt-card:active {
@@ -804,7 +805,7 @@
 
         @page {
             size: A4 portrait;
-            margin: 10mm 8mm;
+            margin: 8mm 6mm;
         }
 
         /* Print styles - Optimized for Minimal Ink Usage */
@@ -917,8 +918,295 @@
             #print-kop-header h3, #print-kop-header h4, #print-kop-header p {
                 color: #111827 !important;
             }
+
+            /* =========================================================
+               🖨️ SIMPLE ROSTER PRINT STYLES (1-Page Run Sheet)
+               Clean, ink-friendly, NO black fills, aligned ISHOMA row
+               ========================================================= */
+            body.print-simple-active #main-content,
+            body.print-simple-active .main-content,
+            body.print-simple-active #days-container,
+            body.print-simple-active #print-kop-header {
+                display: none !important;
+            }
+            body.print-simple-active #print-simple-container {
+                display: block !important;
+                width: 100% !important;
+            }
+            body:not(.print-simple-active) #print-simple-container {
+                display: none !important;
+            }
+
+            .simple-roster-page {
+                box-sizing: border-box;
+                padding: 1.5mm 2.5mm;
+                margin: 0;
+                width: 100%;
+                max-height: 280mm;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                background: #ffffff !important;
+                color: #0f172a !important;
+                page-break-inside: avoid;
+            }
+
+            /* Kop Surat in Simple Roster */
+            .simple-roster-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1.5px solid #cbd5e1;
+                padding-bottom: 3px;
+                margin-bottom: 3px;
+                gap: 8px;
+            }
+            .simple-roster-kop-left {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .simple-roster-logo {
+                width: 38px;
+                height: 38px;
+                object-fit: contain;
+            }
+            .simple-roster-org-name {
+                margin: 0;
+                font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                color: #0f172a;
+                line-height: 1.15;
+            }
+            .simple-roster-org-meta {
+                margin: 1px 0 0;
+                font-size: 8.5px;
+                color: #475569;
+                line-height: 1.15;
+            }
+            .simple-roster-doc-title {
+                margin-top: 1px;
+                font-size: 10.5px;
+                font-weight: 800;
+                color: #1e293b;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+            }
+            .simple-roster-day-badge-box {
+                text-align: right;
+                padding: 2px 6px;
+                background: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-radius: 3px;
+                min-width: 90px;
+            }
+            .simple-roster-day-label {
+                font-family: 'Oswald', 'Segoe UI', sans-serif;
+                font-size: 11.5px;
+                font-weight: 700;
+                color: #b91c1c;
+                text-transform: uppercase;
+            }
+            .simple-roster-day-date {
+                font-size: 8.5px;
+                font-weight: 600;
+                color: #475569;
+                margin-top: 1px;
+            }
+
+            /* Day Section & Day Bar */
+            .simple-roster-day-section {
+                page-break-inside: avoid;
+                margin-bottom: 3px;
+            }
+            .simple-roster-day-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-left: 3px solid #b91c1c;
+                padding: 1.5px 5px;
+                margin: 2px 0 1.5px 0;
+            }
+            .day-bar-title {
+                font-family: 'Oswald', 'Segoe UI', sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                color: #b91c1c;
+                text-transform: uppercase;
+                letter-spacing: 0.02em;
+            }
+            .day-bar-date {
+                font-size: 8.5px;
+                font-weight: 600;
+                color: #475569;
+            }
+
+            /* Synchronized Run Sheet Table */
+            .simple-roster-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                border: 1px solid #94a3b8;
+                background: #ffffff;
+                margin-bottom: 2px;
+            }
+            .simple-roster-table th {
+                background: #f1f5f9 !important; /* Soft slate header, NO black fill */
+                color: #0f172a !important;
+                font-size: 9.5px;
+                font-weight: 800;
+                text-align: center;
+                padding: 2px 3px;
+                border: 1px solid #94a3b8;
+                border-bottom: 1.5px solid #64748b;
+            }
+            .simple-roster-table th .th-sub {
+                font-size: 8px;
+                font-weight: 600;
+                color: #475569;
+                display: inline-block;
+                margin-left: 3px;
+            }
+            .simple-roster-table td {
+                border: 1px solid #cbd5e1;
+                vertical-align: middle;
+                box-sizing: border-box;
+            }
+            .simple-roster-table tbody tr:nth-child(even) td.roster-match-cell {
+                background-color: #fafafa;
+            }
+            .simple-roster-table tbody tr:nth-child(odd) td.roster-match-cell {
+                background-color: #ffffff;
+            }
+
+            /* Compact Density Scaling */
+            .simple-roster-page.density-spacious .roster-match-cell {
+                padding: 2.2px 3.5px;
+                font-size: 9px;
+                line-height: 1.15;
+            }
+            .simple-roster-page.density-normal .roster-match-cell {
+                padding: 1.5px 3px;
+                font-size: 8.2px;
+                line-height: 1.12;
+            }
+            .simple-roster-page.density-compact .roster-match-cell {
+                padding: 1px 2.5px;
+                font-size: 7.6px;
+                line-height: 1.08;
+            }
+            .simple-roster-page.density-ultra-compact .roster-match-cell {
+                padding: 0.6px 2px;
+                font-size: 7px;
+                line-height: 1.05;
+            }
+
+            /* Single-line compact item */
+            .roster-item-line {
+                display: block;
+                line-height: 1.12;
+                word-break: break-word;
+            }
+            .roster-num-badge {
+                display: inline-block;
+                min-width: 14px;
+                text-align: center;
+                font-weight: 800;
+                font-size: 0.88em;
+                background: #e2e8f0;
+                color: #1e293b;
+                padding: 0 2px;
+                border-radius: 2px;
+                margin-right: 2px;
+                vertical-align: baseline;
+            }
+            .roster-item-title {
+                font-weight: 700;
+                color: #0f172a;
+            }
+            .roster-atlet-count {
+                font-weight: 700;
+                color: #0369a1;
+                margin-left: 2px;
+                white-space: nowrap;
+            }
+
+            /* Festival Session */
+            .roster-match-cell.is-festival {
+                background: #fef9c3 !important;
+                border-color: #fde047 !important;
+            }
+            .roster-match-cell.is-festival .roster-item-title {
+                color: #854d0e !important;
+            }
+            .roster-match-cell.is-festival .roster-num-badge {
+                background: #fef08a !important;
+                color: #713f12 !important;
+            }
+
+            /* Empty Cell */
+            .roster-match-cell.is-empty {
+                background: #fcfcfc !important;
+                text-align: center;
+                color: #cbd5e1;
+                font-size: 8px;
+            }
+
+            /* Aligned ISHOMA Row (Exact same row across all tatamis) */
+            .roster-ishoma-row {
+                page-break-inside: avoid;
+            }
+            .roster-ishoma-cell {
+                background: #f0fdf4 !important; /* Soft mint/sage tint, NO black fill */
+                border-top: 1.5px dashed #0284c7 !important;
+                border-bottom: 1.5px dashed #0284c7 !important;
+                border-left: 1px solid #94a3b8 !important;
+                border-right: 1px solid #94a3b8 !important;
+                padding: 1.5px 4px !important;
+                text-align: center !important;
+            }
+            .roster-ishoma-bar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                color: #0369a1;
+                font-weight: 800;
+                font-size: 8.8px;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+                line-height: 1.15;
+            }
+            .roster-ishoma-icon {
+                font-size: 9.5px;
+            }
+            .roster-ishoma-label {
+                font-weight: 800;
+            }
+
+            /* Simple Roster Footer */
+            .simple-roster-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 2px;
+                font-size: 7.5px;
+                color: #64748b;
+                margin-top: auto;
+            }
+            .simple-roster-note {
+                font-style: italic;
+            }
+            .simple-roster-ts {
+                font-weight: 600;
+            }
         }
         #print-kop-header { display: none; }
+        #print-simple-container { display: none; }
     </style>
 </head>
 <body>
@@ -978,8 +1266,13 @@
     <!-- Main Content Workspace -->
     <div class="main-content" id="main-content">
         <!-- Print Header -->
-        <div id="print-kop-header" style="display:flex; align-items:center; gap:16px;">
-            {% if kop_surat.logo_url %}<img src="{{ kop_surat.logo_url }}" style="width:65px; height:65px; object-fit:contain;">{% endif %}
+        <div id="print-kop-header" style="display:flex; align-items:center; gap:14px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                <img src="{% static 'img/ambrilindo-logo.png' %}" style="height:55px; width:auto; max-width:85px; object-fit:contain;" alt="Ambrilindo">
+                {% if kop_surat.logo_url %}
+                <img src="{{ kop_surat.logo_url }}" style="height:55px; width:auto; max-width:85px; object-fit:contain;" alt="Logo Event">
+                {% endif %}
+            </div>
             <div>
                 <h3 style="margin:0; font-family:'Oswald',sans-serif;">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
                 <p style="margin:2px 0; font-size:12px;">{{ kop_surat.alamat }} &bull; {{ kop_surat.kontak }}</p>
@@ -1066,7 +1359,8 @@
             <div style="height:20px; width:1px; background:var(--border-color); margin:0 4px;"></div>
 
             <button id="kop-surat-btn" class="btn-tool" type="button"><i class="fas fa-file-invoice"></i> Kop Surat</button>
-            <button id="print-btn" class="btn-tool" type="button"><i class="fas fa-print"></i> Cetak</button>
+            <button id="print-detailed-btn" class="btn-tool" type="button" title="Cetak run sheet timeline dengan visualisasi durasi waktu"><i class="fas fa-print"></i> Cetak Timeline (Detail)</button>
+            <button id="print-simple-btn" class="btn-tool" type="button" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #93c5fd; font-weight: 600;" title="Cetak run sheet nomor tanding ringkas 1 halaman (hemat kertas)"><i class="fas fa-table"></i> Cetak Roster 1 Halaman</button>
         </div>
 
         <!-- Days Container -->
@@ -1120,6 +1414,9 @@
             {% endfor %}
         </div>
     </div>
+    
+    <!-- Dedicated 1-Page Simple Roster Print Container -->
+    <div id="print-simple-container"></div>
 
     <!-- Auto Schedule Modal -->
     <div id="auto-schedule-modal" class="modal-overlay">
@@ -1148,6 +1445,11 @@
                         {% endif %}
                     </select>
                 </div>
+                <script>
+                    document.getElementById('auto-festival-opt').addEventListener('change', function() {
+                        document.getElementById('auto-festival-dur-group').style.display = this.value === 'yes' ? '' : 'none';
+                    });
+                </script>
                 <div class="form-group-custom" id="auto-festival-dur-group" {% if festival_total_atlets == 0 %}style="display:none;"{% endif %}>
                     <label>Durasi Sesi Festival:</label>
                     <select id="auto-festival-dur-opt">
@@ -1156,6 +1458,7 @@
                         <option value="120">120 Menit (2 Jam)</option>
                     </select>
                 </div>
+
                 <div class="form-group-custom">
                     <label>Sertakan Istirahat Siang (ISHOMA):</label>
                     <select id="auto-ishoma-opt">
@@ -1257,7 +1560,7 @@
         <div class="modal-box">
             <div class="modal-box-header">
                 <h4 class="modal-box-title">Pengaturan Kop Surat</h4>
-                <button type="button" class="remove-row-btn" id="kop-surat-cancel-btn">✕</button>
+                <button type="button" class="remove-day-btn" id="kop-surat-cancel-btn">✕</button>
             </div>
             <div class="modal-box-body">
                 <div class="form-group-custom">
@@ -1273,9 +1576,32 @@
                     <input type="text" id="kop-kontak-input" value="{{ kop_surat.kontak }}">
                 </div>
                 <div class="form-group-custom">
-                    <label>Logo:</label>
+                    <label>Logo Kop Surat:</label>
+                    <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); border-radius:6px; padding:8px 10px; margin-bottom:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="{% static 'img/ambrilindo-logo.png' %}" style="height:26px; width:auto; object-fit:contain; background:#fff; border-radius:3px; padding:2px;">
+                            <div>
+                                <strong style="font-size:12px; color:#fff;">Logo 1: Ambrilindo (Wajib / Sistem)</strong>
+                                <div style="font-size:11px; color:var(--text-secondary);">Selalu dicantumkan secara otomatis pada kop surat cetak.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label style="font-size:12px; margin-top:4px;">Logo 2: Logo Event / Organisasi (Opsional):</label>
                     <input type="file" id="kop-logo-input" accept="image/*">
-                    <img id="kop-logo-preview" style="max-height:60px; margin-top:8px; display:none;">
+                    
+                    <div id="kop-logo-current-wrap" style="margin-top:6px; {% if not kop_surat.logo_url %}display:none;{% endif %}">
+                        <div style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:6px 10px; border-radius:4px;">
+                            <img id="kop-logo-preview" src="{{ kop_surat.logo_url|default:'' }}" style="max-height:45px; max-width:70px; object-fit:contain; border:1px solid #cbd5e1; border-radius:3px; padding:2px; background:#fff;">
+                            <div>
+                                <div style="font-size:11px; color:#94a3b8;">Logo event aktif</div>
+                                <button type="button" class="btn-tool danger" id="kop-logo-remove-btn" style="padding:2px 8px; font-size:11px; margin-top:3px;">
+                                    <i class="fas fa-trash"></i> Hapus Logo Ini
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="kop-remove-logo-flag" value="false">
                 </div>
             </div>
             <div class="modal-box-footer">
@@ -1286,6 +1612,8 @@
     </div>
 
     <!-- Pass JSON Data from Django safely -->
+    {{ conflict_data_json|json_script:"conflict-data-json" }}
+    {{ categories_meta_json|json_script:"categories-meta-json" }}
     <script>
         const csrftoken = "{{ csrf_token }}";
         const SAVE_URL = "{% url 'timetable-save' event_pk=event.pk %}";
@@ -1295,9 +1623,10 @@
         const DELETE_DAY_URL = "{% url 'timetable-delete-day' event_pk=event.pk day_pk=0 %}".replace('/0/', '/');
         const KOP_SAVE_URL = "{% url 'timetable-kop-surat-save' event_pk=event.pk %}";
         
-        // Conflict data & category metadata
-        const CONFLICT_DATA = {{ conflict_data_json|safe }};
-        const CATEGORIES_META = {{ categories_meta_json|safe }};
+        // Conflict data & category metadata (XSS-safe via json_script)
+        const CONFLICT_DATA = JSON.parse(document.getElementById('conflict-data-json').textContent);
+        const CATEGORIES_META = JSON.parse(document.getElementById('categories-meta-json').textContent);
+        const CATEGORIES_MAP = new Map(CATEGORIES_META.map(c => [c.pk, c]));
         const FESTIVAL_METADATA = {
             total_athletes: {{ festival_total_atlets|default:0 }},
             per_tatami: {{ festival_atlets_per_tatami|default:0 }}
@@ -1457,6 +1786,8 @@
 
         function initTatamiGridEvents() {
             document.querySelectorAll('.tatami-card-list').forEach(list => {
+                if (list.dataset.eventsAttached) return;  // Prevent double-binding
+                list.dataset.eventsAttached = '1';
                 list.addEventListener('dragover', e => {
                     e.preventDefault();
                     list.classList.add('drag-over');
@@ -1549,7 +1880,7 @@
                 col.querySelectorAll('.tt-card').forEach(card => {
                     const ntId = parseInt(card.dataset.ntId, 10);
                     if (ntId) {
-                        const cat = (typeof CATEGORIES_META !== 'undefined') ? CATEGORIES_META.find(c => c.pk === ntId) : null;
+                        const cat = CATEGORIES_MAP.get(ntId);
                         if (cat && cat.atlet_count) {
                             total += cat.atlet_count;
                             return;
@@ -1573,10 +1904,18 @@
         }
 
         function insertFestivalSessionPrompt() {
-            const activeDayBlock = document.querySelector('.day-block');
-            if (!activeDayBlock) {
+            const dayBlocks = document.querySelectorAll('.day-block');
+            if (dayBlocks.length === 0) {
                 alert('Belum ada hari pertandingan.');
                 return;
+            }
+            let activeDayBlock = dayBlocks[0];
+            if (dayBlocks.length > 1) {
+                const dayOptions = Array.from(dayBlocks).map((b, i) => `${i + 1}. ${b.querySelector('.day-label-text')?.textContent || 'Day ' + (i + 1)}`).join('\n');
+                const picked = prompt(`Pilih hari untuk sesi Festival:\n${dayOptions}\n\nMasukkan nomor:`, '1');
+                if (!picked) return;
+                const idx = parseInt(picked, 10) - 1;
+                if (idx >= 0 && idx < dayBlocks.length) activeDayBlock = dayBlocks[idx];
             }
             const tatamiCols = activeDayBlock.querySelectorAll('.tatami-column');
             if (tatamiCols.length === 0) {
@@ -1629,10 +1968,18 @@
         }
 
         function insertIshomaSessionPrompt() {
-            const activeDayBlock = document.querySelector('.day-block');
-            if (!activeDayBlock) {
+            const dayBlocks = document.querySelectorAll('.day-block');
+            if (dayBlocks.length === 0) {
                 alert('Belum ada hari pertandingan.');
                 return;
+            }
+            let activeDayBlock = dayBlocks[0];
+            if (dayBlocks.length > 1) {
+                const dayOptions = Array.from(dayBlocks).map((b, i) => `${i + 1}. ${b.querySelector('.day-label-text')?.textContent || 'Day ' + (i + 1)}`).join('\n');
+                const picked = prompt(`Pilih hari untuk ISHOMA:\n${dayOptions}\n\nMasukkan nomor:`, '1');
+                if (!picked) return;
+                const idx = parseInt(picked, 10) - 1;
+                if (idx >= 0 && idx < dayBlocks.length) activeDayBlock = dayBlocks[idx];
             }
             const tatamiCols = activeDayBlock.querySelectorAll('.tatami-column');
             if (tatamiCols.length === 0) {
@@ -1680,7 +2027,7 @@
                 const isBreak = card.classList.contains('is-break-card');
                 const isFestival = card.classList.contains('is-festival-card');
                 const ntId = parseInt(card.dataset.ntId, 10);
-                const cat = (typeof CATEGORIES_META !== 'undefined') ? CATEGORIES_META.find(c => c.pk === ntId) : null;
+                const cat = CATEGORIES_MAP.get(ntId) || null;
 
                 let dur = parseInt(card.dataset.duration, 10);
 
@@ -1768,7 +2115,6 @@
                 }
             });
 
-            updateChipUsedState();
             updateTatamiAthleteCounters();
         }
 
@@ -1799,7 +2145,9 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) window.location.reload();
-                });
+                    else alert(data.message || 'Gagal menghapus tatami.');
+                })
+                .catch(() => alert('Koneksi gagal. Coba lagi.'));
             } else if (e.target.classList.contains('remove-day-btn')) {
                 const dayBlock = e.target.closest('.day-block');
                 const dayId = dayBlock.dataset.dayId;
@@ -1811,7 +2159,9 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) window.location.reload();
-                });
+                    else alert(data.message || 'Gagal menghapus hari.');
+                })
+                .catch(() => alert('Koneksi gagal. Coba lagi.'));
             }
         });
 
@@ -1824,7 +2174,9 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) window.location.reload();
-            });
+                else alert(data.message || 'Gagal menambah hari.');
+            })
+            .catch(() => alert('Koneksi gagal. Coba lagi.'));
         });
 
         // Add Tatami
@@ -1839,7 +2191,9 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) window.location.reload();
-            });
+                else alert(data.message || 'Gagal menambah tatami.');
+            })
+            .catch(() => alert('Koneksi gagal. Coba lagi.'));
         });
 
         // Save timetable
@@ -1922,7 +2276,388 @@
         document.getElementById('kop-surat-btn').addEventListener('click', () => { kopModal.style.display = 'flex'; });
         document.getElementById('kop-surat-cancel-btn').addEventListener('click', () => { kopModal.style.display = 'none'; });
         document.getElementById('kop-surat-cancel-btn2').addEventListener('click', () => { kopModal.style.display = 'none'; });
-        document.getElementById('print-btn').addEventListener('click', () => { window.print(); });
+        // ==========================================
+        // 🖨️ PRINT HANDLING: DETAILED TIMELINE & SIMPLE 1-PAGE ROSTER
+        // ==========================================
+        const printDetailedBtn = document.getElementById('print-detailed-btn');
+        if (printDetailedBtn) {
+            printDetailedBtn.addEventListener('click', () => {
+                document.body.classList.remove('print-simple-active');
+                window.print();
+            });
+        }
+
+        const printSimpleBtn = document.getElementById('print-simple-btn');
+        if (printSimpleBtn) {
+            printSimpleBtn.addEventListener('click', () => {
+                generateSimpleRosterPrint();
+                document.body.classList.add('print-simple-active');
+                window.print();
+            });
+        }
+
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('print-simple-active');
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function extractCardData(card) {
+            const isFestival = card.classList.contains('is-festival-card');
+            const isBreak = card.classList.contains('is-break-card') || 
+                            card.classList.contains('is-ishoma-card') || 
+                            (card.textContent || '').toUpperCase().includes('ISHOMA') ||
+                            (card.textContent || '').toUpperCase().includes('ISTIRAHAT');
+            const ntId = parseInt(card.dataset.ntId, 10);
+            const cat = (!isNaN(ntId) && typeof CATEGORIES_MAP !== 'undefined') ? CATEGORIES_MAP.get(ntId) : null;
+
+            const contentEl = card.querySelector('.card-content');
+            let rawText = contentEl ? contentEl.innerText.trim() : card.innerText.trim();
+
+            // Time extraction
+            let timeStr = card.dataset.time || '';
+            if (!timeStr) {
+                const timeMatch = rawText.match(/(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})/);
+                if (timeMatch) timeStr = timeMatch[1];
+            }
+
+            // Atlet Count
+            let atletCount = card.dataset.atletCount || (cat ? cat.atlet_count : null);
+            if (!atletCount) {
+                const countMatch = rawText.match(/\((\d+)\s*(?:Atlet)?\)/i);
+                if (countMatch) atletCount = countMatch[1];
+            }
+
+            // Clean Title
+            let title = '';
+            if (isBreak) {
+                title = rawText.replace(/\s*\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
+                if (!title) title = '🍱 ISHOMA';
+            } else if (cat) {
+                title = cat.nama;
+            } else {
+                title = rawText
+                    .replace(/\s*\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '')
+                    .replace(/\s*\(\d+\s*(?:Atlet)?\)/gi, '')
+                    .trim();
+            }
+
+            const discipline = cat ? cat.discipline : (title.toLowerCase().includes('kata') ? 'kata' : (title.toLowerCase().includes('kumite') ? 'kumite' : ''));
+            const matches = cat ? cat.matches : null;
+
+            return {
+                card,
+                isBreak,
+                isFestival,
+                ntId,
+                title,
+                timeStr,
+                atletCount,
+                discipline,
+                matches,
+                rawText
+            };
+        }
+
+        function renderMatchCell(card) {
+            if (!card) {
+                return `<td class="roster-match-cell is-empty"><div class="roster-empty-cell">—</div></td>`;
+            }
+
+            let discIcon = '';
+            if (card.discipline === 'kata') discIcon = '🥋 ';
+            else if (card.discipline === 'kumite') discIcon = '🥊 ';
+
+            const festivalClass = card.isFestival ? 'is-festival' : '';
+
+            // Clean title so it does not contain trailing (9) if we are appending (${card.atletCount})
+            let displayTitle = card.title;
+            if (card.atletCount) {
+                displayTitle = displayTitle.replace(new RegExp(`\\s*\\(${card.atletCount}\\)$`), '').trim();
+            }
+
+            const countHtml = card.atletCount ? `<span class="roster-atlet-count">(${card.atletCount})</span>` : '';
+
+            return `
+                <td class="roster-match-cell ${festivalClass}">
+                    <div class="roster-item-line">
+                        <span class="roster-num-badge">#${card.seq}</span>
+                        <span class="roster-item-title">${discIcon}${escapeHtml(displayTitle)}</span>
+                        ${countHtml}
+                    </div>
+                </td>
+            `;
+        }
+
+        function generateSimpleRosterPrint() {
+            const container = document.getElementById('print-simple-container');
+            if (!container) return;
+
+            const kopOrg = document.getElementById('kop-nama-input')?.value || "{{ kop_surat.nama_organisasi|default:event.nama_event|escapejs }}";
+            const kopAlamat = document.getElementById('kop-alamat-input')?.value || "{{ kop_surat.alamat|default:''|escapejs }}";
+            const kopKontak = document.getElementById('kop-kontak-input')?.value || "{{ kop_surat.kontak|default:''|escapejs }}";
+            const kopLogoUrl = "{{ kop_surat.logo_url|default:''|escapejs }}";
+
+            const dayBlocks = document.querySelectorAll('.day-block');
+            const now = new Date();
+            const printedTimeStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' +
+                                   String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+            const ambrilindoLogoUrl = "{% static 'img/ambrilindo-logo.png' %}";
+            const ambrilindoLogoHtml = `<img src="${ambrilindoLogoUrl}" class="simple-roster-logo" alt="Ambrilindo" style="height:36px; width:auto; max-width:55px; object-fit:contain;">`;
+            const customLogoHtml = kopLogoUrl ? `<img src="${kopLogoUrl}" class="simple-roster-logo" alt="Logo Event" style="height:36px; width:auto; max-width:55px; object-fit:contain;">` : '';
+            const logosHtml = `
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                    ${ambrilindoLogoHtml}
+                    ${customLogoHtml}
+                </div>
+            `;
+            const metaParts = [];
+            if (kopAlamat) metaParts.push(escapeHtml(kopAlamat));
+            if (kopKontak) metaParts.push(escapeHtml(kopKontak));
+            const metaStr = metaParts.join(' &bull; ');
+
+            // Process each day block
+            const daysData = [];
+            let grandTotalRows = 0;
+
+            dayBlocks.forEach((dayBlock, dayIdx) => {
+                const dayLabel = dayBlock.querySelector('.day-label-text')?.innerText?.trim() || `Hari ${dayIdx + 1}`;
+                const dateInputVal = dayBlock.querySelector('.day-date-input')?.value || '';
+                let dayDateFormatted = '';
+                if (dateInputVal) {
+                    try {
+                        const [y, m, d] = dateInputVal.split('-').map(Number);
+                        const dt = new Date(y, m - 1, d);
+                        dayDateFormatted = dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                    } catch (e) {
+                        dayDateFormatted = dateInputVal;
+                    }
+                }
+
+                const tatamiCols = Array.from(dayBlock.querySelectorAll('.tatami-column'));
+                if (tatamiCols.length === 0) return;
+
+                const cols = tatamiCols.map((col, cIdx) => {
+                    const labelEl = col.querySelector('.tatami-name-label');
+                    let tatamiName = `Tatami ${cIdx + 1}`;
+                    if (labelEl) {
+                        const clone = labelEl.cloneNode(true);
+                        const counterWrap = clone.querySelector('.tatami-athlete-counter-wrap');
+                        if (counterWrap) counterWrap.remove();
+                        tatamiName = clone.textContent.trim() || `Tatami ${cIdx + 1}`;
+                    }
+                    const athleteCount = col.querySelector('.tatami-atlet-counter')?.innerText?.trim() || '0';
+                    const cards = Array.from(col.querySelectorAll('.tt-card')).map(card => extractCardData(card));
+
+                    return {
+                        tatamiName,
+                        athleteCount,
+                        cards
+                    };
+                });
+
+                let hasAnyBreak = false;
+                let commonBreakTitle = '🍱 ISHOMA / ISTIRAHAT SIANG';
+
+                cols.forEach(col => {
+                    const b = col.cards.find(c => c.isBreak);
+                    if (b) {
+                        hasAnyBreak = true;
+                        if (b.title && b.title.includes('ISHOMA')) commonBreakTitle = b.title.replace(/[\(\)]/g, '').trim();
+                    }
+                });
+
+                let maxPreRows = 0;
+                let maxPostRows = 0;
+
+                cols.forEach(col => {
+                    let pre = [];
+                    let post = [];
+                    let seq = 1;
+
+                    if (hasAnyBreak) {
+                        const bIdx = col.cards.findIndex(c => c.isBreak);
+                        if (bIdx !== -1) {
+                            pre = col.cards.slice(0, bIdx);
+                            post = col.cards.slice(bIdx + 1);
+                        } else {
+                            const noonIdx = col.cards.findIndex(c => {
+                                if (!c.timeStr) return false;
+                                const m = c.timeStr.match(/(\d{1,2}):(\d{2})/);
+                                if (m) {
+                                    const h = parseInt(m[1], 10);
+                                    return h >= 13 || (h === 12 && parseInt(m[2], 10) >= 30);
+                                }
+                                return false;
+                            });
+                            if (noonIdx !== -1) {
+                                pre = col.cards.slice(0, noonIdx);
+                                post = col.cards.slice(noonIdx);
+                            } else {
+                                pre = col.cards;
+                                post = [];
+                            }
+                        }
+                    } else {
+                        pre = col.cards;
+                        post = [];
+                    }
+
+                    pre.forEach(c => { c.seq = seq++; });
+                    post.forEach(c => { c.seq = seq++; });
+
+                    col.preCards = pre;
+                    col.postCards = post;
+
+                    if (pre.length > maxPreRows) maxPreRows = pre.length;
+                    if (post.length > maxPostRows) maxPostRows = post.length;
+                });
+
+                const dayTotalRows = maxPreRows + (hasAnyBreak ? 1 : 0) + maxPostRows;
+                grandTotalRows += dayTotalRows;
+
+                daysData.push({
+                    dayLabel,
+                    dayDateFormatted,
+                    cols,
+                    hasAnyBreak,
+                    commonBreakTitle,
+                    maxPreRows,
+                    maxPostRows,
+                    dayTotalRows
+                });
+            });
+
+            // Density class based on grandTotalRows across all days
+            let densityClass = 'density-normal';
+            if (grandTotalRows <= 20) densityClass = 'density-spacious';
+            else if (grandTotalRows <= 35) densityClass = 'density-normal';
+            else if (grandTotalRows <= 50) densityClass = 'density-compact';
+            else densityClass = 'density-ultra-compact';
+
+            // Generate Day sections HTML
+            let daySectionsHtml = '';
+            daysData.forEach((day) => {
+                let tableHeaderHtml = '<tr>';
+                day.cols.forEach(col => {
+                    tableHeaderHtml += `
+                        <th style="width: ${100 / day.cols.length}%;">
+                            ${escapeHtml(col.tatamiName)}
+                            <span class="th-sub">(${col.athleteCount})</span>
+                        </th>
+                    `;
+                });
+                tableHeaderHtml += '</tr>';
+
+                let bodyRowsHtml = '';
+                if (day.maxPreRows === 0 && day.maxPostRows === 0) {
+                    bodyRowsHtml += `<tr><td colspan="${day.cols.length}" style="text-align:center; padding:8px; color:#94a3b8; font-style:italic;">Belum ada nomor tanding yang dijadwalkan pada hari ini.</td></tr>`;
+                } else {
+                    // Pre-break rows
+                    for (let r = 0; r < day.maxPreRows; r++) {
+                        bodyRowsHtml += '<tr>';
+                        day.cols.forEach(col => {
+                            const c = col.preCards[r];
+                            bodyRowsHtml += renderMatchCell(c);
+                        });
+                        bodyRowsHtml += '</tr>';
+                    }
+
+                    // ISHOMA Row (Aligned at the exact same row across all tatamis)
+                    if (day.hasAnyBreak) {
+                        bodyRowsHtml += `
+                            <tr class="roster-ishoma-row">
+                                <td colspan="${day.cols.length}" class="roster-ishoma-cell">
+                                    <div class="roster-ishoma-bar">
+                                        <span class="roster-ishoma-icon">🍱</span>
+                                        <span class="roster-ishoma-label">${escapeHtml(day.commonBreakTitle)}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+
+                    // Post-break rows
+                    for (let r = 0; r < day.maxPostRows; r++) {
+                        bodyRowsHtml += '<tr>';
+                        day.cols.forEach(col => {
+                            const c = col.postCards[r];
+                            bodyRowsHtml += renderMatchCell(c);
+                        });
+                        bodyRowsHtml += '</tr>';
+                    }
+                }
+
+                daySectionsHtml += `
+                    <div class="simple-roster-day-section">
+                        <div class="simple-roster-day-bar">
+                            <span class="day-bar-title"><i class="fas fa-calendar-day"></i> ${escapeHtml(day.dayLabel)}</span>
+                            ${day.dayDateFormatted ? `<span class="day-bar-date">${escapeHtml(day.dayDateFormatted)}</span>` : ''}
+                        </div>
+                        <table class="simple-roster-table">
+                            <thead>
+                                ${tableHeaderHtml}
+                            </thead>
+                            <tbody>
+                                ${bodyRowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            const pageHtml = `
+                <div class="simple-roster-page ${densityClass}">
+                    <div class="simple-roster-header">
+                        <div class="simple-roster-kop-left">
+                            ${logosHtml}
+                            <div class="simple-roster-org-info">
+                                <h3 class="simple-roster-org-name">${escapeHtml(kopOrg)}</h3>
+                                ${metaStr ? `<p class="simple-roster-org-meta">${metaStr}</p>` : ''}
+                                <div class="simple-roster-doc-title">ROSTER PERTANDINGAN / RUN SHEET</div>
+                            </div>
+                        </div>
+                        <div class="simple-roster-day-badge-box">
+                            <div class="simple-roster-day-label">${daysData.length > 1 ? `${daysData.length} HARI PERTANDINGAN` : (daysData[0]?.dayLabel || 'JADWAL')}</div>
+                            ${daysData.length === 1 && daysData[0]?.dayDateFormatted ? `<div class="simple-roster-day-date">${escapeHtml(daysData[0].dayDateFormatted)}</div>` : ''}
+                        </div>
+                    </div>
+
+                    ${daySectionsHtml}
+
+                    <div class="simple-roster-footer">
+                        <span class="simple-roster-note"><i class="fas fa-info-circle"></i> Jadwal bersifat estimasi. Atlet & official wajib berada di area pemanasan 30 menit sebelum partai dimulai.</span>
+                        <span class="simple-roster-ts">Dicetak: ${printedTimeStr} &bull; Ambrilindo</span>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = pageHtml;
+        }
+
+        const removeLogoFlag = document.getElementById('kop-remove-logo-flag');
+        const removeLogoBtn = document.getElementById('kop-logo-remove-btn');
+        if (removeLogoBtn) {
+            removeLogoBtn.addEventListener('click', () => {
+                if (removeLogoFlag) removeLogoFlag.value = 'true';
+                const wrap = document.getElementById('kop-logo-current-wrap');
+                if (wrap) wrap.style.display = 'none';
+                const fileIn = document.getElementById('kop-logo-input');
+                if (fileIn) fileIn.value = '';
+            });
+        }
+        document.getElementById('kop-logo-input')?.addEventListener('change', () => {
+            if (removeLogoFlag) removeLogoFlag.value = 'false';
+        });
 
         document.getElementById('kop-surat-save-btn').addEventListener('click', () => {
             const fd = new FormData();
@@ -1931,6 +2666,9 @@
             fd.append('kontak', document.getElementById('kop-kontak-input').value);
             const logo = document.getElementById('kop-logo-input').files[0];
             if (logo) fd.append('logo', logo);
+            if (removeLogoFlag && removeLogoFlag.value === 'true') {
+                fd.append('remove_logo', 'true');
+            }
 
             fetch(KOP_SAVE_URL, {
                 method: 'POST',
@@ -2330,7 +3068,7 @@
                             if (interval && interval.end > lastEnd) lastEnd = interval.end;
                             const ntId = parseInt(card.dataset.ntId, 10);
                             if (ntId) {
-                                const cat = CATEGORIES_META.find(c => c.pk === ntId);
+                                const cat = CATEGORIES_MAP.get(ntId);
                                 if (cat) athCount += cat.atlet_count;
                             } else if (card.dataset.atletCount) {
                                 athCount += parseInt(card.dataset.atletCount, 10);
@@ -2588,10 +3326,10 @@
                 };
             }
 
-            // Run 40 multi-seed trials in memory and select the optimal plan:
+            // Run 12 multi-seed trials in memory and select the optimal plan:
             let bestTrial = null;
             let bestScore = Infinity;
-            const trialCount = 40;
+            const trialCount = 12;
 
             for (let i = 0; i < trialCount; i++) {
                 const trialRes = runTrial(i);

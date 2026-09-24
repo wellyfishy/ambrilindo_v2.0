@@ -338,6 +338,8 @@ def pull_athletes_from_hosted(event_pk):
                     atlet_obj.nik = nik
                 if kode_atlet_val:
                     atlet_obj.kode_atlet = kode_atlet_val
+                if 'is_priority' in a_item:
+                    atlet_obj.is_priority = bool(a_item.get('is_priority', False))
                 atlet_obj.save()
             else:
                 atlet_obj = Atlet.objects.create(
@@ -348,6 +350,7 @@ def pull_athletes_from_hosted(event_pk):
                     utusan=utusan_obj,
                     nik=nik or None,
                     kode_atlet=kode_atlet_val,
+                    is_priority=bool(a_item.get('is_priority', False)),
                 )
                 created = True
 
@@ -459,10 +462,12 @@ def push_bagan_to_hosted(event_pk, bagan_pks=None):
                 'atlet1_kode': kode1,
                 'atlet1_perguruan': perguruan1,
                 'atlet1_utusan': utusan1,
+                'atlet1_is_priority': bool(getattr(db.atlet1, 'is_priority', False)) if db.atlet1 else False,
                 'atlet2_nama': nama2,
                 'atlet2_kode': kode2,
                 'atlet2_perguruan': perguruan2,
                 'atlet2_utusan': utusan2,
+                'atlet2_is_priority': bool(getattr(db.atlet2, 'is_priority', False)) if db.atlet2 else False,
                 'kode_realtime': get_kode_realtime(db),
                 'score1': db.score1,
                 'score2': db.score2,

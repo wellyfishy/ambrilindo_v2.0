@@ -187,16 +187,24 @@
                         <tr id="atlet-row-{{ atlet.pk }}" 
                             data-kategori="{{ atlet.kategori_tipe|lower }}"
                             data-has-nik="{% if atlet.nik %}1{% else %}0{% endif %}"
-                            data-search="{{ atlet.nama_atlet }} {{ atlet.nik|default:'' }} {{ atlet.perguruan.nama_perguruan|default:'' }} {{ atlet.utusan.nama_utusan|default:'' }} {{ atlet.nomor_tanding.nama_nomor_tanding|default:'' }}"
+                            data-search="{{ atlet.nama_atlet }} {{ atlet.nik|default:'' }} {{ atlet.additional_code|default:'' }} {{ atlet.perguruan.nama_perguruan|default:'' }} {{ atlet.utusan.nama_utusan|default:'' }} {{ atlet.nomor_tanding.nama_nomor_tanding|default:'' }}"
                             style="border-bottom: 1px solid var(--border-color);">
                             <td style="text-align: center; color: var(--text-muted);">{{ forloop.counter }}</td>
                             <td>
-                                <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
                                     <b class="atlet-nama-display text-white" style="font-size: 13.5px;">{{ atlet.nama_atlet }}</b>
+                                    {% if atlet.is_priority %}
+                                        <span class="badge bg-success text-white atlet-priority-badge" style="font-size: 10px;" title="Prioritas Bagan (Otomatis Mendapat Slot BYE)"><i class="fas fa-star me-1"></i>Prioritas BYE</span>
+                                    {% endif %}
                                     {% if atlet.kategori_tipe == 'BOB' %}
                                         <span class="badge bg-danger" style="font-size: 10px;">BOB</span>
                                     {% endif %}
                                 </div>
+                                {% if atlet.additional_code %}
+                                    <div class="text-muted small atlet-additional-code-display mt-1" style="font-size: 11px;">
+                                        <i class="fas fa-id-badge me-1 text-secondary"></i>KTA: <span class="font-monospace text-light">{{ atlet.additional_code }}</span>
+                                    </div>
+                                {% endif %}
                             </td>
                             <td style="text-align: center;">
                                 {% if atlet.nik %}
@@ -253,6 +261,8 @@
                                         data-atlet-id="{{ atlet.pk }}"
                                         data-nama="{{ atlet.nama_atlet }}"
                                         data-nik="{{ atlet.nik|default:'' }}"
+                                        data-additional-code="{{ atlet.additional_code|default:'' }}"
+                                        data-is-priority="{% if atlet.is_priority %}1{% else %}0{% endif %}"
                                         data-perguruan-id="{{ atlet.perguruan.pk|default:'' }}"
                                         data-utusan-id="{{ atlet.utusan.pk|default:'' }}"
                                         data-nomor-tanding-id="{{ atlet.nomor_tanding.pk|default:'' }}"
@@ -302,6 +312,17 @@
                         <div class="form-group mb-3">
                             <label for="nik" class="form-label text-white">NIK (16 Digit):</label>
                             <input type="text" class="form-control" id="nik" name="nik" maxlength="16" inputmode="numeric" placeholder="Contoh: 3201010101010001">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="additional_code" class="form-label text-white">No. KTA / Kode Tambahan:</label>
+                            <input type="text" class="form-control" id="additional_code" name="additional_code" placeholder="Contoh: IKS1521500065">
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="is_priority" name="is_priority" value="true">
+                            <label class="form-check-label text-white" for="is_priority">
+                                Prioritas Bagan (Otomatis dapat slot BYE)
+                            </label>
+                            <small class="form-text text-muted d-block" style="font-size: 11px;">Jika dicentang, atlet ini akan diutamakan menempati posisi BYE pada drawing bagan pertandingan.</small>
                         </div>
                         <div class="form-group mb-3">
                             <label for="perguruan" class="form-label text-white">Perguruan:</label>
@@ -358,18 +379,24 @@
                             <input type="file" class="form-control" id="excel_atlet" name="excel_atlet" accept=".xls,.xlsx,.csv" required>
                             <div class="mt-2 p-3 rounded" style="background: rgba(255,255,255,0.05); font-size: 12.5px; border: 1px solid var(--border-color);">
                                 <b class="text-white">Format Kolom yang Didukung:</b>
-                                <ul class="mb-1 ps-3 mt-1 text-muted" style="font-size: 12px;">
-                                    <li><b>5 Kolom:</b> Nama Atlet | NIK | Perguruan | Utusan | Nomor Tanding</li>
-                                    <li><b>4 Kolom:</b> Nama Atlet | Perguruan | Utusan | Nomor Tanding</li>
+                                <ul class="mb-2 ps-3 mt-1 text-muted" style="font-size: 12px;">
+                                    <li><b class="text-light">6 Kolom (KTA &amp; Prioritas):</b> NO. KTA AKTIF | NAMA LENGKAP | PERGURUAN | CABANG | KELAS TANDING | KET (1 = Prioritas BYE)</li>
+                                    <li><b class="text-light">5 Kolom (Standar NIK):</b> Nama Atlet | NIK | Perguruan | Utusan | Nomor Tanding</li>
+                                    <li><b class="text-light">4 Kolom:</b> Nama Atlet | Perguruan | Utusan | Nomor Tanding</li>
                                 </ul>
-                                <span class="text-white-50 small"><i class="fas fa-info-circle me-1"></i>Baris pertama (header) akan otomatis dilewati. Perguruan &amp; Utusan baru akan otomatis didaftarkan.</span>
+                                <span class="text-white-50 small"><i class="fas fa-info-circle me-1"></i>Baris pertama (header) otomatis dikenali. Perguruan &amp; Cabang/Utusan baru otomatis didaftarkan (logo default INKANAS disematkan otomatis).</span>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-between" style="border-top: 1px solid var(--border-color);">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="downloadTemplateCsv()">
-                            <i class="fas fa-download me-1"></i> Unduh Contoh
-                        </button>
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="downloadTemplateCsv()">
+                                <i class="fas fa-download me-1"></i> Format NIK
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="downloadTemplateKtaCsv()">
+                                <i class="fas fa-download me-1"></i> Format KTA
+                            </button>
+                        </div>
                         <div>
                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" name="submit_type" value="import_atlet" class="btn btn-success btn-sm font-weight-bold">
@@ -402,6 +429,17 @@
                         <div class="form-group mb-3">
                             <label for="edit-nik" class="form-label text-white">NIK (16 Digit):</label>
                             <input type="text" class="form-control" id="edit-nik" name="nik" maxlength="16" inputmode="numeric">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="edit-additional-code" class="form-label text-white">No. KTA / Kode Tambahan:</label>
+                            <input type="text" class="form-control" id="edit-additional-code" name="additional_code" placeholder="Contoh: IKS1521500065">
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="edit-is-priority" name="is_priority" value="true">
+                            <label class="form-check-label text-white" for="edit-is-priority">
+                                Prioritas Bagan (Otomatis dapat slot BYE)
+                            </label>
+                            <small class="form-text text-muted d-block" style="font-size: 11px;">Jika dicentang, atlet ini akan diutamakan menempati posisi BYE pada drawing bagan pertandingan.</small>
                         </div>
                         <div class="form-group mb-3">
                             <label for="edit-perguruan" class="form-label text-white">Perguruan:</label>
@@ -496,6 +534,17 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.removeChild(link);
     };
 
+    window.downloadTemplateKtaCsv = function() {
+        const csvContent = "data:text/csv;charset=utf-8,NO. KTA AKTIF,NAMA LENGKAP,PERGURUAN,CABANG,KELAS TANDING,KET\nIKS1543300780,TEAM RAYYAN,INKANAS,SAMARINDA,KATA BEREGU PUTRA PEMULA,1\nIKS1501900285,TEAM FAISAL,INKANAS,BALIKPAPAN,KATA BEREGU PUTRA PEMULA,-\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "template_import_atlet_inkanas_kta.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const templateBtn = document.getElementById('downloadTemplateBtn');
     if (templateBtn) {
         templateBtn.addEventListener('click', downloadTemplateCsv);
@@ -507,11 +556,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const atletId = btn.dataset.atletId;
             document.getElementById('edit-atlet-id').value = atletId;
             document.getElementById('edit-nama-atlet').value = btn.dataset.nama || '';
+            document.getElementById('edit-nik').value = btn.dataset.nik || '';
+            document.getElementById('edit-additional-code').value = btn.dataset.additionalCode || '';
+            document.getElementById('edit-is-priority').checked = btn.dataset.isPriority === '1';
             document.getElementById('edit-perguruan').value = btn.dataset.perguruanId || '';
             document.getElementById('edit-utusan').value = btn.dataset.utusanId || '';
             document.getElementById('edit-nomor-tanding').value = btn.dataset.nomorTandingId || '';
             document.getElementById('edit-atlet-error').style.display = 'none';
-            document.getElementById('edit-nik').value = btn.dataset.nik || '';
         });
     });
 
@@ -556,6 +607,36 @@ document.addEventListener('DOMContentLoaded', function () {
                     const row = document.getElementById(`atlet-row-${data.atlet_id}`);
                     if (row) {
                         row.querySelector('.atlet-nama-display').textContent = data.nama_atlet;
+
+                        // Update Priority Badge
+                        let prioBadge = row.querySelector('.atlet-priority-badge');
+                        if (data.is_priority) {
+                            if (!prioBadge) {
+                                prioBadge = document.createElement('span');
+                                prioBadge.className = 'badge bg-success text-white atlet-priority-badge';
+                                prioBadge.style.fontSize = '10px';
+                                prioBadge.title = 'Prioritas Bagan (Otomatis Mendapat Slot BYE)';
+                                prioBadge.innerHTML = '<i class="fas fa-star me-1"></i>Prioritas BYE';
+                                row.querySelector('.atlet-nama-display').insertAdjacentElement('afterend', prioBadge);
+                            }
+                        } else if (prioBadge) {
+                            prioBadge.remove();
+                        }
+
+                        // Update Additional Code / KTA
+                        let ktaDisplay = row.querySelector('.atlet-additional-code-display');
+                        if (data.additional_code) {
+                            if (!ktaDisplay) {
+                                ktaDisplay = document.createElement('div');
+                                ktaDisplay.className = 'text-muted small atlet-additional-code-display mt-1';
+                                ktaDisplay.style.fontSize = '11px';
+                                row.querySelector('td:nth-child(2)').appendChild(ktaDisplay);
+                            }
+                            ktaDisplay.innerHTML = `<i class="fas fa-id-badge me-1 text-secondary"></i>KTA: <span class="font-monospace text-light">${data.additional_code}</span>`;
+                        } else if (ktaDisplay) {
+                            ktaDisplay.remove();
+                        }
+
                         const nikDisplay = row.querySelector('.atlet-nik-display');
                         if (nikDisplay) {
                             if (data.nik) {
@@ -576,6 +657,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (editBtn) {
                             editBtn.dataset.nama = data.nama_atlet;
                             editBtn.dataset.nik = data.nik || '';
+                            editBtn.dataset.additionalCode = data.additional_code || '';
+                            editBtn.dataset.isPriority = data.is_priority ? '1' : '0';
                             editBtn.dataset.perguruanId = data.perguruan_id || '';
                             editBtn.dataset.utusanId = data.utusan_id || '';
                             editBtn.dataset.nomorTandingId = data.nomor_tanding_id || '';
@@ -587,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
 
                         // Refresh search index on the updated row
-                        row.dataset.search = `${data.nama_atlet} ${data.nik || ''} ${data.perguruan_nama || ''} ${data.utusan_nama || ''} ${data.nomor_tanding_nama || ''}`;
+                        row.dataset.search = `${data.nama_atlet} ${data.nik || ''} ${data.additional_code || ''} ${data.perguruan_nama || ''} ${data.utusan_nama || ''} ${data.nomor_tanding_nama || ''}`;
                     }
 
                     const modalEl = document.getElementById('editAtletModal');

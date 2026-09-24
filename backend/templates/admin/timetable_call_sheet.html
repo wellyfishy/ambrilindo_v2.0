@@ -221,9 +221,12 @@
 
     <!-- Header Letterhead -->
     <div class="header-bar">
-      {% if kop_surat.logo %}
-      <img src="{{ kop_surat.logo.url }}" alt="Logo" class="header-logo">
-      {% endif %}
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="{% static 'img/ambrilindo-logo.png' %}" alt="Ambrilindo" class="header-logo">
+        {% if kop_surat.logo %}
+        <img src="{{ kop_surat.logo.url }}" alt="Logo" class="header-logo">
+        {% endif %}
+      </div>
       <div class="header-info">
         <h2 class="header-org">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h2>
         {% if kop_surat.alamat %}<p class="header-sub">{{ kop_surat.alamat }}</p>{% endif %}

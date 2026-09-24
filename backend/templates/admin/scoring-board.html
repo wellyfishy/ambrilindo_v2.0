@@ -77,9 +77,7 @@
     }
 
     .top-bar-left {
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
+      display: none;
     }
 
     .tatami-badge {
@@ -87,13 +85,14 @@
       color: #000000;
       font-family: var(--font-condensed);
       font-weight: 900;
-      font-size: clamp(16px, 1.6vw, 24px);
-      letter-spacing: 0.08em;
-      padding: 5px 16px;
-      border-radius: 6px;
+      font-size: clamp(30px, 3.6vw, 56px);
+      letter-spacing: 0.1em;
+      padding: 10px 32px;
+      border-radius: 14px;
       white-space: nowrap;
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 32px rgba(245, 158, 11, 0.75), inset 0 2px 0 rgba(255, 255, 255, 0.5);
       text-transform: uppercase;
+      line-height: 1;
     }
 
     /* Scrolling Marquee Ticker */
@@ -237,22 +236,24 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: clamp(105px, 11vw, 175px);
-      height: clamp(78px, 9vw, 132px);
-      background: rgba(0, 0, 0, 0.45);
-      border: 2px solid var(--card-border);
-      border-radius: 14px;
+      width: clamp(140px, 14.5vw, 240px);
+      height: clamp(96px, 13vh, 175px);
+      background: rgba(0, 0, 0, 0.5);
+      border: 2.5px solid var(--card-border);
+      border-radius: 16px;
       padding: 6px;
       flex-shrink: 0;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.4), inset 0 0 15px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.55), inset 0 0 20px rgba(0,0,0,0.35);
     }
 
     .flag-img {
       max-width: 100%;
       max-height: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      border-radius: 8px;
-      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5));
+      border-radius: 10px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
     }
 
     .player-details {
@@ -294,18 +295,19 @@
 
     .player-kata-title {
       font-family: var(--font-condensed);
-      font-size: clamp(16px, 1.8vw, 28px);
-      font-weight: 800;
+      font-size: clamp(24px, 3.2vw, 48px);
+      font-weight: 850;
       color: var(--gold-bright);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      line-height: 1.2;
+      line-height: 1.15;
       display: flex;
       align-items: center;
       gap: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
+      text-shadow: 0 0 16px rgba(251, 191, 36, 0.65), 0 3px 12px rgba(0,0,0,0.85);
     }
 
     .player-right-slot {
@@ -421,15 +423,16 @@
       text-shadow: 0 0 25px rgba(245, 158, 11, 0.7);
     }
 
-    /* Criteria / Penalty Row */
+    /* Criteria / Penalty Row (Way Bigger & Bold Broadcast Visibility) */
     .criteria-bar {
       display: flex;
       align-items: center;
       justify-content: space-around;
-      background: rgba(0, 0, 0, 0.55);
-      border-top: 1px solid var(--card-border);
-      height: clamp(36px, 4.4vh, 50px);
-      padding: 0 12px;
+      background: rgba(0, 0, 0, 0.65);
+      border-top: 2px solid var(--card-border);
+      height: clamp(54px, 6.8vh, 80px);
+      padding: 6px 16px;
+      gap: 10px;
     }
 
     .criteria-bar.deactivate {
@@ -441,16 +444,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 80%;
-      margin: 0 6px;
-      border-radius: 7px;
+      height: 100%;
+      border-radius: 10px;
       font-family: var(--font-condensed);
-      font-size: clamp(13px, 1.45vw, 23px);
+      font-size: clamp(20px, 2.4vw, 40px);
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.35);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      color: rgba(255, 255, 255, 0.38);
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.12);
       letter-spacing: 0.08em;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -458,16 +461,18 @@
       background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
       color: #ffffff !important;
       border-color: #fca5a5 !important;
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+      box-shadow: 0 0 26px rgba(239, 68, 68, 0.95), inset 0 2px 0 rgba(255, 255, 255, 0.5) !important;
       transform: scale(1.04);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
     }
 
     .criteria-pill.active-blue {
       background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
       color: #ffffff !important;
       border-color: #93c5fd !important;
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+      box-shadow: 0 0 26px rgba(59, 130, 246, 0.95), inset 0 2px 0 rgba(255, 255, 255, 0.5) !important;
       transform: scale(1.04);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
     }
 
     /* Bottom Digital Timer & Branding Bar */
@@ -487,7 +492,8 @@
     .bottom-info-slot {
       display: flex;
       align-items: center;
-      width: clamp(220px, 20vw, 360px);
+      justify-content: flex-start;
+      width: clamp(280px, 28vw, 480px);
       flex-shrink: 0;
     }
 
@@ -568,17 +574,17 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      width: clamp(220px, 20vw, 360px);
+      width: clamp(280px, 28vw, 480px);
       flex-shrink: 0;
     }
 
     .sponsor-logo {
-      height: clamp(80px, 12.5vh, 140px);
-      max-height: 88%;
+      height: clamp(100px, 15vh, 175px);
+      max-height: 95%;
       max-width: 100%;
       width: auto;
       object-fit: contain;
-      filter: drop-shadow(0 0 18px rgba(255,255,255,0.5)) drop-shadow(0 4px 20px rgba(0,0,0,0.9));
+      filter: drop-shadow(0 0 22px rgba(255,255,255,0.65)) drop-shadow(0 4px 24px rgba(0,0,0,0.95));
     }
 
     /* FULLSCREEN OVERLAY BANNERS (Covers entire board down to top of timer footer) */
@@ -631,6 +637,166 @@
     .fullscreen-banner.ao {
       background: radial-gradient(circle at center, #2563eb 0%, #1e40af 75%, #1e3a8a 100%);
       border-bottom: 4px solid #93c5fd;
+    }
+
+    /* Countdown 35s & Prep Overlay Banner */
+    .countdown-overlay-banner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: clamp(16px, 2.5vh, 36px) 30px;
+      position: relative;
+    }
+
+    .countdown-overlay-banner.aka {
+      background: radial-gradient(circle at center, #dc2626 0%, #991b1b 65%, #450a0a 100%) !important;
+      border-bottom: 4px solid #ef4444;
+      box-shadow: inset 0 0 160px rgba(0,0,0,0.8), 0 0 50px rgba(220, 38, 38, 0.4);
+    }
+
+    .countdown-overlay-banner.ao {
+      background: radial-gradient(circle at center, #2563eb 0%, #1e40af 65%, #0f172a 100%) !important;
+      border-bottom: 4px solid #3b82f6;
+      box-shadow: inset 0 0 160px rgba(0,0,0,0.8), 0 0 50px rgba(37, 99, 235, 0.4);
+    }
+
+    .cd-eyebrow {
+      font-family: var(--font-condensed);
+      font-size: clamp(20px, 2.3vw, 36px);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fbbf24;
+      text-shadow: 0 0 18px rgba(251, 191, 36, 0.65);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cd-competitor-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 6px 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .cd-side-badge {
+      font-family: var(--font-condensed);
+      font-size: clamp(18px, 2vw, 30px);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      border-radius: 8px;
+      padding: 3px 16px;
+      text-transform: uppercase;
+    }
+
+    .cd-side-badge.aka {
+      background: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
+    }
+
+    .cd-side-badge.ao {
+      background: #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(59, 130, 246, 0.6);
+    }
+
+    .cd-athlete-name {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3vw, 50px);
+      font-weight: 850;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.85);
+      max-width: 60vw;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cd-timer-digits-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cd-timer-digits {
+      font-family: var(--font-score) !important;
+      font-size: clamp(110px, 17vw, 240px) !important;
+      font-weight: 800 !important;
+      line-height: 0.92 !important;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      text-shadow: 0 0 40px rgba(255, 255, 255, 0.8), 0 8px 30px rgba(0, 0, 0, 0.95);
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .cd-timer-colon {
+      opacity: 0.8;
+      font-size: 85%;
+    }
+
+    .cd-progress-track {
+      width: clamp(340px, 55vw, 840px);
+      height: clamp(10px, 1.4vh, 16px);
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      margin-top: 14px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    .cd-progress-bar {
+      height: 100%;
+      width: 100%;
+      border-radius: 20px;
+      transition: width 0.03s linear;
+    }
+
+    .cd-progress-bar.aka {
+      background: linear-gradient(90deg, #fca5a5 0%, #ef4444 100%);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+    }
+
+    .cd-progress-bar.ao {
+      background: linear-gradient(90deg, #93c5fd 0%, #3b82f6 100%);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.8);
+    }
+
+    .cd-status-subtext {
+      font-family: var(--font-condensed);
+      font-size: clamp(16px, 1.6vw, 26px);
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: #f1f5f9;
+      text-transform: uppercase;
+      margin-top: 12px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      transition: color 0.2s ease;
+    }
+
+    .cd-status-subtext.time-up-alert {
+      color: #f87171 !important;
+      font-size: clamp(22px, 2.2vw, 36px) !important;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.9) !important;
+      animation: cdAlertBlink 0.6s infinite alternate;
+    }
+
+    @keyframes cdAlertBlink {
+      0% { opacity: 0.7; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
     }
 
     /* Arena-Scale Banner Titles */
@@ -1177,50 +1343,210 @@
       }
     }
 
-    /* Kata 5-Judge Scoring Display */
+    /* Kata 5-Judge Scoring Display (Non-overlapping Overlay with Highlight & Mute) */
     #kata-score-wrap {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: calc((100vh - clamp(120px, 16.5vh, 185px) + clamp(46px, 5.8vh, 58px)) / 2);
+      left: calc(50% - 3.5vw);
       transform: translate(-50%, -50%);
       z-index: 100;
-      background: rgba(10, 15, 26, 0.97);
-      border: 3px solid var(--gold);
-      border-radius: 18px;
-      padding: 24px 36px;
-      box-shadow: 0 16px 60px rgba(0,0,0,0.85), 0 0 35px rgba(245, 158, 11, 0.35);
-      max-width: 92vw;
+      background: rgba(10, 15, 26, 0.98);
+      border: 4px solid var(--gold);
+      border-radius: 28px;
+      padding: clamp(18px, 2.2vh, 28px) clamp(24px, 2.2vw, 36px);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 45px rgba(245, 158, 11, 0.45);
+      width: clamp(740px, 63vw, 1140px);
+      max-width: calc(100vw - clamp(180px, 20vw, 320px));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .kata-overlay-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .kata-overlay-title {
+      font-family: var(--font-condensed);
+      font-size: clamp(22px, 2.2vw, 32px);
+      font-weight: 900;
+      color: var(--gold-bright);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.55);
+    }
+
+    .kata-overlay-subtitle {
+      font-family: var(--font-condensed);
+      font-size: clamp(14px, 1.4vw, 20px);
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 0.1em;
     }
 
     .kata-table {
       border-collapse: separate;
-      border-spacing: 12px;
+      border-spacing: clamp(8px, 1vw, 16px);
+      width: 100%;
+    }
+
+    .kata-header-row th {
+      text-align: center;
+      vertical-align: middle;
+      font-family: var(--font-condensed);
+      font-size: clamp(24px, 2.4vw, 36px);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #cbd5e1;
+      padding-bottom: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .kata-header-row th.judge-pop {
+      color: var(--gold-bright) !important;
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.7);
+    }
+
+    .kata-side-label {
+      width: clamp(82px, 8vw, 126px);
+      text-align: center;
+      vertical-align: middle;
+      font-family: var(--font-condensed);
+      font-size: clamp(28px, 2.8vw, 42px);
+      font-weight: 900;
+      border-radius: 18px;
+      letter-spacing: 0.08em;
+    }
+
+    .kata-side-label.aka {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(185, 28, 28, 0.6));
+      border: 2.5px solid #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.45);
+    }
+
+    .kata-side-label.ao {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(29, 78, 216, 0.6));
+      border: 2.5px solid #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(59, 130, 246, 0.45);
     }
 
     .kata-table td.score {
-      width: clamp(80px, 8.5vw, 140px);
-      height: clamp(70px, 7.5vw, 115px);
+      width: clamp(96px, 9.5vw, 155px);
+      height: clamp(80px, 10.5vh, 122px);
       text-align: center;
       vertical-align: middle;
       font-family: var(--font-score);
-      font-size: clamp(38px, 4.5vw, 70px);
-      font-weight: 700;
-      border-radius: 12px;
+      font-size: clamp(60px, 6.6vw, 98px);
+      font-weight: 800;
+      border-radius: 18px;
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1.5px solid rgba(255, 255, 255, 0.18);
-      transition: all 0.3s ease;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+      background: rgba(255, 255, 255, 0.07);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
     }
 
     .kata-table tr.aka td.score {
-      border-color: rgba(239, 68, 68, 0.6);
+      border-color: rgba(239, 68, 68, 0.5);
       background: rgba(220, 38, 38, 0.15);
+      color: #fca5a5;
     }
 
     .kata-table tr.ao td.score {
-      border-color: rgba(59, 130, 246, 0.6);
+      border-color: rgba(59, 130, 246, 0.5);
       background: rgba(37, 99, 235, 0.15);
+      color: #93c5fd;
+    }
+
+    /* Highlighted score cell (Highest score per judge) */
+    .kata-table td.score.highlight-aka {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+      border: 3px solid #fecaca !important;
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      box-shadow: 0 0 28px rgba(239, 68, 68, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+      transform: scale(1.06) !important;
+      opacity: 1 !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+      position: relative;
+      z-index: 5;
+    }
+
+    .kata-table td.score.highlight-ao {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+      border: 3px solid #bfdbfe !important;
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      box-shadow: 0 0 28px rgba(59, 130, 246, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+      transform: scale(1.06) !important;
+      opacity: 1 !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Muted score cell (Lower score per judge) */
+    .kata-table td.score.muted-score {
+      background: rgba(15, 23, 42, 0.55) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+      color: #64748b !important;
+      opacity: 0.3 !important;
+      box-shadow: none !important;
+      transform: scale(0.94) !important;
+      text-shadow: none !important;
+      filter: grayscale(85%);
+    }
+
+    /* Kata Overlay Modal Entrance */
+    .modal-pop-in {
+      animation: kataModalEntrance 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes kataModalEntrance {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.92);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    /* Judge Column Sequential Pop-up Animation */
+    .judge-col {
+      transition: opacity 0.15s ease;
+    }
+
+    .judge-col.judge-pop {
+      animation: judgePopAnim 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes judgePopAnim {
+      0% {
+        opacity: 0;
+        transform: scale(0.2) translateY(28px);
+        filter: brightness(2);
+      }
+      60% {
+        opacity: 1;
+        transform: scale(1.18) translateY(-6px);
+        filter: brightness(1.25);
+      }
+      82% {
+        transform: scale(0.96) translateY(2px);
+      }
+      100% {
+        opacity: 1;
+        transform: none;
+        filter: none;
+      }
     }
 
     /* CINEMATIC BROADCAST MATCH RELOAD TRANSITION */
@@ -1354,21 +1680,13 @@
   <div class="container">
     <!-- Top Arena Status Bar with Scrolling Marquee -->
     <div class="top-bar">
-      <div class="top-bar-left">
-        <span class="tatami-badge">TATAMI {{ tatami.tatami_number }}</span>
-      </div>
       <div class="top-bar-marquee-wrap">
         <marquee behavior="scroll" direction="left" scrollamount="12" class="arena-marquee">
           <span class="marquee-bullet">★</span>
-          <span id="marquee-text">-</span>
+          <span id="marquee-text">{{ initial_marquee_text|default:"-" }}</span>
           <span class="marquee-bullet">★</span>
           <span class="marquee-event-title">{{ tatami.event.nama_event }}</span>
         </marquee>
-      </div>
-      <div class="top-bar-right">
-        <button type="button" class="audio-unlock-pill" id="audio-unlock-btn" onclick="unlockAudio()">
-          🔊 Audio
-        </button>
       </div>
     </div>
 
@@ -1377,7 +1695,7 @@
       <div class="player-body">
         <div class="player-side-badge aka">AKA</div>
         <div class="flag-container">
-          <img id="atlet_red_logo" class="flag-img" src="{% if atlet_merah and atlet_merah.utusan and atlet_merah.utusan.logo %}{{ atlet_merah.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo">
+          <img id="atlet_red_logo" class="flag-img" src="{% if atlet_merah and atlet_merah.utusan and atlet_merah.utusan.logo %}{{ atlet_merah.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo" onerror="this.onerror=null; this.src=defaultFlagSrc;">
         </div>
         <div class="player-details">
           <div class="player-name" id="atlet_red_name">{{ atlet_merah.nama_atlet|default:"-" }}</div>
@@ -1411,7 +1729,7 @@
       <div class="player-body">
         <div class="player-side-badge ao">AO</div>
         <div class="flag-container">
-          <img id="atlet_blue_logo" class="flag-img" src="{% if atlet_biru and atlet_biru.utusan and atlet_biru.utusan.logo %}{{ atlet_biru.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo">
+          <img id="atlet_blue_logo" class="flag-img" src="{% if atlet_biru and atlet_biru.utusan and atlet_biru.utusan.logo %}{{ atlet_biru.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo" onerror="this.onerror=null; this.src=defaultFlagSrc;">
         </div>
         <div class="player-details">
           <div class="player-name" id="atlet_blue_name">{{ atlet_biru.nama_atlet|default:"-" }}</div>
@@ -1440,29 +1758,49 @@
       </div>
     </div>
 
-    <!-- Kata 5-Judge Scoreboard Table Overlay -->
+    <!-- Kata 5-Judge Scoreboard Table Overlay (Way Bigger Container) -->
     <div id="kata-score-wrap" style="display: none;">
+      <div class="kata-overlay-header">
+        <span class="kata-overlay-title"><i class="fas fa-gavel me-2"></i>PENILAIAN JURI KATA</span>
+        <span class="kata-overlay-subtitle">5 JUDGES SCORING</span>
+      </div>
       <table class="kata-table">
-        <tr class="kata-row aka">
-          <td class="score" id="j1-score-aka">0.0</td>
-          <td class="score" id="j2-score-aka">0.0</td>
-          <td class="score" id="j3-score-aka">0.0</td>
-          <td class="score" id="j4-score-aka">0.0</td>
-          <td class="score" id="j5-score-aka">0.0</td>
-        </tr>
-        <tr class="kata-row ao">
-          <td class="score" id="j1-score-ao">0.0</td>
-          <td class="score" id="j2-score-ao">0.0</td>
-          <td class="score" id="j3-score-ao">0.0</td>
-          <td class="score" id="j4-score-ao">0.0</td>
-          <td class="score" id="j5-score-ao">0.0</td>
-        </tr>
+        <thead>
+          <tr class="kata-header-row">
+            <th class="kata-corner-th"></th>
+            <th class="kata-judge-th judge-col judge-col-1">J1</th>
+            <th class="kata-judge-th judge-col judge-col-2">J2</th>
+            <th class="kata-judge-th judge-col judge-col-3">J3</th>
+            <th class="kata-judge-th judge-col judge-col-4">J4</th>
+            <th class="kata-judge-th judge-col judge-col-5">J5</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="kata-row aka">
+            <td class="kata-side-label aka">AKA</td>
+            <td class="score judge-col judge-col-1" id="j1-score-aka">0.0</td>
+            <td class="score judge-col judge-col-2" id="j2-score-aka">0.0</td>
+            <td class="score judge-col judge-col-3" id="j3-score-aka">0.0</td>
+            <td class="score judge-col judge-col-4" id="j4-score-aka">0.0</td>
+            <td class="score judge-col judge-col-5" id="j5-score-aka">0.0</td>
+          </tr>
+          <tr class="kata-row ao">
+            <td class="kata-side-label ao">AO</td>
+            <td class="score judge-col judge-col-1" id="j1-score-ao">0.0</td>
+            <td class="score judge-col judge-col-2" id="j2-score-ao">0.0</td>
+            <td class="score judge-col judge-col-3" id="j3-score-ao">0.0</td>
+            <td class="score judge-col judge-col-4" id="j4-score-ao">0.0</td>
+            <td class="score judge-col judge-col-5" id="j5-score-ao">0.0</td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
     <!-- Bottom Digital Match Timer & Brand Bar -->
     <div class="bottom-bar">
-      <div class="bottom-info-slot"></div>
+      <div class="bottom-info-slot">
+        <span class="tatami-badge" id="tatami-badge-display">TATAMI {{ tatami.tatami_number }}</span>
+      </div>
       <div class="timer-display-wrap">
         <div class="digital-timer" id="timer">
           <span id="minutes" class="timer-segment">00</span><span class="timer-colon">:</span><span id="seconds" class="timer-segment">00</span><span class="timer-dot">.</span><span class="timer-segment ms-digits" id="milliseconds">00</span>
@@ -1476,14 +1814,14 @@
 
   <!-- Fullscreen Banner Wrappers (76vh Height) -->
   <div class="fullscreen-banner-wrap" id="banner-wrap" style="display: none;">
-    <div class="fullscreen-banner ao" id="banner-2" style="display: none;">
+    <div class="fullscreen-banner ao" id="banner-2" style="display: none; order: 1;">
       <h1>
         <span id="point-1-2" class="banner-point-title">NULL</span>
         <span id="point-2-2" class="banner-point-subtitle">0 - POINT</span>
       </h1>
       <div id="ao-judges-container" class="judges-container"></div>
     </div>
-    <div class="fullscreen-banner aka" id="banner" style="display: none;">
+    <div class="fullscreen-banner aka" id="banner" style="display: none; order: 2;">
       <h1>
         <span id="point-1" class="banner-point-title">NULL</span>
         <span id="point-2" class="banner-point-subtitle">0 - POINT</span>
@@ -1503,10 +1841,23 @@
   </div>
 
   <div class="fullscreen-banner-wrap" id="countdown-wrap" style="display: none;">
-    <div class="fullscreen-banner" id="countdown-banner" style="display: none;">
-      <h1 style="font-size: clamp(80px, 14vw, 190px); font-family: var(--font-score); font-weight: 700;">
-        <span id="cd-seconds">00</span>.<span id="cd-milliseconds" style="font-size: 55%;">00</span>
-      </h1>
+    <div class="fullscreen-banner countdown-overlay-banner" id="countdown-banner" style="display: none;">
+      <div class="cd-eyebrow" id="cd-eyebrow">
+        <i class="fas fa-stopwatch"></i><span id="cd-title">WAKTU PERSIAPAN • 35 DETIK</span>
+      </div>
+      <div class="cd-competitor-card" id="cd-competitor-card">
+        <span class="cd-side-badge aka" id="cd-side-badge">AKA (MERAH)</span>
+        <span class="cd-athlete-name" id="cd-athlete-name">-</span>
+      </div>
+      <div class="cd-timer-digits-box">
+        <h1 class="cd-timer-digits">
+          <span id="cd-seconds">35</span><span class="cd-timer-colon">.</span><span id="cd-milliseconds" style="font-size: 55%;">00</span>
+        </h1>
+      </div>
+      <div class="cd-progress-track">
+        <div class="cd-progress-bar aka" id="cd-progress-bar"></div>
+      </div>
+      <div class="cd-status-subtext" id="cd-status-subtext">MOHON SEGERA MEMASUKI MATRAS</div>
     </div>
   </div>
 
@@ -1750,8 +2101,14 @@
   <div id="ws-indicator" title="Status Jaringan"></div>
 
   <!-- Audio Resources -->
-  <audio id="warning" src="{% static 'audio/warning.mp3' %}" preload="auto"></audio>
-  <audio id="finish" src="{% static 'audio/finish.mp3' %}" preload="auto"></audio>
+  <audio id="warning" preload="auto">
+    <source src="{% static 'sound/warning.mp3' %}" type="audio/mpeg">
+    <source src="{% static 'audio/warning.mp3' %}" type="audio/mpeg">
+  </audio>
+  <audio id="finish" preload="auto">
+    <source src="{% static 'sound/finish.mp3' %}" type="audio/mpeg">
+    <source src="{% static 'audio/finish.mp3' %}" type="audio/mpeg">
+  </audio>
 
   <!-- jQuery -->
   <script src="{% static 'js/core/jquery-3.7.1.min.js' %}"></script>
@@ -1764,20 +2121,63 @@
     const warning = document.getElementById('warning');
     const finish = document.getElementById('finish');
 
-    function unlockAudio() {
-      if (warning) {
-        warning.play().then(() => { warning.pause(); warning.currentTime = 0; }).catch(() => {});
-      }
-      if (finish) {
-        finish.play().then(() => { finish.pause(); finish.currentTime = 0; }).catch(() => {});
-      }
-      const btn = document.getElementById('audio-unlock-btn');
-      if (btn) {
-        btn.style.background = '#10b981';
-        btn.innerText = '✓ Audio Aktif';
-        setTimeout(() => { btn.style.display = 'none'; }, 2000);
-      }
+    function safeWrapAudio(el) {
+      if (!el) return;
+      const originalPlay = el.play.bind(el);
+      el.play = function() {
+        try {
+          const p = originalPlay();
+          if (p && typeof p.catch === 'function') {
+            return p.catch(() => {});
+          }
+          return p;
+        } catch (e) {
+          return Promise.resolve();
+        }
+      };
     }
+    safeWrapAudio(warning);
+    safeWrapAudio(finish);
+
+    let audioUnlocked = false;
+    function unlockAudio() {
+      if (audioUnlocked) return;
+      const tryAudio = (el) => {
+        if (!el) return Promise.resolve();
+        try {
+          el.muted = true;
+          const p = el.play();
+          if (p && typeof p.then === 'function') {
+            return p.then(() => {
+              el.pause();
+              el.currentTime = 0;
+              el.muted = false;
+            }).catch(() => {
+              el.muted = false;
+            });
+          }
+          el.muted = false;
+          return Promise.resolve();
+        } catch(e) {
+          if (el) el.muted = false;
+          return Promise.resolve();
+        }
+      };
+      Promise.allSettled([tryAudio(warning), tryAudio(finish)]).then(() => {
+        audioUnlocked = true;
+      });
+    }
+
+    // Try auto-loading on page load
+    window.addEventListener('DOMContentLoaded', unlockAudio);
+    window.addEventListener('load', unlockAudio);
+
+    // Unconditionally unlock on left click or any keypress/touch anywhere on scoring board
+    ['click', 'pointerdown', 'mousedown', 'keydown', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, () => {
+        unlockAudio();
+      }, { passive: true });
+    });
 
     // Connection Indicators
     let wsConnectedScore = false;
@@ -2017,28 +2417,53 @@
     window.renderJudges = renderJudges;
 
     function handleHanteiSignals(codes, isDecay) {
-      if (isDecay && confirmedPointActive) {
-        return; // Preserve confirmed decision on key expiration
+      if (confirmedPointActive) {
+        return; // Preserve confirmed decision once all 4 judges have voted
       }
+
+      if (!Array.isArray(codes)) return;
+      const lowerCodes = codes.map(c => String(c).toLowerCase());
+
+      let j1 = null, j2 = null, j3 = null, j4 = null;
+
+      // Map each of the 4 corner judges strictly to their 1 vote
+      lowerCodes.forEach(k => {
+        if (['a','b','c'].includes(k)) j1 = 'aka';
+        else if (['d','e','f'].includes(k)) j1 = 'ao';
+
+        if (['g','h','i'].includes(k)) j2 = 'aka';
+        else if (['j','k','l'].includes(k)) j2 = 'ao';
+
+        if (['m','n','o'].includes(k)) j3 = 'aka';
+        else if (['p','q','r'].includes(k)) j3 = 'ao';
+
+        if (['s','t','u'].includes(k)) j4 = 'aka';
+        else if (['v','w','x'].includes(k)) j4 = 'ao';
+      });
 
       let redCount = 0;
       let blueCount = 0;
-
-      codes.forEach(c => {
-        if (['a','b','c','g','h','i','m','n','o','s','t','u'].includes(c)) redCount++;
-        if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) blueCount++;
-      });
+      if (j1 === 'aka') redCount++; else if (j1 === 'ao') blueCount++;
+      if (j2 === 'aka') redCount++; else if (j2 === 'ao') blueCount++;
+      if (j3 === 'aka') redCount++; else if (j3 === 'ao') blueCount++;
+      if (j4 === 'aka') redCount++; else if (j4 === 'ao') blueCount++;
 
       const totalVotes = redCount + blueCount;
-      if (totalVotes === 0) return;
 
+      // The scoring board SHOULDN'T output anything until 4 of the juri pressed
+      if (totalVotes < 4) {
+        return;
+      }
+
+      // Exactly all 4 judges have cast their votes: output decision!
       syncBannerBounds();
       renderJudges(redCount, blueCount);
 
-      if (totalVotes >= 4) {
-        try { finish.play(); } catch(e) {}
-        confirmedPointActive = true;
-      }
+      try {
+        finish.currentTime = 0;
+        finish.play();
+      } catch(e) {}
+      confirmedPointActive = true;
     }
     window.handleHanteiSignals = handleHanteiSignals;
 
@@ -2052,6 +2477,8 @@
         bannerHoldTimer = null;
       }
       confirmedPointActive = false;
+      if (akaVrTimer) { clearTimeout(akaVrTimer); akaVrTimer = null; }
+      if (aoVrTimer) { clearTimeout(aoVrTimer); aoVrTimer = null; }
 
       $('#point-1').text('NULL');
       $('#point-2').text('0 - POINT');
@@ -2070,6 +2497,8 @@
 
       aka_state = 'off';
       ao_state = 'off';
+      akaVrActive = false;
+      aoVrActive = false;
       hantei = 0;
       ms_check = 0;
       if (typeof resetAllStickFlags === 'function') {
@@ -2112,10 +2541,38 @@
       return parts.length > 0 ? parts.join(' • ') : '-';
     }
 
-    function startCountdown(ms) {
+    function startCountdown(ms, isAka, title, athleteName) {
+      const initialMs = ms;
       let totalMs = ms;
       const secEl = document.getElementById("cd-seconds");
       const msEl = document.getElementById("cd-milliseconds");
+      const progressBar = document.getElementById("cd-progress-bar");
+      const titleEl = document.getElementById("cd-title");
+      const sideBadge = document.getElementById("cd-side-badge");
+      const athleteEl = document.getElementById("cd-athlete-name");
+      const statusEl = document.getElementById("cd-status-subtext");
+      const banner = document.getElementById("countdown-banner");
+
+      if (titleEl && title) titleEl.textContent = title;
+      if (sideBadge) {
+        sideBadge.textContent = isAka ? "AKA (MERAH)" : "AO (BIRU)";
+        sideBadge.className = `cd-side-badge ${isAka ? 'aka' : 'ao'}`;
+      }
+      if (athleteEl && athleteName) {
+        athleteEl.textContent = athleteName;
+      }
+      if (statusEl) {
+        statusEl.textContent = "MOHON SEGERA MEMASUKI MATRAS";
+        statusEl.classList.remove('time-up-alert');
+      }
+      if (progressBar) {
+        progressBar.style.width = '100%';
+        progressBar.className = `cd-progress-bar ${isAka ? 'aka' : 'ao'}`;
+      }
+      if (banner) {
+        banner.className = `fullscreen-banner countdown-overlay-banner ${isAka ? 'aka' : 'ao'}`;
+      }
+
       if (msInterval) clearInterval(msInterval);
 
       msInterval = setInterval(() => {
@@ -2123,12 +2580,23 @@
         if (totalMs <= 0) {
           if (secEl) secEl.textContent = "00";
           if (msEl) msEl.textContent = "00";
+          if (progressBar) progressBar.style.width = "0%";
+          if (statusEl) {
+            statusEl.textContent = "WAKTU HABIS (TIME UP)";
+            statusEl.classList.add('time-up-alert');
+          }
           clearInterval(msInterval);
+          msInterval = null;
+          try { finish.play(); } catch(e) {}
         } else {
           const seconds = Math.floor(totalMs / 1000);
           const milliseconds = Math.floor((totalMs % 1000) / 10);
           if (secEl) secEl.textContent = String(seconds).padStart(2, "0");
           if (msEl) msEl.textContent = String(milliseconds).padStart(2, "0");
+          if (progressBar && initialMs > 0) {
+            const pct = Math.max(0, Math.min(100, (totalMs / initialMs) * 100));
+            progressBar.style.width = pct + "%";
+          }
         }
       }, 10);
     }
@@ -2199,7 +2667,7 @@
       }
 
       $('#banner-wrap').css('grid-template-columns', '1fr').show();
-      try { finish.play(); } catch(err) {}
+      // Sound disabled for operator manual score / pelanggaran per tournament specs
 
       if (duration > 0) {
         bannerHoldTimer = setTimeout(() => {
@@ -2268,9 +2736,7 @@
         }
       });
 
-      if (newHit) {
-        try { warning.play(); } catch(e) {}
-      }
+      // Sound completely disabled for stick check testing per tournament specs
 
       // Update per-judge summary
       const judgeKeys = {
@@ -2299,7 +2765,6 @@
         if (testedKeys.size === 24) {
           totalTestedEl.style.color = '#22c55e';
           totalTestedEl.textContent = '24 / 24 SEMUA SIAP ✓';
-          try { finish.play(); } catch(e) {}
         } else {
           totalTestedEl.style.color = 'var(--gold-bright)';
           totalTestedEl.textContent = `${testedKeys.size} / 24`;
@@ -2329,10 +2794,6 @@
       if (totalTestedEl) {
         totalTestedEl.textContent = '0 / 24';
         totalTestedEl.style.color = 'var(--gold-bright)';
-      }
-
-      if (playChime) {
-        try { finish.play(); } catch(e) {}
       }
     }
     window.resetAllStickFlags = resetAllStickFlags;
@@ -2365,25 +2826,63 @@
       }
     });
 
+    function formatMarqueeTitle(d) {
+      if (d.marquee_text) return d.marquee_text;
+      let base = d.nama_bagan || d.nomor_tanding || '';
+      if (!base) return '-';
+      base = base.replace(/\s*-\s*Final$/i, '').trim();
+
+      let roundText = d.round_label || '';
+      let roundOf = d.round_of || '';
+
+      if (!roundText && d.round) {
+        const r = parseInt(d.round, 10);
+        if (d.is_final || r >= 5) roundText = 'Final';
+        else if (r === 4) roundText = 'Semi';
+        else roundText = `Round ${r}`;
+      }
+
+      const parts = [base, roundText, roundOf].filter(Boolean);
+      return parts.join(' • ');
+    }
+
     // Match Load & Hydration
     function populateMatchDetails(d, isInitialReset = false) {
       if (!d) return;
 
+      // Tatami Badge
+      const tatamiBadgeEl = document.getElementById('tatami-badge-display');
+      if (tatamiBadgeEl && d.tatami_number) {
+        tatamiBadgeEl.textContent = 'TATAMI ' + d.tatami_number;
+      }
+
       // Event & Category Marquee
       const marqueeEl = document.getElementById('marquee-text');
-      if (marqueeEl) marqueeEl.innerText = d.nomor_tanding || '-';
+      if (marqueeEl) marqueeEl.innerText = formatMarqueeTitle(d);
 
       // Competitor Red (AKA)
       document.getElementById('atlet_red_name').innerText = d.atlet_red || '-';
       document.getElementById('atlet_red_country').innerText = formatClub(d.atlet_red_perguruan, d.atlet_red_utusan);
       const redLogoEl = document.getElementById('atlet_red_logo');
-      if (redLogoEl) redLogoEl.src = d.atlet_red_logo || defaultFlagSrc;
+      if (redLogoEl) {
+        redLogoEl.onerror = function() {
+          this.onerror = null;
+          this.src = defaultFlagSrc;
+        };
+        redLogoEl.src = d.atlet_red_logo || defaultFlagSrc;
+      }
 
       // Competitor Blue (AO)
       document.getElementById('atlet_blue_name').innerText = d.atlet_blue || '-';
       document.getElementById('atlet_blue_country').innerText = formatClub(d.atlet_blue_perguruan, d.atlet_blue_utusan);
       const blueLogoEl = document.getElementById('atlet_blue_logo');
-      if (blueLogoEl) blueLogoEl.src = d.atlet_blue_logo || defaultFlagSrc;
+      if (blueLogoEl) {
+        blueLogoEl.onerror = function() {
+          this.onerror = null;
+          this.src = defaultFlagSrc;
+        };
+        blueLogoEl.src = d.atlet_blue_logo || defaultFlagSrc;
+      }
 
       // Kata Display Toggle
       const kataAkaEl = document.getElementById('kata-aka');
@@ -2433,6 +2932,13 @@
         milliseconds = 0;
         updateDisplay(0, 0);
         reset_banners();
+        if (window.kataAnimTimers) {
+          window.kataAnimTimers.forEach(t => clearTimeout(t));
+          window.kataAnimTimers = [];
+        }
+        $('#kata-score-wrap').hide().removeClass('modal-pop-in');
+        $('.judge-col').removeClass('judge-pop').css({ 'opacity': '', 'visibility': '' });
+        isShowing = false;
       }
     }
 
@@ -2550,35 +3056,47 @@
         } else if (data.details === 'ao-remove-senshu') {
           $('#ao-senshu-wrapper').removeClass('senshu-active');
         }
+      } else if (data.command === 'coach-supervisor') {
+        let detailsArray;
+        try {
+          detailsArray = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+        } catch(err) { detailsArray = data.details; }
+        if (Array.isArray(detailsArray) && detailsArray.length >= 2) {
+          const side = String(detailsArray[0]).toLowerCase();
+          const val = String(detailsArray[1]);
+          triggerVrRequest(side, val);
+        }
+      } else if (data.command === 'coach-supervisor-cancel') {
+        const side = typeof data.details === 'string' ? data.details.toLowerCase() : (Array.isArray(data.details) ? String(data.details[0]).toLowerCase() : 'aka');
+        triggerVrCancel(side);
       } else if (data.command === 'vr') {
-        if (data.details === 'aka-vr') {
+        const det = String(data.details || '');
+        if (det === 'aka-vr') {
           $('#aka-vr').css('visibility', 'visible');
-        } else if (data.details === 'aka-remove-vr') {
+        } else if (det === 'aka-remove-vr') {
           $('#aka-vr').css('visibility', 'hidden');
-        } else if (data.details === 'ao-vr') {
+          triggerVrResolution('aka', 'remove-vr');
+        } else if (det === 'ao-vr') {
           $('#ao-vr').css('visibility', 'visible');
-        } else if (data.details === 'ao-remove-vr') {
+        } else if (det === 'ao-remove-vr') {
           $('#ao-vr').css('visibility', 'hidden');
-        } else if (data.details === 'aka-request') {
-          aka_vr_on('VIDEO REVIEW', 'REQUESTED');
-        } else if (data.details === 'aka-accept-1') {
-          aka_vr_on('VR +1 POINT', 'ACCEPTED');
-        } else if (data.details === 'aka-accept-2') {
-          aka_vr_on('VR +2 POINT', 'ACCEPTED');
-        } else if (data.details === 'aka-accept-3') {
-          aka_vr_on('VR +3 POINT', 'ACCEPTED');
-        } else if (data.details === 'aka-decline') {
-          aka_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED');
-        } else if (data.details === 'ao-request') {
-          ao_vr_on('VIDEO REVIEW', 'REQUESTED');
-        } else if (data.details === 'ao-accept-1') {
-          ao_vr_on('VR +1 POINT', 'ACCEPTED');
-        } else if (data.details === 'ao-accept-2') {
-          ao_vr_on('VR +2 POINT', 'ACCEPTED');
-        } else if (data.details === 'ao-accept-3') {
-          ao_vr_on('VR +3 POINT', 'ACCEPTED');
-        } else if (data.details === 'ao-decline') {
-          ao_vr_on('VIDEO REVIEW', '(X) NOT ACCEPTED');
+          triggerVrResolution('ao', 'remove-vr');
+        } else if (det.startsWith('aka-request')) {
+          const parts = det.split('-');
+          const pt = parts.length >= 3 ? parts[2] : null;
+          triggerVrRequest('aka', pt);
+        } else if (det.startsWith('aka-accept-')) {
+          triggerVrResolution('aka', det.replace('aka-', ''));
+        } else if (det === 'aka-decline') {
+          triggerVrResolution('aka', 'decline');
+        } else if (det.startsWith('ao-request')) {
+          const parts = det.split('-');
+          const pt = parts.length >= 3 ? parts[2] : null;
+          triggerVrRequest('ao', pt);
+        } else if (det.startsWith('ao-accept-')) {
+          triggerVrResolution('ao', det.replace('ao-', ''));
+        } else if (det === 'ao-decline') {
+          triggerVrResolution('ao', 'decline');
         }
       } else if (data.command === 'aka-kata-kirim') {
         $('#kata-aka').text(data.details);
@@ -2588,31 +3106,108 @@
         const arr = safeJsonParse(data.details, [0, 0]);
         $('#aka-score').text(arr[0] || '0');
         $('#ao-score').text(arr[1] || '0');
+        aka_score = parseInt(arr[0], 10) || 0;
+        ao_score = parseInt(arr[1], 10) || 0;
+        reset_banners();
       } else if (data.command === 'tampilkan-score') {
         const arr = safeJsonParse(data.details, [0, 0, [], []]);
         const scoresAka = arr[2] || [];
         const scoresAo = arr[3] || [];
         if (!isShowing) {
-          $('#kata-score-wrap').show();
+          // Clear any active animation timers
+          if (window.kataAnimTimers) {
+            window.kataAnimTimers.forEach(t => clearTimeout(t));
+          }
+          window.kataAnimTimers = [];
+
+          // 1. Populate text and compute winner highlights / muted styles
           for (let i = 0; i < 5; i++) {
-            $(`#j${i + 1}-score-aka`).text(scoresAka[i] || '0.0');
-            $(`#j${i + 1}-score-ao`).text(scoresAo[i] || '0.0');
+            const elAka = $(`#j${i + 1}-score-aka`);
+            const elAo = $(`#j${i + 1}-score-ao`);
+            const rawAka = scoresAka[i] !== undefined && scoresAka[i] !== null && scoresAka[i] !== '' ? String(scoresAka[i]) : '0.0';
+            const rawAo = scoresAo[i] !== undefined && scoresAo[i] !== null && scoresAo[i] !== '' ? String(scoresAo[i]) : '0.0';
+
+            elAka.text(rawAka);
+            elAo.text(rawAo);
+
+            // Clear previous highlight / mute classes
+            elAka.removeClass('highlight-aka highlight-ao muted-score');
+            elAo.removeClass('highlight-aka highlight-ao muted-score');
+
+            const valAka = parseFloat(rawAka);
+            const valAo = parseFloat(rawAo);
+
+            // Highlight highest score only; mute the other side
+            if (!isNaN(valAka) && !isNaN(valAo) && valAka > 0 && valAo > 0) {
+              if (valAka > valAo) {
+                elAka.addClass('highlight-aka');
+                elAo.addClass('muted-score');
+              } else if (valAo > valAka) {
+                elAo.addClass('highlight-ao');
+                elAka.addClass('muted-score');
+              }
+            }
+          }
+
+          // 2. Hide all judge columns initially so they can pop up sequentially
+          $('.judge-col').removeClass('judge-pop').css({
+            'opacity': '0',
+            'visibility': 'hidden'
+          });
+
+          // 3. Show overlay wrapper with entrance animation
+          $('#kata-score-wrap').removeClass('modal-pop-in').show();
+          void $('#kata-score-wrap')[0].offsetWidth; // trigger reflow
+          $('#kata-score-wrap').addClass('modal-pop-in');
+
+          // 4. Staggered pop-up: J1 -> J2 -> J3 -> J4 -> J5
+          for (let i = 1; i <= 5; i++) {
+            const delay = 100 + (i - 1) * 300; // 100ms, 400ms, 700ms, 1000ms, 1300ms
+            const timer = setTimeout(() => {
+              $(`.judge-col-${i}`).css({
+                'opacity': '',
+                'visibility': ''
+              }).addClass('judge-pop');
+
+              // Clean up pop animation class after bounce settles
+              const cleanupTimer = setTimeout(() => {
+                $(`.judge-col-${i}`).removeClass('judge-pop');
+              }, 450);
+              window.kataAnimTimers.push(cleanupTimer);
+            }, delay);
+            window.kataAnimTimers.push(timer);
+          }
+
+          if (arr[0] !== undefined && arr[0] !== '') {
+            $('#aka-score').text(arr[0] || '0');
+            aka_score = parseInt(arr[0], 10) || 0;
+          }
+          if (arr[1] !== undefined && arr[1] !== '') {
+            $('#ao-score').text(arr[1] || '0');
+            ao_score = parseInt(arr[1], 10) || 0;
           }
           isShowing = true;
         } else {
-          $('#kata-score-wrap').hide();
+          if (window.kataAnimTimers) {
+            window.kataAnimTimers.forEach(t => clearTimeout(t));
+            window.kataAnimTimers = [];
+          }
+          $('#kata-score-wrap').hide().removeClass('modal-pop-in');
+          $('.judge-col').removeClass('judge-pop').css({ 'opacity': '', 'visibility': '' });
           isShowing = false;
         }
       } else if (data.command === 'hantei') {
         hantei = data.details == 1 ? 1 : 0;
         if (hantei == 1) {
           syncBannerBounds();
+          confirmedPointActive = false;
           $('#hantei-wrap').show();
           $('#hantei-banner').show();
           $('#banner').hide();
           $('#banner-2').hide();
           $('#banner-wrap').hide();
         } else {
+          confirmedPointActive = false;
           $('#hantei-wrap').hide();
           $('#hantei-banner').hide();
           reset_banners();
@@ -2763,43 +3358,229 @@
         const banner = document.getElementById("countdown-banner");
         const isAka = data.command.includes('aka');
         let durationMs = 35000;
-        if (data.command.includes('-1-')) durationMs = 60000;
-        else if (data.command.includes('-2-')) durationMs = 120000;
-        else if (data.command.includes('-3-')) durationMs = 180000;
+        let title = "WAKTU PERSIAPAN • 35 DETIK";
+
+        if (data.command.includes('-1-')) {
+          durationMs = 60000;
+          title = "WAKTU PERSIAPAN • 1 MENIT";
+        } else if (data.command.includes('-2-')) {
+          durationMs = 120000;
+          title = "WAKTU PERSIAPAN • 2 MENIT";
+        } else if (data.command.includes('-3-')) {
+          durationMs = 180000;
+          title = "WAKTU PERSIAPAN • 3 MENIT";
+        } else if (data.command.includes('35') || data.command.includes('kata')) {
+          durationMs = 35000;
+          title = "WAKTU PERSIAPAN KATA • 35 DETIK";
+        }
+
+        const athleteName = isAka 
+          ? ($('#atlet_red_name').text() || 'AKA')
+          : ($('#atlet_blue_name').text() || 'AO');
 
         if (data.details == 1) {
+          syncBannerBounds();
           wrap.style.display = "grid";
           banner.style.display = "flex";
-          banner.style.backgroundColor = isAka ? "var(--aka-primary)" : "var(--ao-primary)";
-          startCountdown(durationMs);
+          startCountdown(durationMs, isAka, title, athleteName);
         } else {
           wrap.style.display = "none";
           banner.style.display = "none";
-          if (msInterval) clearInterval(msInterval);
+          if (msInterval) {
+            clearInterval(msInterval);
+            msInterval = null;
+          }
+        }
+      }
+    }
+
+    // ==================== DUAL VR BANNER SYSTEM ====================
+    let akaVrActive = false;
+    let akaVrTitle = 'VIDEO REVIEW';
+    let akaVrSubtitle = 'REQUESTED';
+
+    let aoVrActive = false;
+    let aoVrTitle = 'VIDEO REVIEW';
+    let aoVrSubtitle = 'REQUESTED';
+
+    function getVrPointName(val) {
+      if (val === '1') return 'YUKO (1 POINT)';
+      if (val === '2') return 'WAZA-ARI (2 POINT)';
+      if (val === '3') return 'IPPON (3 POINT)';
+      return 'REQUESTED';
+    }
+
+    function triggerVrRequest(side, pointVal) {
+      const sub = getVrPointName(pointVal);
+      if (side === 'aka') {
+        akaVrActive = true;
+        akaVrTitle = 'VIDEO REVIEW';
+        akaVrSubtitle = sub;
+      } else {
+        aoVrActive = true;
+        aoVrTitle = 'VIDEO REVIEW';
+        aoVrSubtitle = sub;
+      }
+      syncVrBanners();
+
+      // Case 2: Play timer finish sound on VR request
+      try {
+        finish.currentTime = 0;
+        finish.play();
+      } catch(e) {}
+    }
+
+    let akaVrTimer = null;
+    let aoVrTimer = null;
+
+    function triggerVrCancel(side) {
+      if (side === 'aka') {
+        if (akaVrTimer) {
+          clearTimeout(akaVrTimer);
+          akaVrTimer = null;
+        }
+        akaVrActive = false;
+      } else {
+        if (aoVrTimer) {
+          clearTimeout(aoVrTimer);
+          aoVrTimer = null;
+        }
+        aoVrActive = false;
+      }
+      syncVrBanners();
+    }
+
+    function triggerVrResolution(side, actionType) {
+      if (side === 'aka') {
+        if (akaVrTimer) {
+          clearTimeout(akaVrTimer);
+          akaVrTimer = null;
+        }
+        if (actionType && actionType.startsWith('accept-')) {
+          const pts = actionType.split('-')[1];
+          akaVrTitle = `VR +${pts} POINT`;
+          akaVrSubtitle = 'ACCEPTED';
+          akaVrActive = true;
+          syncVrBanners();
+          akaVrTimer = setTimeout(() => {
+            akaVrActive = false;
+            akaVrTimer = null;
+            syncVrBanners();
+          }, 2000);
+        } else if (actionType === 'decline') {
+          akaVrTitle = 'VIDEO REVIEW';
+          akaVrSubtitle = 'DECLINED';
+          akaVrActive = true;
+          $('#aka-vr').css('visibility', 'hidden');
+          syncVrBanners();
+          akaVrTimer = setTimeout(() => {
+            akaVrActive = false;
+            akaVrTimer = null;
+            syncVrBanners();
+          }, 2000);
+        } else if (actionType === 'remove-vr') {
+          if (!akaVrTimer) {
+            akaVrActive = false;
+            syncVrBanners();
+          }
+        }
+      } else {
+        if (aoVrTimer) {
+          clearTimeout(aoVrTimer);
+          aoVrTimer = null;
+        }
+        if (actionType && actionType.startsWith('accept-')) {
+          const pts = actionType.split('-')[1];
+          aoVrTitle = `VR +${pts} POINT`;
+          aoVrSubtitle = 'ACCEPTED';
+          aoVrActive = true;
+          syncVrBanners();
+          aoVrTimer = setTimeout(() => {
+            aoVrActive = false;
+            aoVrTimer = null;
+            syncVrBanners();
+          }, 2000);
+        } else if (actionType === 'decline') {
+          aoVrTitle = 'VIDEO REVIEW';
+          aoVrSubtitle = 'DECLINED';
+          aoVrActive = true;
+          $('#ao-vr').css('visibility', 'hidden');
+          syncVrBanners();
+          aoVrTimer = setTimeout(() => {
+            aoVrActive = false;
+            aoVrTimer = null;
+            syncVrBanners();
+          }, 2000);
+        } else if (actionType === 'remove-vr') {
+          if (!aoVrTimer) {
+            aoVrActive = false;
+            syncVrBanners();
+          }
+        }
+      }
+    }
+
+    function syncVrBanners() {
+      syncBannerBounds();
+
+      const akaEl = document.getElementById('aka-judges-container');
+      if (akaEl) akaEl.innerHTML = '';
+      const aoEl = document.getElementById('ao-judges-container');
+      if (aoEl) aoEl.innerHTML = '';
+
+      if (akaVrActive && aoVrActive) {
+        // Case 1: Both coaches pressed VR - show both side-by-side in 1fr 1fr grid
+        $('#point-1').text(akaVrTitle);
+        $('#point-2').text(akaVrSubtitle);
+        $('#point-1-2').text(aoVrTitle);
+        $('#point-2-2').text(aoVrSubtitle);
+
+        $('#banner').show();
+        $('#banner-2').show();
+        $('#banner-wrap').css('grid-template-columns', '1fr 1fr').show();
+      } else if (akaVrActive) {
+        $('#point-1').text(akaVrTitle);
+        $('#point-2').text(akaVrSubtitle);
+
+        $('#banner').show();
+        $('#banner-2').hide();
+        $('#banner-wrap').css('grid-template-columns', '1fr').show();
+      } else if (aoVrActive) {
+        $('#point-1-2').text(aoVrTitle);
+        $('#point-2-2').text(aoVrSubtitle);
+
+        $('#banner-2').show();
+        $('#banner').hide();
+        $('#banner-wrap').css('grid-template-columns', '1fr').show();
+      } else {
+        if (!confirmedPointActive && hantei === 0) {
+          $('#banner').hide();
+          $('#banner-2').hide();
+          $('#banner-wrap').hide().css('grid-template-columns', '1fr');
         }
       }
     }
 
     function aka_vr_on(title, subtitle) {
-      $('#point-1').text(title);
-      $('#point-2').text(subtitle);
-      $('#banner').show();
-      $('#banner-2').hide();
-      $('#banner-wrap').css('grid-template-columns', '1fr').show();
-      const el = document.getElementById('aka-judges-container');
-      if (el) el.innerHTML = '';
-      try { finish.play(); } catch(e) {}
+      akaVrActive = true;
+      akaVrTitle = title;
+      akaVrSubtitle = subtitle;
+      syncVrBanners();
+      try {
+        finish.currentTime = 0;
+        finish.play();
+      } catch(e) {}
     }
 
     function ao_vr_on(title, subtitle) {
-      $('#point-1-2').text(title);
-      $('#point-2-2').text(subtitle);
-      $('#banner-2').show();
-      $('#banner').hide();
-      $('#banner-wrap').css('grid-template-columns', '1fr').show();
-      const el = document.getElementById('ao-judges-container');
-      if (el) el.innerHTML = '';
-      try { finish.play(); } catch(e) {}
+      aoVrActive = true;
+      aoVrTitle = title;
+      aoVrSubtitle = subtitle;
+      syncVrBanners();
+      try {
+        finish.currentTime = 0;
+        finish.play();
+      } catch(e) {}
     }
 
     // Admin Control Socket Handler (Judge Joystick signals & Flag Counts)
@@ -2821,16 +3602,24 @@
         if (['d','e','f','j','k','l','p','q','r','v','w','x'].includes(c)) bendera_biru++;
       });
 
+      if (data.command === 'coach-supervisor-cancel') {
+        const side = typeof data.details === 'string' ? data.details.toLowerCase() : (Array.isArray(data.details) ? String(data.details[0]).toLowerCase() : 'aka');
+        triggerVrCancel(side);
+        return;
+      }
+
       if (data.command === 'hantei') {
         hantei = data.details == 1 ? 1 : 0;
         if (hantei == 1) {
           syncBannerBounds();
+          confirmedPointActive = false;
           $('#hantei-wrap').show();
           $('#hantei-banner').show();
           $('#banner').hide();
           $('#banner-2').hide();
           $('#banner-wrap').hide();
         } else {
+          confirmedPointActive = false;
           $('#hantei-wrap').hide();
           $('#hantei-banner').hide();
           reset_banners();

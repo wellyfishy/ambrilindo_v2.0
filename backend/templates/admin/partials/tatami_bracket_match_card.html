@@ -1,0 +1,79 @@
+{% load static %}
+<div class="match {% if db.active_on_tatami %}is-active-match{% endif %} {% if db.selesai %}is-finished{% endif %}"
+     data-id="r{{ db.round }}m{{ db.urutan }}"
+     id="db-{{ db.pk }}"
+     onclick="openMatchModal({{ db.pk }})"
+     title="Klik untuk mengatur wasit & mengaktifkan partai #{{ db.urutan }}">
+
+    <div class="match-header">
+        <div class="match-header-left">
+            <span class="match-num">Match {{ db.urutan }}</span>
+            {% if db.active_on_tatami %}
+                <span class="badge-live-tatami">
+                    <span class="live-dot"></span> LIVE TATAMI {{ db.active_on_tatami.tatami_number }}
+                </span>
+            {% elif db.selesai %}
+                <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
+            {% endif %}
+        </div>
+        <div class="match-header-right">
+            {% if db.assigned_wasit_count > 0 %}
+                <span class="badge-wasit-status {% if db.is_panel_complete %}ready{% else %}pending{% endif %}"
+                      title="{{ db.assigned_wasit_count }}/{{ db.required_wasit_count }} Wasit Ditugaskan">
+                    <i class="fas fa-users"></i> {{ db.assigned_wasit_count }} Wasit
+                </span>
+            {% else %}
+                <span class="badge-wasit-status pending" title="Belum ada wasit ditugaskan">
+                    <i class="fas fa-user-plus"></i> Atur Wasit
+                </span>
+            {% endif %}
+            {% if db.has_wasit_conflict %}
+                <span class="badge-wasit-status conflict" title="Ada potensi konflik perguruan antara wasit & atlet!">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- AKA Row -->
+    <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
+        <div class="player-side aka" title="Aka">Aka</div>
+        {% if db.atlet1.utusan.logo %}
+            <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+        {% endif %}
+        <div class="player-info">
+            <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
+                <span>{% if db.pemenang == '1' %}<i class="fas fa-crown text-warning me-1" title="Pemenang"></i>{% endif %}{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
+            </div>
+            <div class="player-sub">
+                {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+            </div>
+        </div>
+        <div class="player-score-wrap">
+            <div class="player-score">
+                {{ db.score1|default:"-" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- AO Row -->
+    <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
+        <div class="player-side ao" title="Ao">Ao</div>
+        {% if db.atlet2.utusan.logo %}
+            <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+        {% endif %}
+        <div class="player-info">
+            <div class="player-name {% if not db.atlet2 %}empty{% endif %}">
+                <span>{% if db.pemenang == '2' %}<i class="fas fa-crown text-warning me-1" title="Pemenang"></i>{% endif %}{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
+            </div>
+            <div class="player-sub">
+                {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+            </div>
+        </div>
+        <div class="player-score-wrap">
+            <div class="player-score">
+                {{ db.score2|default:"-" }}
+            </div>
+        </div>
+    </div>
+</div>

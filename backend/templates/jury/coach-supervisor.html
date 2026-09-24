@@ -1,345 +1,826 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Supervisor Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coach Supervisor — Tatami {{ tatami.tatami_number }}</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/plugins.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/ambrilindo.min.css' %}" />
     <link rel="stylesheet" href="{% static 'icons/fontawesome-free/css/all.min.css' %}" />
     <style>
+        :root {
+            --aka-color: #ef4444;
+            --aka-dark: #b91c1c;
+            --aka-glow: rgba(239, 68, 68, 0.45);
+            --ao-color: #3b82f6;
+            --ao-dark: #1d4ed8;
+            --ao-glow: rgba(59, 130, 246, 0.45);
+            --bg-cockpit: #121316;
+            --card-cockpit: #1c1e24;
+            --border-cockpit: #2e323b;
+        }
+
         body {
-            background-color:rgb(25, 25, 25);
-            color: gold;
-            font-family: sans-serif;
+            background-color: var(--bg-cockpit);
+            color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+            padding-bottom: 20px;
         }
 
-        .ambrilindo-logo {
-            display: block;
-            margin: 0 auto;
-            max-width: 80%;
-            height: auto;
+        /* Top Bar */
+        .top-hub {
+            background: #181a20;
+            border-bottom: 1px solid var(--border-cockpit);
+            padding: 10px 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
-        input.slider-red {
-            width: 80%;
-            -webkit-appearance: none;
-            background: transparent;
+        .tatami-pill {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #111827;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+            padding: 5px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        input.slider-red::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 30px;
-            width: 30px;
-            background: red;
-            border-radius: 50%;
+        .category-pill {
+            background: #252830;
+            border: 1px solid #374151;
+            color: #e5e7eb;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 6px 14px;
+            max-width: 480px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Corner Cards */
+        .corner-card {
+            background: var(--card-cockpit);
+            border-radius: 16px;
+            border: 1px solid var(--border-cockpit);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s ease;
+            height: 100%;
+        }
+
+        .corner-card.aka {
+            border-top: 4px solid var(--aka-color);
+        }
+
+        .corner-card.ao {
+            border-top: 4px solid var(--ao-color);
+        }
+
+        /* Card Header */
+        .corner-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .corner-header.aka {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.05) 100%);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .corner-header.ao {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.05) 100%);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .corner-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .corner-badge.aka {
+            background: var(--aka-color);
+            color: #ffffff;
+            box-shadow: 0 2px 8px var(--aka-glow);
+        }
+
+        .corner-badge.ao {
+            background: var(--ao-color);
+            color: #ffffff;
+            box-shadow: 0 2px 8px var(--ao-glow);
+        }
+
+        .athlete-info {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-cockpit);
+            background: rgba(0,0,0,0.15);
+        }
+
+        .athlete-name {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .athlete-sub {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* VR Button Grid */
+        .vr-btn-grid {
+            padding: 24px 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            flex-grow: 1;
+        }
+
+        .btn-vr {
+            height: clamp(100px, 18vh, 150px);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 900;
+            border: 2px solid transparent;
             cursor: pointer;
-            margin-top: -10px;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            touch-action: manipulation;
         }
 
-        input.slider-red::-webkit-slider-runnable-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
+        .btn-vr:active:not(:disabled) {
+            transform: scale(0.96);
         }
 
-        input.slider-red::-moz-range-thumb {
-            height: 30px;
-            width: 30px;
-            background: red;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
+        .btn-vr .point-num {
+            font-size: clamp(2.5rem, 5vw, 3.6rem);
+            line-height: 1;
+            font-weight: 900;
         }
 
-        input.slider-red::-moz-range-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
+        .btn-vr .point-label {
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
         }
 
-        /* === Disabled state === */
+        .btn-vr.aka {
+            background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+        }
 
-        input.slider-red:disabled::-webkit-slider-thumb {
-            background: #999;
+        .btn-vr.aka:hover:not(:disabled) {
+            background: linear-gradient(145deg, #f87171 0%, #ef4444 100%);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.55);
+            transform: translateY(-2px);
+        }
+
+        .btn-vr.ao {
+            background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-vr.ao:hover:not(:disabled) {
+            background: linear-gradient(145deg, #60a5fa 0%, #3b82f6 100%);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.55);
+            transform: translateY(-2px);
+        }
+
+        .btn-vr:disabled {
+            background: #272a31 !important;
+            color: #555b68 !important;
+            border-color: #373b44 !important;
+            box-shadow: none !important;
             cursor: not-allowed;
+            transform: none !important;
+            opacity: 0.6;
         }
 
-        input.slider-red:disabled::-moz-range-thumb {
-            background: #999;
-            cursor: not-allowed;
+        /* Pulsing Pending Review State */
+        .btn-vr.active-appeal {
+            animation: appealPulse 1.2s infinite alternate;
+            border-color: #fbbf24 !important;
         }
 
-        input.slider-blue {
-            width: 80%;
-            -webkit-appearance: none;
-            background: transparent;
+        @keyframes appealPulse {
+            0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.6); transform: scale(1.01); }
+            100% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.95); transform: scale(1.03); }
         }
 
-        input.slider-blue::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 30px;
-            width: 30px;
-            background: blue;
-            border-radius: 50%;
-            cursor: pointer;
-            margin-top: -10px;
+        /* Status & Action Bar */
+        .status-bar {
+            padding: 16px 20px;
+            background: #16181d;
+            border-top: 1px solid var(--border-cockpit);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 68px;
         }
 
-        input.slider-blue::-webkit-slider-runnable-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
+        .status-text {
+            font-size: 0.95rem;
+            font-weight: 700;
         }
 
-        input.slider-blue::-moz-range-thumb {
-            height: 30px;
-            width: 30px;
-            background: blue;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
+        .card-pill {
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 6px;
+            padding: 4px 10px;
         }
 
-        input.slider-blue::-moz-range-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
+        .card-pill.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
         }
 
-        /* === Disabled state === */
-
-        input.slider-blue:disabled::-webkit-slider-thumb {
-            background: #999;
-            cursor: not-allowed;
+        .card-pill.lost {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
         }
 
-        input.slider-blue:disabled::-moz-range-thumb {
-            background: #999;
-            cursor: not-allowed;
+        .card-pill.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
         }
 
-        .hidden {
-            display: none;
+        .btn-revisi {
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+            padding: 8px 16px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Bottom Logo & Footer */
+        .footer-branding {
+            text-align: center;
+            padding: 14px;
+            opacity: 0.6;
+        }
+
+        .footer-branding img {
+            height: 28px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* Focus Modes */
+        .focus-aka #ao-col { display: none !important; }
+        .focus-aka #aka-col { width: 100% !important; flex: 0 0 100% !important; max-width: 100% !important; }
+
+        .focus-ao #aka-col { display: none !important; }
+        .focus-ao #ao-col { width: 100% !important; flex: 0 0 100% !important; max-width: 100% !important; }
+
+        @media (max-width: 768px) {
+            .athlete-name { font-size: 1.15rem; }
+            .btn-vr { height: 95px; }
+            .btn-vr .point-num { font-size: 2.2rem; }
+            .btn-vr .point-label { font-size: 0.75rem; }
+            .top-hub { padding: 8px 12px; }
+            .category-pill { max-width: 220px; font-size: 0.78rem; }
         }
     </style>
 </head>
 <body>
-    <hr>
 
-    <div style="">
-        <div id="aka-banner">
-            <div style="text-align: center; background: linear-gradient(to bottom, rgb(255, 112, 112),rgb(255, 46, 46)); top-left-radius: 10px; border-top-right-radius: 10px;">
-                <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                    <b>VR BUTTON AKA</b> 
-                    <button class="btn btn-danger" style="margin-bottom: 10px;" id="aka-expand">
-                        <i class="fa fa-expand"></i>
-                    </button> 
-                    <br>
-                </h1>
+    <!-- ==================== HEADER HUB ==================== -->
+    <header class="top-hub">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="tatami-pill">
+                    <i class="fas fa-layer-group"></i> TATAMI {{ tatami.tatami_number }}
+                </span>
+                <span class="category-pill d-none d-sm-inline-block" id="category-badge" title="Kategori Pertandingan">
+                    {% if detail_bagan and bagan %}
+                        {{ bagan.nomor_tanding.nama_nomor_tanding|default:bagan.nama_bagan }} • Babak {{ detail_bagan.round|default:"1" }}
+                    {% else %}
+                        Menunggu Pertandingan...
+                    {% endif %}
+                </span>
             </div>
-            <div style="background-color: white; padding-bottom: 20px; text-align: center;">
-                <br>
-                <button class="btn btn-danger" id="aka1" style="font-size: 50px; font-weight: bold">1</button>
-                <button class="btn btn-danger" id="aka2" style="font-size: 50px; font-weight: bold; margin-left: 20px">2</button>
-                <button class="btn btn-danger" id="aka3" style="font-size: 50px; font-weight: bold; margin-left: 20px">3</button>
-            </div>
-            <div style="background: linear-gradient(to top, rgb(255, 112, 112),rgb(255, 46, 46)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
-                <div style="text-align: center;">
-                    <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                    <b>REQUESTED:</b> 
-                    <span id="requested-aka">-</span>
-                    <button class="btn btn-success" style="font-weight: bold; display: none" id="revisi-aka">REVISI</button>
-                </h1>
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Mode View Toggle for Tablets -->
+                <div class="btn-group btn-group-sm" role="group" aria-label="View Mode">
+                    <button type="button" class="btn btn-outline-secondary active text-light px-2" id="mode-both" title="Tampilkan Keduanya">
+                        <i class="fas fa-columns me-1"></i> Semua
+                    </button>
+                    <button type="button" class="btn btn-outline-danger px-2" id="mode-aka" title="Hanya AKA">
+                        AKA
+                    </button>
+                    <button type="button" class="btn btn-outline-primary px-2" id="mode-ao" title="Hanya AO">
+                        AO
+                    </button>
                 </div>
+
+                <!-- WebSocket Status Pill -->
+                <span id="ws-badge" class="badge bg-secondary px-2 py-1" style="font-size: 11px;">
+                    <i class="fas fa-circle-notch fa-spin me-1"></i> WS Menghubungkan...
+                </span>
+
+                <!-- Fullscreen & Refresh -->
+                <button class="btn btn-sm btn-outline-secondary text-light" id="btn-fullscreen" title="Layar Penuh">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary text-light" onclick="window.location.reload();" title="Muat Ulang Halaman">
+                    <i class="fas fa-arrows-rotate"></i>
+                </button>
             </div>
         </div>
+    </header>
 
+    <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+    <main class="container-fluid px-3 pt-3 flex-grow-1 d-flex flex-column">
 
-        <div id="ao-banner">
-            <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
-                <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                    <b>VR BUTTON AO</b> 
-                    <button class="btn btn-primary" style="margin-bottom: 10px;" id="ao-expand">
-                        <i class="fa fa-expand"></i>
-                    </button> 
-                    <br>
-                </h1>
-            </div>
-            <div style="background-color: white; padding-bottom: 20px; text-align: center;">
-                <br>
-                <button class="btn btn-primary" id="ao1" style="font-size: 50px; font-weight: bold">1</button>
-                <button class="btn btn-primary" id="ao2" style="font-size: 50px; font-weight: bold; margin-left: 20px">2</button>
-                <button class="btn btn-primary" id="ao3" style="font-size: 50px; font-weight: bold; margin-left: 20px">3</button>
-            </div>
-            <div style="background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
-                <div style="text-align: center;">
-                    <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                    <b>REQUESTED:</b> 
-                    <span id="requested-ao">-</span>
-                    <button class="btn btn-success" style="font-weight: bold; display: none" id="revisi-ao">REVISI</button>
-                </h1>
+        <!-- Banner Alert when bracket has no VR enabled -->
+        <div id="no-vr-alert" class="alert alert-warning py-2 px-3 mb-3 text-center border-0 shadow-sm d-none" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-radius: 10px;">
+            <i class="fas fa-exclamation-circle me-1"></i> <strong>Informasi:</strong> Kategori pertandingan saat ini tidak menggunakan fitur Video Review (VR).
+        </div>
+
+        <div class="row g-3 flex-grow-1" id="cockpit-row">
+
+            <!-- ==================== AKA (RED) CORNER ==================== -->
+            <div class="col-12 col-md-6 d-flex flex-column" id="aka-col">
+                <div class="corner-card aka">
+                    <!-- Header -->
+                    <div class="corner-header aka">
+                        <span class="corner-badge aka"><i class="fas fa-user-ninja me-1"></i> AKA (MERAH)</span>
+                        <span class="card-pill active" id="aka-card-pill">
+                            <i class="fas fa-video me-1"></i> <span id="aka-card-pill-text">{% if detail_bagan.vr1 %}KARTU AKTIF{% else %}KARTU HANGUS{% endif %}</span>
+                        </span>
+                    </div>
+
+                    <!-- Athlete Details -->
+                    <div class="athlete-info">
+                        <div class="athlete-name" id="aka-athlete-name">{{ detail_bagan.atlet1.nama_atlet|default:"-" }}</div>
+                        <div class="athlete-sub" id="aka-athlete-sub">
+                            {% if detail_bagan.atlet1 %}
+                                {{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- VR Buttons -->
+                    <div class="vr-btn-grid">
+                        <button class="btn-vr aka" id="btn-aka-1" data-side="aka" data-val="1">
+                            <span class="point-num">1</span>
+                            <span class="point-label">YUKO</span>
+                        </button>
+                        <button class="btn-vr aka" id="btn-aka-2" data-side="aka" data-val="2">
+                            <span class="point-num">2</span>
+                            <span class="point-label">WAZA-ARI</span>
+                        </button>
+                        <button class="btn-vr aka" id="btn-aka-3" data-side="aka" data-val="3">
+                            <span class="point-num">3</span>
+                            <span class="point-label">IPPON</span>
+                        </button>
+                    </div>
+
+                    <!-- Status Bar -->
+                    <div class="status-bar">
+                        <div>
+                            <div class="small text-muted fw-bold">STATUS REVIEW:</div>
+                            <div class="status-text text-light" id="aka-status-text">Siap diajukan</div>
+                        </div>
+                        <button class="btn btn-warning btn-revisi d-none" id="btn-revisi-aka">
+                            <i class="fas fa-undo me-1"></i> BATAL / REVISI
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <!-- ==================== AO (BLUE) CORNER ==================== -->
+            <div class="col-12 col-md-6 d-flex flex-column" id="ao-col">
+                <div class="corner-card ao">
+                    <!-- Header -->
+                    <div class="corner-header ao">
+                        <span class="corner-badge ao"><i class="fas fa-user-ninja me-1"></i> AO (BIRU)</span>
+                        <span class="card-pill active" id="ao-card-pill">
+                            <i class="fas fa-video me-1"></i> <span id="ao-card-pill-text">{% if detail_bagan.vr2 %}KARTU AKTIF{% else %}KARTU HANGUS{% endif %}</span>
+                        </span>
+                    </div>
+
+                    <!-- Athlete Details -->
+                    <div class="athlete-info">
+                        <div class="athlete-name" id="ao-athlete-name">{{ detail_bagan.atlet2.nama_atlet|default:"-" }}</div>
+                        <div class="athlete-sub" id="ao-athlete-sub">
+                            {% if detail_bagan.atlet2 %}
+                                {{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- VR Buttons -->
+                    <div class="vr-btn-grid">
+                        <button class="btn-vr ao" id="btn-ao-1" data-side="ao" data-val="1">
+                            <span class="point-num">1</span>
+                            <span class="point-label">YUKO</span>
+                        </button>
+                        <button class="btn-vr ao" id="btn-ao-2" data-side="ao" data-val="2">
+                            <span class="point-num">2</span>
+                            <span class="point-label">WAZA-ARI</span>
+                        </button>
+                        <button class="btn-vr ao" id="btn-ao-3" data-side="ao" data-val="3">
+                            <span class="point-num">3</span>
+                            <span class="point-label">IPPON</span>
+                        </button>
+                    </div>
+
+                    <!-- Status Bar -->
+                    <div class="status-bar">
+                        <div>
+                            <div class="small text-muted fw-bold">STATUS REVIEW:</div>
+                            <div class="status-text text-light" id="ao-status-text">Siap diajukan</div>
+                        </div>
+                        <button class="btn btn-warning btn-revisi d-none" id="btn-revisi-ao">
+                            <i class="fas fa-undo me-1"></i> BATAL / REVISI
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
-    <hr>
-    <div style="text-align: center;">
-        <h2>Coach Supervisor Tatami {{ tatami.tatami_number }}</h2>
-        <a href="" class="btn btn-success">
-            <i class="fa fa-arrows-rotate"></i>
-        </a>
-    </div>
-    <div class="ambrilindo-logo">
-        <img class="ambrilindo-logo" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="">
-    </div>
+
+        <!-- Footer Logo -->
+        <div class="footer-branding mt-auto">
+            <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo Logo">
+        </div>
+    </main>
+
+    <!-- Scripts -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/ambrilindo.min.js' %}"></script>
 
     <script>
         $(document).ready(function () {
-            const tatamiPk = {{ tatami.pk }}
-            var detail_bagan_pk = '' 
-            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-            const socket = new WebSocket(protocol + window.location.host + `/ws/coach-supervisor/${tatamiPk}`);
-            socket.onmessage = function(e) {
-                const data = JSON.parse(e.data);
-                console.log(data.command, data.details)
+            const tatamiPk = {{ tatami.pk }};
+            let socket = null;
+            let socketReconnectTimer = null;
+            let currentMatchHasVr = {% if bagan and bagan.has_vr %}true{% else %}false{% endif %};
+            let akaCardAvailable = {% if detail_bagan.vr1 %}true{% else %}false{% endif %};
+            let aoCardAvailable = {% if detail_bagan.vr2 %}true{% else %}false{% endif %};
 
-                if (data.command == 'vr_status') {
-                    var arr = JSON.parse(data.details);
-                    var player = arr[0];
-                    var status = arr[1];
+            // Pending request tracker
+            let akaPendingVal = null;
+            let aoPendingVal = null;
 
-                    if (player == 'aka') {
-                        if (status == '1') {
-                            $('#requested-aka').text('-')
-                            $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
-                            $('#aka1, #aka2, #aka3').blur()
-                        } else {
-                            $('#requested-aka').text('-')
-                            $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
-                            $('#aka1, #aka2, #aka3').prop('disabled', true);
-                        }
-                    }
-                    if (player == 'ao') {
-                        if (status == '1') {
-                            $('#requested-ao').text('-')
-                            $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
-                            $('#ao1, #ao2, #ao3').blur()
-                        } else {
-                            $('#requested-ao').text('-')
-                            $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
-                            $('#ao1, #ao2, #ao3').prop('disabled', true);
-                        }
-                    }
-                } else if (data.command == 'get_atlet') {
-                    if (data.details[0] == true) {
-                        $('#requested-aka').text('-')
-                        $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
-                        $('#aka1, #aka2, #aka3').prop('disabled', false);
-                    } else {
-                        $('#requested-aka').text('-')
-                        $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
-                        $('#aka1, #aka2, #aka3').prop('disabled', true);
-                    }
-                    if (data.details[1] == true) {
-                        $('#requested-ao').text('-')
-                        $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
-                        $('#ao1, #ao2, #ao3').prop('disabled', false);
-                    } else {
-                        $('#requested-ao').text('-')
-                        $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
-                        $('#ao1, #ao2, #ao3').prop('disabled', true);
-                    }
+            // ==================== WEBSOCKET ENGINE ====================
+            function updateWsBadge(status) {
+                const badge = $('#ws-badge');
+                if (status === 'connected') {
+                    badge.removeClass('bg-secondary bg-danger bg-warning text-dark').addClass('bg-success text-white');
+                    badge.html('<i class="fas fa-bolt me-1"></i> WS Live');
+                } else if (status === 'reconnecting') {
+                    badge.removeClass('bg-secondary bg-success bg-danger text-white').addClass('bg-warning text-dark');
+                    badge.html('<i class="fas fa-sync fa-spin me-1"></i> WS Reconnect...');
+                } else if (status === 'offline') {
+                    badge.removeClass('bg-secondary bg-success bg-warning text-dark').addClass('bg-danger text-white');
+                    badge.html('<i class="fas fa-exclamation-triangle me-1"></i> WS Offline');
                 }
             }
 
-            $('#revisi-aka').on('click', function() {
-                $('#requested-aka').text('-')
-                $('#aka1, #aka2, #aka3').removeClass('btn-dark').addClass('btn-danger');
-                $('#aka1, #aka2, #aka3').prop('disabled', false);
-                coach_send('aka', '1')
-            })
+            function initSupervisorSocket() {
+                if (socket) {
+                    try { socket.onclose = null; socket.close(); } catch(e) {}
+                    socket = null;
+                }
 
-            $('#revisi-ao').on('click', function() {
-                $('#requested-ao').text('-')
-                $('#ao1, #ao2, #ao3').removeClass('btn-dark').addClass('btn-primary');
-                $('#ao1, #ao2, #ao3').prop('disabled', false);
-                coach_send('ao', '1')
-            })
+                const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                const wsUrl = protocol + window.location.host + `/ws/coach-supervisor/${tatamiPk}`;
 
-            let focus_aka = false;
-            let focus_ao = false;
+                try {
+                    socket = new WebSocket(wsUrl);
+                } catch(err) {
+                    scheduleReconnect();
+                    return;
+                }
 
-            let isExpanding = false
+                socket.onopen = function() {
+                    if (socketReconnectTimer) {
+                        clearTimeout(socketReconnectTimer);
+                        socketReconnectTimer = null;
+                    }
+                    updateWsBadge('connected');
+                };
 
-            $('#aka-expand').on('click', function () {
-                isExpanding = !isExpanding;
+                socket.onmessage = function(e) {
+                    let data;
+                    try {
+                        data = JSON.parse(e.data);
+                    } catch(err) { return; }
+                    if (!data || !data.command) return;
 
-                $('#ao-banner').toggle(!isExpanding);
-                $('#aka-banner').show();
-            });
-            $('#ao-expand').on('click', function () {
-                isExpanding = !isExpanding;
+                    handleSocketMessage(data);
+                };
 
-                $('#aka-banner').toggle(!isExpanding);
-                $('#ao-banner').show();
-            });
+                socket.onclose = function() {
+                    updateWsBadge('reconnecting');
+                    scheduleReconnect();
+                };
 
-            $('#aka1').on('click', function () {
-                coach_send('aka', '1');
-            });
-            $('#aka2').on('click', function () {
-                coach_send('aka', '2');
-            });
-            $('#aka3').on('click', function () {
-                coach_send('aka', '3');
-            });
-            $('#ao1').on('click', function () {
-                coach_send('ao', '1');
-            });
-            $('#ao2').on('click', function () {
-                coach_send('ao', '2');
-            });
-            $('#ao3').on('click', function () {
-                coach_send('ao', '3');
-            });
-
-            function aka_disabled(val) {
-                $('#aka1, #aka2, #aka3').prop('disabled', true);
-                $('#requested-aka').text(val)
-            }
-            function ao_disabled(val) {
-                $('#ao1, #ao2, #ao3').prop('disabled', true);
-                $('#requested-ao').text(val)
+                socket.onerror = function() {
+                    updateWsBadge('offline');
+                    try { socket.close(); } catch(e) {}
+                };
             }
 
-            function coach_send(team, val) {
-                
+            function scheduleReconnect() {
+                if (!socketReconnectTimer) {
+                    socketReconnectTimer = setTimeout(function() {
+                        socketReconnectTimer = null;
+                        initSupervisorSocket();
+                    }, 2500);
+                }
+            }
+
+            initSupervisorSocket();
+
+            // ==================== DISPATCH / RECEIVE HANDLERS ====================
+            function handleSocketMessage(data) {
+                const cmd = data.command;
+
+                if (cmd === 'vr_status') {
+                    let arr;
+                    try {
+                        arr = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+                    } catch(e) { arr = data.details; }
+
+                    if (Array.isArray(arr) && arr.length >= 2) {
+                        const side = String(arr[0]).toLowerCase();
+                        const status = String(arr[1]);
+                        handleVrStatusResponse(side, status);
+                    }
+                } else if (cmd === 'get_atlet') {
+                    handleGetAtlet(data.details);
+                } else if (cmd === 'coach-supervisor-pending') {
+                    let arr;
+                    try {
+                        arr = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+                    } catch(e) { arr = data.details; }
+                    if (Array.isArray(arr) && arr.length >= 2) {
+                        const side = String(arr[0]).toLowerCase();
+                        const val = String(arr[1]);
+                        setLocalAppealState(side, val);
+                    }
+                } else if (cmd === 'coach-supervisor-cleared') {
+                    const side = typeof data.details === 'string' ? data.details.toLowerCase() : (Array.isArray(data.details) ? String(data.details[0]).toLowerCase() : 'aka');
+                    clearLocalAppealState(side);
+                }
+            }
+
+            function handleGetAtlet(details) {
+                if (!details) return;
+
+                // Support both dict format (broadcast_tatami_match_update) and array format
+                if (Array.isArray(details)) {
+                    // Array format: [vr1, vr2]
+                    akaCardAvailable = Boolean(details[0]);
+                    aoCardAvailable = Boolean(details[1]);
+                    updateCardState('aka', akaCardAvailable);
+                    updateCardState('ao', aoCardAvailable);
+                    return;
+                }
+
+                // Full Object format
+                const matchCategory = details.nomor_tanding || details.nama_bagan || '';
+                const roundText = details.round_label ? ` • ${details.round_label}` : (details.round ? ` • Babak ${details.round}` : '');
+                if (matchCategory) {
+                    $('#category-badge').text(matchCategory + roundText).attr('title', matchCategory + roundText);
+                }
+
+                if (details.atlet_red && details.atlet_red !== '-') {
+                    $('#aka-athlete-name').text(details.atlet_red);
+                    const subAka = [details.atlet_red_perguruan, details.atlet_red_utusan].filter(Boolean).filter(s => s !== '-').join(' • ');
+                    $('#aka-athlete-sub').text(subAka || '-');
+                }
+
+                if (details.atlet_blue && details.atlet_blue !== '-') {
+                    $('#ao-athlete-name').text(details.atlet_blue);
+                    const subAo = [details.atlet_blue_perguruan, details.atlet_blue_utusan].filter(Boolean).filter(s => s !== '-').join(' • ');
+                    $('#ao-athlete-sub').text(subAo || '-');
+                }
+
+                // Check VR Bracket Eligibility
+                if (details.has_vr === false) {
+                    currentMatchHasVr = false;
+                    $('#no-vr-alert').removeClass('d-none');
+                    disableCornerButtons('aka', true);
+                    disableCornerButtons('ao', true);
+                    $('#aka-card-pill').removeClass('active lost pending').addClass('lost').html('<i class="fas fa-ban me-1"></i> TANPA VR');
+                    $('#ao-card-pill').removeClass('active lost pending').addClass('lost').html('<i class="fas fa-ban me-1"></i> TANPA VR');
+                    $('#aka-status-text').text('Bagan ini tidak menggunakan Video Review');
+                    $('#ao-status-text').text('Bagan ini tidak menggunakan Video Review');
+                    return;
+                }
+
+                currentMatchHasVr = true;
+                $('#no-vr-alert').addClass('d-none');
+
+                akaCardAvailable = details.atlet_red_vr === true || details.atlet_red_vr === 1 || details.atlet_red_vr === '1';
+                aoCardAvailable = details.atlet_blue_vr === true || details.atlet_blue_vr === 1 || details.atlet_blue_vr === '1';
+
+                updateCardState('aka', akaCardAvailable);
+                updateCardState('ao', aoCardAvailable);
+            }
+
+            function updateCardState(side, isAvailable) {
+                if (!currentMatchHasVr) return;
+
+                const pill = $(`#${side}-card-pill`);
+                const statusText = $(`#${side}-status-text`);
+
+                if (isAvailable) {
+                    pill.removeClass('lost pending').addClass('active').html('<i class="fas fa-video me-1"></i> KARTU AKTIF');
+                    disableCornerButtons(side, false);
+                    statusText.html('<span class="text-success"><i class="fas fa-check-circle me-1"></i>Siap diajukan</span>');
+                } else {
+                    pill.removeClass('active pending').addClass('lost').html('<i class="fas fa-video-slash me-1"></i> KARTU HANGUS');
+                    disableCornerButtons(side, true);
+                    statusText.html('<span class="text-danger"><i class="fas fa-times-circle me-1"></i>Kartu Habis / Hangus</span>');
+                }
+                $(`#btn-revisi-${side}`).addClass('d-none');
+            }
+
+            function disableCornerButtons(side, isDisabled) {
+                $(`.btn-vr.${side}`).prop('disabled', isDisabled).removeClass('active-appeal');
+            }
+
+            function handleVrStatusResponse(side, status) {
+                const isAccepted = status === '1';
+                if (isAccepted) {
+                    // Accepted / Retained
+                    updateCardState(side, true);
+                    $(`#${side}-status-text`).html('<span class="text-success fw-bold"><i class="fas fa-check-double me-1"></i>Review Diterima (Kartu Tetap Aktif)</span>');
+                } else {
+                    // Declined / Card Lost
+                    updateCardState(side, false);
+                    $(`#${side}-status-text`).html('<span class="text-danger fw-bold"><i class="fas fa-times-circle me-1"></i>Review Ditolak (Kartu Hangus)</span>');
+                }
+            }
+
+            function setLocalAppealState(side, val) {
+                const label = val === '1' ? '1 Poin (YUKO)' : (val === '2' ? '2 Poin (WAZA-ARI)' : '3 Poin (IPPON)');
+
+                // Update status text & pill
+                $(`#${side}-status-text`).html(`<span class="text-warning fw-bold"><i class="fas fa-spinner fa-spin me-1"></i>Sedang Di-Review: ${label}</span>`);
+                $(`#${side}-card-pill`).removeClass('active lost').addClass('pending').html('<i class="fas fa-hourglass-half me-1"></i> REVIEW BERJALAN');
+
+                // Button states
+                $(`.btn-vr.${side}`).removeClass('active-appeal').prop('disabled', true);
+                $(`#btn-${side}-${val}`).addClass('active-appeal').prop('disabled', false);
+
+                // Show Revisi
+                $(`#btn-revisi-${side}`).removeClass('d-none');
+            }
+
+            function clearLocalAppealState(side) {
+                $(`.btn-vr.${side}`).removeClass('active-appeal');
+                $(`#btn-revisi-${side}`).addClass('d-none');
+                updateCardState(side, side === 'aka' ? akaCardAvailable : aoCardAvailable);
+            }
+
+            // ==================== USER ACTIONS (CLICK HANDLERS) ====================
+            function sendCoachAppeal(side, val) {
+                setLocalAppealState(side, val);
+
+                const payload = {
+                    action: 'coach-supervisor',
+                    details: [side, val]
+                };
+
+                // 1. Try WebSocket (Fastest, <3ms)
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(payload));
+                    return;
+                }
+
+                // 2. HTTP Fallback
                 $.ajax({
-                    url: '/scoring-board/{{ tatami.pk }}/message-retriever',
+                    url: `/coach-supervisor/${tatamiPk}/message-retriever`,
                     type: 'POST',
                     data: {
                         action: 'coach-supervisor',
-                        details: JSON.stringify([team, val]),
-                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                    },
-                });
-
-                $.ajax({
-                    url: '/control-panel/{{ tatami.pk }}/message-retriever',
-                    type: 'POST',
-                    data: {
-                        action: 'coach-supervisor',
-                        details: JSON.stringify([team, val]),
-                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                    },
+                        details: JSON.stringify([side, val])
+                    }
                 });
             }
+
+            function sendCoachCancel(side) {
+                clearLocalAppealState(side);
+
+                const payload = {
+                    action: 'coach-supervisor-cancel',
+                    details: side
+                };
+
+                // 1. Try WebSocket
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(payload));
+                    return;
+                }
+
+                // 2. HTTP Fallback
+                $.ajax({
+                    url: `/coach-supervisor/${tatamiPk}/message-retriever`,
+                    type: 'POST',
+                    data: {
+                        action: 'coach-supervisor-cancel',
+                        details: side
+                    }
+                });
+            }
+
+            // Point buttons click
+            $('.btn-vr').on('click', function () {
+                const side = $(this).data('side');
+                const val = String($(this).data('val'));
+                sendCoachAppeal(side, val);
+            });
+
+            // Revisi buttons click
+            $('#btn-revisi-aka').on('click', function () {
+                sendCoachCancel('aka');
+            });
+
+            $('#btn-revisi-ao').on('click', function () {
+                sendCoachCancel('ao');
+            });
+
+            // ==================== VIEW MODES (RESPONSIVE FOCUS) ====================
+            $('#mode-both').on('click', function () {
+                $(this).addClass('active').siblings().removeClass('active');
+                $('body').removeClass('focus-aka focus-ao');
+            });
+
+            $('#mode-aka').on('click', function () {
+                $(this).addClass('active').siblings().removeClass('active');
+                $('body').removeClass('focus-ao').addClass('focus-aka');
+            });
+
+            $('#mode-ao').on('click', function () {
+                $(this).addClass('active').siblings().removeClass('active');
+                $('body').removeClass('focus-aka').addClass('focus-ao');
+            });
+
+            // Fullscreen Toggle
+            $('#btn-fullscreen').on('click', function () {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {});
+                    $(this).html('<i class="fas fa-compress"></i>');
+                } else {
+                    document.exitFullscreen().catch(err => {});
+                    $(this).html('<i class="fas fa-expand"></i>');
+                }
+            });
+
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    $('#btn-fullscreen').html('<i class="fas fa-expand"></i>');
+                }
+            });
         });
     </script>
 </body>

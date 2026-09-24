@@ -53,6 +53,8 @@ class Utusan(models.Model):
 class Atlet(models.Model):
     nik = models.CharField(max_length=50, null=True, blank=True)
     kode_atlet = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    additional_code = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    is_priority = models.BooleanField(default=False, db_index=True)
     event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.CASCADE)
     nama_atlet = models.CharField(max_length=50, null=True, blank=True)
     perguruan = models.ForeignKey(Perguruan, null=True, blank=True, on_delete=models.SET_NULL)
@@ -67,6 +69,7 @@ class Atlet(models.Model):
             models.Index(fields=['event', 'nama_atlet']),
             models.Index(fields=['event', 'nomor_tanding']),
             models.Index(fields=['event', 'kode_atlet']),
+            models.Index(fields=['event', 'additional_code']),
         ]
         
 class Bagan(models.Model):
@@ -144,6 +147,7 @@ class DetailBagan(models.Model):
     hantei = models.BooleanField(default=False)
     selesai = models.BooleanField(default=False)
     team = models.BooleanField(default=False)
+    assigned_tatami = models.ForeignKey('Tatami', null=True, blank=True, on_delete=models.SET_NULL, related_name='scheduled_matches')
     kode = models.CharField(unique=True, null=True, blank=True, max_length=50)
 
     def __str__(self):
@@ -323,6 +327,26 @@ class WasitTatami(models.Model):
 
     def __str__(self):
         return f"{self.wasit.nama_wasit} -> Tatami {self.tatami.tatami_number} ({self.get_posisi_display()})"
+
+
+class WasitDetailBagan(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wasit_detail_bagans')
+    detail_bagan = models.ForeignKey(DetailBagan, on_delete=models.CASCADE, related_name='wasit_assignments')
+    wasit = models.ForeignKey(Wasit, on_delete=models.CASCADE, related_name='match_assignments')
+    posisi = models.CharField(max_length=30, choices=WasitTatami.POSISI_CHOICES, default='pool')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('detail_bagan', 'wasit')
+        ordering = ['posisi', 'id']
+        indexes = [
+            models.Index(fields=['detail_bagan', 'posisi']),
+            models.Index(fields=['event', 'wasit']),
+        ]
+
+    def __str__(self):
+        return f"{self.wasit.nama_wasit} -> Match #{self.detail_bagan_id} ({self.get_posisi_display()})"
+
 
 
 
