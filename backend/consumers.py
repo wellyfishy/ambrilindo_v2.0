@@ -12,7 +12,7 @@ def get_current_match_details(tatami_pk):
         'detail_bagan__atlet2__perguruan',
         'detail_bagan__atlet2__utusan',
     ).first()
-    if not tatami or not tatami.detail_bagan:
+    if not tatami or not tatami.detail_bagan or tatami.detail_bagan.selesai:
         return None
     detail_bagan = tatami.detail_bagan
     bagan = detail_bagan.bagan
@@ -66,6 +66,8 @@ def get_current_match_details(tatami_pk):
         "kata_history_ao": get_athlete_kata_records(detail_bagan.atlet2, detail_bagan),
         "is_final": check_is_final(detail_bagan),
         "has_vr": bool(bagan.has_vr) if bagan else False,
+        "selesai": bool(detail_bagan.selesai),
+        "is_running": bool(not detail_bagan.selesai),
     }
 
 class ScoreboardConsumer(AsyncWebsocketConsumer):
@@ -289,10 +291,47 @@ class JuryRoomConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        # Send current match details immediately on load/reload
+        details = await get_current_match_details(self.tatami_pk)
+        if details:
+            await self.send(text_data=json.dumps({
+                "command": "get_atlet",
+                "details": details
+            }))
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
+        )
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+        except Exception:
+            return
+
+        action = data.get('action') or data.get('command')
+        details = data.get('details')
+        if not action:
+            return
+
+        # Broadcast score directly to control panel (<2ms)
+        await self.channel_layer.group_send(
+            f"control_{self.tatami_pk}",
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
+        )
+        await self.channel_layer.group_send(
+            f"admin_control_{self.tatami_pk}",
+            {
+                "type": "broadcast_command",
+                "message": action,
+                "details": details,
+            }
         )
 
     async def broadcast_command(self, event):
@@ -518,7 +557,7 @@ class LoKataConsumer(AsyncWebsocketConsumer):
 
         command = data.get('command') or data.get('action')
         if command == 'get_current':
-            details = await get_tatami_manager_details(self.tatami_pk)
+            details = await get_current_match_details(self.tatami_pk)
             if details:
                 await self.send(text_data=json.dumps({
                     "command": "get_atlet",

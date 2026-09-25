@@ -11,6 +11,7 @@ import random # type: ignore
 from channels.layers import get_channel_layer # type: ignore
 from asgiref.sync import async_to_sync # type: ignore
 from django.views.decorators.csrf import csrf_exempt # type: ignore
+from django.views.decorators.clickjacking import xframe_options_sameorigin # type: ignore
 from django.http import JsonResponse, HttpResponse # type: ignore
 from collections import defaultdict # type: ignore
 from itertools import groupby # type: ignore
@@ -33,6 +34,31 @@ from django.urls import reverse # type: ignore
 import sys
 import asyncio
 import concurrent.futures
+
+INDO_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
+               'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+def get_event_date_range(event):
+    """
+    Mengambil rentang tanggal event dari hari pertama dan terakhir di Roster Maker (TimetableDay).
+    """
+    days = TimetableDay.objects.filter(event=event).exclude(tanggal__isnull=True).order_by('order')
+    first_day = days.first()
+    last_day = days.last()
+    if not first_day or not first_day.tanggal:
+        return ''
+    d1 = first_day.tanggal
+    d2 = last_day.tanggal if (last_day and last_day.tanggal) else d1
+    if d1 > d2:
+        d1, d2 = d2, d1
+    if d1 == d2:
+        return f"{d1.day} {INDO_MONTHS[d1.month - 1]} {d1.year}"
+    elif d1.year == d2.year and d1.month == d2.month:
+        return f"{d1.day} - {d2.day} {INDO_MONTHS[d1.month - 1]} {d1.year}"
+    elif d1.year == d2.year:
+        return f"{d1.day} {INDO_MONTHS[d1.month - 1]} - {d2.day} {INDO_MONTHS[d2.month - 1]} {d1.year}"
+    else:
+        return f"{d1.day} {INDO_MONTHS[d1.month - 1]} {d1.year} - {d2.day} {INDO_MONTHS[d2.month - 1]} {d2.year}"
 
 
 def auth(request):
@@ -160,14 +186,62 @@ def admin_control(request, tatami_pk):
     return render(request, 'jury/admin-control.html', context)
 
 def jury_panel(request, tatami_pk):
-    jury = Jury.objects.get(user=request.user)
-    detail_bagan = jury.tatami.detail_bagan
-    tatami = Tatami.objects.get(pk=tatami_pk)
+    if not request.user.is_authenticated:
+        messages.error(request, "Silakan login terlebih dahulu.")
+        return redirect('auth')
+
+    tatami = get_object_or_404(
+        Tatami.objects.select_related(
+            'event',
+            'detail_bagan__bagan__nomor_tanding',
+            'detail_bagan__atlet1__perguruan',
+            'detail_bagan__atlet1__utusan',
+            'detail_bagan__atlet2__perguruan',
+            'detail_bagan__atlet2__utusan',
+        ),
+        pk=tatami_pk
+    )
+    detail_bagan = tatami.detail_bagan
+
+    role = getattr(request.user, 'role', None)
+    jury_number = 1
+    is_admin_preview = False
+
+    if role and role.role_type == 'jury':
+        if role.tatami_id and role.tatami_id != tatami.pk:
+            return redirect('jury-panel', tatami_pk=role.tatami_id)
+        jury_obj = role
+        jury_number = role.jury_number or 1
+    elif (role and role.role_type in ('admin', 'admin_tatami')) or request.user.is_staff or request.user.is_superuser:
+        is_admin_preview = True
+        raw_juri = request.GET.get('juri', '1')
+        try:
+            jury_number = max(1, min(7, int(raw_juri)))
+        except (ValueError, TypeError):
+            jury_number = 1
+
+        class AdminJuryProxy:
+            def __init__(self, tatami_inst, num):
+                self.tatami = tatami_inst
+                self.jury_number = num
+        jury_obj = AdminJuryProxy(tatami, jury_number)
+    else:
+        # Fallback to legacy Jury model if available
+        legacy_jury = Jury.objects.filter(user=request.user).first()
+        if legacy_jury:
+            jury_obj = legacy_jury
+            jury_number = legacy_jury.jury_number or 1
+        else:
+            messages.error(request, "Anda tidak memiliki akses ke panel juri.")
+            return redirect('auth')
 
     context = {
-        'jury': jury,
+        'jury': jury_obj,
+        'jury_number': jury_number,
+        'is_admin_preview': is_admin_preview,
         'detail_bagan': detail_bagan,
         'tatami': tatami,
+        'event': tatami.event,
     }
     return render(request, 'jury/jury-panel.html', context)
 
@@ -1012,7 +1086,7 @@ def _handle_bob_bagan(request, event):
         atlets_temp = pool_atlets[i-1] if perulangan > 1 else atlets_temp_all
 
         bagan, round_5, _ = build_full_bracket(
-            event, nomor_tanding, nama_bagan, i,
+            event, nomor_tanding, nama_bagan, perulangan if perulangan > 1 else 1,
             atlets_temp=atlets_temp, group_field=group_field
         )
         bagan.tipe_tanding = '2'
@@ -1120,7 +1194,7 @@ def _handle_drawing_bagan(request, event):
                         nama_bagan = f'{nomor_tanding.nama_nomor_tanding} - Pool {POOL_LETTERS[i - 1]}'
                         atlets_pool = pools_atlets[i - 1]
                         _, _, collisions = build_full_bracket(
-                            event, nomor_tanding, nama_bagan, i,
+                            event, nomor_tanding, nama_bagan, perulangan,
                             atlets_temp=atlets_pool, group_field=group_field
                         )
                         total_collisions += collisions
@@ -1235,6 +1309,7 @@ def admin_dashboard(request, event_pk):
 
     return render(request, 'admin/dashboard.html', context)
 
+@xframe_options_sameorigin
 def admin_bagan_detail_round_robin(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
@@ -1521,6 +1596,7 @@ def summary(request, event_pk):
 
     return render(request, 'admin/summary.html', context)
 
+@xframe_options_sameorigin
 def admin_bagan_detail(request, event_pk, bagan_pk):
     event = Event.objects.get(pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first() if request.user.is_authenticated else None
@@ -1631,9 +1707,14 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
 
         return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
+    kop, _ = KopSurat.objects.get_or_create(event=event)
+    event_date_range = get_event_date_range(event)
+
     context = {
         'on': 'utama',
         'event': event,
+        'kop_surat': kop,
+        'event_date_range': event_date_range,
         'admin_tatami': admin_tatami,
         'tatami': tatami,
         'bagan': bagan,
@@ -2718,6 +2799,13 @@ def admin_atlet(request, event_pk):
                 messages.error(request, "Atlet tidak ditemukan.")
             return redirect('admin-atlet', event_pk=event_pk)
 
+        elif submit_type == 'hapus_semua_atlet':
+            with transaction.atomic():
+                count = Atlet.objects.filter(event=event).count()
+                Atlet.objects.filter(event=event).delete()
+            messages.success(request, f"Semua data atlet ({count} orang) berhasil dihapus dari event ini.")
+            return redirect('admin-atlet', event_pk=event_pk)
+
         elif submit_type == 'tambah_atlet':
             nama = request.POST.get('nama_atlet', '').strip().upper()
             if not nama:
@@ -2885,6 +2973,12 @@ def admin_nomor_tanding(request, event_pk):
                 messages.success(request, f"Nomor tanding '{nama}' berhasil dihapus.")
             else:
                 messages.error(request, "Nomor tanding tidak ditemukan.")
+
+        elif submit_type == 'hapus_semua_nomor_tanding':
+            with transaction.atomic():
+                count = NomorTanding.objects.filter(event=event).count()
+                NomorTanding.objects.filter(event=event).delete()
+            messages.success(request, f"Semua nomor tanding ({count} kategori) berhasil dihapus dari event ini.")
 
         return redirect('admin-nomor-tanding', event_pk=event_pk)
 
@@ -3560,34 +3654,11 @@ def get_dynamic_panel_rule(active_match):
 
 def sync_match_wasits_to_tatami(detail_bagan, tatami):
     """
-    Synchronizes the officiating crew assigned in WasitDetailBagan for a match
-    into WasitTatami for the active tatami, keeping live scoring boards and panels updated.
+    Match referee assignments (WasitDetailBagan) are match-specific and do NOT
+    automatically allocate or move referees into Tatami pools (WasitTatami).
+    Wasit in Tatami pool only exists when explicitly assigned via admin-wasit.
     """
-    if not detail_bagan or not tatami:
-        return
-    match_assignments = list(
-        WasitDetailBagan.objects.filter(detail_bagan=detail_bagan).select_related('wasit')
-    )
-    if not match_assignments:
-        return
-
-    with transaction.atomic():
-        chosen_wasit_ids = [ma.wasit_id for ma in match_assignments]
-        # Any wasit currently on tatami not in match_assignments is set to 'pool'
-        WasitTatami.objects.filter(event=tatami.event, tatami=tatami).exclude(wasit_id__in=chosen_wasit_ids).update(posisi='pool')
-        for ma in match_assignments:
-            wt = WasitTatami.objects.filter(event=tatami.event, wasit=ma.wasit).first()
-            if wt:
-                wt.tatami = tatami
-                wt.posisi = ma.posisi
-                wt.save(update_fields=['tatami', 'posisi'])
-            else:
-                WasitTatami.objects.create(
-                    event=tatami.event,
-                    tatami=tatami,
-                    wasit=ma.wasit,
-                    posisi=ma.posisi
-                )
+    return
 
 
 def auto_assign_panel_for_match(match, event):
@@ -3602,33 +3673,33 @@ def auto_assign_panel_for_match(match, event):
     needed_count = len(req_positions)
 
     conflict_perguruan_ids = set()
-    conflict_kab_kota = set()
-    if match.atlet1:
-        if match.atlet1.perguruan_id:
-            conflict_perguruan_ids.add(match.atlet1.perguruan_id)
-        if match.atlet1.utusan and match.atlet1.utusan.nama_utusan:
-            conflict_kab_kota.add(match.atlet1.utusan.nama_utusan.strip().upper())
-    if match.atlet2:
-        if match.atlet2.perguruan_id:
-            conflict_perguruan_ids.add(match.atlet2.perguruan_id)
-        if match.atlet2.utusan and match.atlet2.utusan.nama_utusan:
-            conflict_kab_kota.add(match.atlet2.utusan.nama_utusan.strip().upper())
+    if match.atlet1 and match.atlet1.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet1.perguruan_id)
+    if match.atlet2 and match.atlet2.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet2.perguruan_id)
 
     all_event_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan'))
     all_tatami_assignments = {a.wasit_id: a for a in WasitTatami.objects.filter(event=event)}
 
-    pool_1 = []  # Diff perg & kab, available
-    pool_2 = []  # Diff perg & kab, on duty elsewhere (can borrow)
-    pool_3 = []  # Fallback if referee numbers are limited
+    active_other_matches = list(
+        Tatami.objects.filter(event=event, detail_bagan__isnull=False, detail_bagan__selesai=False)
+        .exclude(detail_bagan=match)
+        .values_list('detail_bagan_id', flat=True)
+    )
+    active_live_wasit_ids = set(
+        WasitDetailBagan.objects.filter(detail_bagan_id__in=active_other_matches)
+        .values_list('wasit_id', flat=True)
+    ) if active_other_matches else set()
+
+    pool_1 = []  # Diff perguruan, available
+    pool_2 = []  # Diff perguruan, on duty elsewhere (can borrow)
+    pool_3 = []  # Fallback if referee numbers are limited (same perguruan)
 
     for w in all_event_wasits:
-        w_kab = (w.kab_kota or '').strip().upper()
-        is_conflict = bool(
-            (w.perguruan_id and w.perguruan_id in conflict_perguruan_ids) or
-            (w_kab and w_kab in conflict_kab_kota)
-        )
+        is_conflict = bool(w.perguruan_id and w.perguruan_id in conflict_perguruan_ids)
         wt = all_tatami_assignments.get(w.pk)
-        is_available = (wt is None or wt.posisi == 'pool')
+        is_on_duty = (w.pk in active_live_wasit_ids) or bool(wt and wt.posisi != 'pool')
+        is_available = not is_on_duty
 
         if not is_conflict:
             if is_available:
@@ -3639,38 +3710,20 @@ def auto_assign_panel_for_match(match, event):
             pool_3.append(w)
 
     chosen = []
-    used_pergs = set()
-    used_kabs = set()
 
-    def try_pick(wasit_list, check_perg=True, check_kab=True):
+    def try_pick(wasit_list):
         for w in wasit_list:
             if len(chosen) >= needed_count:
                 break
             if w in chosen:
                 continue
-            p_id = w.perguruan_id
-            w_k = (w.kab_kota or '').strip().upper()
-            if check_perg and p_id and p_id in used_pergs:
-                continue
-            if check_kab and w_k and w_k in used_kabs:
-                continue
             chosen.append(w)
-            if p_id:
-                used_pergs.add(p_id)
-            if w_k:
-                used_kabs.add(w_k)
 
-    try_pick(pool_1, check_perg=True, check_kab=True)
+    try_pick(pool_1)
     if len(chosen) < needed_count:
-        try_pick(pool_1, check_perg=True, check_kab=False)
+        try_pick(pool_2)
     if len(chosen) < needed_count:
-        try_pick(pool_1, check_perg=False, check_kab=False)
-    if len(chosen) < needed_count:
-        try_pick(pool_2, check_perg=True, check_kab=False)
-    if len(chosen) < needed_count:
-        try_pick(pool_2, check_perg=False, check_kab=False)
-    if len(chosen) < needed_count:
-        try_pick(pool_3, check_perg=False, check_kab=False)
+        try_pick(pool_3)
 
     with transaction.atomic():
         WasitDetailBagan.objects.filter(detail_bagan=match).delete()
@@ -3689,11 +3742,15 @@ def auto_assign_panel_for_match(match, event):
 def get_match_tatami_modal_context(match, event, selected_tatami=None):
     """
     Builds the detailed context for the Tatami Manager Match Referee modal.
+    Focuses only on referee vs athlete perguruan conflict.
+    Duplicate perguruan on the panel is allowed.
+    Wasit on tatami pool only exists if assigned manually from admin-wasit.
+    Finished matches are not treated as active on tatami.
     """
     panel_rule = get_dynamic_panel_rule(match)
     req_positions = panel_rule['required_positions']
 
-    active_tatami = Tatami.objects.filter(event=event, detail_bagan=match).first()
+    active_tatami = Tatami.objects.filter(event=event, detail_bagan=match).first() if not match.selesai else None
     tatamis = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
 
     assignments = list(
@@ -3704,22 +3761,12 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
     assigned_wasit_ids = {a.wasit_id for a in assignments}
 
     conflict_perguruan_ids = set()
-    conflict_kab_kota = set()
-    if match.atlet1:
-        if match.atlet1.perguruan_id:
-            conflict_perguruan_ids.add(match.atlet1.perguruan_id)
-        if match.atlet1.utusan and match.atlet1.utusan.nama_utusan:
-            conflict_kab_kota.add(match.atlet1.utusan.nama_utusan.strip().upper())
-    if match.atlet2:
-        if match.atlet2.perguruan_id:
-            conflict_perguruan_ids.add(match.atlet2.perguruan_id)
-        if match.atlet2.utusan and match.atlet2.utusan.nama_utusan:
-            conflict_kab_kota.add(match.atlet2.utusan.nama_utusan.strip().upper())
+    if match.atlet1 and match.atlet1.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet1.perguruan_id)
+    if match.atlet2 and match.atlet2.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet2.perguruan_id)
 
     pos_display_dict = dict(WasitTatami.POSISI_CHOICES)
-
-    perg_counts = Counter(a.wasit.perguruan.nama_perguruan for a in assignments if a.wasit.perguruan)
-    kab_counts = Counter((a.wasit.kab_kota or '').strip().upper() for a in assignments if a.wasit.kab_kota)
 
     conflict_warnings = []
     position_slots = []
@@ -3729,19 +3776,10 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
         conflict_reason = ''
         if asg:
             w = asg.wasit
-            w_kab = (w.kab_kota or '').strip().upper()
-            reasons = []
             if w.perguruan_id and w.perguruan_id in conflict_perguruan_ids:
-                reasons.append(f"Perguruan sama dengan atlet ({w.perguruan.nama_perguruan})")
-            if w_kab and w_kab in conflict_kab_kota:
-                reasons.append(f"Asal daerah sama dengan atlet ({w_kab})")
-            if w.perguruan and perg_counts[w.perguruan.nama_perguruan] > 1:
-                reasons.append(f"Duplikat perguruan ({w.perguruan.nama_perguruan}) pada panel")
-            if w_kab and kab_counts[w_kab] > 1:
-                reasons.append(f"Duplikat daerah ({w_kab}) pada panel")
-            if reasons:
                 has_conflict = True
-                conflict_reason = "; ".join(reasons)
+                perg_name = w.perguruan.nama_perguruan if w.perguruan else 'Umum'
+                conflict_reason = f"Perguruan sama dengan atlet ({perg_name})"
                 conflict_warnings.append(f"{asg.get_posisi_display()}: {w.nama_wasit} — {conflict_reason}")
 
         position_slots.append({
@@ -3755,19 +3793,39 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
     all_tatami_assignments = {a.wasit_id: a for a in WasitTatami.objects.filter(event=event)}
     all_event_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan').order_by('nama_wasit'))
 
+    # Detect wasits actively officiating an UNFINISHED match on another tatami
+    active_other_tatamis = list(
+        Tatami.objects.filter(event=event, detail_bagan__isnull=False, detail_bagan__selesai=False)
+        .exclude(detail_bagan=match)
+        .select_related('detail_bagan')
+    )
+    live_duty_map = {}  # {wasit_id: tatami_number}
+    if active_other_tatamis:
+        other_match_ids = [t.detail_bagan_id for t in active_other_tatamis]
+        match_tatami_lookup = {t.detail_bagan_id: t.tatami_number for t in active_other_tatamis}
+        for wdb in WasitDetailBagan.objects.filter(detail_bagan_id__in=other_match_ids):
+            live_duty_map[wdb.wasit_id] = match_tatami_lookup.get(wdb.detail_bagan_id)
+
     pool_candidates = []
     for w in all_event_wasits:
-        w_kab = (w.kab_kota or '').strip().upper()
         is_same_perg = bool(w.perguruan_id and w.perguruan_id in conflict_perguruan_ids)
-        is_same_kab = bool(w_kab and w_kab in conflict_kab_kota)
-        is_conflict = is_same_perg or is_same_kab
+        is_conflict = is_same_perg
 
         wt = all_tatami_assignments.get(w.pk)
         is_assigned_to_this_match = (w.pk in assigned_wasit_ids)
-        is_on_duty_other = bool(wt and wt.posisi != 'pool')
+
+        live_tatami_num = live_duty_map.get(w.pk)
+        has_fixed_tatami = bool(wt and wt.posisi != 'pool')
+
+        is_on_duty_other = bool(live_tatami_num or has_fixed_tatami)
         is_available = not is_on_duty_other
 
-        tatami_label = f"Tatami {wt.tatami.tatami_number}" if (wt and wt.tatami) else "Pool Event"
+        if live_tatami_num:
+            tatami_label = f"Tatami {live_tatami_num}"
+        elif has_fixed_tatami and wt.tatami:
+            tatami_label = f"Tatami {wt.tatami.tatami_number}"
+        else:
+            tatami_label = "Pool Standby"
 
         if is_assigned_to_this_match:
             prio_rank = 6
@@ -3778,7 +3836,7 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
             prio_rank = 1
             prio_symbol = "★"
             rec_badge = "success"
-            rec_label = "Prioritas 1: Standby (Beda Perguruan & Daerah)"
+            rec_label = "Prioritas 1: Standby (Beda Perguruan)"
         elif not is_conflict and is_on_duty_other:
             prio_rank = 2
             prio_symbol = "★"
@@ -3788,12 +3846,12 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
             prio_rank = 3
             prio_symbol = "▲"
             rec_badge = "warning"
-            rec_label = f"Konflik: Perguruan/Daerah Sama ({w.perguruan.nama_perguruan if w.perguruan else w_kab}) - Standby"
+            rec_label = f"Konflik: Perguruan Sama dengan Atlet ({w.perguruan.nama_perguruan if w.perguruan else 'Umum'}) - Standby"
         else:
             prio_rank = 4
             prio_symbol = "▲"
             rec_badge = "dark"
-            rec_label = f"Konflik: Perguruan/Daerah Sama - Bertugas di {tatami_label}"
+            rec_label = f"Konflik: Perguruan Sama dengan Atlet - Bertugas di {tatami_label}"
 
         w.priority_rank = prio_rank
         w.priority_badge_symbol = prio_symbol
@@ -4111,8 +4169,10 @@ def admin_tatami_manager(request, event_pk):
             m_pergs.add(m.atlet1.perguruan_id)
         if m.atlet2 and m.atlet2.perguruan_id:
             m_pergs.add(m.atlet2.perguruan_id)
+
         for wa in m_wasits:
-            if wa.wasit.perguruan_id and wa.wasit.perguruan_id in m_pergs:
+            w = wa.wasit
+            if w.perguruan_id and w.perguruan_id in m_pergs:
                 conflict = True
                 break
         m.has_wasit_conflict = conflict
@@ -5367,6 +5427,7 @@ def timetable_editor(request, event_pk):
         for tatami in tatamis:
             cells_for_tatami = []
             total_col_atlets = 0
+            total_col_matches = 0
             for row in day.rows.all():
                 if row.row_type == 'slot':
                     c = cell_map.get(row.id, {}).get(tatami.id)
@@ -5377,10 +5438,12 @@ def timetable_editor(request, event_pk):
                         c.cell_title = ''
                         c.cell_duration = 15
                         c.atlet_count = 0
+                        c.matches = 0
 
                         if c.nomor_tanding:
                             c.cell_title = c.nomor_tanding.nama_nomor_tanding
                             c.atlet_count = atlet_counts.get(c.nomor_tanding_id, 0)
+                            c.matches = max(0, c.atlet_count - 1) if c.atlet_count > 1 else 0
                             c.cell_duration = nt_duration_map.get(c.nomor_tanding_id, 15) or 15
                             ct = c.custom_text or ''
                             time_m = re.search(r'(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})', ct)
@@ -5389,6 +5452,7 @@ def timetable_editor(request, event_pk):
                             else:
                                 c.cell_time = ct.strip()
                             total_col_atlets += c.atlet_count
+                            total_col_matches += c.matches
                         elif c.custom_text:
                             ct = c.custom_text.strip()
                             time_m = re.search(r'(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})', ct)
@@ -5407,8 +5471,10 @@ def timetable_editor(request, event_pk):
                                 m = re.search(r'\((\d+)\)', ct)
                                 if m:
                                     c.atlet_count = int(m.group(1))
+                                c.matches = c.atlet_count
                                 c.cell_title = f"FESTIVAL ({c.atlet_count})" if c.atlet_count else "FESTIVAL"
                                 total_col_atlets += c.atlet_count
+                                total_col_matches += c.matches
                             elif any(k in ct_upper for k in ['ISHOMA', 'BREAK', 'ISTIRAHAT', 'JEDA']):
                                 c.is_break = True
                                 c.cell_title = ct.replace(f"({c.cell_time})", "").strip() if c.cell_time else ct
@@ -5420,6 +5486,7 @@ def timetable_editor(request, event_pk):
                 'tatami': tatami,
                 'cells': cells_for_tatami,
                 'total_atlets': total_col_atlets,
+                'total_matches': total_col_matches,
             })
 
         days_data.append({
@@ -5658,15 +5725,34 @@ def _render_multiple_pdfs_worker(session_cookie_name, session_cookie_value, base
         for target_url in target_urls:
             try:
                 page.goto(target_url, wait_until='networkidle', timeout=20000)
-                pdf_bytes = page.pdf(
-                    format='A4',
-                    landscape=True,
-                    print_background=True,
-                    margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
-                )
+                if 'part=sampul' in target_url:
+                    # Sampul is true 16:9 widescreen (720pt x 405pt = 10in x 5.625in), matching original PDF cover
+                    pdf_bytes = page.pdf(
+                        width='10in',
+                        height='5.625in',
+                        print_background=True,
+                        margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
+                    )
+                elif 'part=roster' in target_url:
+                    # Roster is A4 Portrait (210mm x 297mm), matching user's run sheet specification
+                    pdf_bytes = page.pdf(
+                        format='A4',
+                        landscape=False,
+                        print_background=True,
+                        margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
+                    )
+                else:
+                    # Bagans are A4 Landscape (297mm x 210mm)
+                    pdf_bytes = page.pdf(
+                        format='A4',
+                        landscape=True,
+                        print_background=True,
+                        margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
+                    )
                 pdf_bytes_list.append(pdf_bytes)
             except Exception as e:
-                logger.error(f"Error rendering PDF for {target_url}: {e}")
+                import logging
+                logging.getLogger(__name__).error(f"Error rendering PDF for {target_url}: {e}")
         browser.close()
     return pdf_bytes_list
 
@@ -5761,7 +5847,7 @@ def timetable_call_sheet(request, event_pk, day_pk, tatami_pk):
         nt = c.nomor_tanding
         if nt:
             atlets = atlets_by_nt.get(nt.pk, [])
-            match_count = max(1, len(atlets) - 1) if atlets else 0
+            match_count = max(0, len(atlets) - 1) if len(atlets) > 1 else 0
             total_matches += match_count
             total_athletes += len(atlets)
 
@@ -5801,6 +5887,290 @@ def timetable_call_sheet(request, event_pk, day_pk, tatami_pk):
         'total_athletes': total_athletes,
     }
     return render(request, 'admin/timetable_call_sheet.html', context)
+
+
+@xframe_options_sameorigin
+def timetable_tatami_booklet(request, event_pk, day_pk, tatami_pk):
+    """
+    Menampilkan buku turnamen (Tatami Booklet) yang berisi:
+    1. Sampul (Cover Page) lanskap A4 dengan visual resmi dan info Tatami.
+    2. Roster 1 Halaman (Merged Run Sheet) turnamen lengkap.
+    (Bagan partai diabaikan sementara sesuai permintaan user).
+    """
+    if not request.user.is_authenticated:
+        role = request.session.get('view_only_role')
+        if not role:
+            return redirect('auth')
+
+    event = get_object_or_404(Event, pk=event_pk)
+    day = get_object_or_404(TimetableDay, pk=day_pk, event=event)
+    tatami = get_object_or_404(Tatami, pk=tatami_pk, event=event)
+
+    # 1. Sampul / Cover info
+    kop, _ = KopSurat.objects.get_or_create(event=event)
+    event_date_range = get_event_date_range(event)
+    day_label = f"DAY {day.order + 1}"
+    if day.tanggal:
+        day_date_str = f"{day.tanggal.day} {INDO_MONTHS[day.tanggal.month - 1]} {day.tanggal.year}"
+    else:
+        day_date_str = ''
+
+    raw_alamat = (kop.alamat or '').strip()
+    if raw_alamat:
+        alamat_lines = [l.strip() for l in raw_alamat.splitlines() if l.strip()]
+        if len(alamat_lines) == 1 and ',' in alamat_lines[0]:
+            parts = [p.strip() for p in alamat_lines[0].split(',', 1)]
+            venue_line1 = parts[0]
+            venue_line2 = parts[1]
+        elif len(alamat_lines) >= 2:
+            venue_line1 = alamat_lines[0]
+            venue_line2 = ', '.join(alamat_lines[1:])
+        else:
+            venue_line1 = alamat_lines[0]
+            venue_line2 = ''
+    else:
+        venue_line1 = event.nama_event or 'GOR Kadrie Oening'
+        venue_line2 = 'Samarinda, Kalimantan Timur'
+
+    org_text = kop.nama_organisasi.strip() if kop.nama_organisasi else "FEDERASI OLAHRAGA KARATE-DO INDONESIA PROVINSI KALIMANTAN TIMUR"
+
+    # 2. Merged Roster Data across ALL days
+    atlet_counts = dict(
+        Atlet.objects.filter(nomor_tanding__event=event)
+        .values('nomor_tanding').annotate(cnt=Count('id'))
+        .values_list('nomor_tanding', 'cnt')
+    )
+
+    all_days = list(TimetableDay.objects.filter(event=event).order_by('order'))
+    all_tatamis = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
+
+    grand_total_rows = 0
+    days_roster_data = []
+
+    DAYS_ID = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+
+    for d in all_days:
+        cols = []
+        has_any_break = False
+        common_break_title = 'ISHOMA'
+        max_pre_rows = 0
+        max_post_rows = 0
+
+        day_date_formatted = ''
+        if d.tanggal:
+            weekday_name = DAYS_ID[d.tanggal.weekday()]
+            day_date_formatted = f"{weekday_name}, {d.tanggal.day} {INDO_MONTHS[d.tanggal.month - 1]} {d.tanggal.year}"
+            d_label = f"DAY {d.order + 1}, {d.tanggal.day} {INDO_MONTHS[d.tanggal.month - 1].upper()} {d.tanggal.year}"
+        else:
+            d_label = f"DAY {d.order + 1}"
+
+        for tat in all_tatamis:
+            cells = list(
+                TimetableCell.objects.filter(row__day=d, tatami=tat)
+                .select_related('nomor_tanding', 'row')
+                .order_by('row__order')
+            )
+            pre = []
+            post = []
+            break_seen = False
+            seq = 1
+            ath_cnt = 0
+            mat_cnt = 0
+
+            for c in cells:
+                is_fest = False
+                is_break = False
+                title = ''
+                a_count = 0
+                m_count = 0
+                discipline = 'kumite'
+
+                if c.nomor_tanding:
+                    title = c.nomor_tanding.nama_nomor_tanding
+                    a_count = atlet_counts.get(c.nomor_tanding_id, 0)
+                    m_count = max(0, a_count - 1) if a_count > 1 else 0
+                    if 'KATA' in title.upper():
+                        discipline = 'kata'
+                    if 'FESTIVAL' in title.upper():
+                        is_fest = True
+                elif c.custom_text:
+                    ct = c.custom_text.strip()
+                    ct_upper = ct.upper()
+                    if 'FESTIVAL' in ct_upper:
+                        is_fest = True
+                        fm = re.search(r'\((\d+)\)', ct)
+                        a_count = int(fm.group(1)) if fm else 0
+                        m_count = a_count
+                        title = f'FESTIVAL ({a_count})' if a_count else 'FESTIVAL'
+                    elif any(k in ct_upper for k in ['ISHOMA', 'BREAK', 'ISTIRAHAT', 'JEDA']):
+                        is_break = True
+                        title = ct
+                        common_break_title = ct
+                        has_any_break = True
+                    else:
+                        title = ct
+
+                card = {
+                    'title': title,
+                    'atlet_count': a_count,
+                    'matches': m_count,
+                    'discipline': discipline,
+                    'is_festival': is_fest,
+                    'is_break': is_break,
+                }
+
+                if is_break:
+                    break_seen = True
+                    continue
+
+                if not is_break:
+                    ath_cnt += a_count
+                    mat_cnt += m_count
+
+                if break_seen:
+                    post.append(card)
+                else:
+                    pre.append(card)
+
+            for card in pre:
+                card['seq'] = seq
+                seq += 1
+            for card in post:
+                card['seq'] = seq
+                seq += 1
+
+            if len(pre) > max_pre_rows:
+                max_pre_rows = len(pre)
+            if len(post) > max_post_rows:
+                max_post_rows = len(post)
+
+            cols.append({
+                'tatami': tat,
+                'tatami_name': f'TATAMI {tat.tatami_number}',
+                'athlete_count': ath_cnt,
+                'match_count': mat_cnt,
+                'pre_cards': pre,
+                'post_cards': post,
+            })
+
+        day_rows = []
+        for r in range(max_pre_rows):
+            row_cells = []
+            for col in cols:
+                c = col['pre_cards'][r] if r < len(col['pre_cards']) else None
+                row_cells.append(c)
+            day_rows.append({'type': 'match', 'cells': row_cells})
+
+        if has_any_break:
+            day_rows.append({'type': 'break', 'title': common_break_title})
+
+        for r in range(max_post_rows):
+            row_cells = []
+            for col in cols:
+                c = col['post_cards'][r] if r < len(col['post_cards']) else None
+                row_cells.append(c)
+            day_rows.append({'type': 'match', 'cells': row_cells})
+
+        day_total_rows = max_pre_rows + (1 if has_any_break else 0) + max_post_rows
+        grand_total_rows += day_total_rows
+
+        days_roster_data.append({
+            'day': d,
+            'day_label': d_label,
+            'day_date_formatted': day_date_formatted,
+            'cols': cols,
+            'rows': day_rows,
+            'col_width_pct': round(100 / max(1, len(cols)), 2),
+        })
+
+    if grand_total_rows <= 20:
+        density_class = 'density-spacious'
+    elif grand_total_rows <= 35:
+        density_class = 'density-normal'
+    elif grand_total_rows <= 50:
+        density_class = 'density-compact'
+    else:
+        density_class = 'density-ultra-compact'
+
+    scheduled_nt_ids = set(
+        TimetableCell.objects.filter(row__day__event=event, nomor_tanding__isnull=False)
+        .values_list('nomor_tanding_id', flat=True)
+    )
+    unscheduled_qs = (
+        NomorTanding.objects.filter(event=event)
+        .exclude(pk__in=scheduled_nt_ids)
+        .exclude(nama_nomor_tanding__icontains='festival')
+        .order_by('nama_nomor_tanding')
+    )
+    unscheduled_list = [f"{nt.nama_nomor_tanding} ({atlet_counts.get(nt.pk, 0)})" for nt in unscheduled_qs]
+
+    from django.utils import timezone
+    now = timezone.now()
+    printed_time = f"{now.day} {INDO_MONTHS[now.month - 1][:3]} {now.year} {now.strftime('%H:%M')}"
+
+    # 3. Ordered bagans scheduled for this Tatami on this Day
+    ordered_bagans = get_ordered_bagans_for_tatami(day, tatami)
+
+    part = request.GET.get('part', '')
+    is_pdf = request.GET.get('pdf') == '1' or request.GET.get('download') == '1'
+
+    if is_pdf:
+        sampul_url = request.build_absolute_uri(
+            reverse('timetable-tatami-booklet', kwargs={'event_pk': event.pk, 'day_pk': day.pk, 'tatami_pk': tatami.pk}) + '?part=sampul'
+        )
+        roster_url = request.build_absolute_uri(
+            reverse('timetable-tatami-booklet', kwargs={'event_pk': event.pk, 'day_pk': day.pk, 'tatami_pk': tatami.pk}) + '?part=roster'
+        )
+        bagan_urls = [
+            request.build_absolute_uri(
+                reverse('admin-bagan-detail', kwargs={'event_pk': event.pk, 'bagan_pk': b.pk}) + '?print=1'
+            )
+            for b in ordered_bagans
+        ]
+
+        all_urls = [sampul_url, roster_url] + bagan_urls
+        all_pdfs = render_authenticated_pages_to_pdf(request, all_urls)
+
+        writer = PdfWriter()
+        for pdf_bytes in all_pdfs:
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            for page in reader.pages:
+                writer.add_page(page)
+
+        buffer = io.BytesIO()
+        writer.write(buffer)
+        buffer.seek(0)
+
+        filename = f"Buku_Tatami_{tatami.tatami_number}_Day_{day.order + 1}.pdf"
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        if request.GET.get('download') == '1':
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        else:
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
+
+    context = {
+        'event': event,
+        'day': day,
+        'tatami': tatami,
+        'kop_surat': kop,
+        'day_label': day_label,
+        'day_date_str': day_date_str,
+        'event_date_range': event_date_range,
+        'venue_line1': venue_line1,
+        'venue_line2': venue_line2,
+        'org_text': org_text,
+        'days_roster_data': days_roster_data,
+        'days_count': len(days_roster_data),
+        'grand_total_rows': grand_total_rows,
+        'density_class': density_class,
+        'unscheduled_list': unscheduled_list,
+        'printed_time': printed_time,
+        'ordered_bagans': ordered_bagans,
+        'total_pages': 2 + len(ordered_bagans),
+        'part': part,
+    }
+    return render(request, 'admin/timetable_tatami_booklet.html', context)
 
 
 def api_fetch_hosted_events(request):

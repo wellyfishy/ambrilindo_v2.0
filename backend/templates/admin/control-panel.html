@@ -997,30 +997,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- AO (BIRU) ROW -->
-                            <tr>
-                                <td style="text-align: left; padding-left: 24px;">
-                                    <div class="kata-atlet-name text-primary">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</div>
-                                    <div class="kata-atlet-sub">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</div>
-                                </td>
-                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj1" name="aoScores" value="{{ ao_score.score1|default:'0.0' }}" placeholder="0.0"></td>
-                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj2" name="aoScores" value="{{ ao_score.score2|default:'0.0' }}" placeholder="0.0"></td>
-                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj3" name="aoScores" value="{{ ao_score.score3|default:'0.0' }}" placeholder="0.0"></td>
-                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj4" name="aoScores" value="{{ ao_score.score4|default:'0.0' }}" placeholder="0.0"></td>
-                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj5" name="aoScores" value="{{ ao_score.score5|default:'0.0' }}" placeholder="0.0"></td>
-                                <td>
-                                    <input type="text" class="form-control kata-bendera-val mx-auto" id="ao-bendera" value="0" readonly style="background: rgba(30, 58, 138, 0.5) !important; color: #ffffff !important; border: 2.5px solid #3b82f6 !important; font-size: 28px; font-weight: 900;">
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control kata-total-point ao mx-auto" id="totalAo" name="totalAo" value="{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}0{% endif %}">
-                                </td>
-                                <td>
-                                    <div class="form-check d-flex justify-content-center">
-                                        <input class="form-check-input" type="radio" name="pemenang" id="winner-ao-radio" value="ao" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
-                                    </div>
-                                </td>
-                            </tr>
-
                             <!-- AKA (MERAH) ROW -->
                             <tr>
                                 <td style="text-align: left; padding-left: 24px;">
@@ -1049,6 +1025,30 @@
                                 <td>
                                     <div class="form-check d-flex justify-content-center">
                                         <input class="form-check-input" type="radio" name="pemenang" id="winner-aka-radio" value="aka" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- AO (BIRU) ROW -->
+                            <tr>
+                                <td style="text-align: left; padding-left: 24px;">
+                                    <div class="kata-atlet-name text-primary">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</div>
+                                    <div class="kata-atlet-sub">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</div>
+                                </td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj1" name="aoScores" value="{{ ao_score.score1|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj2" name="aoScores" value="{{ ao_score.score2|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj3" name="aoScores" value="{{ ao_score.score3|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj4" name="aoScores" value="{{ ao_score.score4|default:'0.0' }}" placeholder="0.0"></td>
+                                <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj5" name="aoScores" value="{{ ao_score.score5|default:'0.0' }}" placeholder="0.0"></td>
+                                <td>
+                                    <input type="text" class="form-control kata-bendera-val mx-auto" id="ao-bendera" value="0" readonly style="background: rgba(30, 58, 138, 0.5) !important; color: #ffffff !important; border: 2.5px solid #3b82f6 !important; font-size: 28px; font-weight: 900;">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control kata-total-point ao mx-auto" id="totalAo" name="totalAo" value="{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}0{% endif %}">
+                                </td>
+                                <td>
+                                    <div class="form-check d-flex justify-content-center">
+                                        <input class="form-check-input" type="radio" name="pemenang" id="winner-ao-radio" value="ao" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
                                     </div>
                                 </td>
                             </tr>
@@ -1225,12 +1225,12 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Kata AO (Biru)</label>
-                            <select class="form-select select2" name="kata-ao" id="kata-ao"></select>
-                        </div>
-                        <div>
                             <label class="form-label fw-bold text-danger">Kata AKA (Merah)</label>
                             <select class="form-select select2" name="kata-aka" id="kata-aka"></select>
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold text-primary">Kata AO (Biru)</label>
+                            <select class="form-select select2" name="kata-ao" id="kata-ao"></select>
                         </div>
                     </div>
                 </div>
@@ -2864,10 +2864,10 @@
 
         if (valAka > valAo) {
             banner.css({ background: 'rgba(220, 38, 38, 0.25)', border: '2px solid #ef4444' });
-            text.html(`<span class="text-danger"><i class="fas fa-trophy me-2"></i>Wasit ${currentModalJuri} Memilih: <strong>AKA (Merah)</strong> &bull; Skor: ${valAka.toFixed(1)} vs ${valAo.toFixed(1)} (+1 Poin AKA)</span>`);
+            text.html(`<span class="text-danger"><i class="fas fa-trophy me-2"></i>Wasit ${currentModalJuri} Memilih: <strong>AKA (Merah)</strong> &bull; Skor: AO ${valAo.toFixed(1)} vs AKA ${valAka.toFixed(1)} (+1 Poin AKA)</span>`);
         } else if (valAo > valAka) {
             banner.css({ background: 'rgba(37, 99, 235, 0.25)', border: '2px solid #3b82f6' });
-            text.html(`<span class="text-primary"><i class="fas fa-trophy me-2"></i>Wasit ${currentModalJuri} Memilih: <strong>AO (Biru)</strong> &bull; Skor: ${valAo.toFixed(1)} vs ${valAka.toFixed(1)} (+1 Poin AO)</span>`);
+            text.html(`<span class="text-primary"><i class="fas fa-trophy me-2"></i>Wasit ${currentModalJuri} Memilih: <strong>AO (Biru)</strong> &bull; Skor: AO ${valAo.toFixed(1)} vs AKA ${valAka.toFixed(1)} (+1 Poin AO)</span>`);
         } else {
             banner.css({ background: 'rgba(100, 116, 139, 0.25)', border: '2px solid #64748b' });
             text.html(`<span class="text-light"><i class="fas fa-handshake me-2"></i>Wasit ${currentModalJuri}: <strong>SKOR SERI</strong> (${valAka.toFixed(1)}) &bull; Belum ada poin tambahan</span>`);

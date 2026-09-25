@@ -851,10 +851,16 @@
         .btn-tm-live:hover { background: #b91c1c; }
 
         .btn-tm-auto {
-            background: #f59e0b;
-            color: #451a03;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
         }
-        .btn-tm-auto:hover { background: #d97706; }
+        .btn-tm-auto:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.45);
+        }
 
         .btn-tm-clear {
             background: transparent;
@@ -1053,6 +1059,15 @@
             background: rgba(239, 68, 68, 0.05);
         }
 
+        .tm-slot-card.is-vacant {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+        }
+        .tm-slot-card.is-vacant:hover {
+            border-color: rgba(59, 130, 246, 0.45);
+            background: rgba(59, 130, 246, 0.03);
+        }
+
         .tm-slot-header {
             display: flex;
             align-items: center;
@@ -1076,9 +1091,10 @@
         .tm-conflict-chip {
             font-size: 10px;
             font-weight: 800;
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.2);
-            padding: 1px 6px;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.25);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            padding: 1px 7px;
             border-radius: 3px;
         }
 
@@ -1086,15 +1102,21 @@
             font-size: 10px;
             font-weight: 800;
             color: #34d399;
-            background: rgba(16, 185, 129, 0.15);
-            padding: 1px 6px;
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 1px 7px;
             border-radius: 3px;
         }
 
         .tm-vacant-chip {
             font-size: 10px;
-            font-weight: 700;
-            color: var(--text-muted);
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #cbd5e1;
+            background: rgba(148, 163, 184, 0.15);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            padding: 1px 7px;
+            border-radius: 4px;
         }
 
         .tm-slot-body {
@@ -1112,17 +1134,26 @@
 
         .tm-assigned-meta {
             font-size: 12px;
-            color: var(--text-muted);
+            color: #94a3b8;
             margin-top: 2px;
             display: flex;
             align-items: center;
             gap: 6px;
+            font-weight: 500;
+        }
+
+        .tm-slot-empty-hint {
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+            display: block;
         }
 
         .btn-slot-remove {
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: #94a3b8;
             width: 28px;
             height: 28px;
             border-radius: var(--radius-sm);
@@ -1133,19 +1164,24 @@
             transition: all 0.15s ease;
         }
         .btn-slot-remove:hover {
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.25);
             color: #f87171;
         }
 
         .tm-wasit-quick-select {
             background: #1e293b;
-            border: 1px solid #334155;
+            border: 1px solid #475569;
             color: #ffffff;
             font-size: 12px;
+            font-weight: 500;
             padding: 5px 8px;
             border-radius: var(--radius-control);
             outline: none;
             flex: 1;
+            transition: border-color 0.15s;
+        }
+        .tm-wasit-quick-select:focus {
+            border-color: #3b82f6;
         }
 
         .btn-tm-quick-add {
@@ -1159,6 +1195,10 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-tm-quick-add:hover {
+            background: #059669;
         }
 
         /* Pool Drawer in Modal */
@@ -1186,18 +1226,25 @@
             left: 10px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-muted);
+            color: #94a3b8;
             font-size: 12px;
         }
         .tm-modal-search-input {
             width: 100%;
             background: #0c0d12;
-            border: 1px solid var(--border-glass);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
             font-size: 12px;
-            padding: 6px 10px 6px 30px;
+            padding: 7px 10px 7px 30px;
             border-radius: var(--radius-control);
             outline: none;
+            transition: border-color 0.15s;
+        }
+        .tm-modal-search-input:focus {
+            border-color: #3b82f6;
+        }
+        .tm-modal-search-input::placeholder {
+            color: #64748b;
         }
 
         .tm-modal-filter-chips {
@@ -1208,20 +1255,26 @@
         }
 
         .m-chip {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #cbd5e1;
             font-size: 11px;
             font-weight: 600;
-            padding: 3px 8px;
+            padding: 3px 10px;
             border-radius: var(--radius-pill);
             cursor: pointer;
             transition: all 0.15s ease;
+        }
+        .m-chip:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
         }
         .m-chip.active {
             background: #2563eb;
             color: #ffffff;
             border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
         }
 
         .tm-modal-wasit-list {
@@ -1237,7 +1290,7 @@
             background: #111217;
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-control);
-            padding: 8px 10px;
+            padding: 9px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1250,8 +1303,8 @@
         }
 
         .tm-wasit-item.priority-1 {
-            border-color: rgba(16, 185, 129, 0.4);
-            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.45);
+            background: rgba(16, 185, 129, 0.06);
         }
 
         .tm-item-name {
@@ -1261,46 +1314,103 @@
         }
 
         .tm-item-meta {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 1px;
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-top: 2px;
+            font-weight: 500;
         }
 
         .tm-prio-badge {
             font-size: 9.5px;
             font-weight: 800;
-            padding: 2px 6px;
+            padding: 2px 7px;
             border-radius: 3px;
             text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
-        .badge-success { background: #10b981; color: #042f2e; }
-        .badge-lendable { background: #06b6d4; color: #083344; }
-        .badge-primary { background: #3b82f6; color: #ffffff; }
-        .badge-warning { background: #f59e0b; color: #451a03; }
-        .badge-dark { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; }
+        .badge-success {
+            background: rgba(16, 185, 129, 0.18);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #34d399;
+        }
+        .badge-lendable {
+            background: rgba(6, 182, 212, 0.18);
+            border: 1px solid rgba(6, 182, 212, 0.45);
+            color: #38bdf8;
+        }
+        .badge-primary {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #93c5fd;
+        }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: #fbbf24;
+        }
+        .badge-dark {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #cbd5e1;
+        }
 
         .btn-tm-assign {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             color: #ffffff;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
             cursor: pointer;
+            transition: all 0.15s ease;
         }
-        .btn-tm-assign:hover {
+        .btn-tm-assign:hover, .btn-tm-assign:focus {
             background: #2563eb;
             border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+        }
+
+        .dropdown-menu-dark {
+            background: #181b24 !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85) !important;
+            border-radius: 6px !important;
+            padding: 6px !important;
+            z-index: 2100 !important;
+        }
+        .dropdown-menu-dark .dropdown-item {
+            color: #e2e8f0 !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            border-radius: 4px !important;
+            padding: 7px 12px !important;
+            transition: all 0.12s ease !important;
+        }
+        .dropdown-menu-dark .dropdown-item:hover, .dropdown-menu-dark .dropdown-item:focus {
+            background: #2563eb !important;
+            color: #ffffff !important;
         }
 
         .tm-duty-tag {
             font-size: 10.5px;
             font-weight: 800;
             color: #60a5fa;
-            background: rgba(37, 99, 235, 0.15);
-            padding: 2px 7px;
+            background: rgba(37, 99, 235, 0.18);
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            padding: 3px 8px;
             border-radius: 4px;
+        }
+
+        /* Modal Footer Hint */
+        .tm-modal-footer .modal-hint-text {
+            color: #94a3b8 !important;
+            font-size: 12px !important;
+            font-weight: 500;
+        }
+        .tm-modal-footer .modal-hint-text i {
+            color: #60a5fa;
         }
 
         /* Floating Toast Notification */
@@ -1426,7 +1536,7 @@
                 <div class="round-col" data-round="1">
                     <div class="round-label">
                         <span class="round-step">R1</span>
-                        {% if selected_bagan.pool == 2 %}BABAK 32 BESAR{% elif selected_bagan.pool == 4 %}BABAK 64 BESAR{% else %}BABAK 16 BESAR{% endif %}
+                        {% if selected_bagan.pool == 0 or selected_bagan.is_final_bagan %}BABAK 16 BESAR{% elif selected_bagan.total_pools == 2 or selected_bagan.pool == 2 %}BABAK 32 BESAR{% elif selected_bagan.total_pools == 4 or selected_bagan.pool == 4 %}BABAK 64 BESAR{% else %}BABAK 16 BESAR{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_1 %}
@@ -1441,7 +1551,7 @@
                 <div class="round-col" data-round="2">
                     <div class="round-label">
                         <span class="round-step">R2</span>
-                        {% if selected_bagan.pool == 2 %}BABAK 16 BESAR{% elif selected_bagan.pool == 4 %}BABAK 32 BESAR{% else %}PEREMPAT FINAL{% endif %}
+                        {% if selected_bagan.pool == 0 or selected_bagan.is_final_bagan %}PEREMPAT FINAL{% elif selected_bagan.total_pools == 2 or selected_bagan.pool == 2 %}BABAK 16 BESAR{% elif selected_bagan.total_pools == 4 or selected_bagan.pool == 4 %}BABAK 32 BESAR{% else %}PEREMPAT FINAL{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_2 %}
@@ -1456,7 +1566,7 @@
                 <div class="round-col" data-round="3">
                     <div class="round-label">
                         <span class="round-step">R3</span>
-                        {% if selected_bagan.pool == 2 %}PEREMPAT FINAL{% elif selected_bagan.pool == 4 %}BABAK 16 BESAR{% else %}SEMIFINAL{% endif %}
+                        {% if selected_bagan.pool == 0 or selected_bagan.is_final_bagan %}SEMIFINAL{% elif selected_bagan.total_pools == 2 or selected_bagan.pool == 2 %}PEREMPAT FINAL{% elif selected_bagan.total_pools == 4 or selected_bagan.pool == 4 %}BABAK 16 BESAR{% else %}SEMIFINAL{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_3 %}
@@ -1471,7 +1581,7 @@
                 <div class="round-col is-final" data-round="4">
                     <div class="round-label text-warning">
                         <span class="round-step text-warning border-warning"><i class="fas fa-trophy"></i></span>
-                        {% if selected_bagan.pool == 2 %}SEMIFINAL{% elif selected_bagan.pool == 4 %}PEREMPAT FINAL{% else %}FINAL{% endif %}
+                        {% if selected_bagan.pool == 0 or selected_bagan.is_final_bagan %}FINAL{% elif selected_bagan.total_pools == 2 or selected_bagan.pool == 2 %}SEMIFINAL{% elif selected_bagan.total_pools == 4 or selected_bagan.pool == 4 %}PEREMPAT FINAL{% else %}FINAL{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_4 %}
@@ -1538,8 +1648,8 @@
                 </div>
             </div>
             <div class="tm-modal-footer">
-                <span class="text-muted small">
-                    <i class="fas fa-info-circle me-1"></i>Klik kartu wasit untuk menugaskan. Sistem otomatis mendeteksi konflik perguruan dan asal daerah.
+                <span class="modal-hint-text">
+                    <i class="fas fa-info-circle me-1"></i>Klik kartu wasit untuk menugaskan. Sistem otomatis mendeteksi konflik perguruan.
                 </span>
                 <button type="button" class="btn-tm btn-tm-outline" onclick="closeMatchModal()">Tutup</button>
             </div>
@@ -1550,7 +1660,8 @@
     <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
 
     <!-- Scripts -->
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/core/popper.min.js' %}"></script>
+    <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
     <script>
         /* Toast Notification Engine */
         function showToast(message, type = 'info') {
@@ -1729,6 +1840,11 @@
             if (isTmSubmitting) return;
             isTmSubmitting = true;
 
+            const prevSearch = document.getElementById('modalWasitSearch')?.value || '';
+            const prevFilter = modalCurrentFilter;
+            const listEl = document.getElementById('modalWasitListContainer');
+            const prevScrollTop = listEl ? listEl.scrollTop : 0;
+
             const formData = new FormData(form);
             formData.set('ajax', '1');
 
@@ -1757,7 +1873,26 @@
 
                     if (data.html) {
                         const container = document.getElementById('modalBodyContainer');
-                        if (container) container.innerHTML = data.html;
+                        if (container) {
+                            container.innerHTML = data.html;
+                            if (prevSearch) {
+                                const searchInput = document.getElementById('modalWasitSearch');
+                                if (searchInput) searchInput.value = prevSearch;
+                            }
+                            if (prevFilter) {
+                                modalCurrentFilter = prevFilter;
+                                const activeChip = document.querySelector(`.tm-modal-filter-chips .m-chip[data-filter="${prevFilter}"]`);
+                                if (activeChip) {
+                                    document.querySelectorAll('.tm-modal-filter-chips .m-chip').forEach(b => b.classList.remove('active'));
+                                    activeChip.classList.add('active');
+                                }
+                            }
+                            filterModalWasitList();
+                            const newListEl = document.getElementById('modalWasitListContainer');
+                            if (newListEl && prevScrollTop) {
+                                newListEl.scrollTop = prevScrollTop;
+                            }
+                        }
                     }
 
                     // Update match card badge on bracket live

@@ -1,371 +1,1050 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jury Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel Wasit Kata &bull; Tatami {{ tatami.tatami_number }} &bull; Wasit {{ jury.jury_number }}</title>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/plugins.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/ambrilindo.min.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        :root {
+            --bg-body: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-header: #1f2937;
+            --border-color: #374151;
+            --aka-red: #ef4444;
+            --aka-dark: #7f1d1d;
+            --aka-glow: rgba(239, 68, 68, 0.35);
+            --ao-blue: #3b82f6;
+            --ao-dark: #1e3a8a;
+            --ao-glow: rgba(59, 130, 246, 0.35);
+            --gold: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            background-color:rgb(25, 25, 25);
-            color: gold;
-            font-family: sans-serif;
+            background-color: var(--bg-body);
+            color: #f3f4f6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 40px;
         }
 
-        .ambrilindo-logo {
-            display: block;
+        /* Top Sticky Bar */
+        .jury-topbar {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            padding: 10px 16px;
+        }
+
+        .topbar-brand {
+            height: 28px;
+            width: auto;
+        }
+
+        .jury-title-pill {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #cbd5e1;
+        }
+
+        .jury-badge-active {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            padding: 5px 14px;
+            border-radius: 999px;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .ws-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 4px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ws-badge.live { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
+        .ws-badge.connecting { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+        .ws-badge.offline { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
+
+        /* Admin Preview Ribbon */
+        .admin-ribbon {
+            background: #451a03;
+            border-bottom: 1px solid #b45309;
+            color: #fde68a;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .admin-juri-btn {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fef3c7;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+        }
+        .admin-juri-btn.active {
+            background: #f59e0b;
+            color: #000000;
+            border-color: #f59e0b;
+        }
+
+        /* Match Info Header */
+        .match-info-strip {
+            background: #111827;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin: 14px auto;
+            max-width: 720px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .match-category {
+            font-size: 13px;
+            font-weight: 700;
+            color: #e2e8f0;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .match-round {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        /* Container */
+        .jury-container {
+            max-width: 720px;
             margin: 0 auto;
-            max-width: 80%;
-            height: auto;
+            padding: 0 12px;
         }
 
-        input.slider-red {
-            width: 80%;
-            -webkit-appearance: none;
-            background: transparent;
+        /* Card Common */
+        .kata-fighter-card {
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 18px;
+            border-width: 2px;
+            border-style: solid;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        input.slider-red::-webkit-slider-thumb {
+        /* AKA Card Styling (Red - Top) */
+        .card-aka {
+            border-color: rgba(239, 68, 68, 0.6);
+            background: linear-gradient(180deg, rgba(127, 29, 29, 0.25) 0%, rgba(17, 24, 39, 0.95) 100%);
+        }
+        .card-aka-head {
+            background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #991b1b 100%);
+            color: #ffffff;
+            padding: 12px 16px;
+            position: relative;
+        }
+
+        /* AO Card Styling (Blue - Bottom) */
+        .card-ao {
+            border-color: rgba(59, 130, 246, 0.6);
+            background: linear-gradient(180deg, rgba(30, 58, 138, 0.25) 0%, rgba(17, 24, 39, 0.95) 100%);
+        }
+        .card-ao-head {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1e40af 100%);
+            color: #ffffff;
+            padding: 12px 16px;
+            position: relative;
+        }
+
+        /* Fighter Info Headers */
+        .fighter-badge-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .fighter-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .fighter-sub {
+            font-size: 12px;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+        .fighter-kata-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-top: 6px;
+        }
+
+        /* Winner Ribbon */
+        .winner-tag {
+            display: none;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            padding: 4px 12px;
+            border-radius: 999px;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+            animation: pulseWinner 1.5s infinite;
+        }
+        @keyframes pulseWinner {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Card Body & Scoring Engine */
+        .card-body-score {
+            padding: 18px 16px;
+            background: #0f172a;
+        }
+
+        .score-hero-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1;
+            text-align: center;
+            margin: 6px 0 14px;
+            letter-spacing: -0.02em;
+        }
+        .score-hero-aka {
+            color: var(--aka-red);
+            text-shadow: 0 0 20px var(--aka-glow);
+        }
+        .score-hero-ao {
+            color: var(--ao-blue);
+            text-shadow: 0 0 20px var(--ao-glow);
+        }
+
+        /* Steppers Row */
+        .stepper-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .btn-stepper {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 15px;
+            min-width: 58px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .btn-stepper:active {
+            transform: scale(0.92);
+        }
+        .btn-stepper-aka {
+            background: #1f2937;
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+        .btn-stepper-aka:hover, .btn-stepper-aka:focus {
+            background: #ef4444;
+            color: #ffffff;
+        }
+        .btn-stepper-ao {
+            background: #1f2937;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+        }
+        .btn-stepper-ao:hover, .btn-stepper-ao:focus {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        /* Range Slider Styling */
+        .slider-container {
+            padding: 0 6px;
+            margin-bottom: 16px;
+        }
+        input[type=range].custom-slider {
             -webkit-appearance: none;
-            height: 30px;
-            width: 30px;
-            background: red;
-            border-radius: 50%;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: #1e293b;
+            outline: none;
             cursor: pointer;
-            margin-top: -10px;
+        }
+        input[type=range].slider-aka::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #ef4444;
+            border: 3px solid #ffffff;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+            cursor: pointer;
+        }
+        input[type=range].slider-aka::-moz-range-thumb {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #ef4444;
+            border: 3px solid #ffffff;
+            cursor: pointer;
+        }
+        input[type=range].slider-ao::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: 3px solid #ffffff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+            cursor: pointer;
+        }
+        input[type=range].slider-ao::-moz-range-thumb {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: 3px solid #ffffff;
+            cursor: pointer;
         }
 
-        input.slider-red::-webkit-slider-runnable-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
+        /* Presets Chips */
+        .preset-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+        .btn-preset {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            transition: all 0.15s ease;
+        }
+        .btn-preset:active {
+            transform: scale(0.94);
+        }
+        .btn-preset:hover {
+            background: #334155;
+            color: #ffffff;
+        }
+        .btn-preset.active-aka {
+            background: #ef4444 !important;
+            color: #ffffff !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+        .btn-preset.active-ao {
+            background: #3b82f6 !important;
+            color: #ffffff !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
         }
 
-        input.slider-red::-moz-range-thumb {
-            height: 30px;
-            width: 30px;
-            background: red;
+        /* Action Buttons */
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-submit-score {
+            height: 54px;
+            font-size: 17px;
+            font-weight: 800;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
             border: none;
-            border-radius: 50%;
-            cursor: pointer;
+            width: 100%;
+        }
+        .btn-submit-aka {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+        }
+        .btn-submit-aka:hover, .btn-submit-aka:active {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #ffffff;
+        }
+        .btn-submit-ao {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #ffffff;
+        }
+        .btn-submit-ao:hover, .btn-submit-ao:active {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
         }
 
-        input.slider-red::-moz-range-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
-        }
-
-        /* === Disabled state === */
-
-        input.slider-red:disabled::-webkit-slider-thumb {
-            background: #999;
-            cursor: not-allowed;
-        }
-
-        input.slider-red:disabled::-moz-range-thumb {
-            background: #999;
-            cursor: not-allowed;
-        }
-
-        input.slider-blue {
-            width: 80%;
-            -webkit-appearance: none;
-            background: transparent;
-        }
-
-        input.slider-blue::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 30px;
-            width: 30px;
-            background: blue;
-            border-radius: 50%;
-            cursor: pointer;
-            margin-top: -10px;
-        }
-
-        input.slider-blue::-webkit-slider-runnable-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
-        }
-
-        input.slider-blue::-moz-range-thumb {
-            height: 30px;
-            width: 30px;
-            background: blue;
+        .btn-reset-score {
+            height: 54px;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #f59e0b;
+            color: #000000;
             border: none;
-            border-radius: 50%;
-            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+        }
+        .btn-reset-score:hover {
+            background: #d97706;
+            color: #000000;
         }
 
-        input.slider-blue::-moz-range-track {
-            height: 8px;
-            background: #ccc;
-            border-radius: 4px;
-        }
-
-        /* === Disabled state === */
-
-        input.slider-blue:disabled::-webkit-slider-thumb {
-            background: #999;
-            cursor: not-allowed;
-        }
-
-        input.slider-blue:disabled::-moz-range-thumb {
-            background: #999;
-            cursor: not-allowed;
+        .submitted-locked {
+            opacity: 0.55;
+            pointer-events: none;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <div class="ambrilindo-logo">
-        <img class="ambrilindo-logo" src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="">
-    </div>
+    {% csrf_token %}
 
-    <div>
-        <h1 style="text-align: center;">{{ jury.tatami }} | Juri {{ jury.jury_number }} | <a href="" class="btn btn-success">Refresh</a></h1>
-    </div>
-
-    <div style="">
-        <div style="text-align: center; background: linear-gradient(to bottom, rgb(255, 112, 112),rgb(255, 46, 46)); top-left-radius: 10px; border-top-right-radius: 10px;">
-            <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b><span id="atlet_red_name">{{ detail_bagan.atlet1.nama_atlet }}</span></b> <br>
-                <span style="color: gold; display: none" id="aka-winner"><b>WINNER</b></span>
-            </h1>
-            <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                <span id="kata-aka">0 - Blank</span> | <span id="atlet_red_perguruan">{{ detail_bagan.atlet1.perguruan.nama_perguruan }}</span> | <span id="atlet_red_utusan">{{ detail_bagan.atlet1.utusan.nama_utusan }}</span>
-            </h4>
+    <!-- Admin Preview Banner (Only visible when Admin inspects) -->
+    {% if is_admin_preview %}
+    <div class="admin-ribbon">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-shield-alt text-warning"></i>
+            <span>Mode Inspeksi Admin &bull; Pilih Simulasi Wasit:</span>
         </div>
-        <div style="background-color: white; padding-bottom: 20px;">
-            <h1 id="scoreDisplayAka" style="padding-top: 20px; max-width: 90%; margin: 0 auto; text-align: center; color: red; font-weight: bold; font-size: 50px;">
-                7.5
-            </h1>
-            <div style="text-align: center;">
-                <input id="aka-slider" type="range" class="slider-red" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAka').innerText = this.value;">
-            </div>
-        </div>
-
-        <div style="background: linear-gradient(to top, rgb(255, 112, 112),rgb(255, 46, 46)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;">
-            <div style="text-align: right;">
-                <a href="#" id="akaKirimModalBtn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#akaKirimModal" style="font-size: 25px;"><b>Kirim</b></a>
-                <a href="#" id="akaResetModalBtn" class="btn btn-warning btn-sm hidden" data-bs-toggle="modal" data-bs-target="#akaResetModal" style="font-size: 25px;"><b>Reset</b></a>
-
-                <div class="modal fade" id="akaKirimModal" tabindex="-1" aria-labelledby="akaKirimModal" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title">Konfirmasi Score</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin mengirim score aka?</h2>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
-                                <button id="akaKirimScore" class="btn btn-success" data-bs-dismiss="modal" aria-label="Close">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="akaResetModal" tabindex="-1" aria-labelledby="akaResetModal" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-danger text-white">
-                                <h5 class="modal-title">Konfirmasi Reset</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin reset score aka?</h2>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
-                                <button id="akaResetScore" class="btn btn-success" data-bs-dismiss="modal" aria-label="Close">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div style="text-align: center; background: linear-gradient(to bottom, rgb(105, 120, 255),rgb(26, 80, 255)); top-left-radius: 10px; border-top-right-radius: 10px; margin-top: 10px;">
-            <h1 style="padding-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white;">
-                <b><span id="atlet_blue_name">{{ detail_bagan.atlet2.nama_atlet }}</span></b> <br>
-                <span style="color: gold; display: none" id="ao-winner"><b>WINNER</b></span>
-            </h1>
-            <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; margin: 0 auto; color: white; margin-top: 5px; padding-bottom: 10px;">
-                <span id="kata-ao">0 - Blank</span> | <span id="atlet_blue_perguruan">{{ detail_bagan.atlet2.perguruan.nama_perguruan }}</span> | <span id="atlet_blue_utusan">{{ detail_bagan.atlet2.utusan.nama_utusan }}</span>
-            </h4>
-        </div>
-        <div style="background-color: white; padding-bottom: 20px;">
-            <h1 id="scoreDisplayAo" style="padding-top: 20px; max-width: 90%; margin: 0 auto; text-align: center; color: blue; font-weight: bold; font-size: 50px;">
-                7.5
-            </h1>
-            <div style="text-align: center;">
-                <input id="ao-slider" type="range" class="slider-blue" min="5.0" max="10.0" step="0.1" value="7.5" style="width: 80%; -webkit-appearance: none; background: transparent;" oninput="document.getElementById('scoreDisplayAo').innerText = this.value;">
-            </div>
-        </div>
-
-        <div style="background: linear-gradient(to top, rgb(105, 120, 255),rgb(26, 80, 255)); border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; padding: 5px;  ">
-            <div style="text-align: right;">
-                <a href="#" id="aoKirimModalBtn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aoKirimModal" style="font-size: 25px;"><b>Kirim</b></a>
-                <a href="#" id="aoResetModalBtn" class="btn btn-warning btn-sm hidden" data-bs-toggle="modal" data-bs-target="#aoResetModal" style="font-size: 25px;"><b>Reset</b></a>
-
-                <div class="modal fade" id="aoKirimModal" tabindex="-1" aria-labelledby="aoKirimModal" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">Konfirmasi Score</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin mengirim score ao?</h2>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
-                                <button id="aoKirimScore" class="btn btn-success" data-bs-dismiss="modal" aria-label="Close">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="aoResetModal" tabindex="-1" aria-labelledby="aoResetModal" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">Konfirmasi Reset</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <h2 style="text-align: center; color: black">Apakah anda yakin ingin reset score ao?</h2>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal" aria-label="Close">Kembali</button>
-                                <button id="aoResetScore" class="btn btn-success" data-bs-dismiss="modal" aria-label="Close">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+        <div class="d-flex align-items-center gap-1">
+            <a href="?juri=1" class="admin-juri-btn {% if jury_number == 1 %}active{% endif %}">W1</a>
+            <a href="?juri=2" class="admin-juri-btn {% if jury_number == 2 %}active{% endif %}">W2</a>
+            <a href="?juri=3" class="admin-juri-btn {% if jury_number == 3 %}active{% endif %}">W3</a>
+            <a href="?juri=4" class="admin-juri-btn {% if jury_number == 4 %}active{% endif %}">W4</a>
+            <a href="?juri=5" class="admin-juri-btn {% if jury_number == 5 %}active{% endif %}">W5</a>
         </div>
     </div>
+    {% endif %}
+
+    <!-- Top Sticky Bar -->
+    <header class="jury-topbar">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Logo" class="topbar-brand">
+                <span class="jury-title-pill">Tatami {{ tatami.tatami_number }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="ws-badge connecting" id="wsStatusBadge">
+                    <span class="spinner-grow spinner-grow-sm" role="status" style="width: 8px; height: 8px;"></span> WS Hubung...
+                </span>
+                <span class="jury-badge-active">WASIT {{ jury_number }}</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="jury-container mt-3">
+
+        <!-- Match Info Header -->
+        <div class="match-info-strip">
+            <div class="match-category">
+                <i class="fas fa-trophy text-warning me-1"></i>
+                <span id="matchNomorTanding">{{ detail_bagan.bagan.nomor_tanding.nama_nomor_tanding|default:tatami.event.nama_event|default:"Pertandingan Kata" }}</span>
+            </div>
+            <div class="match-round" id="matchRound">
+                {% if detail_bagan.round %}Babak {{ detail_bagan.round }}{% else %}Kata Perorangan / Beregu{% endif %}
+            </div>
+        </div>
+
+        <!-- ========================================================
+             1. AKA (MERAH) SECTION (VERTICAL PLACEMENT: TOP)
+             ======================================================== -->
+        <div class="kata-fighter-card card-aka" id="akaCardWrap">
+            <!-- Header -->
+            <div class="card-aka-head">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="fighter-badge-label">AKA (MERAH)</span>
+                        <div class="fighter-name" id="atlet_red_name">
+                            {{ detail_bagan.atlet1.nama_atlet|default:"Menunggu Atlet AKA" }}
+                        </div>
+                        <div class="fighter-sub">
+                            <span id="atlet_red_perguruan">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }}</span> &bull; 
+                            <span id="atlet_red_utusan">{{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="winner-tag" id="aka-winner"><i class="fas fa-crown me-1"></i> WINNER</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="fighter-kata-badge">
+                        <i class="fas fa-scroll"></i> Kata: <strong id="kata-aka">{{ detail_bagan.kata1|default:"0 - Blank" }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body-score">
+                <!-- Large Display -->
+                <div class="score-hero-display score-hero-aka" id="scoreDisplayAka">7.5</div>
+
+                <!-- Stepper Buttons -->
+                <div class="stepper-row" id="akaControlsArea">
+                    <button type="button" class="btn btn-stepper btn-stepper-aka" onclick="stepScore('aka', -0.5)">-0.5</button>
+                    <button type="button" class="btn btn-stepper btn-stepper-aka" onclick="stepScore('aka', -0.1)">-0.1</button>
+                    <button type="button" class="btn btn-stepper btn-stepper-aka" onclick="stepScore('aka', 0.1)">+0.1</button>
+                    <button type="button" class="btn btn-stepper btn-stepper-aka" onclick="stepScore('aka', 0.5)">+0.5</button>
+                </div>
+
+                <!-- Slider -->
+                <div class="slider-container">
+                    <input id="aka-slider" type="range" class="custom-slider slider-aka" min="5.0" max="10.0" step="0.1" value="7.5" oninput="onSliderChange('aka', this.value)">
+                    <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                        <span>5.0</span><span>6.0</span><span>7.0</span><span>8.0</span><span>9.0</span><span>10.0</span>
+                    </div>
+                </div>
+
+                <!-- Preset Chips -->
+                <div class="preset-row">
+                    <button type="button" class="btn btn-preset" onclick="setPreset('aka', 6.5)">6.5</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('aka', 7.0)">7.0</button>
+                    <button type="button" class="btn btn-preset active-aka" onclick="setPreset('aka', 7.5)">7.5</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('aka', 8.0)">8.0</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('aka', 8.2)">8.2</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('aka', 8.5)">8.5</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('aka', 9.0)">9.0</button>
+                </div>
+
+                <!-- Action Button -->
+                <div class="action-row">
+                    <button type="button" class="btn btn-submit-score btn-submit-aka" id="akaKirimModalBtn" data-bs-toggle="modal" data-bs-target="#akaKirimModal">
+                        <i class="fas fa-paper-plane"></i> Kirim Nilai AKA
+                    </button>
+                    <button type="button" class="btn btn-reset-score hidden" id="akaResetModalBtn" data-bs-toggle="modal" data-bs-target="#akaResetModal">
+                        <i class="fas fa-undo"></i> Nilai Terkirim (Reset)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================
+             2. AO (BIRU) SECTION (VERTICAL PLACEMENT: BOTTOM)
+             ======================================================== -->
+        <div class="kata-fighter-card card-ao" id="aoCardWrap">
+            <!-- Header -->
+            <div class="card-ao-head">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="fighter-badge-label">AO (BIRU)</span>
+                        <div class="fighter-name" id="atlet_blue_name">
+                            {{ detail_bagan.atlet2.nama_atlet|default:"Menunggu Atlet AO" }}
+                        </div>
+                        <div class="fighter-sub">
+                            <span id="atlet_blue_perguruan">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }}</span> &bull; 
+                            <span id="atlet_blue_utusan">{{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="winner-tag" id="ao-winner"><i class="fas fa-crown me-1"></i> WINNER</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="fighter-kata-badge">
+                        <i class="fas fa-scroll"></i> Kata: <strong id="kata-ao">{{ detail_bagan.kata2|default:"0 - Blank" }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body-score">
+                <!-- Large Display -->
+                <div class="score-hero-display score-hero-ao" id="scoreDisplayAo">7.5</div>
+
+                <!-- Stepper Buttons -->
+                <div class="stepper-row" id="aoControlsArea">
+                    <button type="button" class="btn btn-stepper btn-stepper-ao" onclick="stepScore('ao', -0.5)">-0.5</button>
+                    <button type="button" class="btn btn-stepper btn-stepper-ao" onclick="stepScore('ao', -0.1)">-0.1</button>
+                    <button type="button" class="btn btn-stepper btn-stepper-ao" onclick="stepScore('ao', 0.1)">+0.1</button>
+                    <button type="button" class="btn btn-stepper btn-stepper-ao" onclick="stepScore('ao', 0.5)">+0.5</button>
+                </div>
+
+                <!-- Slider -->
+                <div class="slider-container">
+                    <input id="ao-slider" type="range" class="custom-slider slider-ao" min="5.0" max="10.0" step="0.1" value="7.5" oninput="onSliderChange('ao', this.value)">
+                    <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                        <span>5.0</span><span>6.0</span><span>7.0</span><span>8.0</span><span>9.0</span><span>10.0</span>
+                    </div>
+                </div>
+
+                <!-- Preset Chips -->
+                <div class="preset-row">
+                    <button type="button" class="btn btn-preset" onclick="setPreset('ao', 6.5)">6.5</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('ao', 7.0)">7.0</button>
+                    <button type="button" class="btn btn-preset active-ao" onclick="setPreset('ao', 7.5)">7.5</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('ao', 8.0)">8.0</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('ao', 8.2)">8.2</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('ao', 8.5)">8.5</button>
+                    <button type="button" class="btn btn-preset" onclick="setPreset('ao', 9.0)">9.0</button>
+                </div>
+
+                <!-- Action Button -->
+                <div class="action-row">
+                    <button type="button" class="btn btn-submit-score btn-submit-ao" id="aoKirimModalBtn" data-bs-toggle="modal" data-bs-target="#aoKirimModal">
+                        <i class="fas fa-paper-plane"></i> Kirim Nilai AO
+                    </button>
+                    <button type="button" class="btn btn-reset-score hidden" id="aoResetModalBtn" data-bs-toggle="modal" data-bs-target="#aoResetModal">
+                        <i class="fas fa-undo"></i> Nilai Terkirim (Reset)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== MODALS KONFIRMASI ==================== -->
+    <!-- Modal Kirim AKA -->
+    <div class="modal fade" id="akaKirimModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-danger shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-danger text-white py-3">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-check-circle me-2"></i>Konfirmasi Nilai AKA</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="text-muted small mb-2">Wasit {{ jury_number }} memberikan nilai:</div>
+                    <div class="fw-bold text-danger display-4 mb-2" id="modalAkaConfirmVal" style="font-family: 'JetBrains Mono', monospace;">7.5</div>
+                    <div class="text-light fs-6">Kirim nilai ini ke Meja Operator Tatami?</div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="akaKirimScore" class="btn btn-danger fw-bold px-4 shadow" data-bs-dismiss="modal">
+                        <i class="fas fa-paper-plane me-1"></i> Ya, Kirim Nilai
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reset AKA -->
+    <div class="modal fade" id="akaResetModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-warning shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-warning text-dark py-3">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Reset Nilai AKA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="text-light fs-6">Apakah Anda yakin ingin membatalkan/membuka kunci nilai untuk AKA?</div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Kembali</button>
+                    <button type="button" id="akaResetScore" class="btn btn-warning fw-bold px-4 shadow" data-bs-dismiss="modal">
+                        <i class="fas fa-unlock me-1"></i> Buka Kunci
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kirim AO -->
+    <div class="modal fade" id="aoKirimModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-primary shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-primary text-white py-3">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-check-circle me-2"></i>Konfirmasi Nilai AO</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="text-muted small mb-2">Wasit {{ jury_number }} memberikan nilai:</div>
+                    <div class="fw-bold text-primary display-4 mb-2" id="modalAoConfirmVal" style="font-family: 'JetBrains Mono', monospace;">7.5</div>
+                    <div class="text-light fs-6">Kirim nilai ini ke Meja Operator Tatami?</div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="aoKirimScore" class="btn btn-primary fw-bold px-4 shadow" data-bs-dismiss="modal">
+                        <i class="fas fa-paper-plane me-1"></i> Ya, Kirim Nilai
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reset AO -->
+    <div class="modal fade" id="aoResetModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-warning shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-warning text-dark py-3">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Reset Nilai AO</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="text-light fs-6">Apakah Anda yakin ingin membatalkan/membuka kunci nilai untuk AO?</div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Kembali</button>
+                    <button type="button" id="aoResetScore" class="btn btn-warning fw-bold px-4 shadow" data-bs-dismiss="modal">
+                        <i class="fas fa-unlock me-1"></i> Buka Kunci
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/ambrilindo.min.js' %}"></script>
 
     <script>
-        $(document).ready(function () {
-            const tatamiPk = {{ tatami.pk }}
-            const juriNumber = {{ jury.jury_number }}
-            console.log(juriNumber)
+        const tatamiPk = {{ tatami.pk }};
+        const juriNumber = {{ jury_number }};
+        const csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+
+        let socket = null;
+        let reconnectTimer = null;
+
+        // Sound / Haptic Helper
+        function triggerHaptic() {
+            if ('vibrate' in navigator) {
+                try { navigator.vibrate(35); } catch(e) {}
+            }
+        }
+
+        // Format number to 1 decimal place bounded between 5.0 and 10.0
+        function clampScore(val) {
+            let num = parseFloat(val);
+            if (isNaN(num)) num = 7.5;
+            num = Math.max(5.0, Math.min(10.0, num));
+            return num.toFixed(1);
+        }
+
+        // Update score for AKA or AO
+        function setScore(side, val) {
+            const formatted = clampScore(val);
+            if (side === 'aka') {
+                $('#scoreDisplayAka').text(formatted);
+                $('#aka-slider').val(formatted);
+                $('#modalAkaConfirmVal').text(formatted);
+                updateActivePreset('aka', formatted);
+            } else {
+                $('#scoreDisplayAo').text(formatted);
+                $('#ao-slider').val(formatted);
+                $('#modalAoConfirmVal').text(formatted);
+                updateActivePreset('ao', formatted);
+            }
+        }
+
+        function stepScore(side, delta) {
+            triggerHaptic();
+            const current = parseFloat(side === 'aka' ? $('#aka-slider').val() : $('#ao-slider').val()) || 7.5;
+            setScore(side, current + delta);
+        }
+
+        function onSliderChange(side, val) {
+            setScore(side, val);
+        }
+
+        function setPreset(side, val) {
+            triggerHaptic();
+            setScore(side, val);
+        }
+
+        function updateActivePreset(side, formattedVal) {
+            const container = side === 'aka' ? $('#akaCardWrap') : $('#aoCardWrap');
+            container.find('.btn-preset').each(function() {
+                const btnVal = parseFloat($(this).text()).toFixed(1);
+                const isActive = btnVal === formattedVal;
+                $(this).toggleClass(side === 'aka' ? 'active-aka' : 'active-ao', isActive);
+            });
+        }
+
+        // ==================== WEBSOCKET & DUAL DISPATCH ====================
+        function initWebSocket() {
+            if (socket) {
+                try {
+                    socket.onopen = null;
+                    socket.onclose = null;
+                    socket.onerror = null;
+                    socket.onmessage = null;
+                    socket.close();
+                } catch(e) {}
+                socket = null;
+            }
+
             const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-            const socket = new WebSocket(protocol + window.location.host + `/ws/jury-panel/${tatamiPk}`);
-            socket.onmessage = function(e) {
-                const data = JSON.parse(e.data);
-                console.log(data.command, data.details)
+            const wsUrl = protocol + window.location.host + `/ws/jury-panel/${tatamiPk}`;
 
-                if (data.command == 'aka-kata-kirim') {
-                    $('#kata-aka').text(data.details)
-                } else if (data.command == 'ao-kata-kirim') {
-                    $('#kata-ao').text(data.details)
+            updateWsBadge('connecting');
+
+            try {
+                socket = new WebSocket(wsUrl);
+            } catch (err) {
+                scheduleReconnect();
+                return;
+            }
+
+            socket.onopen = function () {
+                if (reconnectTimer) {
+                    clearTimeout(reconnectTimer);
+                    reconnectTimer = null;
                 }
+                updateWsBadge('live');
+            };
 
-                if (data.command == 'get_atlet') {
-                    document.getElementById('atlet_red_name').innerText = data.details.atlet_red
-                    document.getElementById('atlet_red_perguruan').innerText = data.details.atlet_red_perguruan
-                    document.getElementById('atlet_red_utusan').innerText = data.details.atlet_red_utusan
-                    document.getElementById('kata-aka').innerText = '0 - Blank'
+            socket.onmessage = function (e) {
+                let data;
+                try {
+                    data = JSON.parse(e.data);
+                } catch(err) { return; }
+                if (!data || !data.command) return;
 
-                    document.getElementById('atlet_blue_name').innerText = data.details.atlet_blue
-                    document.getElementById('atlet_blue_perguruan').innerText = data.details.atlet_blue_perguruan
-                    document.getElementById('atlet_blue_utusan').innerText = data.details.atlet_blue_utusan
-                    document.getElementById('kata-ao').innerText = '0 - Blank'
+                handleIncomingCommand(data.command, data.details);
+            };
 
-                    $('#akaKirimModalBtn').removeClass('hidden');
-                    $('#akaResetModalBtn').addClass('hidden');
-                    $('.slider-red').prop('disabled', false);
+            socket.onclose = function () {
+                updateWsBadge('offline');
+                scheduleReconnect();
+            };
 
-                    $('#aoKirimModalBtn').removeClass('hidden');
-                    $('#aoResetModalBtn').addClass('hidden');
-                    $('.slider-blue').prop('disabled', false);
+            socket.onerror = function () {
+                updateWsBadge('offline');
+                try { socket.close(); } catch(e) {}
+            };
+        }
 
-                    $('#aka-winner').css('display', 'none')
-                    $('#ao-winner').css('display', 'none')
-                }
+        function scheduleReconnect() {
+            if (!reconnectTimer) {
+                reconnectTimer = setTimeout(() => {
+                    reconnectTimer = null;
+                    initWebSocket();
+                }, 2000);
+            }
+        }
 
-                if (data.command == 'pemenang') {
-                    if (data.details == 'aka') {
-                        $('#aka-winner').css('display', 'inline')
-                        $('#ao-winner').css('display', 'none')
-                    } else if (data.details == 'ao') {
-                        $('#ao-winner').css('display', 'inline')
-                        $('#aka-winner').css('display', 'none')
-                    }
+        function updateWsBadge(status) {
+            const badge = $('#wsStatusBadge');
+            if (status === 'live') {
+                badge.attr('class', 'ws-badge live').html('<i class="fas fa-bolt"></i> WS Live');
+            } else if (status === 'connecting') {
+                badge.attr('class', 'ws-badge connecting').html('<span class="spinner-grow spinner-grow-sm" role="status" style="width: 8px; height: 8px;"></span> WS Hubung...');
+            } else {
+                badge.attr('class', 'ws-badge offline').html('<i class="fas fa-exclamation-triangle"></i> WS Offline');
+            }
+        }
+
+        function handleIncomingCommand(command, details) {
+            // Kata Update
+            if (command === 'aka-kata-kirim') {
+                $('#kata-aka').text(details || '0 - Blank');
+            } else if (command === 'ao-kata-kirim') {
+                $('#kata-ao').text(details || '0 - Blank');
+            }
+
+            // Athlete & Match Details
+            if (command === 'get_atlet') {
+                if (!details) return;
+                $('#atlet_red_name').text(details.atlet_red || 'Menunggu Atlet AKA');
+                $('#atlet_red_perguruan').text(details.atlet_red_perguruan || '-');
+                $('#atlet_red_utusan').text(details.atlet_red_utusan || '-');
+                $('#kata-aka').text(details.atlet_red_kata || '0 - Blank');
+
+                $('#atlet_blue_name').text(details.atlet_blue || 'Menunggu Atlet AO');
+                $('#atlet_blue_perguruan').text(details.atlet_blue_perguruan || '-');
+                $('#atlet_blue_utusan').text(details.atlet_blue_utusan || '-');
+                $('#kata-ao').text(details.atlet_blue_kata || '0 - Blank');
+
+                if (details.nomor_tanding) $('#matchNomorTanding').text(details.nomor_tanding);
+                if (details.round_label) $('#matchRound').text(details.round_label);
+
+                // Reset scores and unlock inputs for new match
+                resetFighterLock('aka');
+                resetFighterLock('ao');
+                setScore('aka', 7.5);
+                setScore('ao', 7.5);
+
+                $('#aka-winner').hide();
+                $('#ao-winner').hide();
+            }
+
+            // Winner broadcast
+            if (command === 'pemenang') {
+                if (details === 'aka') {
+                    $('#aka-winner').show();
+                    $('#ao-winner').hide();
+                } else if (details === 'ao') {
+                    $('#ao-winner').show();
+                    $('#aka-winner').hide();
+                } else {
+                    $('#aka-winner').hide();
+                    $('#ao-winner').hide();
                 }
             }
-            const akaKirimScore = $('#akaKirimScore');
-            const akaResetScore = $('#akaResetScore');
-            const akaKirimModalBtn = $('#akaKirimModalBtn');
-            const akaResetModalBtn = $('#akaResetModalBtn');
-            
-            $('#akaKirimScore').on('click', function () {
+        }
+
+        // Send Score via Realtime WebSocket with HTTP Fallback
+        function dispatchScoreToOperator(side, scoreVal) {
+            const payloadStr = JSON.stringify([side, scoreVal]);
+
+            // 1. Direct WebSocket dispatch (<2ms)
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    action: String(juriNumber),
+                    details: payloadStr
+                }));
+            }
+
+            // 2. Dual fallback to HTTP endpoint
+            $.ajax({
+                url: `/control-panel/${tatamiPk}/message-retriever`,
+                type: 'POST',
+                data: {
+                    action: String(juriNumber),
+                    details: payloadStr,
+                    csrfmiddlewaretoken: csrfToken
+                }
+            });
+        }
+
+        // Lock / Unlock Helper
+        function lockFighter(side) {
+            if (side === 'aka') {
                 $('#akaKirimModalBtn').addClass('hidden');
                 $('#akaResetModalBtn').removeClass('hidden');
-                $('.slider-red').prop('disabled', true);
-                
-                $.ajax({
-                    url: '/control-panel/{{ tatami.pk }}/message-retriever',
-                    type: 'POST',
-                    data: {
-                        action: '{{ jury.jury_number }}',
-                        details: JSON.stringify(['aka', $('#aka-slider').val()]),
-                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                    },
-                });
-            });
-
-            $('#akaResetScore').on('click', function () {
-                $('#akaKirimModalBtn').removeClass('hidden');
-                $('#akaResetModalBtn').addClass('hidden');
-                $('.slider-red').prop('disabled', false);
-            });
-
-            const aoKirimScore = $('#aoKirimScore');
-            const aoResetScore = $('#aoResetScore');
-            const aoKirimModalBtn = $('#aoKirimModalBtn');
-            const aoResetModalBtn = $('#aoResetModalBtn');
-            
-            $('#aoKirimScore').on('click', function () {
+                $('#akaControlsArea').addClass('submitted-locked');
+                $('.slider-aka').prop('disabled', true);
+            } else {
                 $('#aoKirimModalBtn').addClass('hidden');
                 $('#aoResetModalBtn').removeClass('hidden');
-                $('.slider-blue').prop('disabled', true);
-                
-                $.ajax({
-                    url: '/control-panel/{{ tatami.pk }}/message-retriever',
-                    type: 'POST',
-                    data: {
-                        action: '{{ jury.jury_number }}',
-                        details: JSON.stringify(['ao', $('#ao-slider').val()]),
-                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                    },
-                });
-            });
+                $('#aoControlsArea').addClass('submitted-locked');
+                $('.slider-ao').prop('disabled', true);
+            }
+        }
 
-            $('#aoResetScore').on('click', function () {
+        function resetFighterLock(side) {
+            if (side === 'aka') {
+                $('#akaKirimModalBtn').removeClass('hidden');
+                $('#akaResetModalBtn').addClass('hidden');
+                $('#akaControlsArea').removeClass('submitted-locked');
+                $('.slider-aka').prop('disabled', false);
+            } else {
                 $('#aoKirimModalBtn').removeClass('hidden');
                 $('#aoResetModalBtn').addClass('hidden');
-                $('.slider-blue').prop('disabled', false);
+                $('#aoControlsArea').removeClass('submitted-locked');
+                $('.slider-ao').prop('disabled', false);
+            }
+        }
+
+        // Document Ready Setup
+        $(document).ready(function () {
+            initWebSocket();
+
+            // AKA Submit
+            $('#akaKirimScore').on('click', function () {
+                triggerHaptic();
+                const score = $('#aka-slider').val();
+                lockFighter('aka');
+                dispatchScoreToOperator('aka', score);
             });
+
+            // AKA Reset
+            $('#akaResetScore').on('click', function () {
+                triggerHaptic();
+                resetFighterLock('aka');
+            });
+
+            // AO Submit
+            $('#aoKirimScore').on('click', function () {
+                triggerHaptic();
+                const score = $('#ao-slider').val();
+                lockFighter('ao');
+                dispatchScoreToOperator('ao', score);
+            });
+
+            // AO Reset
+            $('#aoResetScore').on('click', function () {
+                triggerHaptic();
+                resetFighterLock('ao');
+            });
+
+            // Initial score preset activation
+            updateActivePreset('aka', '7.5');
+            updateActivePreset('ao', '7.5');
         });
     </script>
 </body>

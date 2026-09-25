@@ -116,7 +116,7 @@
 {% elif is_panel_complete %}
     <div class="tm-conflict-success">
         <i class="fas fa-check-circle"></i>
-        <span>Panel Wasit Lengkap ({{ assigned_count }} orang) & Bebas Konflik Perguruan / Daerah.</span>
+        <span>Panel Wasit Lengkap ({{ assigned_count }} orang) & Bebas Konflik Perguruan.</span>
     </div>
 {% endif %}
 
@@ -203,7 +203,7 @@
                             </form>
                         {% else %}
                             <div class="tm-slot-empty-state">
-                                <span class="text-muted small">Pilih wasit dari pool di samping atau gunakan tombol di bawah:</span>
+                                <span class="tm-slot-empty-hint">Pilih wasit dari pool di samping atau gunakan tombol di bawah:</span>
                                 <div class="tm-quick-assign-wrap">
                                     <form method="POST" class="ajax-tm-form d-flex align-items-center gap-1 w-100 mt-2">
                                         {% csrf_token %}
@@ -250,7 +250,7 @@
         <!-- Filter Chips in Modal -->
         <div class="tm-modal-filter-chips">
             <button type="button" class="m-chip active" data-filter="all" onclick="setModalWasitFilter('all', this)">Semua</button>
-            <button type="button" class="m-chip" data-filter="prio1" onclick="setModalWasitFilter('prio1', this)" title="Prioritas 1: Standby & Beda Perguruan/Daerah">★ Prioritas 1</button>
+            <button type="button" class="m-chip" data-filter="prio1" onclick="setModalWasitFilter('prio1', this)" title="Prioritas 1: Standby & Beda Perguruan">★ Prioritas 1</button>
             <button type="button" class="m-chip" data-filter="avail" onclick="setModalWasitFilter('avail', this)">Standby</button>
         </div>
 
@@ -287,7 +287,7 @@
                             <span class="tm-duty-tag"><i class="fas fa-check"></i> Bertugas</span>
                         {% else %}
                             <div class="dropdown">
-                                <button class="btn-tm-assign dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn-tm-assign dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
                                     <i class="fas fa-user-plus"></i> Tugaskan
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">

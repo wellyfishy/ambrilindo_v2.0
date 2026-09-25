@@ -292,9 +292,13 @@ def check_is_final(detail_bagan):
     """
     Memeriksa apakah pertandingan ini adalah babak final / perebutan medali.
     Aturan:
-    - 1 pool (single pool bagan): Round 4 adalah final (round >= 4)
-    - 2 pools bagan: Round 5 adalah final (round >= 5)
-    - 4 pools bagan: Round 6 adalah final (round >= 6)
+    - Bagan pool 0 / is_final_bagan:
+      - 2 pool atau 1 pool: Semua partai di bagan final adalah Final (r >= 4 atau r == 1)
+      - 4 pool: Round 3 adalah Semifinal, Round 4+ adalah Final (r >= 4)
+    - Bagan pool penyisihan (Pool A, Pool B, etc.):
+      - 1 pool (single pool bagan): Round 4 adalah final (round >= 4)
+      - 2 pools bagan: Round 5 adalah final (round >= 5)
+      - 4 pools bagan: Round 6 adalah final (round >= 6)
     """
     if not detail_bagan or not detail_bagan.bagan:
         return False
@@ -305,6 +309,11 @@ def check_is_final(detail_bagan):
 
     bagan = detail_bagan.bagan
     pool_count = get_category_pool_count(bagan)
+
+    if bagan and (getattr(bagan, 'pool', 1) == 0 or getattr(bagan, 'is_final_bagan', False)):
+        if pool_count > 2:
+            return r >= 4
+        return True
 
     if pool_count <= 1:
         return r >= 4
@@ -352,7 +361,9 @@ def get_round_label(detail_bagan):
         semi_round = 5
 
     # Bagan pool 0 adalah bagan khusus final
-    if bagan and getattr(bagan, 'pool', 1) == 0:
+    if bagan and (getattr(bagan, 'pool', 1) == 0 or getattr(bagan, 'is_final_bagan', False)):
+        if pool_count > 2 and r == 3:
+            return "Semi"
         return "Final"
 
     if r >= final_round:
@@ -384,7 +395,9 @@ def get_round_of_slots(detail_bagan):
         final_round = 6
 
     # Bagan pool 0 adalah babak final (Round of 2)
-    if bagan and getattr(bagan, 'pool', 1) == 0:
+    if bagan and (getattr(bagan, 'pool', 1) == 0 or getattr(bagan, 'is_final_bagan', False)):
+        if pool_count > 2 and r == 3:
+            return "Round of 4"
         return "Round of 2"
 
     if r >= final_round:

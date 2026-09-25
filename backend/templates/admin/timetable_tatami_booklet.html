@@ -1,0 +1,1328 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tatami {{ tatami.tatami_number }} - {{ day_label }} | {{ event.nama_event }}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&family=Roboto:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-canvas: #090d16;
+            --bg-surface: #111827;
+            --bg-surface-elevated: #1f2937;
+            --border-ui: #374151;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-gold: #facc15;
+            --accent-amber: #f59e0b;
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        {% if part == 'sampul' %}
+        @page { size: 10in 5.625in landscape; margin: 0; }
+        body { background: #ffffff !important; overflow: hidden !important; width: 10in !important; height: 5.625in !important; margin: 0 !important; padding: 0 !important; }
+        .sampul-page-container { width: 10in !important; height: 5.625in !important; max-width: 10in !important; max-height: 5.625in !important; aspect-ratio: 16 / 9 !important; border-radius: 0 !important; background-size: 100% 100% !important; overflow: hidden !important; box-sizing: border-box !important; }
+        {% elif part == 'roster' %}
+        @page { size: A4 portrait; margin: 6mm 8mm; }
+        body { background: #ffffff !important; overflow: hidden !important; width: 194mm !important; height: 283mm !important; margin: 0 !important; padding: 0 !important; }
+        .roster-page-container { width: 194mm !important; height: 283mm !important; max-height: 283mm !important; border-radius: 0 !important; padding: 0 !important; overflow: hidden !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
+        {% endif %}
+
+        /* =========================================================
+           TOP CONTROL TOOLBAR (Screen Only)
+           ========================================================= */
+        .booklet-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(17, 24, 39, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-ui);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .booklet-badge {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            color: #ffffff;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+        }
+
+        .event-info-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 260px;
+        }
+
+        .toolbar-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-jump {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-ui);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-jump:hover {
+            background: #374151;
+            border-color: #4b5563;
+            color: #ffffff;
+        }
+
+        .btn-jump.active {
+            background: #2563eb;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .select-jump-bagan {
+            background: var(--bg-surface-elevated);
+            color: #fbbf24;
+            border: 1px solid #d97706;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            max-width: 260px;
+        }
+
+        .select-jump-bagan option {
+            background: #111827;
+            color: #f8fafc;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pdf-full {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+            white-space: nowrap;
+        }
+
+        .btn-pdf-full:hover {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+            color: #ffffff;
+        }
+
+        .btn-print-main {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            white-space: nowrap;
+        }
+
+        .btn-print-main:hover {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            transform: translateY(-1px);
+        }
+
+        .btn-close-viewer {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-ui);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-close-viewer:hover {
+            background: var(--bg-surface-elevated);
+            color: #ffffff;
+            border-color: var(--accent-red);
+        }
+
+        /* Banner info */
+        .booklet-info-bar {
+            background: rgba(30, 41, 59, 0.85);
+            border-bottom: 1px solid #334155;
+            padding: 6px 20px;
+            font-size: 11.5px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .info-editable-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #38bdf8;
+            font-weight: 500;
+        }
+
+        /* =========================================================
+           DOCUMENT WORKSPACE (Canvas)
+           ========================================================= */
+        .booklet-workspace {
+            padding: 30px 20px 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .page-wrapper {
+            position: relative;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .page-label-indicator {
+            position: absolute;
+            top: -26px;
+            left: 0;
+            right: 0;
+            font-family: 'Oswald', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge-open-external {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-ui);
+            color: #60a5fa;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 3px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .badge-open-external:hover {
+            background: #374151;
+            color: #93c5fd;
+        }
+
+        /* =========================================================
+           PAGE 1: SAMPUL (COVER)
+           Exact 16:9 widescreen proportion (matches original cover)
+           ========================================================= */
+        .sampul-page-container {
+            width: 1100px;
+            max-width: 95vw;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            background: #111827 url("{% static 'img/cover/cover_clean_template.png' %}") no-repeat center center;
+            background-size: 100% 100%;
+            overflow: hidden;
+            border-radius: 4px;
+            user-select: text;
+        }
+
+        /* 1. Top Ribbon Organization Text */
+        .sampul-org-bar {
+            position: absolute;
+            top: 3.4%;
+            right: 10.4%;
+            text-align: right;
+            font-family: 'Oswald', 'Arial Black', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            letter-spacing: 0.035em;
+            text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .sampul-org-bar:hover, .sampul-org-bar:focus {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 2. Main Title Group (BAGAN: DAY X - TATAMI Y) */
+        .sampul-main-group {
+            position: absolute;
+            top: 47.9%;
+            left: 57.5%;
+            width: 38%;
+            outline: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .sampul-main-group:hover, .sampul-main-group:focus {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sampul-bagan-label {
+            font-family: 'Roboto', 'Oswald', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+            line-height: 1.1;
+            text-transform: uppercase;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+        }
+
+        .sampul-tatami-title {
+            font-family: 'Roboto', 'Oswald', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.03em;
+            line-height: 1.15;
+            text-transform: uppercase;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+            margin-bottom: 12px;
+        }
+
+        /* 3. Venue & Date Info */
+        .sampul-venue-box {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffff00;
+            line-height: 1.35;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .sampul-venue-line {
+            display: block;
+        }
+
+        /* 4. Supported by text */
+        .sampul-supported-by {
+            position: absolute;
+            top: 84.0%;
+            left: 81.0%;
+            font-family: 'Calibri', 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .sampul-supported-by:hover, .sampul-supported-by:focus {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* =========================================================
+           PAGE 2: ROSTER 1 HALAMAN (MERGED RUN SHEET)
+           Exact 1-page compact tournament run sheet
+           ========================================================= */
+        .roster-page-container {
+            width: 778px;
+            max-width: 95vw;
+            min-height: 1100px;
+            aspect-ratio: 210 / 297;
+            background: #ffffff;
+            color: #0f172a;
+            padding: 14px 20px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        /* Kop Surat in Simple Roster */
+        .simple-roster-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+            gap: 12px;
+        }
+
+        .simple-roster-kop-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .simple-roster-logo {
+            height: 48px;
+            width: auto;
+            max-width: 70px;
+            object-fit: contain;
+        }
+
+        .simple-roster-org-name {
+            margin: 0;
+            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.15;
+            text-transform: uppercase;
+        }
+
+        .simple-roster-org-meta {
+            margin: 2px 0 0;
+            font-size: 10px;
+            color: #475569;
+            line-height: 1.2;
+            font-weight: 500;
+        }
+
+        .simple-roster-doc-title {
+            margin-top: 2px;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .simple-roster-day-badge-box {
+            text-align: right;
+            padding: 4px 10px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            min-width: 120px;
+        }
+
+        .simple-roster-day-label {
+            font-family: 'Oswald', 'Segoe UI', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .simple-roster-day-date {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 1px;
+        }
+
+        /* Day Section & Day Bar */
+        .simple-roster-day-section {
+            page-break-inside: avoid;
+            margin-bottom: 6px;
+        }
+
+        .simple-roster-day-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #b91c1c;
+            padding: 2.5px 8px;
+            margin: 3px 0 2px 0;
+        }
+
+        .day-bar-title {
+            font-family: 'Oswald', 'Segoe UI', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .day-bar-date {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Synchronized Run Sheet Table */
+        .simple-roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border: 1px solid #94a3b8;
+            background: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        .simple-roster-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            font-size: 10.5px;
+            font-weight: 800;
+            text-align: center;
+            padding: 3px 5px;
+            border: 1px solid #94a3b8;
+            border-bottom: 1.5px solid #64748b;
+            text-transform: uppercase;
+        }
+
+        .simple-roster-table th .th-sub {
+            font-size: 9px;
+            font-weight: 600;
+            color: #475569;
+            display: inline-block;
+            margin-left: 4px;
+        }
+
+        .simple-roster-table td {
+            border: 1px solid #cbd5e1;
+            vertical-align: middle;
+            box-sizing: border-box;
+        }
+
+        .simple-roster-table tbody tr:nth-child(even) td.roster-match-cell {
+            background-color: #fafafa;
+        }
+
+        .simple-roster-table tbody tr:nth-child(odd) td.roster-match-cell {
+            background-color: #ffffff;
+        }
+
+        /* Density Scaling */
+        .simple-roster-page.density-spacious .roster-match-cell {
+            padding: 3px 6px;
+            font-size: 10px;
+            line-height: 1.18;
+        }
+        .simple-roster-page.density-normal .roster-match-cell {
+            padding: 2.2px 5px;
+            font-size: 9px;
+            line-height: 1.15;
+        }
+        .simple-roster-page.density-compact .roster-match-cell {
+            padding: 1.5px 4px;
+            font-size: 8.2px;
+            line-height: 1.1;
+        }
+        .simple-roster-page.density-ultra-compact .roster-match-cell {
+            padding: 1px 3px;
+            font-size: 7.5px;
+            line-height: 1.05;
+        }
+
+        /* Single-line compact item */
+        .roster-item-line {
+            display: block;
+            line-height: 1.14;
+            word-break: break-word;
+        }
+
+        .roster-num-badge {
+            display: inline-block;
+            min-width: 16px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.88em;
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 0 3px;
+            border-radius: 2px;
+            margin-right: 3px;
+            vertical-align: baseline;
+        }
+
+        .roster-item-title {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .roster-atlet-count {
+            font-weight: 700;
+            color: #0369a1;
+            margin-left: 3px;
+            white-space: nowrap;
+        }
+
+        /* Festival Session */
+        .roster-match-cell.is-festival {
+            background: #fef9c3 !important;
+            border-color: #fde047 !important;
+        }
+        .roster-match-cell.is-festival .roster-item-title {
+            color: #854d0e !important;
+        }
+        .roster-match-cell.is-festival .roster-num-badge {
+            background: #fef08a !important;
+            color: #713f12 !important;
+        }
+
+        /* Empty Cell */
+        .roster-match-cell.is-empty {
+            background: #fcfcfc !important;
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 9px;
+        }
+
+        /* Aligned ISHOMA Row */
+        .roster-ishoma-row {
+            page-break-inside: avoid;
+        }
+        .roster-ishoma-cell {
+            background: #f0fdf4 !important;
+            border-top: 1.5px dashed #0284c7 !important;
+            border-bottom: 1.5px dashed #0284c7 !important;
+            border-left: 1px solid #94a3b8 !important;
+            border-right: 1px solid #94a3b8 !important;
+            padding: 2px 6px !important;
+            text-align: center !important;
+        }
+        .roster-ishoma-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #0369a1;
+            font-weight: 800;
+            font-size: 9.5px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+        .roster-ishoma-icon {
+            font-size: 10px;
+        }
+
+        /* Bottom Section: Reminder Box + Unassigned Classes + Ambrilindo Footer */
+        .simple-roster-bottom-section {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1.5px solid #cbd5e1;
+            gap: 12px;
+        }
+
+        .simple-roster-bottom-left {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .simple-roster-bottom-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            flex-shrink: 0;
+            gap: 2px;
+        }
+
+        .simple-roster-footer-logo {
+            height: 38px;
+            width: auto;
+            max-width: 140px;
+            object-fit: contain;
+        }
+
+        .simple-roster-reminder-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 3px solid #d97706;
+            padding: 2.5px 6px;
+            border-radius: 2px;
+        }
+
+        .reminder-badge {
+            font-family: 'Oswald', sans-serif;
+            font-size: 8.5px;
+            font-weight: 700;
+            background: #d97706;
+            color: #ffffff;
+            padding: 1px 4px;
+            border-radius: 2px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .reminder-text {
+            font-size: 8.5px;
+            font-weight: 600;
+            color: #92400e;
+            line-height: 1.2;
+        }
+
+        .simple-roster-unassigned {
+            font-size: 8px;
+            color: #475569;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .unassigned-title {
+            font-weight: 800;
+            color: #b91c1c;
+            text-transform: uppercase;
+            margin-right: 3px;
+        }
+
+        .unassigned-items {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .simple-roster-ts {
+            font-size: 8px;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        /* =========================================================
+           PAGE 3+: BAGAN PERTANDINGAN (LANDSCAPE A4)
+           ========================================================= */
+        .bagan-container-landscape {
+            width: 1100px;
+            max-width: 95vw;
+            height: 778px;
+            aspect-ratio: 297 / 210;
+            background: #ffffff;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bagan-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* =========================================================
+           PRINT ENGINE (@media print)
+           Produces exact multi-page physical print / PDF
+           ========================================================= */
+        {% if part == 'sampul' %}
+        @page {
+            size: 10in 5.625in landscape;
+            margin: 0;
+        }
+        @media print {
+            @page {
+                size: 10in 5.625in landscape;
+                margin: 0;
+            }
+            html, body {
+                width: 10in !important;
+                height: 5.625in !important;
+                max-width: 10in !important;
+                max-height: 5.625in !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #111827 !important;
+                overflow: hidden !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .booklet-workspace {
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+            .page-wrapper {
+                width: 10in !important;
+                height: 5.625in !important;
+                max-width: 10in !important;
+                max-height: 5.625in !important;
+                overflow: hidden !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+                box-sizing: border-box !important;
+            }
+            .sampul-page-container {
+                width: 10in !important;
+                height: 5.625in !important;
+                max-width: 10in !important;
+                max-height: 5.625in !important;
+                aspect-ratio: 16 / 9 !important;
+                border-radius: 0 !important;
+                background-size: 100% 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            .sampul-org-bar {
+                font-size: 12pt !important;
+            }
+            .sampul-bagan-label {
+                font-size: 24pt !important;
+            }
+            .sampul-tatami-title {
+                font-size: 24pt !important;
+            }
+            .sampul-venue-box {
+                font-size: 11pt !important;
+            }
+            .sampul-supported-by {
+                font-size: 10.5pt !important;
+            }
+            .no-print, .page-label-indicator {
+                display: none !important;
+            }
+        }
+        {% elif part == 'roster' %}
+        @page {
+            size: A4 portrait;
+            margin: 6mm 8mm;
+        }
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 6mm 8mm;
+            }
+            html, body {
+                width: 194mm !important;
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .booklet-workspace {
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+            .page-wrapper {
+                width: 194mm !important;
+                height: 283mm !important;
+                max-width: 194mm !important;
+                max-height: 283mm !important;
+                overflow: hidden !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+                box-sizing: border-box !important;
+            }
+            .roster-page-container {
+                width: 194mm !important;
+                height: 283mm !important;
+                max-width: 194mm !important;
+                max-height: 283mm !important;
+                border-radius: 0 !important;
+                box-sizing: border-box !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+            .no-print, .page-label-indicator {
+                display: none !important;
+            }
+        }
+        {% else %}
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+            html, body {
+                width: 297mm !important;
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .booklet-workspace {
+                padding: 0 !important;
+                margin: 0 !important;
+                gap: 0 !important;
+                display: block !important;
+            }
+            .page-wrapper {
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: 297mm !important;
+                max-height: 210mm !important;
+                overflow: hidden !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                box-sizing: border-box !important;
+            }
+            .page-wrapper:last-child {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+            .page-label-indicator {
+                display: none !important;
+            }
+            /* Sampul Print Sizing */
+            .sampul-page-container {
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: 297mm !important;
+                max-height: 210mm !important;
+                aspect-ratio: 297 / 210 !important;
+                border-radius: 0 !important;
+                background-size: 100% 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            .sampul-org-bar {
+                font-size: 12pt !important;
+            }
+            .sampul-bagan-label {
+                font-size: 24pt !important;
+            }
+            .sampul-tatami-title {
+                font-size: 24pt !important;
+            }
+            .sampul-venue-box {
+                font-size: 11pt !important;
+            }
+            .sampul-supported-by {
+                font-size: 10.5pt !important;
+            }
+            /* Roster Print Sizing */
+            .roster-page-container {
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: 297mm !important;
+                max-height: 210mm !important;
+                border-radius: 0 !important;
+                box-sizing: border-box !important;
+                padding: 6mm 10mm !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+            /* Bagan Print Sizing */
+            .bagan-container-landscape {
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: 297mm !important;
+                max-height: 210mm !important;
+                border-radius: 0 !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+            .bagan-iframe {
+                width: 297mm !important;
+                height: 210mm !important;
+                border: none !important;
+                display: block !important;
+            }
+        }
+        {% endif %}
+    </style>
+</head>
+<body>
+
+    {% if not part %}
+    <!-- 1. FLOATING CONTROL TOOLBAR (SCREEN ONLY) -->
+    <header class="booklet-toolbar no-print">
+        <div class="toolbar-left">
+            <span class="booklet-badge">
+                <i class="fas fa-book-open"></i> BUKU TATAMI {{ tatami.tatami_number }}
+            </span>
+            <span class="event-info-title" title="{{ event.nama_event }} &bull; {{ day_label }}">
+                {{ event.nama_event }} &bull; {{ day_label }}
+            </span>
+        </div>
+
+        <div class="toolbar-center">
+            <a href="#page-sampul" class="btn-jump active" onclick="activateJump(this)">
+                <i class="fas fa-file-image"></i> Sampul
+            </a>
+            <a href="#page-roster" class="btn-jump" onclick="activateJump(this)">
+                <i class="fas fa-table-list"></i> Roster
+            </a>
+
+            {% if ordered_bagans %}
+            <select onchange="if(this.value) { window.location.hash = this.value; }" class="select-jump-bagan" title="Lompat ke bagan tertentu">
+                <option value="">🥋 Bagan ({{ ordered_bagans|length }} Terjadwal)...</option>
+                {% for b in ordered_bagans %}
+                <option value="page-bagan-{{ b.pk }}">Hal. {{ forloop.counter|add:2 }}: ({{ b.kode }}) {{ b.nama_bagan }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+
+        <div class="toolbar-right">
+            <a href="?pdf=1" target="_blank" class="btn-pdf-full" title="Buka & Unduh PDF Lengkap Buku Tatami (Format Standar A4 Lanskap)">
+                <i class="fas fa-file-pdf"></i> Unduh PDF Lengkap (A4 &bull; {{ total_pages }} Hal)
+            </a>
+            <button class="btn-print-main" onclick="window.print()" title="Cetak Cepat melalui Browser (A4 Lanskap - Ctrl + P)">
+                <i class="fas fa-print"></i> Cetak A4 (Ctrl + P)
+            </button>
+            <button class="btn-close-viewer" onclick="window.close()" title="Tutup Tab">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="booklet-info-bar no-print">
+        <div>
+            <span><i class="fas fa-info-circle"></i> Format Buku Tatami: Standar <strong>A4 Lanskap (297 &times; 210 mm)</strong> &bull; Halaman 1 (Sampul) &bull; Halaman 2 (Roster 1 Halaman) &bull; Halaman 3..{{ total_pages }} ({{ ordered_bagans|length }} Bagan Terjadwal).</span>
+        </div>
+        <div class="info-editable-hint">
+            <i class="fas fa-pen-to-square"></i> Teks pada Sampul dapat diedit langsung sebelum dicetak!
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 2. DOCUMENT WORKSPACE -->
+    <main class="booklet-workspace" {% if part %}style="padding:0; gap:0;"{% endif %}>
+
+        {% if not part or part == 'sampul' %}
+        <!-- ================= PAGE 1: SAMPUL ================= -->
+        <section id="page-sampul" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-bookmark"></i> Halaman 1 &bull; Sampul Resmi (Day {{ day.order|add:1 }} - Tatami {{ tatami.tatami_number }})</span>
+            </div>
+            {% endif %}
+
+            <div class="sampul-page-container">
+                <!-- Top Ribbon Org Text (Editable) -->
+                <div class="sampul-org-bar" contenteditable="true" spellcheck="false" title="Klik untuk mengedit teks organisasi">
+                    {{ org_text|linebreaksbr }}
+                </div>
+
+                <!-- Main Title & Venue Box (Editable) -->
+                <div class="sampul-main-group" contenteditable="true" spellcheck="false" title="Klik untuk mengedit judul atau venue">
+                    <div class="sampul-bagan-label">BAGAN:</div>
+                    <div class="sampul-tatami-title">{{ day_label|upper }} - TATAMI {{ tatami.tatami_number }}</div>
+
+                    <div class="sampul-venue-box">
+                        <div class="sampul-venue-line venue-name">{{ venue_line1 }}</div>
+                        {% if venue_line2 %}
+                        <div class="sampul-venue-line venue-address">{{ venue_line2 }}</div>
+                        {% endif %}
+                        {% if event_date_range %}
+                        <div class="sampul-venue-line venue-date">Tanggal {{ event_date_range }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Supported by label (Editable) -->
+                <div class="sampul-supported-by" contenteditable="true" spellcheck="false" title="Klik untuk mengedit">
+                    SUPPORTED BY:
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part or part == 'roster' %}
+        <!-- ================= PAGE 2: ROSTER 1 HALAMAN ================= -->
+        <section id="page-roster" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-bookmark"></i> Halaman 2 &bull; Roster Pertandingan / Run Sheet</span>
+            </div>
+            {% endif %}
+
+            <div class="roster-page-container">
+                <div class="simple-roster-page {{ density_class }}">
+
+                    <!-- Header Kop Surat -->
+                    <div class="simple-roster-header">
+                        <div class="simple-roster-kop-left">
+                            {% if kop_surat.logo %}
+                            <img src="{{ kop_surat.logo.url }}" class="simple-roster-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                            {% else %}
+                            <img src="{% static 'img/cover/X10.png' %}" class="simple-roster-logo" alt="Logo Event">
+                            {% endif %}
+                            <div class="simple-roster-org-info">
+                                <h3 class="simple-roster-org-name">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
+                                {% if kop_surat.alamat or kop_surat.kontak %}
+                                <p class="simple-roster-org-meta">
+                                    {{ kop_surat.alamat }}{% if kop_surat.alamat and kop_surat.kontak %} &bull; {% endif %}{{ kop_surat.kontak }}
+                                </p>
+                                {% endif %}
+                                <div class="simple-roster-doc-title">ROSTER PERTANDINGAN / RUN SHEET</div>
+                            </div>
+                        </div>
+
+                        <div class="simple-roster-day-badge-box">
+                            <div class="simple-roster-day-label">
+                                {% if days_count > 1 %}{{ days_count }} HARI PERTANDINGAN{% else %}{{ days_roster_data.0.day_label }}{% endif %}
+                            </div>
+                            {% if days_count == 1 and days_roster_data.0.day_date_formatted %}
+                            <div class="simple-roster-day-date">{{ days_roster_data.0.day_date_formatted }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Day Sections -->
+                    {% for day_item in days_roster_data %}
+                    <div class="simple-roster-day-section">
+                        <div class="simple-roster-day-bar">
+                            <span class="day-bar-title"><i class="fas fa-calendar-day"></i> {{ day_item.day_label }}</span>
+                            {% if day_item.day_date_formatted %}
+                            <span class="day-bar-date">{{ day_item.day_date_formatted }}</span>
+                            {% endif %}
+                        </div>
+
+                        <table class="simple-roster-table">
+                            <thead>
+                                <tr>
+                                    {% for col in day_item.cols %}
+                                    <th style="width: {{ day_item.col_width_pct }}%;">
+                                        {{ col.tatami_name }}
+                                        <span class="th-sub">({{ col.match_count }} Partai &bull; {{ col.athlete_count }} Atlet)</span>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if not day_item.rows %}
+                                <tr>
+                                    <td colspan="{{ day_item.cols|length }}" style="text-align:center; padding:8px; color:#94a3b8; font-style:italic;">
+                                        Belum ada nomor tanding yang dijadwalkan pada hari ini.
+                                    </td>
+                                </tr>
+                                {% else %}
+                                    {% for row in day_item.rows %}
+                                        {% if row.type == 'break' %}
+                                        <tr class="roster-ishoma-row">
+                                            <td colspan="{{ day_item.cols|length }}" class="roster-ishoma-cell">
+                                                <div class="roster-ishoma-bar">
+                                                    <span class="roster-ishoma-icon">🍱</span>
+                                                    <span class="roster-ishoma-label">{{ row.title }}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            {% for cell in row.cells %}
+                                                {% if cell %}
+                                                <td class="roster-match-cell {% if cell.is_festival %}is-festival{% endif %}">
+                                                    <div class="roster-item-line">
+                                                        <span class="roster-num-badge">#{{ cell.seq }}</span>
+                                                        <span class="roster-item-title">
+                                                            {% if cell.discipline == 'kata' %}🥋 {% elif cell.discipline == 'kumite' %}🥊 {% endif %}
+                                                            {{ cell.title }}
+                                                        </span>
+                                                        {% if cell.atlet_count %}
+                                                        <span class="roster-atlet-count">({{ cell.atlet_count }})</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                {% else %}
+                                                <td class="roster-match-cell is-empty">
+                                                    <div class="roster-empty-cell">—</div>
+                                                </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Bottom Section: Notice + Unassigned + Ambrilindo Footer -->
+                    <div class="simple-roster-bottom-section">
+                        <div class="simple-roster-bottom-left">
+                            <div class="simple-roster-reminder-box">
+                                <span class="reminder-badge"><i class="fas fa-exclamation-triangle"></i> PENTING</span>
+                                <span class="reminder-text">Jadwal bersifat estimasi. Atlet &amp; official wajib berada di area pemanasan 30 menit sebelum partai dimulai.</span>
+                            </div>
+
+                            {% if unscheduled_list %}
+                            <div class="simple-roster-unassigned">
+                                <span class="unassigned-title">KELAS TIDAK DITANDINGKAN:</span>
+                                <span class="unassigned-items">{{ unscheduled_list|join:", " }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="simple-roster-bottom-right">
+                            <img src="{% static 'img/ambrilindo-logo.png' %}" class="simple-roster-footer-logo" alt="Ambrilindo">
+                            <div class="simple-roster-ts">Dicetak: {{ printed_time }} &bull; Ambrilindo</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part %}
+        <!-- ================= PAGE 3+: BAGAN PERTANDINGAN ================= -->
+        {% for b in ordered_bagans %}
+        <section id="page-bagan-{{ b.pk }}" class="page-wrapper bagan-page-wrapper">
+            <div class="page-label-indicator no-print">
+                <span>
+                    <i class="fas fa-sitemap"></i> Halaman {{ forloop.counter|add:2 }} &bull; Bagan {{ forloop.counter }}/{{ ordered_bagans|length }}: ({{ b.kode }}) {{ b.nama_bagan }}
+                </span>
+                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=b.pk %}" target="_blank" class="badge-open-external" title="Buka bagan di tab baru">
+                    <i class="fas fa-external-link-alt"></i> Buka Bagan
+                </a>
+            </div>
+
+            <div class="bagan-container-landscape">
+                <iframe src="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=b.pk %}?print=1" class="bagan-iframe" loading="eager" title="Bagan {{ b.nama_bagan }}"></iframe>
+            </div>
+        </section>
+        {% endfor %}
+        {% endif %}
+
+    </main>
+
+    {% if not part %}
+    <script>
+        function activateJump(btn) {
+            document.querySelectorAll('.btn-jump').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Keyboard shortcut: Ctrl + P for printing
+        window.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

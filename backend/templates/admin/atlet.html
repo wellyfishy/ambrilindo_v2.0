@@ -38,6 +38,12 @@
                     <i class="fas fa-plus"></i>
                     <span>Tambah Atlet</span>
                 </button>
+                {% if metrics.total > 0 %}
+                <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#hapusSemuaAtletModal" style="font-weight: 600; padding: 8px 14px; border-radius: 8px; font-size: 13px;" title="Hapus semua data atlet pada event ini">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Hapus Semua Atlet</span>
+                </button>
+                {% endif %}
             </div>
         </div>
 
@@ -503,6 +509,39 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-danger font-weight-bold">
                             <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Atlet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hapus Semua Atlet -->
+    <div class="modal fade" id="hapusSemuaAtletModal" tabindex="-1" aria-labelledby="hapusSemuaAtletModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--bg-surface); border: 1px solid #ef4444; border-radius: 12px; color: var(--text-primary); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold" id="hapusSemuaAtletModalLabel" style="font-size: 15px;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Semua Atlet
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_type" value="hapus_semua_atlet">
+                    <div class="modal-body p-4">
+                        <p class="mb-2" style="font-size: 14px;">
+                            Apakah Anda yakin ingin menghapus <strong>SEMUA DATA ATLET</strong> (<strong>{{ metrics.total }}</strong> atlet) pada event <strong>{{ event.nama_event }}</strong>?
+                        </p>
+                        <div class="alert alert-danger py-2 mb-0" style="font-size: 12.5px;">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <strong>PERINGATAN:</strong> Seluruh data atlet pada event ini akan dihapus. Jika atlet sudah terpasang di bagan, slot atlet akan menjadi kosong. Tindakan ini tidak dapat dibatalkan!
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger btn-sm fw-bold px-3">
+                            <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Semua Atlet
                         </button>
                     </div>
                 </form>

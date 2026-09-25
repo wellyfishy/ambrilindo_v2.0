@@ -1062,6 +1062,7 @@
                 padding: 2px 3px;
                 border: 1px solid #94a3b8;
                 border-bottom: 1.5px solid #64748b;
+                text-transform: uppercase;
             }
             .simple-roster-table th .th-sub {
                 font-size: 8px;
@@ -1187,23 +1188,105 @@
                 font-weight: 800;
             }
 
-            /* Simple Roster Footer */
-            .simple-roster-footer {
+            /* Simple Roster Bottom Section & Footer */
+            .simple-roster-bottom-section {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
-                border-top: 1px solid #e2e8f0;
-                padding-top: 2px;
-                font-size: 7.5px;
-                color: #64748b;
+                justify-content: space-between;
+                gap: 10px;
+                border-top: 1.5px solid #94a3b8;
+                padding-top: 3px;
                 margin-top: auto;
+                page-break-inside: avoid;
             }
-            .simple-roster-note {
-                font-style: italic;
+            .simple-roster-bottom-left {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            .simple-roster-bottom-right {
+                flex-shrink: 0;
+                text-align: right;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                justify-content: center;
+                gap: 2px;
+            }
+            .simple-roster-footer-logo {
+                height: 44px;
+                width: auto;
+                max-width: 150px;
+                object-fit: contain;
+                display: block;
+            }
+            .simple-roster-reminder-box {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                background: #fff1f2;
+                border: 1px solid #fecdd3;
+                border-left: 3.5px solid #e11d48;
+                padding: 2px 6px;
+                border-radius: 2px;
+            }
+            .reminder-badge {
+                background: #e11d48;
+                color: #ffffff;
+                font-size: 8px;
+                font-weight: 800;
+                padding: 1px 4px;
+                border-radius: 2px;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+            }
+            .reminder-text {
+                font-size: 9.5px;
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.25;
+            }
+            .simple-roster-unassigned {
+                font-size: 8px;
+                line-height: 1.25;
+                color: #1e293b;
+                background: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-left: 3.5px solid #64748b;
+                padding: 2px 6px;
+                border-radius: 2px;
+                word-break: break-word;
+            }
+            .unassigned-title {
+                font-weight: 800;
+                color: #b91c1c;
+                text-transform: uppercase;
+                margin-right: 4px;
+            }
+            .unassigned-items {
+                font-weight: 600;
+                color: #0f172a;
             }
             .simple-roster-ts {
+                font-size: 7.5px;
                 font-weight: 600;
+                color: #475569;
+                white-space: nowrap;
             }
+
+            /* Density scaling for bottom section */
+            .simple-roster-page.density-compact .reminder-text { font-size: 8.5px; }
+            .simple-roster-page.density-compact .simple-roster-unassigned { font-size: 7.5px; }
+            .simple-roster-page.density-compact .simple-roster-footer-logo { height: 38px; max-width: 125px; }
+            .simple-roster-page.density-ultra-compact .reminder-text { font-size: 8px; }
+            .simple-roster-page.density-ultra-compact .simple-roster-unassigned { font-size: 7px; }
+            .simple-roster-page.density-ultra-compact .simple-roster-footer-logo { height: 32px; max-width: 105px; }
         }
         #print-kop-header { display: none; }
         #print-simple-container { display: none; }
@@ -1383,7 +1466,7 @@
                     <div class="tatami-column" data-tatami-id="{{ col.tatami.pk }}">
                         <div class="tatami-col-header">
                             <span class="tatami-name-label">
-                                Tatami {{ col.tatami.tatami_number }} <span class="tatami-athlete-counter-wrap">(<span class="tatami-atlet-counter">{{ col.total_atlets|default:0 }}</span>)</span>
+                                Tatami {{ col.tatami.tatami_number }} <span class="tatami-athlete-counter-wrap">(<span class="tatami-match-counter">{{ col.total_matches|default:0 }}</span> Partai &bull; <span class="tatami-atlet-counter">{{ col.total_atlets|default:0 }}</span> Atlet)</span>
                             </span>
                             <div class="tatami-actions-row">
                                 <a href="{% url 'timetable-call-sheet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:#60a5fa; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none;" title="Cetak Lembar Panggilan (Call Sheet)">
@@ -1392,13 +1475,16 @@
                                 <a href="{% url 'timetable-bulk-print' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:#34d399; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none;" title="Print Seluruh Bagan Tatami ini">
                                     🖨️ Bagan
                                 </a>
+                                <a href="{% url 'timetable-tatami-booklet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid #f59e0b; color:#fbbf24; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;" title="Cetak Buku Tatami (Sampul + Roster)">
+                                    📕 Buku Tatami
+                                </a>
                                 <button class="remove-tatami-btn" type="button" data-tatami-id="{{ col.tatami.pk }}" title="Hapus Tatami">✕</button>
                             </div>
                         </div>
 
                         <div class="tatami-card-list" data-tatami-id="{{ col.tatami.pk }}">
                             {% for cell in col.cells %}
-                            <div class="tt-card {% if cell.is_festival %}is-festival-card{% elif cell.is_break %}is-break-card{% endif %}" draggable="true" data-tatami-id="{{ col.tatami.pk }}" data-nt-id="{% if cell.nomor_tanding %}{{ cell.nomor_tanding.pk }}{% endif %}" data-time="{{ cell.cell_time }}" data-duration="{{ cell.cell_duration }}" data-atlet-count="{{ cell.atlet_count }}" style="height: {% widthratio cell.cell_duration 10 24 %}px; min-height: {% widthratio cell.cell_duration 10 24 %}px; max-height: {% widthratio cell.cell_duration 10 24 %}px; box-sizing: border-box;">
+                            <div class="tt-card {% if cell.is_festival %}is-festival-card{% elif cell.is_break %}is-break-card{% endif %}" draggable="true" data-tatami-id="{{ col.tatami.pk }}" data-nt-id="{% if cell.nomor_tanding %}{{ cell.nomor_tanding.pk }}{% endif %}" data-time="{{ cell.cell_time }}" data-duration="{{ cell.cell_duration }}" data-atlet-count="{{ cell.atlet_count }}" data-matches="{{ cell.matches }}" style="height: {% widthratio cell.cell_duration 10 24 %}px; min-height: {% widthratio cell.cell_duration 10 24 %}px; max-height: {% widthratio cell.cell_duration 10 24 %}px; box-sizing: border-box;">
                                 <div class="card-content" contenteditable="true">{% if cell.nomor_tanding %}{{ cell.cell_title }} ({{ cell.atlet_count }}){% if cell.cell_time %} ({{ cell.cell_time }}){% endif %}{% else %}{{ cell.cell_title }}{% if cell.cell_time and not cell.cell_time in cell.cell_title %} ({{ cell.cell_time }}){% endif %}{% endif %}</div>
                                 <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
                             </div>
@@ -1840,6 +1926,10 @@
                     card.dataset.tatamiId = targetCol.dataset.tatamiId;
                     card.dataset.ntId = ntId;
                     card.dataset.duration = estDur;
+                    card.dataset.atletCount = atletCount;
+                    const catForCard = CATEGORIES_MAP.get(parseInt(ntId, 10));
+                    const matchesForCard = catForCard && typeof catForCard.matches !== 'undefined' ? catForCard.matches : Math.max(0, atletCount > 1 ? (atletCount - 1) : 0);
+                    card.dataset.matches = matchesForCard;
                     const initH = Math.round(estDur * PX_PER_MIN);
                     card.style.height = `${initH}px`;
                     card.style.minHeight = `${initH}px`;
@@ -1874,32 +1964,19 @@
         function updateTatamiAthleteCounters() {
             document.querySelectorAll('.tatami-column').forEach(col => {
                 const counter = col.querySelector('.tatami-atlet-counter');
-                if (!counter) return;
+                const matchCounter = col.querySelector('.tatami-match-counter');
+                if (!counter && !matchCounter) return;
 
-                let total = 0;
+                let totalAtlets = 0;
+                let totalMatches = 0;
                 col.querySelectorAll('.tt-card').forEach(card => {
-                    const ntId = parseInt(card.dataset.ntId, 10);
-                    if (ntId) {
-                        const cat = CATEGORIES_MAP.get(ntId);
-                        if (cat && cat.atlet_count) {
-                            total += cat.atlet_count;
-                            return;
-                        }
-                    }
-                    if (card.dataset.atletCount) {
-                        const ac = parseInt(card.dataset.atletCount, 10);
-                        if (!isNaN(ac)) {
-                            total += ac;
-                            return;
-                        }
-                    }
-                    const text = card.querySelector('.card-content') ? card.querySelector('.card-content').textContent : '';
-                    const m = text.match(/\((\d+)\)/);
-                    if (m) {
-                        total += parseInt(m[1], 10);
-                    }
+                    const cData = extractCardData(card);
+                    if (!cData || cData.isBreak) return;
+                    totalAtlets += (cData.atletCount || 0);
+                    totalMatches += (cData.matches || 0);
                 });
-                counter.textContent = total;
+                if (counter) counter.textContent = totalAtlets;
+                if (matchCounter) matchCounter.textContent = totalMatches;
             });
         }
 
@@ -2335,6 +2412,8 @@
                 const countMatch = rawText.match(/\((\d+)\s*(?:Atlet)?\)/i);
                 if (countMatch) atletCount = countMatch[1];
             }
+            atletCount = parseInt(atletCount || '0', 10);
+            if (isNaN(atletCount)) atletCount = 0;
 
             // Clean Title
             let title = '';
@@ -2351,7 +2430,17 @@
             }
 
             const discipline = cat ? cat.discipline : (title.toLowerCase().includes('kata') ? 'kata' : (title.toLowerCase().includes('kumite') ? 'kumite' : ''));
-            const matches = cat ? cat.matches : null;
+
+            let matches = 0;
+            if (cat && typeof cat.matches !== 'undefined') {
+                matches = parseInt(cat.matches, 10) || 0;
+            } else if (card.dataset.matches) {
+                matches = parseInt(card.dataset.matches, 10) || 0;
+            } else if (isFestival) {
+                matches = atletCount;
+            } else if (atletCount > 1) {
+                matches = atletCount - 1;
+            }
 
             return {
                 card,
@@ -2412,14 +2501,12 @@
                                    String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 
             const ambrilindoLogoUrl = "{% static 'img/ambrilindo-logo.png' %}";
-            const ambrilindoLogoHtml = `<img src="${ambrilindoLogoUrl}" class="simple-roster-logo" alt="Ambrilindo" style="height:36px; width:auto; max-width:55px; object-fit:contain;">`;
             const customLogoHtml = kopLogoUrl ? `<img src="${kopLogoUrl}" class="simple-roster-logo" alt="Logo Event" style="height:36px; width:auto; max-width:55px; object-fit:contain;">` : '';
-            const logosHtml = `
+            const logosHtml = customLogoHtml ? `
                 <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                    ${ambrilindoLogoHtml}
                     ${customLogoHtml}
                 </div>
-            `;
+            ` : '';
             const metaParts = [];
             if (kopAlamat) metaParts.push(escapeHtml(kopAlamat));
             if (kopKontak) metaParts.push(escapeHtml(kopKontak));
@@ -2455,12 +2542,21 @@
                         if (counterWrap) counterWrap.remove();
                         tatamiName = clone.textContent.trim() || `Tatami ${cIdx + 1}`;
                     }
-                    const athleteCount = col.querySelector('.tatami-atlet-counter')?.innerText?.trim() || '0';
                     const cards = Array.from(col.querySelectorAll('.tt-card')).map(card => extractCardData(card));
+
+                    let athleteCount = 0;
+                    let matchCount = 0;
+                    cards.forEach(c => {
+                        if (c && !c.isBreak) {
+                            athleteCount += (c.atletCount || 0);
+                            matchCount += (c.matches || 0);
+                        }
+                    });
 
                     return {
                         tatamiName,
                         athleteCount,
+                        matchCount,
                         cards
                     };
                 });
@@ -2551,8 +2647,8 @@
                 day.cols.forEach(col => {
                     tableHeaderHtml += `
                         <th style="width: ${100 / day.cols.length}%;">
-                            ${escapeHtml(col.tatamiName)}
-                            <span class="th-sub">(${col.athleteCount})</span>
+                            ${escapeHtml(col.tatamiName.toUpperCase())}
+                            <span class="th-sub">(${col.matchCount} Partai &bull; ${col.athleteCount} Atlet)</span>
                         </th>
                     `;
                 });
@@ -2615,6 +2711,59 @@
                 `;
             });
 
+            // Collect unassigned nomor tanding across all scheduled days
+            const scheduledNtIds = new Set();
+            document.querySelectorAll('.day-block .tt-card[data-nt-id]').forEach(card => {
+                const id = parseInt(card.dataset.ntId, 10);
+                if (!isNaN(id) && id > 0) {
+                    scheduledNtIds.add(id);
+                }
+            });
+
+            let unassignedList = [];
+            if (typeof CATEGORIES_META !== 'undefined' && Array.isArray(CATEGORIES_META)) {
+                unassignedList = CATEGORIES_META
+                    .filter(c => {
+                        const isFest = c.is_festival || (c.nama || '').toUpperCase().includes('FESTIVAL');
+                        return !scheduledNtIds.has(c.pk) && !isFest;
+                    })
+                    .map(c => `${escapeHtml(c.nama)} (${c.atlet_count || 0})`);
+            } else {
+                document.querySelectorAll('.nt-chip').forEach(chip => {
+                    const id = parseInt(chip.dataset.ntId, 10);
+                    const isFest = (chip.dataset.isFestival === 'true') || (chip.dataset.ntName || '').toUpperCase().includes('FESTIVAL');
+                    if (!scheduledNtIds.has(id) && !isFest) {
+                        unassignedList.push(`${escapeHtml(chip.dataset.ntName)} (${chip.dataset.atletCount || 0})`);
+                    }
+                });
+            }
+
+            let unassignedHtml = '';
+            if (unassignedList.length > 0) {
+                unassignedHtml = `
+                    <div class="simple-roster-unassigned">
+                        <span class="unassigned-title">Kelas tidak ditandingkan:</span>
+                        <span class="unassigned-items">${unassignedList.join(', ')}</span>
+                    </div>
+                `;
+            }
+
+            const bottomSectionHtml = `
+                <div class="simple-roster-bottom-section">
+                    <div class="simple-roster-bottom-left">
+                        <div class="simple-roster-reminder-box">
+                            <span class="reminder-badge"><i class="fas fa-exclamation-triangle"></i> PENTING</span>
+                            <span class="reminder-text">Jadwal bersifat estimasi. Atlet &amp; official wajib berada di area pemanasan 30 menit sebelum partai dimulai.</span>
+                        </div>
+                        ${unassignedHtml}
+                    </div>
+                    <div class="simple-roster-bottom-right">
+                        <img src="${ambrilindoLogoUrl}" class="simple-roster-footer-logo" alt="Ambrilindo">
+                        <div class="simple-roster-ts">Dicetak: ${printedTimeStr} &bull; Ambrilindo</div>
+                    </div>
+                </div>
+            `;
+
             const pageHtml = `
                 <div class="simple-roster-page ${densityClass}">
                     <div class="simple-roster-header">
@@ -2634,10 +2783,7 @@
 
                     ${daySectionsHtml}
 
-                    <div class="simple-roster-footer">
-                        <span class="simple-roster-note"><i class="fas fa-info-circle"></i> Jadwal bersifat estimasi. Atlet & official wajib berada di area pemanasan 30 menit sebelum partai dimulai.</span>
-                        <span class="simple-roster-ts">Dicetak: ${printedTimeStr} &bull; Ambrilindo</span>
-                    </div>
+                    ${bottomSectionHtml}
                 </div>
             `;
 
@@ -2976,6 +3122,22 @@
                 'Kadet', 'Junior', 'Under-21', 'Senior', 'Veteran', 'Lainnya'
             ];
 
+            function getWeightSortVal(name) {
+                const upper = (name || '').toUpperCase();
+                const mPlus = upper.match(/\+(\d+)/);
+                if (mPlus) return 1000 + parseInt(mPlus[1], 10);
+                const mMinus = upper.match(/-(\d+)/);
+                if (mMinus) return parseInt(mMinus[1], 10);
+                return 500;
+            }
+
+            function getGenderSortVal(name) {
+                const upper = (name || '').toUpperCase();
+                if (upper.includes('PUTRI')) return 1;
+                if (upper.includes('PUTRA')) return 2;
+                return 3;
+            }
+
             if (sortMode === 'kata_first') {
                 unscheduled.sort((a, b) => {
                     if (a.discipline !== b.discipline) {
@@ -2984,6 +3146,12 @@
                     const ga = ORDERED_GROUPS.indexOf(a.age_group);
                     const gb = ORDERED_GROUPS.indexOf(b.age_group);
                     if (ga !== gb) return ga - gb;
+                    const genda = getGenderSortVal(a.nama);
+                    const gendb = getGenderSortVal(b.nama);
+                    if (genda !== gendb) return genda - gendb;
+                    const wa = getWeightSortVal(a.nama);
+                    const wb = getWeightSortVal(b.nama);
+                    if (wa !== wb) return wa - wb;
                     return a.pk - b.pk;
                 });
             } else if (sortMode === 'age_first') {
@@ -2994,6 +3162,12 @@
                     if (a.discipline !== b.discipline) {
                         return a.discipline === 'kata' ? -1 : 1;
                     }
+                    const genda = getGenderSortVal(a.nama);
+                    const gendb = getGenderSortVal(b.nama);
+                    if (genda !== gendb) return genda - gendb;
+                    const wa = getWeightSortVal(a.nama);
+                    const wb = getWeightSortVal(b.nama);
+                    if (wa !== wb) return wa - wb;
                     return a.pk - b.pk;
                 });
             } else {
@@ -3103,7 +3277,25 @@
                     return true;
                 }
 
+                const tatamiHasKumite = {};
+                tatamis.forEach(tid => {
+                    const col = dayBlock.querySelector(`.tatami-column[data-tatami-id="${tid}"]`);
+                    const existingCards = col ? col.querySelectorAll('.tt-card[data-nt-id]') : [];
+                    let hasK = false;
+                    existingCards.forEach(c => {
+                        const ntId = parseInt(c.dataset.ntId, 10);
+                        const cat = CATEGORIES_MAP.get(ntId);
+                        if (cat && cat.discipline === 'kumite') hasK = true;
+                    });
+                    tatamiHasKumite[tid] = hasK;
+                });
+
                 function canScheduleAtClock(tid, cand, s) {
+                    // Strict karate discipline transition: Once a tatami switches to Kumite, it can NEVER take a Kata category!
+                    if (tatamiHasKumite[tid] && cand.discipline === 'kata') {
+                        return null;
+                    }
+
                     const durMinutes = cand.est_duration_minutes || (cand.matches * defaultDur) || 15;
                     const candDur = durMinutes * 60000;
                     const candAthletes = new Set(ntAthletesMap[cand.pk] || []);
@@ -3171,7 +3363,9 @@
                         const candidateIndices = [];
                         for (let i = 0; i < trialUnscheduled.length; i++) {
                             const c = trialUnscheduled[i];
-                            if (attempt <= 2 && sortMode === 'kata_first' && hasKata && c.discipline !== 'kata') {
+                            // STRICT: If sortMode is kata_first and there is ANY Kata remaining in trialUnscheduled,
+                            // NEVER allow a Kumite candidate under any circumstances! All Kata MUST finish first!
+                            if (sortMode === 'kata_first' && hasKata && c.discipline !== 'kata') {
                                 continue;
                             }
                             candidateIndices.push(i);
@@ -3288,6 +3482,9 @@
                     currentClocks[tid] = endMs;
                     tatamiAthletes[tid] += cat.atlet_count;
                     tatamiMinutes[tid] = (tatamiMinutes[tid] || 0) + durMinutes;
+                    if (cat.discipline === 'kumite') {
+                        tatamiHasKumite[tid] = true;
+                    }
 
                     if (includeIshoma && !ishomaInsertedTatamis.has(tid) && endMs >= parseTimeToDate('12:15').getTime() && endMs < ishomaEndTime) {
                         const canFitMore = trialUnscheduled.some(c => (endMs + ((c.est_duration_minutes || 15) * 60000)) <= ishomaEndTime);

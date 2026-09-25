@@ -91,6 +91,37 @@ class Bagan(models.Model):
     is_bob = models.BooleanField(default=False)
     has_vr = models.BooleanField(default=False, verbose_name="Bagan Memiliki VR")
 
+    @property
+    def total_pools(self):
+        """
+        Mengembalikan total pool dalam nomor tanding bagan ini (1, 2, atau 4).
+        """
+        if self.pool in (2, 4):
+            return self.pool
+        if self.nomor_tanding_id and self.event_id:
+            c = Bagan.objects.filter(
+                nomor_tanding_id=self.nomor_tanding_id,
+                event_id=self.event_id
+            ).exclude(pool=0).count()
+            if c > 1:
+                return c
+        name = (self.nama_bagan or '').upper()
+        if 'POOL C' in name or 'POOL D' in name:
+            return 4
+        if 'POOL A' in name or 'POOL B' in name:
+            return 2
+        return self.pool or 1
+
+    @property
+    def is_final_bagan(self):
+        """
+        Mengembalikan True jika bagan ini merupakan bagan Final (dari nomor tanding multi-pool).
+        """
+        if self.pool == 0:
+            return True
+        name = (self.nama_bagan or '').upper().strip()
+        return name.endswith('- FINAL') or name.endswith('FINAL')
+
     def __str__(self):
         return f'{self.nama_bagan}'
 

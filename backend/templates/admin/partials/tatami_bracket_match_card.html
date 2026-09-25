@@ -39,7 +39,7 @@
     <div class="player player-aka {% if db.pemenang == '1' %}is-winner{% endif %}">
         <div class="player-side aka" title="Aka">Aka</div>
         {% if db.atlet1.utusan.logo %}
-            <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}">
+            <img src="{{ db.atlet1.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet1.utusan.nama_utusan }}" onerror="this.style.display='none'">
         {% endif %}
         <div class="player-info">
             <div class="player-name {% if not db.atlet1 %}empty{% endif %}">
@@ -60,7 +60,7 @@
     <div class="player player-ao {% if db.pemenang == '2' %}is-winner{% endif %}">
         <div class="player-side ao" title="Ao">Ao</div>
         {% if db.atlet2.utusan.logo %}
-            <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}">
+            <img src="{{ db.atlet2.utusan.logo.url }}" class="player-dojo-logo" alt="Logo {{ db.atlet2.utusan.nama_utusan }}" onerror="this.style.display='none'">
         {% endif %}
         <div class="player-info">
             <div class="player-name {% if not db.atlet2 %}empty{% endif %}">

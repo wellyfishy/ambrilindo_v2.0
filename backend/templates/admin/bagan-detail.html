@@ -488,11 +488,11 @@
         }
 
         .player.player-aka {
-            border-left: 3px solid var(--cal-red);
+            border-left: none;
         }
 
         .player.player-ao {
-            border-left: 3px solid var(--cal-blue);
+            border-left: none;
         }
 
         /* Gold Winner Highlighting */
@@ -736,8 +736,8 @@
         .cal-podium-brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 0;
+            justify-content: flex-end;
+            padding: 0 4px;
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
@@ -745,10 +745,10 @@
         }
 
         .podium-brand-logo {
-            width: 94%;
-            max-width: 100%;
+            width: auto;
+            max-width: 170px;
             height: auto;
-            max-height: 140px;
+            max-height: 52px;
             object-fit: contain;
             filter: none !important;
             background: transparent !important;
@@ -1026,14 +1026,28 @@
         }
 
         body.is-printing .print-only {
-            display: flex !important;
+            display: grid !important;
+            grid-template-columns: 180px 1fr 180px !important;
             align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
             padding: 0 4px 4px 4px !important;
             border-bottom: 1.5px solid #111827 !important;
             margin-bottom: 4px !important;
-            height: 32px !important;
+            height: 46px !important;
+            box-sizing: border-box !important;
+        }
+
+        body.is-printing .print-logo-left {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            height: 100% !important;
+        }
+
+        body.is-printing .print-logo-left img {
+            max-height: 42px !important;
+            width: auto !important;
+            max-width: 170px !important;
+            object-fit: contain !important;
         }
 
         body.is-printing .print-title {
@@ -1043,12 +1057,15 @@
         }
 
         body.is-printing .print-title h2 {
-            font-size: 14.5px !important;
+            font-size: 14px !important;
             font-weight: 800 !important;
             color: #111827 !important;
             margin: 0 !important;
             line-height: 1.15 !important;
             text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
         body.is-printing .print-title p {
@@ -1056,10 +1073,14 @@
             color: #4b5563 !important;
             margin: 2px 0 0 0 !important;
             text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
-        body.is-printing .print-logo {
-            display: none !important;
+        body.is-printing .print-header-spacer {
+            width: 100% !important;
+            height: 100% !important;
         }
 
         body.is-printing .bracket-scroll-viewport {
@@ -1189,11 +1210,11 @@
         }
 
         body.is-printing .player.player-aka {
-            border-left: 3.5px solid #dc2626 !important;
+            border-left: none !important;
         }
 
         body.is-printing .player.player-ao {
-            border-left: 3.5px solid #2563eb !important;
+            border-left: none !important;
         }
 
         body.is-printing .player.is-winner {
@@ -1342,8 +1363,8 @@
         body.is-printing .cal-podium-brand {
             display: flex !important;
             align-items: center !important;
-            justify-content: center !important;
-            padding: 0 !important;
+            justify-content: flex-end !important;
+            padding: 0 4px !important;
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
@@ -1351,10 +1372,10 @@
         }
 
         body.is-printing .podium-brand-logo {
-            width: 92% !important;
-            max-width: 100% !important;
+            width: auto !important;
+            max-width: 130px !important;
             height: auto !important;
-            max-height: 65px !important;
+            max-height: 38px !important;
             display: block !important;
             object-fit: contain !important;
             filter: none !important;
@@ -1512,14 +1533,28 @@
             }
 
             .print-only {
-                display: flex !important;
+                display: grid !important;
+                grid-template-columns: 180px 1fr 180px !important;
                 align-items: center !important;
-                justify-content: center !important;
-                text-align: center !important;
                 padding: 0 4px 4px 4px !important;
                 border-bottom: 1.5px solid #111827 !important;
                 margin-bottom: 4px !important;
-                height: 32px !important;
+                height: 46px !important;
+                box-sizing: border-box !important;
+            }
+
+            .print-logo-left {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                height: 100% !important;
+            }
+
+            .print-logo-left img {
+                max-height: 42px !important;
+                width: auto !important;
+                max-width: 170px !important;
+                object-fit: contain !important;
             }
 
             .print-title {
@@ -1529,12 +1564,15 @@
             }
 
             .print-title h2 {
-                font-size: 14.5px !important;
+                font-size: 14px !important;
                 font-weight: 800 !important;
                 color: #111827 !important;
                 margin: 0 !important;
                 line-height: 1.15 !important;
                 text-align: center !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
 
             .print-title p {
@@ -1542,10 +1580,14 @@
                 color: #4b5563 !important;
                 margin: 2px 0 0 0 !important;
                 text-align: center !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
 
-            .print-logo {
-                display: none !important;
+            .print-header-spacer {
+                width: 100% !important;
+                height: 100% !important;
             }
 
             .bracket-scroll-viewport {
@@ -1675,11 +1717,11 @@
             }
 
             .player.player-aka {
-                border-left: 3.5px solid #dc2626 !important;
+                border-left: none !important;
             }
 
             .player.player-ao {
-                border-left: 3.5px solid #2563eb !important;
+                border-left: none !important;
             }
 
             .player.is-winner {
@@ -1828,8 +1870,8 @@
             .cal-podium-brand {
                 display: flex !important;
                 align-items: center !important;
-                justify-content: center !important;
-                padding: 0 !important;
+                justify-content: flex-end !important;
+                padding: 0 4px !important;
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
@@ -1837,10 +1879,10 @@
             }
 
             .podium-brand-logo {
-                width: 92% !important;
-                max-width: 100% !important;
+                width: auto !important;
+                max-width: 130px !important;
                 height: auto !important;
-                max-height: 65px !important;
+                max-height: 38px !important;
                 display: block !important;
                 object-fit: contain !important;
                 filter: none !important;
@@ -1972,13 +2014,16 @@
 
     <!-- Print-Only Header Banner -->
     <div class="print-only" aria-hidden="true">
+        <div class="print-logo-left">
+            {% if kop_surat.logo %}
+            <img src="{{ kop_surat.logo.url }}" alt="Logo Event">
+            {% endif %}
+        </div>
         <div class="print-title">
             <h2>({{ bagan.kode }}) {{ bagan.nama_bagan }}</h2>
-            <p><i class="fas fa-trophy"></i> {{ event.nama_event }} &bull; {{ event.tempat_event|default:"Venue Pertandingan" }}</p>
+            <p><i class="fas fa-trophy"></i> {{ event.nama_event }} &bull; {{ kop_surat.alamat|default:"Venue Pertandingan" }}{% if event_date_range %} &bull; {{ event_date_range }}{% endif %}</p>
         </div>
-        <div class="print-logo">
-            <img src="{% static 'img/ambrilindo-logo.webp' %}" alt="Ambrilindo">
-        </div>
+        <div class="print-header-spacer"></div>
     </div>
 
     <!-- Navigation & Header Bar -->
@@ -2002,10 +2047,10 @@
                 </h1>
                 <p class="bagan-subtitle">
                     <i class="fas fa-map-marker-alt text-danger"></i>
-                    <span>{{ event.nama_event }} &bull; {{ event.tempat_event|default:"Venue Pertandingan" }}</span>
+                    <span>{{ event.nama_event }} &bull; {{ kop_surat.alamat|default:"Venue Pertandingan" }}{% if event_date_range %} &bull; {{ event_date_range }}{% endif %}</span>
                     &bull;
                     <span class="text-warning">
-                        {% if bagan.pool and bagan.pool > 1 %}Pool {{ bagan.pool }}{% else %}Single Pool{% endif %}
+                        {% if bagan.pool == 0 or bagan.is_final_bagan %}Partai Final{% elif bagan.total_pools == 2 or bagan.pool == 2 %}2 Pool{% elif bagan.total_pools == 4 or bagan.pool == 4 %}4 Pool{% elif bagan.pool and bagan.pool > 1 %}Pool {{ bagan.pool }}{% else %}Single Pool{% endif %}
                     </span>
                     {% if referchange %}
                     &bull; <span class="badge bg-secondary" style="font-size: 10px;">REFERCHANGE</span>
@@ -2061,7 +2106,7 @@
                 <div class="round-col" data-round="1">
                     <div class="round-label">
                         <span class="round-step">R1</span>
-                        {% if bagan.pool == 2 %}BABAK 32 BESAR{% elif bagan.pool == 4 %}BABAK 64 BESAR{% else %}BABAK 16 BESAR{% endif %}
+                        {% if bagan.pool == 0 or bagan.is_final_bagan %}BABAK 16 BESAR{% elif bagan.total_pools == 2 or bagan.pool == 2 %}BABAK 32 BESAR{% elif bagan.total_pools == 4 or bagan.pool == 4 %}BABAK 64 BESAR{% else %}BABAK 16 BESAR{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_1 %}
@@ -2153,7 +2198,7 @@
                 <div class="round-col" data-round="2">
                     <div class="round-label">
                         <span class="round-step">R2</span>
-                        {% if bagan.pool == 2 %}BABAK 16 BESAR{% elif bagan.pool == 4 %}BABAK 32 BESAR{% else %}PEREMPAT FINAL{% endif %}
+                        {% if bagan.pool == 0 or bagan.is_final_bagan %}PEREMPAT FINAL{% elif bagan.total_pools == 2 or bagan.pool == 2 %}BABAK 16 BESAR{% elif bagan.total_pools == 4 or bagan.pool == 4 %}BABAK 32 BESAR{% else %}PEREMPAT FINAL{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_2 %}
@@ -2232,15 +2277,15 @@
                 <!-- ROUND 3 -->
                 <div class="round-col" data-round="3">
                     <div class="round-label">
-                        <span class="round-step">{% if bagan.pool == 2 or bagan.pool == 4 %}R3{% else %}SF{% endif %}</span>
-                        {% if bagan.pool == 2 %}BABAK 8 BESAR{% elif bagan.pool == 4 %}BABAK 16 BESAR{% else %}SEMI FINAL{% endif %}
+                        <span class="round-step">{% if bagan.pool == 0 or bagan.is_final_bagan %}SF{% elif bagan.total_pools == 2 or bagan.total_pools == 4 or bagan.pool == 2 or bagan.pool == 4 %}R3{% else %}SF{% endif %}</span>
+                        {% if bagan.pool == 0 or bagan.is_final_bagan %}SEMI FINAL{% elif bagan.total_pools == 2 or bagan.pool == 2 %}BABAK 8 BESAR{% elif bagan.total_pools == 4 or bagan.pool == 4 %}BABAK 16 BESAR{% else %}SEMI FINAL{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_3 %}
                         <div class="match {% if db.active_on_tatami %}is-active-match{% endif %} {% if db.selesai %}is-finished{% endif %}" data-id="r3m{{ db.urutan }}" id="db-{{ db.pk }}">
                             <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
                                 <div class="match-header">
-                                    <span class="match-num">{% if bagan.pool == 2 or bagan.pool == 4 %}Match {{ db.urutan }}{% else %}Semi {{ db.urutan }}{% endif %}</span>
+                                    <span class="match-num">{% if bagan.pool == 0 or bagan.is_final_bagan %}Semi {{ db.urutan }}{% elif bagan.total_pools == 2 or bagan.total_pools == 4 or bagan.pool == 2 or bagan.pool == 4 %}Match {{ db.urutan }}{% else %}Semi {{ db.urutan }}{% endif %}</span>
                                     {% if db.active_on_tatami %}
                                     <span class="badge-live-tatami">
                                         <span class="live-dot"></span> LIVE T{{ db.active_on_tatami.tatami_number }}
@@ -2312,15 +2357,15 @@
                 <!-- ROUND 4 (FINAL / PODIUM) -->
                 <div class="round-col is-final" data-round="4">
                     <div class="round-label text-warning">
-                        <span class="round-step text-warning border-warning">FN</span>
-                        PARTAI FINAL
+                        <span class="round-step text-warning border-warning">{% if bagan.pool == 0 or bagan.is_final_bagan %}FN{% elif bagan.total_pools == 2 or bagan.pool == 2 %}SF{% elif bagan.total_pools == 4 or bagan.pool == 4 %}R4{% else %}FN{% endif %}</span>
+                        {% if bagan.pool == 0 or bagan.is_final_bagan %}PARTAI FINAL{% elif bagan.total_pools == 2 or bagan.pool == 2 %}SEMI FINAL{% elif bagan.total_pools == 4 or bagan.pool == 4 %}BABAK 8 BESAR{% else %}PARTAI FINAL{% endif %}
                     </div>
                     <div class="round-matches">
                         {% for db in detail_bagans_round_4 %}
                         <div class="match is-final-card {% if db.active_on_tatami %}is-active-match{% endif %} {% if db.selesai %}is-finished{% endif %}" data-id="r4m{{ db.urutan }}" id="db-{{ db.pk }}">
                             <a href="{% url 'control-panel' event_pk=event.pk bagan_pk=bagan.pk detailbagan_pk=db.pk tatami_pk=tatami.pk %}" class="match-link">
                                 <div class="match-header">
-                                    <span class="match-num text-warning"><i class="fas fa-trophy me-1"></i>PARTAI FINAL</span>
+                                    <span class="match-num text-warning"><i class="fas fa-trophy me-1"></i>{% if bagan.pool == 0 or bagan.is_final_bagan %}PARTAI FINAL{% elif bagan.total_pools == 2 or bagan.pool == 2 %}SEMI FINAL{% elif bagan.total_pools == 4 or bagan.pool == 4 %}BABAK 8 BESAR{% else %}PARTAI FINAL{% endif %}</span>
                                     {% if db.active_on_tatami %}
                                     <span class="badge-live-tatami">
                                         <span class="live-dot"></span> LIVE T{{ db.active_on_tatami.tatami_number }}

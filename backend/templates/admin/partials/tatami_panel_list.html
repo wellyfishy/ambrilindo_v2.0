@@ -44,13 +44,13 @@
                     <span class="license-tag">&bull; {{ a.wasit.lisensi }}</span>
                 {% endif %}
                 {% if a.has_conflict %}
-                    <span class="conflict-pill" title="Perguruan atau asal daerah sama dengan atlet yang sedang bertanding di arena!">
+                    <span class="conflict-pill" title="Perguruan sama dengan atlet yang sedang bertanding di arena!">
                         <i class="fas fa-exclamation-triangle"></i> Konflik Atlet Partai Ini
                     </span>
                 {% endif %}
                 {% if a.is_duplicate %}
-                    <span class="conflict-pill" style="background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.45); color: #fca5a5;" title="Terdapat wasit lain dari perguruan atau asal daerah yang sama di tatami ini">
-                        <i class="fas fa-users"></i> Perguruan / Kota Sama
+                    <span class="conflict-pill" style="background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.45); color: #fca5a5;" title="Terdapat wasit lain dari perguruan yang sama di tatami ini">
+                        <i class="fas fa-users"></i> Perguruan Sama
                     </span>
                 {% endif %}
             </div>
