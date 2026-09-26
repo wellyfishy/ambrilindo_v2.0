@@ -26,6 +26,7 @@ import re
 
 import io
 from django.conf import settings # type: ignore
+from django.utils import timezone # type: ignore
 from playwright.sync_api import sync_playwright # type: ignore
 
 from pypdf import PdfWriter, PdfReader # type: ignore
@@ -5725,21 +5726,21 @@ def _render_multiple_pdfs_worker(session_cookie_name, session_cookie_value, base
         for target_url in target_urls:
             try:
                 page.goto(target_url, wait_until='networkidle', timeout=20000)
-                if 'part=sampul' in target_url:
-                    # Sampul is true 16:9 widescreen (720pt x 405pt = 10in x 5.625in), matching original PDF cover
+                if 'part=sampul' in target_url or 'part=closing' in target_url:
+                    # Sampul & Closing Cover are 16:9 widescreen (720pt x 405pt = 10in x 5.625in)
                     pdf_bytes = page.pdf(
                         width='10in',
                         height='5.625in',
                         print_background=True,
                         margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
                     )
-                elif 'part=roster' in target_url:
-                    # Roster is A4 Portrait (210mm x 297mm), matching user's run sheet specification
+                elif any(p in target_url for p in ['part=roster', 'part=summary_juara', 'part=rekapan_bagan', 'portrait=1']):
+                    # Portrait A4 (210mm x 297mm)
                     pdf_bytes = page.pdf(
                         format='A4',
                         landscape=False,
                         print_background=True,
-                        margin={'top': '0', 'bottom': '0', 'left': '0', 'right': '0'},
+                        margin={'top': '6mm', 'bottom': '6mm', 'left': '8mm', 'right': '8mm'},
                     )
                 else:
                     # Bagans are A4 Landscape (297mm x 210mm)
@@ -6171,6 +6172,522 @@ def timetable_tatami_booklet(request, event_pk, day_pk, tatami_pk):
         'part': part,
     }
     return render(request, 'admin/timetable_tatami_booklet.html', context)
+
+
+@xframe_options_sameorigin
+def summary_booklet(request, event_pk):
+    """
+    Buku Hasil Pertandingan Resmi (Match Result Booklet):
+    1. Sampul Depan (e.g. Result Match: Day 1 atau Result Match: Day 1 s.d 2)
+    2. Summary Juara Kontingen & Klasemen Medali (Vertical A4, disertai Logo Kontingen)
+    3. Rekapan Hasil Bagan / Podium (Vertical A4, berurutan berdasarkan kode_bagan, disertai Logo Kontingen)
+    4. Sampul Terima Kasih (Official Closing Cover)
+    5. Kumpulan Bagan Pertandingan (Grouped by Day & Tatami, e.g. Day 1 - Tatami 1, Day 1 - Tatami 2...)
+    """
+    if not request.user.is_authenticated:
+        role = request.session.get('view_only_role')
+        if not role:
+            return redirect('auth')
+
+    event = get_object_or_404(Event, pk=event_pk)
+    all_days = list(TimetableDay.objects.filter(event=event).order_by('order'))
+    all_tatamis = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
+    kop, _ = KopSurat.objects.get_or_create(event=event)
+
+    total_days_count = len(all_days)
+    
+    # Query parameters
+    day_param = request.GET.get('day', '').strip()
+    mode = request.GET.get('mode', 'cumulative').strip()  # 'cumulative' or 'single'
+    part = request.GET.get('part', '').strip()  # 'sampul', 'summary_juara', 'rekapan_bagan', 'closing', 'bagan'
+    is_pdf = request.GET.get('pdf') == '1' or request.GET.get('download') == '1'
+
+    # Determine day numbers
+    if total_days_count > 0:
+        if day_param == 'all':
+            min_day_num = 1
+            max_day_num = total_days_count
+        elif day_param.isdigit():
+            target_day_num = max(1, min(total_days_count, int(day_param)))
+            if mode == 'single':
+                min_day_num = target_day_num
+                max_day_num = target_day_num
+            else:
+                # Cumulative: Day 1 s.d target_day_num
+                min_day_num = 1
+                max_day_num = target_day_num
+        else:
+            # Default auto-detect: check latest day with completed bagans
+            min_day_num = 1
+            max_day_num = 1
+            for d in all_days:
+                cells = TimetableCell.objects.filter(row__day=d, nomor_tanding__isnull=False)
+                nt_ids = cells.values_list('nomor_tanding_id', flat=True)
+                if Bagan.objects.filter(event=event, nomor_tanding_id__in=nt_ids, juara_1__isnull=False).exists():
+                    max_day_num = max(max_day_num, d.order + 1)
+    else:
+        min_day_num = 1
+        max_day_num = 1
+
+    # Title generation
+    if min_day_num == max_day_num:
+        day_label = f"DAY {min_day_num}"
+        booklet_result_title = f"RESULT MATCH: DAY {min_day_num}"
+        filename_title = f"Result_Match_Day_{min_day_num}"
+    else:
+        day_label = f"DAY {min_day_num} s.d {max_day_num}"
+        booklet_result_title = f"RESULT MATCH: DAY {min_day_num} s.d {max_day_num}"
+        filename_title = f"Result_Match_Day_{min_day_num}_sd_{max_day_num}"
+
+    # Selected days list
+    if total_days_count > 0:
+        selected_days = [d for d in all_days if min_day_num <= (d.order + 1) <= max_day_num]
+        selected_day_ids = [d.pk for d in selected_days]
+    else:
+        selected_days = []
+        selected_day_ids = []
+
+    # Format date strings for the selected days
+    event_date_range = get_event_date_range(event)
+    valid_dates = [d.tanggal for d in selected_days if d.tanggal]
+    if len(valid_dates) == 1:
+        dt = valid_dates[0]
+        selected_date_str = f"{dt.day} {INDO_MONTHS[dt.month - 1]} {dt.year}"
+    elif len(valid_dates) > 1:
+        d_start = min(valid_dates)
+        d_end = max(valid_dates)
+        if d_start.month == d_end.month and d_start.year == d_end.year:
+            selected_date_str = f"{d_start.day} - {d_end.day} {INDO_MONTHS[d_start.month - 1]} {d_start.year}"
+        else:
+            selected_date_str = f"{d_start.day} {INDO_MONTHS[d_start.month - 1]} {d_start.year} - {d_end.day} {INDO_MONTHS[d_end.month - 1]} {d_end.year}"
+    else:
+        selected_date_str = event_date_range or ''
+
+    # Organization / Kop info
+    raw_alamat = (kop.alamat or '').strip()
+    if raw_alamat:
+        alamat_lines = [l.strip() for l in raw_alamat.splitlines() if l.strip()]
+        if len(alamat_lines) == 1 and ',' in alamat_lines[0]:
+            parts = [p.strip() for p in alamat_lines[0].split(',', 1)]
+            venue_line1 = parts[0]
+            venue_line2 = parts[1]
+        elif len(alamat_lines) >= 2:
+            venue_line1 = alamat_lines[0]
+            venue_line2 = ', '.join(alamat_lines[1:])
+        else:
+            venue_line1 = alamat_lines[0]
+            venue_line2 = ''
+    else:
+        venue_line1 = event.nama_event or 'GOR Kadrie Oening'
+        venue_line2 = 'Samarinda, Kalimantan Timur'
+
+    org_text = kop.nama_organisasi.strip() if kop.nama_organisasi else "FEDERASI OLAHRAGA KARATE-DO INDONESIA"
+
+    # 2. Get Bagans in selected day range
+    if selected_day_ids:
+        cells = (
+            TimetableCell.objects
+            .filter(row__day_id__in=selected_day_ids, nomor_tanding__isnull=False)
+            .select_related('row__day', 'tatami', 'nomor_tanding')
+        )
+        scheduled_nt_ids = set(c.nomor_tanding_id for c in cells if c.nomor_tanding_id)
+        
+        range_bagans_qs = (
+            Bagan.objects.filter(nomor_tanding_id__in=scheduled_nt_ids, event=event)
+            .select_related(
+                'nomor_tanding',
+                'juara_1__perguruan', 'juara_1__utusan',
+                'juara_2__perguruan', 'juara_2__utusan',
+                'juara_3a__perguruan', 'juara_3a__utusan',
+                'juara_3b__perguruan', 'juara_3b__utusan',
+            )
+            .order_by('kode', 'nama_bagan')
+        )
+    else:
+        range_bagans_qs = (
+            Bagan.objects.filter(event=event)
+            .select_related(
+                'nomor_tanding',
+                'juara_1__perguruan', 'juara_1__utusan',
+                'juara_2__perguruan', 'juara_2__utusan',
+                'juara_3a__perguruan', 'juara_3a__utusan',
+                'juara_3b__perguruan', 'juara_3b__utusan',
+            )
+            .order_by('kode', 'nama_bagan')
+        )
+
+    all_range_bagans = list(range_bagans_qs)
+    finished_bagans = [b for b in all_range_bagans if b.juara_1]
+
+    # 3. SUMMARY JUARA KONTINGEN (Medal Standing per Kontingen with Logos)
+    all_utusans = list(Utusan.objects.filter(event=event).order_by('nama_utusan'))
+    utusan_standings = {
+        u.pk: {
+            'utusan': u,
+            'gold': 0,
+            'silver': 0,
+            'bronze': 0,
+            'total': 0,
+        }
+        for u in all_utusans
+    }
+
+    total_gold = 0
+    total_silver = 0
+    total_bronze = 0
+
+    for b in finished_bagans:
+        # Juara 1 (Gold)
+        if b.juara_1 and b.juara_1.utusan:
+            u = b.juara_1.utusan
+            if u.pk in utusan_standings:
+                utusan_standings[u.pk]['gold'] += 1
+                utusan_standings[u.pk]['total'] += 1
+                total_gold += 1
+        # Juara 2 (Silver)
+        if b.juara_2 and b.juara_2.utusan:
+            u = b.juara_2.utusan
+            if u.pk in utusan_standings:
+                utusan_standings[u.pk]['silver'] += 1
+                utusan_standings[u.pk]['total'] += 1
+                total_silver += 1
+        # Juara 3a (Bronze)
+        if b.juara_3a and b.juara_3a.utusan:
+            u = b.juara_3a.utusan
+            if u.pk in utusan_standings:
+                utusan_standings[u.pk]['bronze'] += 1
+                utusan_standings[u.pk]['total'] += 1
+                total_bronze += 1
+        # Juara 3b (Bronze)
+        if b.juara_3b and b.juara_3b.utusan:
+            u = b.juara_3b.utusan
+            if u.pk in utusan_standings:
+                utusan_standings[u.pk]['bronze'] += 1
+                utusan_standings[u.pk]['total'] += 1
+                total_bronze += 1
+
+    sorted_standings = sorted(
+        utusan_standings.values(),
+        key=lambda x: (x['gold'], x['silver'], x['bronze'], x['total'], -(ord(x['utusan'].nama_utusan[0].lower()) if x['utusan'].nama_utusan else 0)),
+        reverse=True
+    )
+    for idx, item in enumerate(sorted_standings):
+        item['rank'] = idx + 1
+
+    grand_total_medals = total_gold + total_silver + total_bronze
+
+    # 4. REKAPAN BAGAN (Ordered by kode_bagan, e.g. 001, 002, ...)
+    rekapan_bagan_list = []
+    for b in all_range_bagans:
+        has_winner = bool(b.juara_1)
+        has_3b = bool(b.juara_3b)
+        rekapan_bagan_list.append({
+            'bagan': b,
+            'has_winner': has_winner,
+            'juara_1': b.juara_1,
+            'juara_2': b.juara_2,
+            'juara_3a': b.juara_3a,
+            'juara_3b': b.juara_3b,
+            'juara_3_label': 'Juara 3 Bersama' if has_3b else 'Juara 3',
+        })
+
+    # 5. KUMPULAN BAGAN (Grouped by Day & Tatami)
+    kumpulan_bagan_groups = []
+    all_booklet_bagans = []
+    
+    for d in selected_days:
+        for tat in all_tatamis:
+            tatami_bagans = get_ordered_bagans_for_tatami(d, tat)
+            if tatami_bagans:
+                kumpulan_bagan_groups.append({
+                    'day': d,
+                    'day_num': d.order + 1,
+                    'tatami': tat,
+                    'tatami_num': tat.tatami_number,
+                    'title': f"DAY {d.order + 1} &bull; TATAMI {tat.tatami_number}",
+                    'bagans': tatami_bagans,
+                })
+                for b in tatami_bagans:
+                    if b not in all_booklet_bagans:
+                        all_booklet_bagans.append(b)
+
+    if not kumpulan_bagan_groups and all_range_bagans:
+        kumpulan_bagan_groups.append({
+            'day': None,
+            'day_num': 1,
+            'tatami': None,
+            'tatami_num': 1,
+            'title': "BAGAN PERTANDINGAN",
+            'bagans': all_range_bagans,
+        })
+        all_booklet_bagans = all_range_bagans
+
+    # 6. ROSTER 1 HALAMAN (RUN SHEET PERTANDINGAN across selected_days)
+    atlet_counts = dict(
+        Atlet.objects.filter(nomor_tanding__event=event)
+        .values('nomor_tanding').annotate(cnt=Count('id'))
+        .values_list('nomor_tanding', 'cnt')
+    )
+
+    grand_total_roster_rows = 0
+    days_roster_data = []
+    DAYS_ID = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+
+    for d in selected_days:
+        cols = []
+        has_any_break = False
+        common_break_title = 'ISHOMA'
+        max_pre_rows = 0
+        max_post_rows = 0
+
+        day_date_formatted = ''
+        if d.tanggal:
+            weekday_name = DAYS_ID[d.tanggal.weekday()]
+            day_date_formatted = f"{weekday_name}, {d.tanggal.day} {INDO_MONTHS[d.tanggal.month - 1]} {d.tanggal.year}"
+            d_label = f"DAY {d.order + 1}, {d.tanggal.day} {INDO_MONTHS[d.tanggal.month - 1].upper()} {d.tanggal.year}"
+        else:
+            d_label = f"DAY {d.order + 1}"
+
+        for tat in all_tatamis:
+            cells = list(
+                TimetableCell.objects.filter(row__day=d, tatami=tat)
+                .select_related('nomor_tanding', 'row')
+                .order_by('row__order')
+            )
+            pre = []
+            post = []
+            break_seen = False
+            seq = 1
+            ath_cnt = 0
+            mat_cnt = 0
+
+            for c in cells:
+                is_fest = False
+                is_break = False
+                title = ''
+                a_count = 0
+                m_count = 0
+                discipline = 'kumite'
+
+                if c.nomor_tanding:
+                    title = c.nomor_tanding.nama_nomor_tanding
+                    a_count = atlet_counts.get(c.nomor_tanding_id, 0)
+                    m_count = max(0, a_count - 1) if a_count > 1 else 0
+                    if 'KATA' in title.upper():
+                        discipline = 'kata'
+                    if 'FESTIVAL' in title.upper():
+                        is_fest = True
+                elif c.custom_text:
+                    ct = c.custom_text.strip()
+                    ct_upper = ct.upper()
+                    if 'FESTIVAL' in ct_upper:
+                        is_fest = True
+                        fm = re.search(r'\((\d+)\)', ct)
+                        a_count = int(fm.group(1)) if fm else 0
+                        m_count = a_count
+                        title = f'FESTIVAL ({a_count})' if a_count else 'FESTIVAL'
+                    elif any(k in ct_upper for k in ['ISHOMA', 'BREAK', 'ISTIRAHAT', 'JEDA']):
+                        is_break = True
+                        title = ct
+                        common_break_title = ct
+                        has_any_break = True
+                    else:
+                        title = ct
+
+                card = {
+                    'title': title,
+                    'atlet_count': a_count,
+                    'matches': m_count,
+                    'discipline': discipline,
+                    'is_festival': is_fest,
+                    'is_break': is_break,
+                }
+
+                if is_break:
+                    break_seen = True
+                    continue
+
+                if not is_break:
+                    ath_cnt += a_count
+                    mat_cnt += m_count
+
+                if break_seen:
+                    post.append(card)
+                else:
+                    pre.append(card)
+
+            for card in pre:
+                card['seq'] = seq
+                seq += 1
+            for card in post:
+                card['seq'] = seq
+                seq += 1
+
+            if len(pre) > max_pre_rows:
+                max_pre_rows = len(pre)
+            if len(post) > max_post_rows:
+                max_post_rows = len(post)
+
+            cols.append({
+                'tatami': tat,
+                'tatami_name': f'TATAMI {tat.tatami_number}',
+                'athlete_count': ath_cnt,
+                'match_count': mat_cnt,
+                'pre_cards': pre,
+                'post_cards': post,
+            })
+
+        day_rows = []
+        for r in range(max_pre_rows):
+            row_cells = []
+            for col in cols:
+                c = col['pre_cards'][r] if r < len(col['pre_cards']) else None
+                row_cells.append(c)
+            day_rows.append({'type': 'match', 'cells': row_cells})
+
+        if has_any_break:
+            day_rows.append({'type': 'break', 'title': common_break_title})
+
+        for r in range(max_post_rows):
+            row_cells = []
+            for col in cols:
+                c = col['post_cards'][r] if r < len(col['post_cards']) else None
+                row_cells.append(c)
+            day_rows.append({'type': 'match', 'cells': row_cells})
+
+        day_total_rows = max_pre_rows + (1 if has_any_break else 0) + max_post_rows
+        grand_total_roster_rows += day_total_rows
+
+        days_roster_data.append({
+            'day': d,
+            'day_label': d_label,
+            'day_date_formatted': day_date_formatted,
+            'cols': cols,
+            'rows': day_rows,
+            'col_width_pct': round(100 / max(1, len(cols)), 2),
+        })
+
+    if grand_total_roster_rows <= 20:
+        density_class = 'density-spacious'
+    elif grand_total_roster_rows <= 35:
+        density_class = 'density-normal'
+    elif grand_total_roster_rows <= 50:
+        density_class = 'density-compact'
+    else:
+        density_class = 'density-ultra-compact'
+
+    scheduled_nt_ids_all = set(
+        TimetableCell.objects.filter(row__day__event=event, nomor_tanding__isnull=False)
+        .values_list('nomor_tanding_id', flat=True)
+    )
+    unscheduled_qs = (
+        NomorTanding.objects.filter(event=event)
+        .exclude(pk__in=scheduled_nt_ids_all)
+        .exclude(nama_nomor_tanding__icontains='festival')
+        .order_by('nama_nomor_tanding')
+    )
+    unscheduled_list = [f"{nt.nama_nomor_tanding} ({atlet_counts.get(nt.pk, 0)})" for nt in unscheduled_qs]
+
+    now = timezone.now()
+    printed_time = f"{now.day} {INDO_MONTHS[now.month - 1][:3]} {now.year} {now.strftime('%H:%M')}"
+
+    # Day selector choices for toolbar:
+    day_choices = []
+    for d in all_days:
+        num = d.order + 1
+        if num == 1:
+            lbl = "Day 1 (Result Match: Day 1)"
+        else:
+            lbl = f"Day 1 s.d {num} (Result Match: Day 1 s.d {num})"
+        day_choices.append({
+            'day_num': num,
+            'label': lbl,
+            'is_active': (min_day_num == 1 and max_day_num == num and mode != 'single'),
+        })
+
+    single_day_choices = []
+    if total_days_count > 1:
+        for d in all_days:
+            num = d.order + 1
+            single_day_choices.append({
+                'day_num': num,
+                'label': f"Hanya Day {num}",
+                'is_active': (min_day_num == num and max_day_num == num and mode == 'single'),
+            })
+
+    # PDF rendering handling
+    if is_pdf:
+        base_booklet = reverse('summary-booklet', kwargs={'event_pk': event.pk})
+        day_qs = f"day={max_day_num}&mode={mode}"
+        
+        sampul_url = request.build_absolute_uri(f"{base_booklet}?{day_qs}&part=sampul")
+        summary_juara_url = request.build_absolute_uri(f"{base_booklet}?{day_qs}&part=summary_juara")
+        rekapan_bagan_url = request.build_absolute_uri(f"{base_booklet}?{day_qs}&part=rekapan_bagan")
+        closing_url = request.build_absolute_uri(f"{base_booklet}?{day_qs}&part=closing")
+        roster_url = request.build_absolute_uri(f"{base_booklet}?{day_qs}&part=roster")
+        
+        bagan_urls = [
+            request.build_absolute_uri(
+                reverse('admin-bagan-detail', kwargs={'event_pk': event.pk, 'bagan_pk': b.pk}) + '?print=1'
+            )
+            for b in all_booklet_bagans
+        ]
+
+        all_urls = [sampul_url, summary_juara_url, rekapan_bagan_url, closing_url, roster_url] + bagan_urls
+        all_pdfs = render_authenticated_pages_to_pdf(request, all_urls)
+
+        writer = PdfWriter()
+        for pdf_bytes in all_pdfs:
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            for page in reader.pages:
+                writer.add_page(page)
+
+        buffer = io.BytesIO()
+        writer.write(buffer)
+        buffer.seek(0)
+
+        filename = f"{filename_title}_{event.nama_event or 'Event'}.pdf".replace(' ', '_')
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        if request.GET.get('download') == '1':
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        else:
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
+
+    context = {
+        'event': event,
+        'kop_surat': kop,
+        'min_day_num': min_day_num,
+        'max_day_num': max_day_num,
+        'day_label': day_label,
+        'booklet_result_title': booklet_result_title,
+        'selected_date_str': selected_date_str,
+        'venue_line1': venue_line1,
+        'venue_line2': venue_line2,
+        'org_text': org_text,
+        'all_days': all_days,
+        'selected_days': selected_days,
+        'days_roster_data': days_roster_data,
+        'days_count': len(selected_days),
+        'density_class': density_class,
+        'unscheduled_list': unscheduled_list,
+        'day_choices': day_choices,
+        'single_day_choices': single_day_choices,
+        'sorted_standings': sorted_standings,
+        'total_gold': total_gold,
+        'total_silver': total_silver,
+        'total_bronze': total_bronze,
+        'grand_total_medals': grand_total_medals,
+        'rekapan_bagan_list': rekapan_bagan_list,
+        'kumpulan_bagan_groups': kumpulan_bagan_groups,
+        'all_booklet_bagans': all_booklet_bagans,
+        'total_bagan_count': len(all_range_bagans),
+        'finished_bagan_count': len(finished_bagans),
+        'printed_time': printed_time,
+        'part': part,
+        'mode': mode,
+    }
+    return render(request, 'admin/summary_booklet.html', context)
 
 
 def api_fetch_hosted_events(request):

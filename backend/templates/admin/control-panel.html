@@ -260,6 +260,10 @@
   margin-bottom: 12px;
 }
 
+.fast-score-deck.mirrored {
+  grid-template-columns: 48px 1fr 1fr 1fr;
+}
+
 .btn-point-act {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 17px;
@@ -1454,19 +1458,19 @@
                         </button>
                     </div>
 
-                    <!-- 1-Click Fast Scoring Deck -->
-                    <div class="fast-score-deck">
-                        <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')">
-                            +1 YUKO
-                        </button>
-                        <button type="button" class="btn-point-act ao-2" onclick="addScorePoint('ao', 2, 'ao-wazaari')">
-                            +2 WAZA
+                    <!-- 1-Click Fast Scoring Deck (Mirrored on Ao) -->
+                    <div class="fast-score-deck mirrored">
+                        <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin Ao">
+                            <i class="fas fa-minus"></i>
                         </button>
                         <button type="button" class="btn-point-act ao-3" onclick="addScorePoint('ao', 3, 'ao-ippon')">
                             +3 IPPON
                         </button>
-                        <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin Ao">
-                            <i class="fas fa-minus"></i>
+                        <button type="button" class="btn-point-act ao-2" onclick="addScorePoint('ao', 2, 'ao-wazaari')">
+                            +2 WAZA
+                        </button>
+                        <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')">
+                            +1 YUKO
                         </button>
                     </div>
 

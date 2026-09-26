@@ -1,0 +1,2165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ booklet_result_title }} &bull; {{ event.nama_event }} | Ambrilindo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&family=Roboto:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-canvas: #090d16;
+            --bg-surface: #111827;
+            --bg-surface-elevated: #1f2937;
+            --border-ui: #374151;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-gold: #facc15;
+            --accent-amber: #f59e0b;
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Specific Part PDF overrides */
+        {% if part == 'sampul' or part == 'closing' %}
+        @page { size: 10in 5.625in landscape; margin: 0; }
+        body { background: #111827 !important; overflow: hidden !important; width: 10in !important; height: 5.625in !important; margin: 0 !important; padding: 0 !important; }
+        .sampul-page-container, .closing-page-container { width: 10in !important; height: 5.625in !important; max-width: 10in !important; max-height: 5.625in !important; aspect-ratio: 16 / 9 !important; border-radius: 0 !important; background-size: 100% 100% !important; overflow: hidden !important; box-sizing: border-box !important; }
+        {% elif part == 'summary_juara' or part == 'rekapan_bagan' %}
+        @page { size: A4 portrait; margin: 8mm 10mm; }
+        body { background: #ffffff !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .booklet-page-portrait { width: 100% !important; max-width: 100% !important; min-height: 0 !important; border-radius: 0 !important; padding: 0 !important; box-shadow: none !important; }
+        {% elif part == 'roster' %}
+        @page { size: A4 portrait; margin: 6mm 8mm; }
+        body { background: #ffffff !important; overflow: hidden !important; width: 194mm !important; height: 283mm !important; margin: 0 !important; padding: 0 !important; }
+        .roster-page-container { width: 194mm !important; height: 283mm !important; max-height: 283mm !important; border-radius: 0 !important; padding: 0 !important; overflow: hidden !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
+        {% endif %}
+
+        /* =========================================================
+           TOP CONTROL TOOLBAR (Screen Only)
+           ========================================================= */
+        .booklet-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(17, 24, 39, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-ui);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .booklet-badge {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            color: #ffffff;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+        }
+
+        .event-info-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 260px;
+        }
+
+        .toolbar-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .select-day-picker {
+            background: #1e293b;
+            color: #facc15;
+            border: 1.5px solid #d97706;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            letter-spacing: 0.03em;
+            box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+        }
+
+        .select-day-picker option {
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-jump {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-ui);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-jump:hover {
+            background: #374151;
+            border-color: #4b5563;
+            color: #ffffff;
+        }
+
+        .btn-jump.active {
+            background: #2563eb;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .select-jump-bagan {
+            background: var(--bg-surface-elevated);
+            color: #93c5fd;
+            border: 1px solid var(--border-ui);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            max-width: 220px;
+        }
+
+        .select-jump-bagan option {
+            background: #111827;
+            color: #f8fafc;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pdf-full {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.35);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-pdf-full:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-print-main {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-print-main:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-close-viewer {
+            background: var(--bg-surface-elevated);
+            color: var(--text-muted);
+            border: 1px solid var(--border-ui);
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-close-viewer:hover {
+            color: #ffffff;
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .booklet-info-bar {
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
+            padding: 7px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #94a3b8;
+            gap: 12px;
+        }
+
+        .info-editable-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #fbbf24;
+            font-weight: 600;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        /* =========================================================
+           DOCUMENT WORKSPACE (Continuous Screen View)
+           ========================================================= */
+        .booklet-workspace {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 16px 80px;
+            gap: 36px;
+            max-width: 100vw;
+            box-sizing: border-box;
+        }
+
+        .page-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            border-radius: 6px;
+        }
+
+        .page-label-indicator {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            margin-bottom: 8px;
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid var(--border-ui);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            box-sizing: border-box;
+        }
+
+        /* =========================================================
+           PAGE 1: SAMPUL DEPAN (COVER)
+           Exact 16:9 widescreen proportion (matches original cover)
+           ========================================================= */
+        .sampul-page-container {
+            width: 1100px;
+            max-width: 95vw;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            background: #111827 url("{% static 'img/cover/cover_clean_template.png' %}") no-repeat center center;
+            background-size: 100% 100%;
+            overflow: hidden;
+            border-radius: 4px;
+            user-select: text;
+        }
+
+        .sampul-org-bar {
+            position: absolute;
+            top: 3.4%;
+            right: 10.4%;
+            text-align: right;
+            font-family: 'Oswald', 'Arial Black', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            letter-spacing: 0.035em;
+            text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .sampul-org-bar:hover, .sampul-org-bar:focus {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sampul-main-group {
+            position: absolute;
+            top: 45.0%;
+            left: 55.5%;
+            width: 40%;
+            outline: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+
+        .sampul-main-group:hover, .sampul-main-group:focus {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sampul-badge-eyebrow {
+            display: inline-block;
+            background: linear-gradient(135deg, #b45309, #f59e0b);
+            color: #000000;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .sampul-result-title {
+            font-family: 'Roboto', 'Oswald', sans-serif;
+            font-size: 34px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+            line-height: 1.08;
+            text-transform: uppercase;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.85);
+            margin-bottom: 4px;
+        }
+
+        .sampul-event-title {
+            font-family: 'Roboto', 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #facc15;
+            letter-spacing: 0.03em;
+            line-height: 1.2;
+            text-transform: uppercase;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+            margin-bottom: 12px;
+        }
+
+        .sampul-venue-box {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffff00;
+            line-height: 1.35;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .sampul-venue-line {
+            display: block;
+        }
+
+        .sampul-supported-by {
+            position: absolute;
+            top: 84.0%;
+            left: 81.0%;
+            font-family: 'Calibri', 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        /* =========================================================
+           VERTICAL A4 PAGE STYLES (Pages 2 & 3: Summary & Rekapan)
+           Standard 210 x 297 mm Portrait Document
+           ========================================================= */
+        .booklet-page-portrait {
+            width: 794px;
+            max-width: 95vw;
+            min-height: 1123px;
+            aspect-ratio: 210 / 297;
+            background: #ffffff;
+            color: #0f172a;
+            padding: 24px 28px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Vertical Header Banner (Official Branding) */
+        .portrait-header-banner {
+            border-bottom: 2.5px solid #0f172a;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .portrait-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .portrait-header-logo {
+            height: 56px;
+            width: auto;
+            max-width: 80px;
+            object-fit: contain;
+        }
+
+        .portrait-header-org-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.15;
+            text-transform: uppercase;
+            margin: 0 0 2px 0;
+        }
+
+        .portrait-header-meta {
+            font-size: 10.5px;
+            color: #475569;
+            font-weight: 500;
+            line-height: 1.25;
+            margin: 0;
+        }
+
+        .portrait-header-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .portrait-doc-badge {
+            background: #0f172a;
+            color: #facc15;
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .portrait-doc-day-tag {
+            font-size: 11px;
+            font-weight: 800;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* Table of Standings (Perolehan Medali Kontingen) */
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        .standings-table th {
+            background: #0f172a;
+            color: #ffffff;
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 8px 10px;
+            text-align: center;
+            border: 1px solid #1e293b;
+            text-transform: uppercase;
+        }
+
+        .standings-table th.th-kontingen {
+            text-align: left;
+            padding-left: 14px;
+        }
+
+        .standings-table td {
+            padding: 7px 10px;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+            text-align: center;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .standings-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .standings-table tr.rank-top-1 {
+            background: rgba(254, 240, 138, 0.35);
+        }
+        .standings-table tr.rank-top-2 {
+            background: rgba(241, 245, 249, 0.7);
+        }
+        .standings-table tr.rank-top-3 {
+            background: rgba(254, 215, 170, 0.35);
+        }
+
+        .td-rank {
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            width: 44px;
+        }
+
+        .medal-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .medal-pill.gold { background: #fef08a; color: #854d0e; border: 1.5px solid #eab308; }
+        .medal-pill.silver { background: #f1f5f9; color: #475569; border: 1.5px solid #94a3b8; }
+        .medal-pill.bronze { background: #ffedd5; color: #9a3412; border: 1.5px solid #f97316; }
+
+        .td-kontingen-cell {
+            text-align: left !important;
+            padding-left: 12px !important;
+        }
+
+        .kontingen-flex-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .kontingen-logo-box {
+            width: 36px;
+            height: 36px;
+            aspect-ratio: 1 / 1;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .kontingen-logo-img {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .kontingen-monogram {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+        }
+
+        .kontingen-name-text {
+            font-weight: 800;
+            font-size: 13.5px;
+            color: #0f172a;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .td-gold {
+            background: rgba(254, 240, 138, 0.25);
+            font-weight: 800;
+            color: #854d0e;
+            font-size: 13.5px;
+        }
+
+        .td-silver {
+            background: rgba(241, 245, 249, 0.5);
+            font-weight: 800;
+            color: #475569;
+            font-size: 13.5px;
+        }
+
+        .td-bronze {
+            background: rgba(254, 215, 170, 0.25);
+            font-weight: 800;
+            color: #9a3412;
+            font-size: 13.5px;
+        }
+
+        .td-total {
+            background: #f8fafc;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 800;
+            font-size: 14.5px;
+            color: #0f172a;
+        }
+
+        .standings-table tfoot td {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            font-family: 'Oswald', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            border: 1px solid #1e293b;
+        }
+
+        /* Validation & Signature Box */
+        .portrait-footer-section {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1.5px solid #cbd5e1;
+        }
+
+        .portrait-footer-meta-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9.5px;
+            color: #64748b;
+            font-weight: 600;
+            padding-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        /* =========================================================
+           REKAPAN BAGAN (PODIUM PER KELAS / NOMOR TANDING)
+           Vertical A4 with compact podium cards
+           ========================================================= */
+        .rekapan-section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rekapan-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .rekapan-card {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .rekapan-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1.5px solid #e2e8f0;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .rekapan-card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bagan-code-badge {
+            background: #0f172a;
+            color: #facc15;
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .bagan-name-heading {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .bagan-type-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .podium-list {
+            display: grid;
+            gap: 6px;
+            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+        }
+
+        .podium-list.cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+
+        .podium-list.cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+
+        .podium-list.cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .podium-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 6px;
+            border-radius: 6px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            min-width: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .podium-item.place-1 {
+            background: rgba(254, 240, 138, 0.35);
+            border-color: rgba(234, 179, 8, 0.4);
+        }
+        .podium-item.place-2 {
+            background: rgba(241, 245, 249, 0.7);
+            border-color: rgba(148, 163, 184, 0.4);
+        }
+        .podium-item.place-3 {
+            background: rgba(254, 215, 170, 0.35);
+            border-color: rgba(249, 115, 22, 0.4);
+        }
+
+        .podium-rank-badge {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .podium-kontingen-logo {
+            width: 28px;
+            height: 28px;
+            aspect-ratio: 1 / 1;
+            flex-shrink: 0;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .podium-kontingen-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .podium-athlete-info {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .podium-athlete-name {
+            font-size: 11px;
+            font-weight: 800;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .podium-athlete-sub {
+            font-size: 9px;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            font-weight: 600;
+            margin-top: 1px;
+        }
+
+        .podium-empty-notice {
+            font-size: 11px;
+            font-style: italic;
+            color: #94a3b8;
+            padding: 6px;
+            text-align: center;
+        }
+
+        /* =========================================================
+           PAGE 4: SAMPUL TERIMA KASIH (CLOSING COVER)
+           ========================================================= */
+        .closing-page-container {
+            width: 1100px;
+            max-width: 95vw;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #030712 100%);
+            border: 3px solid #d97706;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 60px;
+            box-sizing: border-box;
+            user-select: text;
+            text-align: center;
+        }
+
+        .closing-top-org {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .closing-center-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            max-width: 820px;
+        }
+
+        .closing-grand-title {
+            font-family: 'Roboto', 'Oswald', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #facc15;
+            text-shadow: 0 0 35px rgba(250, 204, 21, 0.4), 0 4px 15px rgba(0, 0, 0, 0.9);
+            line-height: 1;
+            margin: 0;
+        }
+
+        .closing-subtitle-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: #f8fafc;
+            line-height: 1.45;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+            margin: 0;
+        }
+
+        .closing-event-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 24px;
+            border-radius: 8px;
+            margin-top: 6px;
+        }
+
+        .closing-event-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .closing-event-meta {
+            font-size: 13px;
+            color: #facc15;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .closing-bottom-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 16px;
+        }
+
+        .closing-slogan {
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .closing-logo-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .closing-brand-logo {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* =========================================================
+           PAGE 5+: KUMPULAN BAGAN PERTANDINGAN (LANDSCAPE A4)
+           ========================================================= */
+        .bagan-section-header {
+            width: 1100px;
+            max-width: 95vw;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-left: 5px solid #facc15;
+            padding: 12px 20px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        .bagan-section-title-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bagan-container-landscape {
+            width: 1100px;
+            max-width: 95vw;
+            height: 778px;
+            aspect-ratio: 297 / 210;
+            background: #ffffff;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bagan-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .badge-open-external {
+            background: #2563eb;
+            color: #ffffff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* =========================================================
+           ROSTER 1 HALAMAN (RUN SHEET PERTANDINGAN)
+           Compact 1-Page Synchronized Schedule Across All Tatamis
+           ========================================================= */
+        .roster-page-container {
+            width: 794px;
+            max-width: 95vw;
+            min-height: 1123px;
+            aspect-ratio: 210 / 297;
+            background: #ffffff;
+            color: #0f172a;
+            padding: 16px 20px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Kop Surat in Simple Roster */
+        .simple-roster-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+            gap: 12px;
+        }
+
+        .simple-roster-kop-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .simple-roster-logo {
+            height: 48px;
+            width: auto;
+            max-width: 70px;
+            object-fit: contain;
+        }
+
+        .simple-roster-org-name {
+            margin: 0;
+            font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.15;
+            text-transform: uppercase;
+        }
+
+        .simple-roster-org-meta {
+            margin: 2px 0 0;
+            font-size: 10px;
+            color: #475569;
+            line-height: 1.2;
+            font-weight: 500;
+        }
+
+        .simple-roster-doc-title {
+            margin-top: 2px;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .simple-roster-day-badge-box {
+            text-align: right;
+            padding: 4px 10px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            min-width: 120px;
+        }
+
+        .simple-roster-day-label {
+            font-family: 'Oswald', 'Segoe UI', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .simple-roster-day-date {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 1px;
+        }
+
+        /* Day Section & Day Bar */
+        .simple-roster-day-section {
+            page-break-inside: avoid;
+            margin-bottom: 6px;
+        }
+
+        .simple-roster-day-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #b91c1c;
+            padding: 2.5px 8px;
+            margin: 3px 0 2px 0;
+        }
+
+        .day-bar-title {
+            font-family: 'Oswald', 'Segoe UI', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .day-bar-date {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Synchronized Run Sheet Table */
+        .simple-roster-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border: 1px solid #94a3b8;
+            background: #ffffff;
+            margin-bottom: 3px;
+        }
+
+        .simple-roster-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            font-size: 10.5px;
+            font-weight: 800;
+            text-align: center;
+            padding: 3px 5px;
+            border: 1px solid #94a3b8;
+            border-bottom: 1.5px solid #64748b;
+            text-transform: uppercase;
+        }
+
+        .simple-roster-table th .th-sub {
+            font-size: 9px;
+            font-weight: 600;
+            color: #475569;
+            display: inline-block;
+            margin-left: 4px;
+        }
+
+        .simple-roster-table td {
+            border: 1px solid #cbd5e1;
+            vertical-align: middle;
+            box-sizing: border-box;
+        }
+
+        .simple-roster-table tbody tr:nth-child(even) td.roster-match-cell {
+            background-color: #fafafa;
+        }
+
+        .simple-roster-table tbody tr:nth-child(odd) td.roster-match-cell {
+            background-color: #ffffff;
+        }
+
+        /* Density Scaling */
+        .simple-roster-page.density-spacious .roster-match-cell {
+            padding: 3px 6px;
+            font-size: 10px;
+            line-height: 1.18;
+        }
+        .simple-roster-page.density-normal .roster-match-cell {
+            padding: 2.2px 5px;
+            font-size: 9px;
+            line-height: 1.15;
+        }
+        .simple-roster-page.density-compact .roster-match-cell {
+            padding: 1.5px 4px;
+            font-size: 8.2px;
+            line-height: 1.1;
+        }
+        .simple-roster-page.density-ultra-compact .roster-match-cell {
+            padding: 1px 3px;
+            font-size: 7.5px;
+            line-height: 1.05;
+        }
+
+        /* Single-line compact item */
+        .roster-item-line {
+            display: block;
+            line-height: 1.14;
+            word-break: break-word;
+        }
+
+        .roster-num-badge {
+            display: inline-block;
+            min-width: 16px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.88em;
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 0 3px;
+            border-radius: 2px;
+            margin-right: 3px;
+            vertical-align: baseline;
+        }
+
+        .roster-item-title {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .roster-atlet-count {
+            font-weight: 700;
+            color: #0369a1;
+            margin-left: 3px;
+            white-space: nowrap;
+        }
+
+        /* Festival Session */
+        .roster-match-cell.is-festival {
+            background: #fef9c3 !important;
+            border-color: #fde047 !important;
+        }
+        .roster-match-cell.is-festival .roster-item-title {
+            color: #854d0e !important;
+        }
+        .roster-match-cell.is-festival .roster-num-badge {
+            background: #fef08a !important;
+            color: #713f12 !important;
+        }
+
+        /* Empty Cell */
+        .roster-match-cell.is-empty {
+            background: #fcfcfc !important;
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 9px;
+        }
+
+        /* Aligned ISHOMA Row */
+        .roster-ishoma-row {
+            page-break-inside: avoid;
+        }
+        .roster-ishoma-cell {
+            background: #f0fdf4 !important;
+            border-top: 1.5px dashed #0284c7 !important;
+            border-bottom: 1.5px dashed #0284c7 !important;
+            border-left: 1px solid #94a3b8 !important;
+            border-right: 1px solid #94a3b8 !important;
+            padding: 2px 6px !important;
+            text-align: center !important;
+        }
+        .roster-ishoma-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #0369a1;
+            font-weight: 800;
+            font-size: 9.5px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+        .roster-ishoma-icon {
+            font-size: 10px;
+        }
+
+        /* Bottom Section: Reminder Box + Unassigned Classes + Ambrilindo Footer */
+        .simple-roster-bottom-section {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1.5px solid #cbd5e1;
+            gap: 12px;
+        }
+
+        .simple-roster-bottom-left {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .simple-roster-bottom-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            flex-shrink: 0;
+            gap: 2px;
+        }
+
+        .simple-roster-footer-logo {
+            height: 38px;
+            width: auto;
+            max-width: 140px;
+            object-fit: contain;
+        }
+
+        .simple-roster-reminder-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 3px solid #d97706;
+            padding: 2.5px 6px;
+            border-radius: 2px;
+        }
+
+        .reminder-badge {
+            font-family: 'Oswald', sans-serif;
+            font-size: 8.5px;
+            font-weight: 700;
+            background: #d97706;
+            color: #ffffff;
+            padding: 1px 4px;
+            border-radius: 2px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .reminder-text {
+            font-size: 8.5px;
+            font-weight: 600;
+            color: #92400e;
+            line-height: 1.2;
+        }
+
+        .simple-roster-unassigned {
+            font-size: 8.5px;
+            line-height: 1.2;
+            color: #475569;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .unassigned-title {
+            font-weight: 800;
+            color: #dc2626;
+            letter-spacing: 0.02em;
+            margin-right: 4px;
+        }
+
+        .unassigned-items {
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .simple-roster-ts {
+            font-size: 8.5px;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        /* =========================================================
+           PRINT ENGINE (@media print)
+           Produces exact multi-page physical print / PDF
+           ========================================================= */
+        @media print {
+            .no-print, .booklet-toolbar, .booklet-info-bar, .page-label-indicator {
+                display: none !important;
+            }
+
+            body, html {
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .booklet-workspace {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                gap: 0 !important;
+            }
+
+            .page-wrapper {
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            /* Cover Page Printing (16:9 Landscape) */
+            .sampul-page-container, .closing-page-container {
+                width: 100% !important;
+                height: 100vh !important;
+                max-width: 100% !important;
+                max-height: 100vh !important;
+                aspect-ratio: auto !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                border-radius: 0 !important;
+                border: none !important;
+            }
+
+            /* Portrait A4 Pages (Summary & Rekapan) */
+            .booklet-page-portrait {
+                width: 100% !important;
+                min-height: 98vh !important;
+                padding: 10mm 12mm !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            .rekapan-card {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Roster 1 Halaman Printing */
+            .roster-page-container {
+                width: 100% !important;
+                height: 98vh !important;
+                max-height: 98vh !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                border-radius: 0 !important;
+                border: none !important;
+                padding: 6mm 8mm !important;
+            }
+
+            /* Bagan Landscape Printing */
+            .bagan-container-landscape {
+                width: 100% !important;
+                height: 98vh !important;
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            .bagan-section-header {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {% if not part %}
+    <!-- 1. FLOATING CONTROL TOOLBAR (SCREEN ONLY) -->
+    <header class="booklet-toolbar no-print">
+        <div class="toolbar-left">
+            <span class="booklet-badge">
+                <i class="fas fa-book-bookmark"></i> BUKU HASIL PERTANDINGAN
+            </span>
+            <span class="event-info-title" title="{{ event.nama_event }} &bull; {{ day_label }}">
+                {{ event.nama_event }} &bull; {{ day_label }}
+            </span>
+        </div>
+
+        <div class="toolbar-center">
+            <!-- Dynamic Day Selector -->
+            {% if day_choices %}
+            <select onchange="window.location.href='?day=' + this.value;" class="select-day-picker" title="Pilih Rangkuman Hari Pertandingan">
+                {% for dc in day_choices %}
+                <option value="{{ dc.day_num }}" {% if dc.is_active %}selected{% endif %}>
+                    📅 {{ dc.label }}
+                </option>
+                {% endfor %}
+                {% if single_day_choices %}
+                <optgroup label="--- Hanya Hari Tertentu ---">
+                    {% for sc in single_day_choices %}
+                    <option value="{{ sc.day_num }}&mode=single" {% if sc.is_active %}selected{% endif %}>
+                        {{ sc.label }}
+                    </option>
+                    {% endfor %}
+                </optgroup>
+                {% endif %}
+            </select>
+            {% endif %}
+
+            <!-- Section Jump Shortcuts -->
+            <a href="#page-sampul" class="btn-jump active" onclick="activateJump(this)">
+                <i class="fas fa-file-image"></i> Sampul
+            </a>
+            <a href="#page-summary-juara" class="btn-jump" onclick="activateJump(this)">
+                <i class="fas fa-trophy"></i> Klasemen Medali
+            </a>
+            <a href="#page-rekapan-bagan" class="btn-jump" onclick="activateJump(this)">
+                <i class="fas fa-list-ol"></i> Rekapan Bagan
+            </a>
+            <a href="#page-closing" class="btn-jump" onclick="activateJump(this)">
+                <i class="fas fa-heart"></i> Terima Kasih
+            </a>
+            <a href="#page-roster" class="btn-jump" onclick="activateJump(this)">
+                <i class="fas fa-table"></i> Roster
+            </a>
+
+            {% if kumpulan_bagan_groups %}
+            <select onchange="if(this.value) { window.location.hash = this.value; }" class="select-jump-bagan" title="Lompat ke Tatami atau Bagan Tertentu">
+                <option value="">🥋 Kumpulan Bagan ({{ total_bagan_count }} Total)...</option>
+                {% for grp in kumpulan_bagan_groups %}
+                <optgroup label="{{ grp.title }}">
+                    {% for b in grp.bagans %}
+                    <option value="page-bagan-{{ b.pk }}">({{ b.kode }}) {{ b.nama_bagan }}</option>
+                    {% endfor %}
+                </optgroup>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+
+        <div class="toolbar-right">
+            <a href="?day={{ max_day_num }}&mode={{ mode }}&pdf=1" target="_blank" class="btn-pdf-full" title="Buka & Unduh PDF Lengkap Buku Hasil Pertandingan">
+                <i class="fas fa-file-pdf"></i> Unduh PDF Lengkap
+            </a>
+            <button class="btn-print-main" onclick="window.print()" title="Cetak Cepat melalui Browser (Ctrl + P)">
+                <i class="fas fa-print"></i> Cetak Booklet (Ctrl + P)
+            </button>
+            <button class="btn-close-viewer" onclick="window.close()" title="Tutup Tab">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="booklet-info-bar no-print">
+        <div>
+            <span><i class="fas fa-info-circle"></i> Format Buku Hasil Pertandingan: <strong>{{ booklet_result_title }}</strong> &bull; Halaman 1 (Sampul) &bull; Halaman 2 (Klasemen Medali Vertikal A4) &bull; Halaman 3 (Rekapan Podium Vertikal A4) &bull; Halaman 4 (Sampul Terima Kasih) &bull; Halaman 5..{{ all_booklet_bagans|length|add:4 }} ({{ all_booklet_bagans|length }} Bagan).</span>
+        </div>
+        <div class="info-editable-hint">
+            <i class="fas fa-pen-to-square"></i> Teks pada Sampul &amp; Penutup dapat diedit langsung sebelum dicetak!
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 2. DOCUMENT WORKSPACE -->
+    <main class="booklet-workspace" {% if part %}style="padding:0; gap:0;"{% endif %}>
+
+        {% if not part or part == 'sampul' %}
+        <!-- ================= PAGE 1: SAMPUL DEPAN ================= -->
+        <section id="page-sampul" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-bookmark"></i> Halaman 1 &bull; Sampul Resmi: {{ booklet_result_title }}</span>
+                <span class="badge bg-secondary">Format Widescreen / A4 Lanskap</span>
+            </div>
+            {% endif %}
+
+            <div class="sampul-page-container">
+                <!-- Top Ribbon Org Text (Editable) -->
+                <div class="sampul-org-bar" contenteditable="true" spellcheck="false" title="Klik untuk mengedit teks organisasi">
+                    {{ org_text|linebreaksbr }}
+                </div>
+
+                <!-- Main Title & Venue Box (Editable) -->
+                <div class="sampul-main-group" contenteditable="true" spellcheck="false" title="Klik untuk mengedit judul atau venue">
+                    <span class="sampul-badge-eyebrow">OFFICIAL MATCH RESULT BOOK</span>
+                    <div class="sampul-result-title">{{ booklet_result_title }}</div>
+                    <div class="sampul-event-title">{{ event.nama_event }}</div>
+
+                    <div class="sampul-venue-box">
+                        <div class="sampul-venue-line venue-name">{{ venue_line1 }}</div>
+                        {% if venue_line2 %}
+                        <div class="sampul-venue-line venue-address">{{ venue_line2 }}</div>
+                        {% endif %}
+                        {% if selected_date_str %}
+                        <div class="sampul-venue-line venue-date">Tanggal {{ selected_date_str }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Supported by label (Editable) -->
+                <div class="sampul-supported-by" contenteditable="true" spellcheck="false" title="Klik untuk mengedit">
+                    SUPPORTED BY:
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part or part == 'summary_juara' %}
+        <!-- ================= PAGE 2: SUMMARY JUARA KONTINGEN (VERTICAL A4) ================= -->
+        <section id="page-summary-juara" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-trophy"></i> Halaman 2 &bull; Summary Juara Kontingen &bull; Klasemen Perolehan Medali</span>
+                <span class="badge bg-primary">Format Standar A4 Vertikal (Portrait)</span>
+            </div>
+            {% endif %}
+
+            <div class="booklet-page-portrait">
+                <!-- Top Banner Kop Surat / Event Logo -->
+                <div class="portrait-header-banner">
+                    <div class="portrait-header-left">
+                        {% if kop_surat.logo %}
+                        <img src="{{ kop_surat.logo.url }}" class="portrait-header-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                        {% else %}
+                        <img src="{% static 'img/cover/X10.png' %}" class="portrait-header-logo" alt="Logo Event">
+                        {% endif %}
+                        <div>
+                            <h2 class="portrait-header-org-text">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h2>
+                            <p class="portrait-header-meta">
+                                {{ kop_surat.alamat|default:venue_line1 }}{% if kop_surat.kontak %} &bull; {{ kop_surat.kontak }}{% endif %}
+                            </p>
+                            <p class="portrait-header-meta" style="font-weight: 700; color: #0f172a; margin-top: 2px;">
+                                {{ event.nama_event }} &bull; {{ selected_date_str }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="portrait-header-right">
+                        <span class="portrait-doc-badge">KLASEMEN PEROLEHAN MEDALI</span>
+                        <span class="portrait-doc-day-tag">{{ booklet_result_title }}</span>
+                    </div>
+                </div>
+
+                <!-- Standings Table -->
+                <div style="flex: 1;">
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 44px;">POS</th>
+                                <th class="th-kontingen">KONTINGEN / UTUSAN</th>
+                                <th style="width: 72px;">🥇 EMAS</th>
+                                <th style="width: 72px;">🥈 PERAK</th>
+                                <th style="width: 82px;">🥉 PERUNGGU</th>
+                                <th style="width: 76px;">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if not sorted_standings %}
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding: 24px; color: #94a3b8; font-style: italic;">
+                                    Belum ada data perolehan medali yang tercatat untuk periode ini.
+                                </td>
+                            </tr>
+                            {% else %}
+                            {% for item in sorted_standings %}
+                            <tr class="{% if item.rank == 1 %}rank-top-1{% elif item.rank == 2 %}rank-top-2{% elif item.rank == 3 %}rank-top-3{% endif %}">
+                                <td class="td-rank">
+                                    {% if item.rank == 1 %}
+                                    <span class="medal-pill gold">1</span>
+                                    {% elif item.rank == 2 %}
+                                    <span class="medal-pill silver">2</span>
+                                    {% elif item.rank == 3 %}
+                                    <span class="medal-pill bronze">3</span>
+                                    {% else %}
+                                    {{ item.rank }}
+                                    {% endif %}
+                                </td>
+                                <td class="td-kontingen-cell">
+                                    <div class="kontingen-flex-box">
+                                        <div class="kontingen-logo-box">
+                                            {% if item.utusan.logo %}
+                                            <img src="{{ item.utusan.logo.url }}" alt="{{ item.utusan.nama_utusan }}" class="kontingen-logo-img">
+                                            {% else %}
+                                            <span class="kontingen-monogram">{{ item.utusan.nama_utusan|slice:":2" }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <span class="kontingen-name-text">{{ item.utusan.nama_utusan }}</span>
+                                    </div>
+                                </td>
+                                <td class="td-gold">{{ item.gold }}</td>
+                                <td class="td-silver">{{ item.silver }}</td>
+                                <td class="td-bronze">{{ item.bronze }}</td>
+                                <td class="td-total">{{ item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" style="text-align: right; padding-right: 16px;">TOTAL KESELURUHAN</td>
+                                <td style="text-align: center; color: #facc15;">{{ total_gold }}</td>
+                                <td style="text-align: center; color: #e2e8f0;">{{ total_silver }}</td>
+                                <td style="text-align: center; color: #fdba74;">{{ total_bronze }}</td>
+                                <td style="text-align: center; color: #ffffff;">{{ grand_total_medals }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Footer Section with Meta -->
+                <div class="portrait-footer-section">
+                    <div class="portrait-footer-meta-bar">
+                        <span>Official Match Result Book &bull; Ambrilindo Tournament Engine</span>
+                        <span>Dicetak: {{ printed_time }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part or part == 'rekapan_bagan' %}
+        <!-- ================= PAGE 3+: REKAPAN BAGAN / PODIUM (VERTICAL A4) ================= -->
+        <section id="page-rekapan-bagan" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-list-ol"></i> Halaman 3 &bull; Rekapan Hasil Bagan &bull; Juara 1 s.d 3 Bersama (Urutan Kode Bagan)</span>
+                <span class="badge bg-primary">Format Standar A4 Vertikal (Portrait)</span>
+            </div>
+            {% endif %}
+
+            <div class="booklet-page-portrait">
+                <!-- Header Banner -->
+                <div class="portrait-header-banner">
+                    <div class="portrait-header-left">
+                        {% if kop_surat.logo %}
+                        <img src="{{ kop_surat.logo.url }}" class="portrait-header-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                        {% else %}
+                        <img src="{% static 'img/cover/X10.png' %}" class="portrait-header-logo" alt="Logo Event">
+                        {% endif %}
+                        <div>
+                            <h2 class="portrait-header-org-text">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h2>
+                            <p class="portrait-header-meta">
+                                {{ event.nama_event }} &bull; {{ selected_date_str }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="portrait-header-right">
+                        <span class="portrait-doc-badge">REKAPITULASI JUARA PER BAGAN</span>
+                        <span class="portrait-doc-day-tag">{{ booklet_result_title }}</span>
+                    </div>
+                </div>
+
+                <div class="rekapan-section-title">
+                    <i class="fas fa-medal text-warning"></i> DAFTAR JUARA (BERDASARKAN URUTAN KODE BAGAN)
+                </div>
+
+                <!-- List of Bagan Podiums -->
+                <div class="rekapan-grid" style="flex: 1;">
+                    {% if not rekapan_bagan_list %}
+                    <div style="text-align:center; padding: 30px; color: #94a3b8; font-style: italic;">
+                        Belum ada nomor tanding yang dijadwalkan pada hari ini.
+                    </div>
+                    {% else %}
+                    {% for item in rekapan_bagan_list %}
+                    <div class="rekapan-card">
+                        <!-- Bagan Header -->
+                        <div class="rekapan-card-head">
+                            <div class="rekapan-card-title-group">
+                                <span class="bagan-code-badge">[{{ item.bagan.kode|default:forloop.counter }}]</span>
+                                <span class="bagan-name-heading">{{ item.bagan.nama_bagan }}</span>
+                            </div>
+                            <div>
+                                <span class="bagan-type-badge">
+                                    {% if item.bagan.tipe_tanding == '1' %}🥋 KATA{% else %}🥊 KUMITE{% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Podium Results -->
+                        {% if item.has_winner %}
+                        <div class="podium-list {% if item.juara_3b %}cols-4{% elif item.juara_3a %}cols-3{% elif item.juara_2 %}cols-2{% else %}cols-1{% endif %}">
+                            <!-- Juara 1 (Emas) -->
+                            {% if item.juara_1 %}
+                            <div class="podium-item place-1">
+                                <span class="podium-rank-badge medal-pill gold">🥇</span>
+                                <div class="podium-kontingen-logo">
+                                    {% if item.juara_1.utusan and item.juara_1.utusan.logo %}
+                                    <img src="{{ item.juara_1.utusan.logo.url }}" alt="{{ item.juara_1.utusan.nama_utusan }}">
+                                    {% else %}
+                                    <span class="kontingen-monogram">{{ item.juara_1.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="podium-athlete-info">
+                                    <div class="podium-athlete-name" title="{{ item.juara_1.nama_atlet }}">{{ item.juara_1.nama_atlet }}</div>
+                                    <div class="podium-athlete-sub">{{ item.juara_1.perguruan.nama_perguruan|default:"" }}{% if item.juara_1.perguruan and item.juara_1.utusan %} • {% endif %}{{ item.juara_1.utusan.nama_utusan|default:"-" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Juara 2 (Perak) -->
+                            {% if item.juara_2 %}
+                            <div class="podium-item place-2">
+                                <span class="podium-rank-badge medal-pill silver">🥈</span>
+                                <div class="podium-kontingen-logo">
+                                    {% if item.juara_2.utusan and item.juara_2.utusan.logo %}
+                                    <img src="{{ item.juara_2.utusan.logo.url }}" alt="{{ item.juara_2.utusan.nama_utusan }}">
+                                    {% else %}
+                                    <span class="kontingen-monogram">{{ item.juara_2.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="podium-athlete-info">
+                                    <div class="podium-athlete-name" title="{{ item.juara_2.nama_atlet }}">{{ item.juara_2.nama_atlet }}</div>
+                                    <div class="podium-athlete-sub">{{ item.juara_2.perguruan.nama_perguruan|default:"" }}{% if item.juara_2.perguruan and item.juara_2.utusan %} • {% endif %}{{ item.juara_2.utusan.nama_utusan|default:"-" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Juara 3a (Perunggu) -->
+                            {% if item.juara_3a %}
+                            <div class="podium-item place-3">
+                                <span class="podium-rank-badge medal-pill bronze">🥉</span>
+                                <div class="podium-kontingen-logo">
+                                    {% if item.juara_3a.utusan and item.juara_3a.utusan.logo %}
+                                    <img src="{{ item.juara_3a.utusan.logo.url }}" alt="{{ item.juara_3a.utusan.nama_utusan }}">
+                                    {% else %}
+                                    <span class="kontingen-monogram">{{ item.juara_3a.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="podium-athlete-info">
+                                    <div class="podium-athlete-name" title="{{ item.juara_3a.nama_atlet }}">{{ item.juara_3a.nama_atlet }}</div>
+                                    <div class="podium-athlete-sub">{{ item.juara_3a.perguruan.nama_perguruan|default:"" }}{% if item.juara_3a.perguruan and item.juara_3a.utusan %} • {% endif %}{{ item.juara_3a.utusan.nama_utusan|default:"-" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Juara 3b (Perunggu) -->
+                            {% if item.juara_3b %}
+                            <div class="podium-item place-3">
+                                <span class="podium-rank-badge medal-pill bronze">🥉</span>
+                                <div class="podium-kontingen-logo">
+                                    {% if item.juara_3b.utusan and item.juara_3b.utusan.logo %}
+                                    <img src="{{ item.juara_3b.utusan.logo.url }}" alt="{{ item.juara_3b.utusan.nama_utusan }}">
+                                    {% else %}
+                                    <span class="kontingen-monogram">{{ item.juara_3b.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="podium-athlete-info">
+                                    <div class="podium-athlete-name" title="{{ item.juara_3b.nama_atlet }}">{{ item.juara_3b.nama_atlet }}</div>
+                                    <div class="podium-athlete-sub">{{ item.juara_3b.perguruan.nama_perguruan|default:"" }}{% if item.juara_3b.perguruan and item.juara_3b.utusan %} • {% endif %}{{ item.juara_3b.utusan.nama_utusan|default:"-" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="podium-empty-notice">
+                            <i class="fas fa-clock me-1"></i> Pertandingan belum selesai atau hasil podium belum ditetapkan.
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Footer Section -->
+                <div class="portrait-footer-section">
+                    <div class="portrait-footer-meta-bar">
+                        <span>Halaman Rekapan Juara &bull; {{ booklet_result_title }} &bull; Ambrilindo</span>
+                        <span>Dicetak: {{ printed_time }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part or part == 'closing' %}
+        <!-- ================= PAGE 4: SAMPUL TERIMA KASIH (CLOSING COVER) ================= -->
+        <section id="page-closing" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-heart"></i> Halaman 4 &bull; Sampul Penutup &bull; Terima Kasih</span>
+                <span class="badge bg-secondary">Format Widescreen / A4 Lanskap</span>
+            </div>
+            {% endif %}
+
+            <div class="closing-page-container">
+                <div class="closing-top-org" contenteditable="true" spellcheck="false" title="Klik untuk mengedit">
+                    {{ org_text }}
+                </div>
+
+                <div class="closing-center-box" contenteditable="true" spellcheck="false" title="Klik untuk mengedit pesan penutup">
+                    <h1 class="closing-grand-title">TERIMA KASIH</h1>
+                    <p class="closing-subtitle-text">
+                        Atas Partisipasi, Dedikasi &amp; Sportivitas Seluruh Kontingen, Atlet, Wasit &amp; Juri, serta Official
+                    </p>
+
+                    <div class="closing-event-box">
+                        <div class="closing-event-name">{{ event.nama_event }}</div>
+                        <div class="closing-event-meta">{{ venue_line1 }}{% if venue_line2 %}, {{ venue_line2 }}{% endif %} &bull; {{ selected_date_str }}</div>
+                    </div>
+                </div>
+
+                <div class="closing-bottom-bar">
+                    <div class="closing-slogan" contenteditable="true" spellcheck="false">
+                        JUNJUNG TINGGI SPORTIVITAS &amp; SEMANGAT KARATE-DO
+                    </div>
+                    <div class="closing-logo-brand">
+                        <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo" class="closing-brand-logo">
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part or part == 'roster' %}
+        <!-- ================= PAGE 5: ROSTER 1 HALAMAN (RUN SHEET / JADWAL PERTANDINGAN) ================= -->
+        <section id="page-roster" class="page-wrapper">
+            {% if not part %}
+            <div class="page-label-indicator no-print">
+                <span><i class="fas fa-table"></i> Halaman 5 &bull; Roster Pertandingan &bull; Run Sheet 1 Halaman (Semua Tatami)</span>
+                <span class="badge bg-success">Format Standar A4 Vertikal (Hemat Kertas)</span>
+            </div>
+            {% endif %}
+
+            <div class="roster-page-container">
+                <div class="simple-roster-page {{ density_class }}">
+
+                    <!-- Header Kop Surat -->
+                    <div class="simple-roster-header">
+                        <div class="simple-roster-kop-left">
+                            {% if kop_surat.logo %}
+                            <img src="{{ kop_surat.logo.url }}" class="simple-roster-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                            {% else %}
+                            <img src="{% static 'img/cover/X10.png' %}" class="simple-roster-logo" alt="Logo Event">
+                            {% endif %}
+                            <div class="simple-roster-org-info">
+                                <h3 class="simple-roster-org-name">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
+                                {% if kop_surat.alamat or kop_surat.kontak %}
+                                <p class="simple-roster-org-meta">
+                                    {{ kop_surat.alamat }}{% if kop_surat.alamat and kop_surat.kontak %} &bull; {% endif %}{{ kop_surat.kontak }}
+                                </p>
+                                {% endif %}
+                                <div class="simple-roster-doc-title">ROSTER PERTANDINGAN / RUN SHEET</div>
+                            </div>
+                        </div>
+
+                        <div class="simple-roster-day-badge-box">
+                            <div class="simple-roster-day-label">
+                                {% if days_count > 1 %}{{ days_count }} HARI PERTANDINGAN{% else %}{{ days_roster_data.0.day_label }}{% endif %}
+                            </div>
+                            {% if days_count == 1 and days_roster_data.0.day_date_formatted %}
+                            <div class="simple-roster-day-date">{{ days_roster_data.0.day_date_formatted }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Day Sections -->
+                    {% for day_item in days_roster_data %}
+                    <div class="simple-roster-day-section">
+                        <div class="simple-roster-day-bar">
+                            <span class="day-bar-title"><i class="fas fa-calendar-day"></i> {{ day_item.day_label }}</span>
+                            {% if day_item.day_date_formatted %}
+                            <span class="day-bar-date">{{ day_item.day_date_formatted }}</span>
+                            {% endif %}
+                        </div>
+
+                        <table class="simple-roster-table">
+                            <thead>
+                                <tr>
+                                    {% for col in day_item.cols %}
+                                    <th style="width: {{ day_item.col_width_pct }}%;">
+                                        {{ col.tatami_name }}
+                                        <span class="th-sub">({{ col.match_count }} Partai &bull; {{ col.athlete_count }} Atlet)</span>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if not day_item.rows %}
+                                <tr>
+                                    <td colspan="{{ day_item.cols|length }}" style="text-align:center; padding:8px; color:#94a3b8; font-style:italic;">
+                                        Belum ada nomor tanding yang dijadwalkan pada hari ini.
+                                    </td>
+                                </tr>
+                                {% else %}
+                                    {% for row in day_item.rows %}
+                                        {% if row.type == 'break' %}
+                                        <tr class="roster-ishoma-row">
+                                            <td colspan="{{ day_item.cols|length }}" class="roster-ishoma-cell">
+                                                <div class="roster-ishoma-bar">
+                                                    <span class="roster-ishoma-icon">🍱</span>
+                                                    <span class="roster-ishoma-label">{{ row.title }}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            {% for cell in row.cells %}
+                                                {% if cell %}
+                                                <td class="roster-match-cell {% if cell.is_festival %}is-festival{% endif %}">
+                                                    <div class="roster-item-line">
+                                                        <span class="roster-num-badge">#{{ cell.seq }}</span>
+                                                        <span class="roster-item-title">
+                                                            {% if cell.discipline == 'kata' %}🥋 {% elif cell.discipline == 'kumite' %}🥊 {% endif %}
+                                                            {{ cell.title }}
+                                                        </span>
+                                                        {% if cell.atlet_count %}
+                                                        <span class="roster-atlet-count">({{ cell.atlet_count }})</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                {% else %}
+                                                <td class="roster-match-cell is-empty">
+                                                    <div class="roster-empty-cell">—</div>
+                                                </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Bottom Section: Notice + Unassigned + Ambrilindo Footer -->
+                    <div class="simple-roster-bottom-section">
+                        <div class="simple-roster-bottom-left">
+                            <div class="simple-roster-reminder-box">
+                                <span class="reminder-badge"><i class="fas fa-exclamation-triangle"></i> PENTING</span>
+                                <span class="reminder-text">Jadwal bersifat estimasi. Atlet &amp; official wajib berada di area pemanasan 30 menit sebelum partai dimulai.</span>
+                            </div>
+
+                            {% if unscheduled_list %}
+                            <div class="simple-roster-unassigned">
+                                <span class="unassigned-title">KELAS TIDAK DITANDINGKAN:</span>
+                                <span class="unassigned-items">{{ unscheduled_list|join:", " }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="simple-roster-bottom-right">
+                            <img src="{% static 'img/ambrilindo-logo.png' %}" class="simple-roster-footer-logo" alt="Ambrilindo">
+                            <div class="simple-roster-ts">Dicetak: {{ printed_time }} &bull; Ambrilindo</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if not part %}
+        <!-- ================= PAGE 5+: KUMPULAN BAGAN PERTANDINGAN ================= -->
+        {% for grp in kumpulan_bagan_groups %}
+        <div class="bagan-section-header no-print" id="tatami-group-{{ grp.day_num }}-{{ grp.tatami_num }}">
+            <div class="bagan-section-title-text">
+                <i class="fas fa-layer-group text-warning"></i> {{ grp.title }} ({{ grp.bagans|length }} Bagan Pertandingan)
+            </div>
+            <span class="badge bg-primary">Kumpulan Bagan</span>
+        </div>
+
+        {% for b in grp.bagans %}
+        <section id="page-bagan-{{ b.pk }}" class="page-wrapper bagan-page-wrapper">
+            <div class="page-label-indicator no-print">
+                <span>
+                    <i class="fas fa-sitemap"></i> {{ grp.title }} &bull; Bagan ({{ b.kode }}): {{ b.nama_bagan }}
+                </span>
+                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=b.pk %}" target="_blank" class="badge-open-external" title="Buka bagan di tab baru">
+                    <i class="fas fa-external-link-alt"></i> Buka Bagan
+                </a>
+            </div>
+
+            <div class="bagan-container-landscape">
+                <iframe src="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=b.pk %}?print=1" class="bagan-iframe" loading="eager" title="Bagan {{ b.nama_bagan }}"></iframe>
+            </div>
+        </section>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+
+    </main>
+
+    {% if not part %}
+    <script>
+        function activateJump(btn) {
+            document.querySelectorAll('.btn-jump').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Keyboard shortcut: Ctrl + P for printing
+        window.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

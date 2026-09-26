@@ -828,6 +828,11 @@
                         <span class="sub-item">Summary Juara</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{% url 'summary-booklet' event_pk=event.pk %}" target="_blank">
+                        <span class="sub-item text-warning fw-bold"><i class="fas fa-book-open me-1"></i>Buku Hasil (Booklet)</span>
+                      </a>
+                    </li>
                     <li class="{% if on == 'utusan' %}active{% endif %}">
                       <a href="{% url 'admin-utusan' event_pk=event.pk %}">
                         <span class="sub-item">Kontingen / Utusan</span>

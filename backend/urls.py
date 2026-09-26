@@ -63,6 +63,7 @@ urlpatterns = [
     path('event/<int:event_pk>/timetable/bulk-print/<int:day_pk>/<int:tatami_pk>/', bulk_print_bagan, name='timetable-bulk-print'),
     path('event/<int:event_pk>/timetable/call-sheet/<int:day_pk>/<int:tatami_pk>/', timetable_call_sheet, name='timetable-call-sheet'),
     path('event/<int:event_pk>/timetable/booklet/<int:day_pk>/<int:tatami_pk>/', timetable_tatami_booklet, name='timetable-tatami-booklet'),
+    path('event/<int:event_pk>/summary-booklet/', summary_booklet, name='summary-booklet'),
 
     # API
     path('api/notify-running/<int:detailbagan_pk>/', notify_bagan_running, name='notify-bagan-running'),

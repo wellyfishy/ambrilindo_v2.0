@@ -66,12 +66,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: clamp(46px, 5.8vh, 58px);
-      padding: 0 16px;
-      background: linear-gradient(180deg, rgba(17, 24, 39, 0.92) 0%, rgba(10, 15, 26, 0.95) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 10px;
-      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      height: clamp(56px, 7vh, 74px);
+      padding: 0 20px;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.94) 0%, rgba(10, 15, 26, 0.98) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       gap: 16px;
       overflow: hidden;
     }
@@ -110,25 +110,27 @@
     .arena-marquee {
       width: 100%;
       font-family: var(--font-condensed);
-      font-size: clamp(18px, 1.85vw, 28px);
-      font-weight: 800;
-      letter-spacing: 0.06em;
+      font-size: clamp(26px, 3.2vw, 46px);
+      font-weight: 900;
+      letter-spacing: 0.07em;
       color: #fbbf24;
-      text-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+      text-shadow: 0 0 16px rgba(251, 191, 36, 0.55), 0 2px 8px rgba(0,0,0,0.8);
       text-transform: uppercase;
       line-height: 1;
     }
 
     .marquee-bullet {
       color: #ffffff;
-      margin: 0 16px;
-      font-size: 80%;
-      opacity: 0.7;
+      margin: 0 20px;
+      font-size: 85%;
+      opacity: 0.8;
+      text-shadow: 0 0 10px rgba(255,255,255,0.6);
     }
 
     .marquee-event-title {
-      color: #e2e8f0;
-      font-weight: 700;
+      color: #f8fafc;
+      font-weight: 800;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
     }
 
     .top-bar-right {
@@ -171,7 +173,7 @@
     .player-card {
       display: flex;
       flex-direction: column;
-      height: calc((100vh - clamp(120px, 16.5vh, 185px) - clamp(46px, 5.8vh, 58px) - 32px) / 2);
+      height: calc((100vh - clamp(120px, 16.5vh, 185px) - clamp(56px, 7vh, 74px) - 26px) / 2);
       min-height: 205px;
       border-radius: 16px;
       position: relative;
@@ -201,49 +203,31 @@
       gap: 22px;
     }
 
-    .player-side-badge {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: clamp(66px, 7vw, 104px);
-      height: 100%;
-      border-radius: 12px;
-      font-family: var(--font-condensed);
-      font-size: clamp(28px, 3vw, 46px);
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      flex-shrink: 0;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      position: relative;
-    }
-
-    .player-side-badge.aka {
-      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
-      color: #ffffff;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-      border: 1px solid rgba(248, 113, 113, 0.4);
-    }
-
-    .player-side-badge.ao {
-      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
-      color: #ffffff;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-      border: 1px solid rgba(96, 165, 250, 0.4);
-    }
-
     .flag-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: clamp(140px, 14.5vw, 240px);
-      height: clamp(96px, 13vh, 175px);
-      background: rgba(0, 0, 0, 0.5);
+      height: clamp(140px, 22vh, 260px);
+      max-height: 100%;
+      aspect-ratio: 1 / 1;
+      width: auto;
+      background: rgba(0, 0, 0, 0.55);
       border: 2.5px solid var(--card-border);
-      border-radius: 16px;
-      padding: 6px;
+      border-radius: 18px;
+      padding: 8px;
       flex-shrink: 0;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.55), inset 0 0 20px rgba(0,0,0,0.35);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6), inset 0 0 24px rgba(0, 0, 0, 0.4);
+      transition: all 0.25s ease;
+    }
+
+    .player-card.aka .flag-container {
+      border-color: rgba(239, 68, 68, 0.55);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6), 0 0 20px rgba(220, 38, 38, 0.2), inset 0 0 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .player-card.ao .flag-container {
+      border-color: rgba(59, 130, 246, 0.55);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6), 0 0 20px rgba(37, 99, 235, 0.2), inset 0 0 24px rgba(0, 0, 0, 0.4);
     }
 
     .flag-img {
@@ -574,13 +558,14 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      width: clamp(280px, 28vw, 480px);
+      width: clamp(320px, 32vw, 560px);
+      height: 100%;
       flex-shrink: 0;
     }
 
     .sponsor-logo {
-      height: clamp(100px, 15vh, 175px);
-      max-height: 95%;
+      height: 100%;
+      max-height: 98%;
       max-width: 100%;
       width: auto;
       object-fit: contain;
@@ -1346,7 +1331,7 @@
     /* Kata 5-Judge Scoring Display (Non-overlapping Overlay with Highlight & Mute) */
     #kata-score-wrap {
       position: absolute;
-      top: calc((100vh - clamp(120px, 16.5vh, 185px) + clamp(46px, 5.8vh, 58px)) / 2);
+      top: calc((100vh - clamp(120px, 16.5vh, 185px) + clamp(56px, 7vh, 74px)) / 2);
       left: calc(50% - 3.5vw);
       transform: translate(-50%, -50%);
       z-index: 100;
@@ -1693,7 +1678,6 @@
     <!-- Red Competitor (AKA) Card -->
     <div class="player-card aka" id="aka-card">
       <div class="player-body">
-        <div class="player-side-badge aka">AKA</div>
         <div class="flag-container">
           <img id="atlet_red_logo" class="flag-img" src="{% if atlet_merah and atlet_merah.utusan and atlet_merah.utusan.logo %}{{ atlet_merah.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo" onerror="this.onerror=null; this.src=defaultFlagSrc;">
         </div>
@@ -1727,7 +1711,6 @@
     <!-- Blue Competitor (AO) Card -->
     <div class="player-card ao" id="ao-card">
       <div class="player-body">
-        <div class="player-side-badge ao">AO</div>
         <div class="flag-container">
           <img id="atlet_blue_logo" class="flag-img" src="{% if atlet_biru and atlet_biru.utusan and atlet_biru.utusan.logo %}{{ atlet_biru.utusan.logo.url }}{% else %}{% static 'img/ambrilindo/idn-flag.png' %}{% endif %}" alt="Logo" onerror="this.onerror=null; this.src=defaultFlagSrc;">
         </div>

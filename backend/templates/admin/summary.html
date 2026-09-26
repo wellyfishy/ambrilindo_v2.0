@@ -431,8 +431,11 @@
       </div>
 
       <div class="d-flex align-items-center gap-2 btn-print-hide">
+        <a href="{% url 'summary-booklet' event_pk=event.pk %}" target="_blank" class="btn btn-warning btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); font-weight: 700; color: #111; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+          <i class="fas fa-book-open"></i> Buku Hasil Pertandingan (Booklet PDF)
+        </a>
         <button onclick="window.print()" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); font-weight: 600;">
-          <i class="fas fa-print"></i> Cetak Hasil Resmi
+          <i class="fas fa-print"></i> Cetak Halaman
         </button>
         <button onclick="window.location.reload()" class="btn btn-dark btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); border: 1px solid var(--border-color); font-weight: 600;">
           <i class="fas fa-sync-alt"></i> Refresh
