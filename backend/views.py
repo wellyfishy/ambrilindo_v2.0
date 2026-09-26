@@ -3599,6 +3599,45 @@ def find_best_match_for_tatami(tatami, event, exclude_current=False):
     return None, "Semua partai pertandingan telah selesai atau menunggu pemenang babak sebelumnya"
 
 
+PANEL_PRESETS = {
+    'kumite_3': {
+        'label': 'Kumite 3 Org',
+        'desc': '1 Wasit Utama, 2 Juri',
+        'positions': ['referee', 'judge_1', 'judge_2'],
+    },
+    'kumite_5': {
+        'label': 'Kumite 5 Org',
+        'desc': '1 Wasit Utama, 4 Juri (Tanpa Kansa)',
+        'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4'],
+    },
+    'kumite_6': {
+        'label': 'Kumite 6 Org (WKF)',
+        'desc': '1 Wasit Utama, 4 Juri, 1 Kansa',
+        'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'kansa'],
+    },
+    'kata_3': {
+        'label': 'Kata 3 Juri',
+        'desc': 'Juri 1, 2, 3',
+        'positions': ['judge_1', 'judge_2', 'judge_3'],
+    },
+    'kata_5': {
+        'label': 'Kata 5 Juri',
+        'desc': 'Juri 1 s/d 5',
+        'positions': ['judge_1', 'judge_2', 'judge_3', 'judge_4', 'judge_5'],
+    },
+    'minimal_2': {
+        'label': '2 Juri',
+        'desc': 'Juri 1, 2 (Darurat / Ringkas)',
+        'positions': ['judge_1', 'judge_2'],
+    },
+    'solo_1': {
+        'label': '1 Wasit',
+        'desc': 'Wasit Utama Saja',
+        'positions': ['referee'],
+    },
+}
+
+
 def get_dynamic_panel_rule(active_match):
     """
     Dynamic panel requirements:
@@ -3662,15 +3701,19 @@ def sync_match_wasits_to_tatami(detail_bagan, tatami):
     return
 
 
-def auto_assign_panel_for_match(match, event):
+def auto_assign_panel_for_match(match, event, target_positions=None):
     """
     Automated conflict-free referee assignment tailored specifically to a match's AKA and AO athletes.
     Strictly prevents wasits from the same perguruan or kab/kota as the fighters.
+    Supports dynamic target_positions or defaults to match rule.
     """
     if not match or not match.bagan:
         return []
-    panel_rule = get_dynamic_panel_rule(match)
-    req_positions = panel_rule['required_positions']
+    if target_positions:
+        req_positions = [p for p in target_positions if p]
+    else:
+        panel_rule = get_dynamic_panel_rule(match)
+        req_positions = panel_rule['required_positions']
     needed_count = len(req_positions)
 
     conflict_perguruan_ids = set()
@@ -3740,16 +3783,17 @@ def auto_assign_panel_for_match(match, event):
     return chosen
 
 
-def get_match_tatami_modal_context(match, event, selected_tatami=None):
+def get_match_tatami_modal_context(match, event, selected_tatami=None, active_slots=None, active_preset=None):
     """
     Builds the detailed context for the Tatami Manager Match Referee modal.
+    Supports dynamic referee configurations (2 juri, 3 juri, 1 wasit, custom, etc.).
     Focuses only on referee vs athlete perguruan conflict.
     Duplicate perguruan on the panel is allowed.
     Wasit on tatami pool only exists if assigned manually from admin-wasit.
     Finished matches are not treated as active on tatami.
     """
     panel_rule = get_dynamic_panel_rule(match)
-    req_positions = panel_rule['required_positions']
+    default_positions = panel_rule['required_positions']
 
     active_tatami = Tatami.objects.filter(event=event, detail_bagan=match).first() if not match.selesai else None
     tatamis = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
@@ -3760,6 +3804,49 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
     )
     assigned_by_pos = {a.posisi: a for a in assignments}
     assigned_wasit_ids = {a.wasit_id for a in assignments}
+    assigned_pos_list = [a.posisi for a in assignments if a.posisi != 'pool']
+    assigned_pos_set = set(assigned_pos_list)
+
+    # Determine slots to display
+    if active_preset and active_preset in PANEL_PRESETS:
+        req_positions = list(PANEL_PRESETS[active_preset]['positions'])
+    elif active_slots:
+        if isinstance(active_slots, str):
+            req_positions = [p.strip() for p in active_slots.split(',') if p.strip()]
+        else:
+            req_positions = list(active_slots)
+    else:
+        # Check if existing assignments match a preset exactly
+        matched_preset = None
+        for p_code, p_info in PANEL_PRESETS.items():
+            if set(p_info['positions']) == assigned_pos_set and len(assigned_pos_set) > 0:
+                matched_preset = p_code
+                req_positions = list(p_info['positions'])
+                break
+
+        if not matched_preset:
+            if len(assigned_pos_list) > 0:
+                if assigned_pos_set.issubset(set(default_positions)):
+                    req_positions = list(default_positions)
+                else:
+                    req_positions = list(assigned_pos_list)
+            else:
+                req_positions = list(default_positions)
+
+    # Guarantee all currently assigned positions are visible in slots
+    for p in assigned_pos_list:
+        if p not in req_positions:
+            req_positions.append(p)
+
+    # Identify current preset code
+    current_preset = active_preset
+    if not current_preset:
+        for p_code, p_info in PANEL_PRESETS.items():
+            if p_info['positions'] == req_positions:
+                current_preset = p_code
+                break
+        if not current_preset:
+            current_preset = 'custom'
 
     conflict_perguruan_ids = set()
     if match.atlet1 and match.atlet1.perguruan_id:
@@ -3768,6 +3855,19 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
         conflict_perguruan_ids.add(match.atlet2.perguruan_id)
 
     pos_display_dict = dict(WasitTatami.POSISI_CHOICES)
+    pos_friendly_names = {
+        'referee': 'Wasit Utama (Referee)',
+        'wasit_2': 'Wasit 2',
+        'judge_1': 'Juri 1',
+        'judge_2': 'Juri 2',
+        'judge_3': 'Juri 3',
+        'judge_4': 'Juri 4',
+        'judge_5': 'Juri 5',
+        'judge_6': 'Juri 6',
+        'judge_7': 'Juri 7',
+        'kansa': 'Kansa (Pengawas)',
+        'tatami_manager': 'Tatami Manager',
+    }
 
     conflict_warnings = []
     position_slots = []
@@ -3785,7 +3885,7 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
 
         position_slots.append({
             'posisi_code': pos_code,
-            'posisi_label': pos_display_dict.get(pos_code, pos_code),
+            'posisi_label': pos_friendly_names.get(pos_code, pos_display_dict.get(pos_code, pos_code.replace('_', ' ').title())),
             'assigned': asg,
             'has_conflict': has_conflict,
             'conflict_reason': conflict_reason,
@@ -3864,6 +3964,14 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
 
     pool_candidates.sort(key=lambda x: (x.priority_rank, x.nama_wasit))
 
+    assigned_in_panel = len([s for s in position_slots if s['assigned']])
+    is_panel_complete = (len(position_slots) > 0) and (assigned_in_panel >= len(position_slots))
+
+    presets_list = [
+        {'code': k, 'label': v['label'], 'desc': v['desc'], 'count': len(v['positions'])}
+        for k, v in PANEL_PRESETS.items()
+    ]
+
     return {
         'match': match,
         'panel_rule': panel_rule,
@@ -3873,8 +3981,11 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None):
         'position_slots': position_slots,
         'pool_candidates': pool_candidates,
         'assigned_count': len(assignments),
-        'is_panel_complete': len(assignments) >= len(req_positions),
+        'is_panel_complete': is_panel_complete,
         'conflict_warnings': conflict_warnings,
+        'active_slots_str': ','.join(req_positions),
+        'current_preset': current_preset,
+        'presets_list': presets_list,
     }
 
 
@@ -3947,12 +4058,16 @@ def admin_tatami_manager(request, event_pk):
     # --- AJAX Handlers for Match Modal ---
     if is_ajax and request.GET.get('action') == 'get_match_detail':
         detailbagan_pk = request.GET.get('detailbagan_pk')
+        preset = request.GET.get('preset')
+        active_slots_raw = request.GET.get('active_slots')
+        active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
         match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).select_related(
             'bagan__nomor_tanding', 'atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami'
         ).first()
         if not match_obj:
             return JsonResponse({'status': 'error', 'message': 'Partai tidak ditemukan.'}, status=404)
-        modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+        modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots, active_preset=preset)
         html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
         winner_name = None
         if match_obj.pemenang == '1' and match_obj.atlet1:
@@ -3972,6 +4087,8 @@ def admin_tatami_manager(request, event_pk):
             'score1': match_obj.score1,
             'score2': match_obj.score2,
             'winner_name': winner_name,
+            'assigned_count': modal_ctx['assigned_count'],
+            'is_panel_complete': modal_ctx['is_panel_complete'],
         })
 
     if request.method == 'POST':
@@ -3982,6 +4099,9 @@ def admin_tatami_manager(request, event_pk):
             detailbagan_pk = request.POST.get('detailbagan_pk')
             wasit_id = request.POST.get('wasit_id')
             posisi = request.POST.get('posisi')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
             match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
             wasit = Wasit.objects.filter(pk=wasit_id, event=event).first()
 
@@ -4001,7 +4121,7 @@ def admin_tatami_manager(request, event_pk):
                 if active_t:
                     sync_match_wasits_to_tatami(match_obj, active_t)
 
-            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
             html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
             return JsonResponse({
                 'status': 'success',
@@ -4012,22 +4132,201 @@ def admin_tatami_manager(request, event_pk):
                 'match_pk': match_obj.pk,
             })
 
-        elif submit_type == 'remove_match_wasit':
+        elif submit_type == 'swap_match_wasits':
             detailbagan_pk = request.POST.get('detailbagan_pk')
-            wasit_id = request.POST.get('wasit_id')
-            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            from_posisi = request.POST.get('from_posisi')
+            to_posisi = request.POST.get('to_posisi')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
 
-            if match_obj and wasit_id:
-                WasitDetailBagan.objects.filter(detail_bagan=match_obj, wasit_id=wasit_id).delete()
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj or not from_posisi or not to_posisi:
+                return JsonResponse({'status': 'error', 'message': 'Data swap wasit tidak valid.'}, status=400)
+
+            with transaction.atomic():
+                asg_from = WasitDetailBagan.objects.filter(detail_bagan=match_obj, posisi=from_posisi).first()
+                asg_to = WasitDetailBagan.objects.filter(detail_bagan=match_obj, posisi=to_posisi).first()
+
+                if asg_from and asg_to:
+                    asg_from.posisi = '__temp_swap__'
+                    asg_from.save(update_fields=['posisi'])
+                    asg_to.posisi = from_posisi
+                    asg_to.save(update_fields=['posisi'])
+                    asg_from.posisi = to_posisi
+                    asg_from.save(update_fields=['posisi'])
+                elif asg_from and not asg_to:
+                    asg_from.posisi = to_posisi
+                    asg_from.save(update_fields=['posisi'])
+                elif asg_to and not asg_from:
+                    asg_to.posisi = from_posisi
+                    asg_to.save(update_fields=['posisi'])
+
                 active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
                 if active_t:
                     sync_match_wasits_to_tatami(match_obj, active_t)
 
-                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Posisi wasit berhasil ditukar/dipindahkan.',
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+            })
+
+        elif submit_type == 'apply_panel_preset':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            preset_code = request.POST.get('preset')
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj or preset_code not in PANEL_PRESETS:
+                return JsonResponse({'status': 'error', 'message': 'Preset format tidak valid.'}, status=400)
+
+            target_positions = list(PANEL_PRESETS[preset_code]['positions'])
+            with transaction.atomic():
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj).exclude(posisi__in=target_positions).delete()
+                active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                if active_t:
+                    sync_match_wasits_to_tatami(match_obj, active_t)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=target_positions, active_preset=preset_code)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Format panel diubah ke '{PANEL_PRESETS[preset_code]['label']}'.",
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+            })
+
+        elif submit_type == 'add_panel_slot':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            slot_type = request.POST.get('slot_type', 'judge')
+            wasit_id = request.POST.get('wasit_id')
+            active_slots_raw = request.POST.get('active_slots', '')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()]
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
+
+            new_pos = None
+            if slot_type in ('referee', 'wasit'):
+                if 'referee' not in active_slots:
+                    new_pos = 'referee'
+                elif 'wasit_2' not in active_slots:
+                    new_pos = 'wasit_2'
+                else:
+                    slot_type = 'judge'
+
+            if slot_type == 'kansa':
+                if 'kansa' not in active_slots:
+                    new_pos = 'kansa'
+                else:
+                    slot_type = 'judge'
+
+            if slot_type == 'judge' or not new_pos:
+                for j_num in range(1, 8):
+                    code = f'judge_{j_num}'
+                    if code not in active_slots:
+                        new_pos = code
+                        break
+
+            if not new_pos:
+                return JsonResponse({'status': 'error', 'message': 'Batas maksimum slot telah tercapai (maks 7 juri).'}, status=400)
+
+            active_slots.append(new_pos)
+
+            assigned_wasit = None
+            if wasit_id:
+                wasit = Wasit.objects.filter(pk=wasit_id, event=event).first()
+                if wasit:
+                    assigned_wasit = wasit
+                    with transaction.atomic():
+                        WasitDetailBagan.objects.filter(detail_bagan=match_obj, wasit=wasit).delete()
+                        WasitDetailBagan.objects.filter(detail_bagan=match_obj, posisi=new_pos).delete()
+                        WasitDetailBagan.objects.create(
+                            event=event,
+                            detail_bagan=match_obj,
+                            wasit=wasit,
+                            posisi=new_pos
+                        )
+                        active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                        if active_t:
+                            sync_match_wasits_to_tatami(match_obj, active_t)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            msg = f"Slot baru berhasil ditambahkan ({modal_ctx['position_slots'][-1]['posisi_label']})."
+            if assigned_wasit:
+                msg = f"Slot ({modal_ctx['position_slots'][-1]['posisi_label']}) ditambahkan & ditugaskan ke {assigned_wasit.nama_wasit}."
+
+            return JsonResponse({
+                'status': 'success',
+                'message': msg,
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+            })
+
+        elif submit_type == 'remove_panel_slot':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            posisi = request.POST.get('posisi')
+            active_slots_raw = request.POST.get('active_slots', '')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()]
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj or not posisi:
+                return JsonResponse({'status': 'error', 'message': 'Data slot tidak valid.'}, status=400)
+
+            with transaction.atomic():
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj, posisi=posisi).delete()
+                active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                if active_t:
+                    sync_match_wasits_to_tatami(match_obj, active_t)
+
+            if posisi in active_slots:
+                active_slots.remove(posisi)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Slot '{posisi}' berhasil dihapus dari susunan.",
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+            })
+
+        elif submit_type == 'remove_match_wasit':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            wasit_id = request.POST.get('wasit_id')
+            posisi = request.POST.get('posisi')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+
+            if match_obj:
+                with transaction.atomic():
+                    if wasit_id:
+                        WasitDetailBagan.objects.filter(detail_bagan=match_obj, wasit_id=wasit_id).delete()
+                    elif posisi:
+                        WasitDetailBagan.objects.filter(detail_bagan=match_obj, posisi=posisi).delete()
+
+                    active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                    if active_t:
+                        sync_match_wasits_to_tatami(match_obj, active_t)
+
+                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
                 html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
                 return JsonResponse({
                     'status': 'success',
-                    'message': "Wasit berhasil dilepas dari partai ini.",
+                    'message': "Wasit berhasil dilepas dari slot ini.",
                     'html': html,
                     'assigned_count': modal_ctx['assigned_count'],
                     'is_panel_complete': modal_ctx['is_panel_complete'],
@@ -4036,16 +4335,19 @@ def admin_tatami_manager(request, event_pk):
 
         elif submit_type == 'auto_assign_match_panel':
             detailbagan_pk = request.POST.get('detailbagan_pk')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
             match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
             if not match_obj:
                 return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
 
-            chosen = auto_assign_panel_for_match(match_obj, event)
+            chosen = auto_assign_panel_for_match(match_obj, event, target_positions=active_slots)
             active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
             if active_t:
                 sync_match_wasits_to_tatami(match_obj, active_t)
 
-            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
             html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
             return JsonResponse({
                 'status': 'success',
@@ -4058,6 +4360,9 @@ def admin_tatami_manager(request, event_pk):
 
         elif submit_type == 'clear_match_panel':
             detailbagan_pk = request.POST.get('detailbagan_pk')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
             match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
             if match_obj:
                 WasitDetailBagan.objects.filter(detail_bagan=match_obj).delete()
@@ -4065,7 +4370,7 @@ def admin_tatami_manager(request, event_pk):
                 if active_t:
                     sync_match_wasits_to_tatami(match_obj, active_t)
 
-                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami)
+                modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
                 html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
                 return JsonResponse({
                     'status': 'success',
@@ -4162,7 +4467,8 @@ def admin_tatami_manager(request, event_pk):
         m.assigned_wasit_count = len(m_wasits)
         rule = get_dynamic_panel_rule(m)
         m.required_wasit_count = len(rule['required_positions'])
-        m.is_panel_complete = m.assigned_wasit_count >= m.required_wasit_count
+        # Dynamic referee panel: complete if assigned meets default rule or has at least 2 appointed wasits
+        m.is_panel_complete = (m.assigned_wasit_count >= m.required_wasit_count) or (m.assigned_wasit_count >= 2)
 
         conflict = False
         m_pergs = set()
@@ -6379,11 +6685,18 @@ def summary_booklet(request, event_pk):
     # 4. REKAPAN BAGAN (Ordered by kode_bagan, e.g. 001, 002, ...)
     rekapan_bagan_list = []
     for b in all_range_bagans:
-        has_winner = bool(b.juara_1)
+        # Ignore bagan that is unfinished or is an intermediate pool without podium winners
+        if not b.juara_1:
+            continue
+        
+        name_upper = (b.nama_bagan or '').upper().strip()
+        if 'POOL ' in name_upper and not (name_upper.endswith('- FINAL') or name_upper.endswith('FINAL')):
+            continue
+
         has_3b = bool(b.juara_3b)
         rekapan_bagan_list.append({
             'bagan': b,
-            'has_winner': has_winner,
+            'has_winner': True,
             'juara_1': b.juara_1,
             'juara_2': b.juara_2,
             'juara_3a': b.juara_3a,
@@ -6422,7 +6735,7 @@ def summary_booklet(request, event_pk):
         })
         all_booklet_bagans = all_range_bagans
 
-    # 6. ROSTER 1 HALAMAN (RUN SHEET PERTANDINGAN across selected_days)
+    # 6. ROSTER (RUN SHEET PERTANDINGAN across all_days)
     atlet_counts = dict(
         Atlet.objects.filter(nomor_tanding__event=event)
         .values('nomor_tanding').annotate(cnt=Count('id'))
@@ -6433,7 +6746,7 @@ def summary_booklet(request, event_pk):
     days_roster_data = []
     DAYS_ID = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
 
-    for d in selected_days:
+    for d in all_days:
         cols = []
         has_any_break = False
         common_break_title = 'ISHOMA'
@@ -6668,7 +6981,7 @@ def summary_booklet(request, event_pk):
         'all_days': all_days,
         'selected_days': selected_days,
         'days_roster_data': days_roster_data,
-        'days_count': len(selected_days),
+        'days_count': len(all_days),
         'density_class': density_class,
         'unscheduled_list': unscheduled_list,
         'day_choices': day_choices,

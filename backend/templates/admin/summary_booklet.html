@@ -53,7 +53,8 @@
         {% elif part == 'roster' %}
         @page { size: A4 portrait; margin: 6mm 8mm; }
         body { background: #ffffff !important; overflow: hidden !important; width: 194mm !important; height: 283mm !important; margin: 0 !important; padding: 0 !important; }
-        .roster-page-container { width: 194mm !important; height: 283mm !important; max-height: 283mm !important; border-radius: 0 !important; padding: 0 !important; overflow: hidden !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
+        #page-roster { page-break-after: avoid !important; break-after: avoid !important; }
+        .roster-page-container { width: 194mm !important; height: 283mm !important; max-height: 283mm !important; border-radius: 0 !important; padding: 0 !important; overflow: hidden !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; page-break-after: avoid !important; break-after: avoid !important; }
         {% endif %}
 
         /* =========================================================
@@ -530,19 +531,19 @@
         .standings-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12.5px;
-            margin-top: 8px;
-            margin-bottom: 16px;
+            font-size: 11px;
+            margin-top: 4px;
+            margin-bottom: 8px;
         }
 
         .standings-table th {
             background: #0f172a;
             color: #ffffff;
             font-family: 'Oswald', sans-serif;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: 0.04em;
-            padding: 8px 10px;
+            letter-spacing: 0.03em;
+            padding: 4px 6px;
             text-align: center;
             border: 1px solid #1e293b;
             text-transform: uppercase;
@@ -550,16 +551,17 @@
 
         .standings-table th.th-kontingen {
             text-align: left;
-            padding-left: 14px;
+            padding-left: 8px;
         }
 
         .standings-table td {
-            padding: 7px 10px;
+            padding: 3px 6px;
             border: 1px solid #e2e8f0;
             vertical-align: middle;
             text-align: center;
             font-weight: 600;
             color: #1e293b;
+            font-size: 10.5px;
         }
 
         .standings-table tr:nth-child(even) {
@@ -578,50 +580,50 @@
 
         .td-rank {
             font-family: 'Oswald', sans-serif;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 700;
-            width: 44px;
+            width: 32px;
         }
 
         .medal-pill {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 800;
             line-height: 1;
         }
-        .medal-pill.gold { background: #fef08a; color: #854d0e; border: 1.5px solid #eab308; }
-        .medal-pill.silver { background: #f1f5f9; color: #475569; border: 1.5px solid #94a3b8; }
-        .medal-pill.bronze { background: #ffedd5; color: #9a3412; border: 1.5px solid #f97316; }
+        .medal-pill.gold { background: #fef08a; color: #854d0e; border: 1px solid #eab308; }
+        .medal-pill.silver { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; }
+        .medal-pill.bronze { background: #ffedd5; color: #9a3412; border: 1px solid #f97316; }
 
         .td-kontingen-cell {
             text-align: left !important;
-            padding-left: 12px !important;
+            padding-left: 8px !important;
         }
 
         .kontingen-flex-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .kontingen-logo-box {
-            width: 36px;
-            height: 36px;
+            width: 20px;
+            height: 20px;
             aspect-ratio: 1 / 1;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             background: #ffffff;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 3px;
             overflow: hidden;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .kontingen-logo-img {
@@ -634,7 +636,7 @@
 
         .kontingen-monogram {
             font-family: 'Oswald', sans-serif;
-            font-size: 13px;
+            font-size: 9px;
             font-weight: 800;
             color: #1e293b;
             text-transform: uppercase;
@@ -642,9 +644,9 @@
 
         .kontingen-name-text {
             font-weight: 800;
-            font-size: 13.5px;
+            font-size: 11px;
             color: #0f172a;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.01em;
             text-transform: uppercase;
         }
 
@@ -652,28 +654,28 @@
             background: rgba(254, 240, 138, 0.25);
             font-weight: 800;
             color: #854d0e;
-            font-size: 13.5px;
+            font-size: 11px;
         }
 
         .td-silver {
             background: rgba(241, 245, 249, 0.5);
             font-weight: 800;
             color: #475569;
-            font-size: 13.5px;
+            font-size: 11px;
         }
 
         .td-bronze {
             background: rgba(254, 215, 170, 0.25);
             font-weight: 800;
             color: #9a3412;
-            font-size: 13.5px;
+            font-size: 11px;
         }
 
         .td-total {
             background: #f8fafc;
             font-family: 'Oswald', sans-serif;
             font-weight: 800;
-            font-size: 14.5px;
+            font-size: 12px;
             color: #0f172a;
         }
 
@@ -681,9 +683,10 @@
             background: #0f172a !important;
             color: #ffffff !important;
             font-family: 'Oswald', sans-serif;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 800;
             border: 1px solid #1e293b;
+            padding: 4px 6px;
         }
 
         /* Validation & Signature Box */
@@ -710,151 +713,188 @@
            ========================================================= */
         .rekapan-section-title {
             font-family: 'Oswald', sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             color: #0f172a;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            margin: 0 0 12px 0;
+            margin: 0 0 8px 0;
             display: flex;
             align-items: center;
+            justify-content: center;
+            text-align: center;
             gap: 8px;
         }
 
         .rekapan-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 5px;
+            margin-bottom: 8px;
+            align-items: stretch;
         }
 
         .rekapan-card {
             background: #ffffff;
-            border: 1.5px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 10px 14px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 3px 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .rekapan-card-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1.5px solid #e2e8f0;
-            padding-bottom: 6px;
-            margin-bottom: 8px;
-            gap: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2px;
+            margin-bottom: 2.5px;
+            gap: 4px;
         }
 
         .rekapan-card-title-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+            min-width: 0;
+            flex: 1;
         }
 
         .bagan-code-badge {
             background: #0f172a;
             color: #facc15;
             font-family: 'Oswald', sans-serif;
-            font-size: 13px;
+            font-size: 9.5px;
             font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 4px;
-            letter-spacing: 0.05em;
+            padding: 0.5px 3.5px;
+            border-radius: 2px;
+            letter-spacing: 0.03em;
+            flex-shrink: 0;
+            line-height: 1.15;
         }
 
         .bagan-name-heading {
-            font-size: 13.5px;
+            font-size: 9.5px;
             font-weight: 800;
             color: #0f172a;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.15;
         }
 
         .bagan-type-badge {
-            font-size: 10.5px;
+            font-size: 8px;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 0.5px 3.5px;
+            border-radius: 2px;
             text-transform: uppercase;
             background: #e2e8f0;
             color: #334155;
-        }
-
-        .podium-list {
-            display: grid;
-            gap: 6px;
-            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-        }
-
-        .podium-list.cols-4 {
-            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        }
-
-        .podium-list.cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        }
-
-        .podium-list.cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        }
-
-        .podium-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 6px;
-            border-radius: 6px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            min-width: 0;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        .podium-item.place-1 {
-            background: rgba(254, 240, 138, 0.35);
-            border-color: rgba(234, 179, 8, 0.4);
-        }
-        .podium-item.place-2 {
-            background: rgba(241, 245, 249, 0.7);
-            border-color: rgba(148, 163, 184, 0.4);
-        }
-        .podium-item.place-3 {
-            background: rgba(254, 215, 170, 0.35);
-            border-color: rgba(249, 115, 22, 0.4);
-        }
-
-        .podium-rank-badge {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 900;
             flex-shrink: 0;
+            white-space: nowrap;
+            line-height: 1.15;
         }
 
-        .podium-kontingen-logo {
-            width: 28px;
-            height: 28px;
+        .podium-vertical-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5px;
+        }
+
+        .podium-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            padding: 1px 4.5px;
+            border-radius: 2.5px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            box-sizing: border-box;
+            min-height: 18px;
+        }
+
+        .podium-row.place-1 {
+            background: rgba(254, 240, 138, 0.22);
+            border-color: rgba(234, 179, 8, 0.45);
+            border-left: 3px solid #eab308;
+        }
+
+        .podium-row.place-2 {
+            background: rgba(241, 245, 249, 0.65);
+            border-color: rgba(148, 163, 184, 0.4);
+            border-left: 3px solid #94a3b8;
+        }
+
+        .podium-row.place-3 {
+            background: rgba(254, 215, 170, 0.22);
+            border-color: rgba(249, 115, 22, 0.4);
+            border-left: 3px solid #f97316;
+        }
+
+        .podium-row-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .podium-rank-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 1.5px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 0.5px 3.5px;
+            border-radius: 2px;
+            flex-shrink: 0;
+            line-height: 1.1;
+        }
+
+        .podium-rank-pill.gold {
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde047;
+        }
+
+        .podium-rank-pill.silver {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .podium-rank-pill.bronze {
+            background: #ffedd5;
+            color: #9a3412;
+            border: 1px solid #fdba74;
+        }
+
+        .podium-row-logo {
+            width: 14px;
+            height: 14px;
             aspect-ratio: 1 / 1;
             flex-shrink: 0;
             background: #ffffff;
             border: 1px solid #cbd5e1;
-            border-radius: 5px;
+            border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
-        .podium-kontingen-logo img {
+        .podium-row-logo img {
             max-width: 100%;
             max-height: 100%;
             width: 100%;
@@ -862,32 +902,55 @@
             object-fit: contain;
         }
 
-        .podium-athlete-info {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .podium-athlete-name {
-            font-size: 11px;
+        .kontingen-monogram-sm {
+            font-family: 'Oswald', sans-serif;
+            font-size: 8px;
             font-weight: 800;
-            color: #0f172a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.2;
+            color: #475569;
             text-transform: uppercase;
         }
 
-        .podium-athlete-sub {
-            font-size: 9px;
-            color: #64748b;
+        .podium-row-name {
+            font-size: 9.5px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1.2;
-            font-weight: 600;
-            margin-top: 1px;
+            line-height: 1.15;
+        }
+
+        .podium-row-kontingen {
+            margin-left: auto;
+            text-align: right;
+            font-size: 8.5px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-left: 4px;
+            flex-shrink: 0;
+            max-width: 44%;
+            line-height: 1.15;
+        }
+
+        #page-rekapan-bagan .booklet-page-portrait {
+            display: block !important;
+            min-height: 0 !important;
+            height: auto !important;
+            padding: 0 !important;
+        }
+
+        #page-rekapan-bagan .portrait-footer-section {
+            margin-top: 8px !important;
+            padding-top: 5px !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
         }
 
         .podium-empty-notice {
@@ -1448,6 +1511,13 @@
             letter-spacing: 0.02em;
         }
 
+        .simple-roster-page.density-compact .reminder-text { font-size: 8px; }
+        .simple-roster-page.density-compact .simple-roster-unassigned { font-size: 7.5px; }
+        .simple-roster-page.density-compact .simple-roster-footer-logo { height: 34px; max-width: 120px; }
+        .simple-roster-page.density-ultra-compact .reminder-text { font-size: 7.5px; }
+        .simple-roster-page.density-ultra-compact .simple-roster-unassigned { font-size: 7px; }
+        .simple-roster-page.density-ultra-compact .simple-roster-footer-logo { height: 28px; max-width: 95px; }
+
         /* =========================================================
            PRINT ENGINE (@media print)
            Produces exact multi-page physical print / PDF
@@ -1482,6 +1552,11 @@
                 break-after: page !important;
             }
 
+            .page-wrapper:last-child {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+
             /* Cover Page Printing (16:9 Landscape) */
             .sampul-page-container, .closing-page-container {
                 width: 100% !important;
@@ -1512,16 +1587,43 @@
             }
 
             /* Roster 1 Halaman Printing */
+            {% if part == 'roster' %}
+            #page-roster {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
             .roster-page-container {
                 width: 100% !important;
-                height: 98vh !important;
-                max-height: 98vh !important;
-                page-break-after: always !important;
-                break-after: page !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: 100% !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                border-radius: 0 !important;
+                border: none !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            {% else %}
+            .roster-page-container {
+                width: 100% !important;
+                height: 283mm !important;
+                max-height: 283mm !important;
+                min-height: 0 !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
                 border-radius: 0 !important;
                 border: none !important;
                 padding: 6mm 8mm !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
+            {% endif %}
 
             /* Bagan Landscape Printing */
             .bagan-container-landscape {
@@ -1815,7 +1917,7 @@
                 </div>
 
                 <div class="rekapan-section-title">
-                    <i class="fas fa-medal text-warning"></i> DAFTAR JUARA (BERDASARKAN URUTAN KODE BAGAN)
+                    <i class="fas fa-medal text-warning"></i> DAFTAR JUARA
                 </div>
 
                 <!-- List of Bagan Podiums -->
@@ -1841,76 +1943,85 @@
                         </div>
 
                         <!-- Podium Results -->
+                        <!-- Podium Results (Vertical 1, 2, 3, 3) -->
                         {% if item.has_winner %}
-                        <div class="podium-list {% if item.juara_3b %}cols-4{% elif item.juara_3a %}cols-3{% elif item.juara_2 %}cols-2{% else %}cols-1{% endif %}">
+                        <div class="podium-vertical-list">
                             <!-- Juara 1 (Emas) -->
                             {% if item.juara_1 %}
-                            <div class="podium-item place-1">
-                                <span class="podium-rank-badge medal-pill gold">🥇</span>
-                                <div class="podium-kontingen-logo">
-                                    {% if item.juara_1.utusan and item.juara_1.utusan.logo %}
-                                    <img src="{{ item.juara_1.utusan.logo.url }}" alt="{{ item.juara_1.utusan.nama_utusan }}">
-                                    {% else %}
-                                    <span class="kontingen-monogram">{{ item.juara_1.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
-                                    {% endif %}
+                            <div class="podium-row place-1">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill gold">🥇 1.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.juara_1.utusan and item.juara_1.utusan.logo %}
+                                        <img src="{{ item.juara_1.utusan.logo.url }}" alt="{{ item.juara_1.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.juara_1.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.juara_1.nama_atlet }}">{{ item.juara_1.nama_atlet }}</span>
                                 </div>
-                                <div class="podium-athlete-info">
-                                    <div class="podium-athlete-name" title="{{ item.juara_1.nama_atlet }}">{{ item.juara_1.nama_atlet }}</div>
-                                    <div class="podium-athlete-sub">{{ item.juara_1.perguruan.nama_perguruan|default:"" }}{% if item.juara_1.perguruan and item.juara_1.utusan %} • {% endif %}{{ item.juara_1.utusan.nama_utusan|default:"-" }}</div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.juara_1.perguruan.nama_perguruan|default:"" }}{% if item.juara_1.perguruan and item.juara_1.utusan %} • {% endif %}{{ item.juara_1.utusan.nama_utusan|default:"-" }}
                                 </div>
                             </div>
                             {% endif %}
 
                             <!-- Juara 2 (Perak) -->
                             {% if item.juara_2 %}
-                            <div class="podium-item place-2">
-                                <span class="podium-rank-badge medal-pill silver">🥈</span>
-                                <div class="podium-kontingen-logo">
-                                    {% if item.juara_2.utusan and item.juara_2.utusan.logo %}
-                                    <img src="{{ item.juara_2.utusan.logo.url }}" alt="{{ item.juara_2.utusan.nama_utusan }}">
-                                    {% else %}
-                                    <span class="kontingen-monogram">{{ item.juara_2.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
-                                    {% endif %}
+                            <div class="podium-row place-2">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill silver">🥈 2.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.juara_2.utusan and item.juara_2.utusan.logo %}
+                                        <img src="{{ item.juara_2.utusan.logo.url }}" alt="{{ item.juara_2.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.juara_2.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.juara_2.nama_atlet }}">{{ item.juara_2.nama_atlet }}</span>
                                 </div>
-                                <div class="podium-athlete-info">
-                                    <div class="podium-athlete-name" title="{{ item.juara_2.nama_atlet }}">{{ item.juara_2.nama_atlet }}</div>
-                                    <div class="podium-athlete-sub">{{ item.juara_2.perguruan.nama_perguruan|default:"" }}{% if item.juara_2.perguruan and item.juara_2.utusan %} • {% endif %}{{ item.juara_2.utusan.nama_utusan|default:"-" }}</div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.juara_2.perguruan.nama_perguruan|default:"" }}{% if item.juara_2.perguruan and item.juara_2.utusan %} • {% endif %}{{ item.juara_2.utusan.nama_utusan|default:"-" }}
                                 </div>
                             </div>
                             {% endif %}
 
                             <!-- Juara 3a (Perunggu) -->
                             {% if item.juara_3a %}
-                            <div class="podium-item place-3">
-                                <span class="podium-rank-badge medal-pill bronze">🥉</span>
-                                <div class="podium-kontingen-logo">
-                                    {% if item.juara_3a.utusan and item.juara_3a.utusan.logo %}
-                                    <img src="{{ item.juara_3a.utusan.logo.url }}" alt="{{ item.juara_3a.utusan.nama_utusan }}">
-                                    {% else %}
-                                    <span class="kontingen-monogram">{{ item.juara_3a.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
-                                    {% endif %}
+                            <div class="podium-row place-3">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill bronze">🥉 3.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.juara_3a.utusan and item.juara_3a.utusan.logo %}
+                                        <img src="{{ item.juara_3a.utusan.logo.url }}" alt="{{ item.juara_3a.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.juara_3a.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.juara_3a.nama_atlet }}">{{ item.juara_3a.nama_atlet }}</span>
                                 </div>
-                                <div class="podium-athlete-info">
-                                    <div class="podium-athlete-name" title="{{ item.juara_3a.nama_atlet }}">{{ item.juara_3a.nama_atlet }}</div>
-                                    <div class="podium-athlete-sub">{{ item.juara_3a.perguruan.nama_perguruan|default:"" }}{% if item.juara_3a.perguruan and item.juara_3a.utusan %} • {% endif %}{{ item.juara_3a.utusan.nama_utusan|default:"-" }}</div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.juara_3a.perguruan.nama_perguruan|default:"" }}{% if item.juara_3a.perguruan and item.juara_3a.utusan %} • {% endif %}{{ item.juara_3a.utusan.nama_utusan|default:"-" }}
                                 </div>
                             </div>
                             {% endif %}
 
                             <!-- Juara 3b (Perunggu) -->
                             {% if item.juara_3b %}
-                            <div class="podium-item place-3">
-                                <span class="podium-rank-badge medal-pill bronze">🥉</span>
-                                <div class="podium-kontingen-logo">
-                                    {% if item.juara_3b.utusan and item.juara_3b.utusan.logo %}
-                                    <img src="{{ item.juara_3b.utusan.logo.url }}" alt="{{ item.juara_3b.utusan.nama_utusan }}">
-                                    {% else %}
-                                    <span class="kontingen-monogram">{{ item.juara_3b.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
-                                    {% endif %}
+                            <div class="podium-row place-3">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill bronze">🥉 3.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.juara_3b.utusan and item.juara_3b.utusan.logo %}
+                                        <img src="{{ item.juara_3b.utusan.logo.url }}" alt="{{ item.juara_3b.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.juara_3b.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.juara_3b.nama_atlet }}">{{ item.juara_3b.nama_atlet }}</span>
                                 </div>
-                                <div class="podium-athlete-info">
-                                    <div class="podium-athlete-name" title="{{ item.juara_3b.nama_atlet }}">{{ item.juara_3b.nama_atlet }}</div>
-                                    <div class="podium-athlete-sub">{{ item.juara_3b.perguruan.nama_perguruan|default:"" }}{% if item.juara_3b.perguruan and item.juara_3b.utusan %} • {% endif %}{{ item.juara_3b.utusan.nama_utusan|default:"-" }}</div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.juara_3b.perguruan.nama_perguruan|default:"" }}{% if item.juara_3b.perguruan and item.juara_3b.utusan %} • {% endif %}{{ item.juara_3b.utusan.nama_utusan|default:"-" }}
                                 </div>
                             </div>
                             {% endif %}

@@ -1034,6 +1034,150 @@
             border-color: rgba(16, 185, 129, 0.3);
         }
 
+        /* Preset Quick Bar */
+        .tm-preset-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-control);
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .tm-preset-title {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+
+        .tm-preset-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .btn-tm-preset {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-tm-preset:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        .btn-tm-preset.is-active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(37, 99, 235, 0.25));
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            font-weight: 700;
+        }
+        .btn-tm-preset .preset-count {
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0.85;
+        }
+
+        .tm-preset-custom-tag {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .tm-preset-custom-tag.is-active {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+
+        /* Slot Action Buttons (Add Slot & Delete) */
+        .tm-add-slot-group .btn-tm-slot-add {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .tm-add-slot-group .btn-tm-slot-add:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .btn-slot-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-slot-delete:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            transform: scale(1.1);
+        }
+
+        /* Drag & Drop Feedback Styling */
+        .tm-slot-drag-handle, .tm-item-drag-handle {
+            color: var(--text-muted);
+            cursor: grab;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            font-size: 11px;
+            transition: color 0.15s;
+        }
+        .tm-slot-drag-handle:hover, .tm-item-drag-handle:hover {
+            color: var(--text-primary);
+        }
+        .tm-slot-drag-handle:active, .tm-item-drag-handle:active {
+            cursor: grabbing;
+        }
+
         /* Position Slot Cards */
         .tm-slots-grid {
             display: flex;
@@ -1047,6 +1191,14 @@
             border-radius: var(--radius-control);
             padding: 12px 14px;
             transition: all 0.18s ease;
+            position: relative;
+        }
+
+        .tm-slot-card[draggable="true"] {
+            cursor: grab;
+        }
+        .tm-slot-card[draggable="true"]:active {
+            cursor: grabbing;
         }
 
         .tm-slot-card.is-occupied {
@@ -1066,6 +1218,46 @@
         .tm-slot-card.is-vacant:hover {
             border-color: rgba(59, 130, 246, 0.45);
             background: rgba(59, 130, 246, 0.03);
+        }
+
+        .tm-slot-card.is-dragging, .tm-wasit-item.is-dragging {
+            opacity: 0.35 !important;
+            transform: scale(0.98);
+        }
+
+        .tm-slot-card.drag-over {
+            border: 2px dashed #3b82f6 !important;
+            background: rgba(59, 130, 246, 0.18) !important;
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+            transform: scale(1.015);
+        }
+
+        /* Quick-Add Dropzone Card at Bottom of Slots */
+        .tm-dropzone-new-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 18px;
+            border: 1.5px dashed rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-control);
+            background: rgba(255, 255, 255, 0.015);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .tm-dropzone-new-slot:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(59, 130, 246, 0.05);
+            color: #ffffff;
+        }
+        .tm-dropzone-new-slot.drag-over {
+            border: 2px dashed #10b981 !important;
+            background: rgba(16, 185, 129, 0.2) !important;
+            color: #34d399 !important;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+            transform: scale(1.02);
         }
 
         .tm-slot-header {
@@ -1296,6 +1488,12 @@
             justify-content: space-between;
             gap: 8px;
             transition: all 0.15s ease;
+        }
+        .tm-wasit-item[draggable="true"] {
+            cursor: grab;
+        }
+        .tm-wasit-item[draggable="true"]:active {
+            cursor: grabbing;
         }
         .tm-wasit-item:hover {
             border-color: var(--border-highlight);
@@ -1925,6 +2123,326 @@
                 submitTmForm(form);
             }
         });
+
+        /* Dynamic Panel Operations (Presets, Slot CRUD, and Drag-and-Drop) */
+        async function postTmAction(dataObj) {
+            const form = document.createElement('form');
+            for (const [key, val] of Object.entries(dataObj)) {
+                if (val !== null && val !== undefined) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = val;
+                    form.appendChild(input);
+                }
+            }
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+            return submitTmForm(form);
+        }
+
+        function getTmActiveSlots() {
+            const meta = document.getElementById('tmActiveSlotsData');
+            return meta ? (meta.getAttribute('data-slots') || '') : '';
+        }
+
+        function getTmMatchPk() {
+            const meta = document.getElementById('tmActiveSlotsData');
+            return meta ? (meta.getAttribute('data-match-pk') || activeModalMatchPk) : activeModalMatchPk;
+        }
+
+        function applyTmPreset(presetCode) {
+            const matchPk = getTmMatchPk();
+            if (!matchPk) return;
+            postTmAction({
+                submit_type: 'apply_panel_preset',
+                detailbagan_pk: matchPk,
+                preset: presetCode,
+            });
+        }
+
+        function addTmSlot(slotType, wasitId = null) {
+            const matchPk = getTmMatchPk();
+            if (!matchPk) return;
+            postTmAction({
+                submit_type: 'add_panel_slot',
+                detailbagan_pk: matchPk,
+                slot_type: slotType,
+                wasit_id: wasitId,
+                active_slots: getTmActiveSlots(),
+            });
+        }
+
+        function addSlotWithWasit(slotType, wasitId) {
+            addTmSlot(slotType, wasitId);
+        }
+
+        function removeTmSlot(posisi) {
+            const matchPk = getTmMatchPk();
+            if (!matchPk) return;
+            postTmAction({
+                submit_type: 'remove_panel_slot',
+                detailbagan_pk: matchPk,
+                posisi: posisi,
+                active_slots: getTmActiveSlots(),
+            });
+        }
+
+        /* HTML5 Drag & Drop Controller */
+        let draggedTmItem = null;
+
+        function handleWasitDragStart(e, el) {
+            draggedTmItem = {
+                type: 'from_pool',
+                wasitId: el.getAttribute('data-wasit-id'),
+                wasitName: el.getAttribute('data-wasit-name'),
+            };
+            if (e.dataTransfer) {
+                e.dataTransfer.setData('text/plain', JSON.stringify(draggedTmItem));
+                e.dataTransfer.effectAllowed = 'copy';
+            }
+            el.classList.add('is-dragging');
+        }
+
+        function handleWasitDragEnd(e, el) {
+            draggedTmItem = null;
+            el.classList.remove('is-dragging');
+            document.querySelectorAll('.tm-slot-card.drag-over, .tm-dropzone-new-slot.drag-over').forEach(c => c.classList.remove('drag-over'));
+        }
+
+        function handleSlotDragStart(e, el) {
+            draggedTmItem = {
+                type: 'from_slot',
+                fromPosisi: el.getAttribute('data-posisi'),
+                wasitId: el.getAttribute('data-wasit-id'),
+                wasitName: el.getAttribute('data-wasit-name'),
+            };
+            if (e.dataTransfer) {
+                e.dataTransfer.setData('text/plain', JSON.stringify(draggedTmItem));
+                e.dataTransfer.effectAllowed = 'move';
+            }
+            el.classList.add('is-dragging');
+        }
+
+        function handleSlotDragEnd(e, el) {
+            draggedTmItem = null;
+            el.classList.remove('is-dragging');
+            document.querySelectorAll('.tm-slot-card.drag-over, .tm-dropzone-new-slot.drag-over').forEach(c => c.classList.remove('drag-over'));
+        }
+
+        function handleSlotDragOver(e, el) {
+            e.preventDefault();
+            if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+            if (!el.classList.contains('drag-over')) {
+                el.classList.add('drag-over');
+            }
+        }
+
+        function handleSlotDragLeave(e, el) {
+            el.classList.remove('drag-over');
+        }
+
+        function handleSlotDrop(e, el) {
+            e.preventDefault();
+            el.classList.remove('drag-over');
+            let data = draggedTmItem;
+            if (!data && e.dataTransfer) {
+                try {
+                    const raw = e.dataTransfer.getData('text/plain');
+                    if (raw) data = JSON.parse(raw);
+                } catch (err) {}
+            }
+            if (!data) return;
+
+            const targetPosisi = el.getAttribute('data-posisi');
+            const matchPk = getTmMatchPk();
+            if (!matchPk || !targetPosisi) return;
+
+            if (data.type === 'from_pool') {
+                postTmAction({
+                    submit_type: 'assign_match_wasit',
+                    detailbagan_pk: matchPk,
+                    wasit_id: data.wasitId,
+                    posisi: targetPosisi,
+                    active_slots: getTmActiveSlots(),
+                });
+            } else if (data.type === 'from_slot') {
+                if (data.fromPosisi === targetPosisi) return;
+                postTmAction({
+                    submit_type: 'swap_match_wasits',
+                    detailbagan_pk: matchPk,
+                    from_posisi: data.fromPosisi,
+                    to_posisi: targetPosisi,
+                    active_slots: getTmActiveSlots(),
+                });
+            }
+        }
+
+        function handleNewSlotDragOver(e, el) {
+            e.preventDefault();
+            if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+            if (!el.classList.contains('drag-over')) {
+                el.classList.add('drag-over');
+            }
+        }
+
+        function handleNewSlotDragLeave(e, el) {
+            el.classList.remove('drag-over');
+        }
+
+        function handleNewSlotDrop(e, el) {
+            e.preventDefault();
+            el.classList.remove('drag-over');
+            let data = draggedTmItem;
+            if (!data && e.dataTransfer) {
+                try {
+                    const raw = e.dataTransfer.getData('text/plain');
+                    if (raw) data = JSON.parse(raw);
+                } catch (err) {}
+            }
+            if (!data) return;
+
+            const matchPk = getTmMatchPk();
+            if (!matchPk) return;
+
+            if (data.type === 'from_pool' || data.type === 'from_slot') {
+                addTmSlot('judge', data.wasitId);
+            }
+        }
+
+        /* Touch Drag-and-Drop Adapter for Tablets (iPad, Galaxy Tab) & Mobile Phones */
+        (function initTouchDragDrop() {
+            let touchDragSource = null;
+            let touchGhost = null;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isTouchDragging = false;
+            let currentHoverTarget = null;
+
+            document.addEventListener('touchstart', function(e) {
+                const draggable = e.target.closest('[draggable="true"]');
+                if (!draggable) return;
+
+                // Don't intercept clicks on interactive buttons, selects, or dropdowns
+                if (e.target.closest('button, select, input, a, .dropdown-menu, .btn-tm-assign')) return;
+
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                touchDragSource = draggable;
+                isTouchDragging = false;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!touchDragSource) return;
+                const touch = e.touches[0];
+                const dx = touch.clientX - touchStartX;
+                const dy = touch.clientY - touchStartY;
+
+                // 8px threshold before activating drag mode (preserves native vertical scrolling if user just scrolls)
+                if (!isTouchDragging && Math.hypot(dx, dy) > 8) {
+                    isTouchDragging = true;
+
+                    if (touchDragSource.classList.contains('tm-wasit-item')) {
+                        handleWasitDragStart({ dataTransfer: { setData: () => {}, effectAllowed: '' } }, touchDragSource);
+                    } else if (touchDragSource.classList.contains('tm-slot-card')) {
+                        handleSlotDragStart({ dataTransfer: { setData: () => {}, effectAllowed: '' } }, touchDragSource);
+                    }
+
+                    // Create floating visual ghost element
+                    touchGhost = touchDragSource.cloneNode(true);
+                    touchGhost.classList.add('tm-touch-ghost');
+                    touchGhost.style.position = 'fixed';
+                    touchGhost.style.pointerEvents = 'none';
+                    touchGhost.style.zIndex = '99999';
+                    touchGhost.style.opacity = '0.9';
+                    touchGhost.style.transform = 'scale(1.03) rotate(1.5deg)';
+                    touchGhost.style.boxShadow = '0 14px 30px rgba(0,0,0,0.65)';
+                    touchGhost.style.width = touchDragSource.offsetWidth + 'px';
+                    document.body.appendChild(touchGhost);
+                }
+
+                if (isTouchDragging) {
+                    if (e.cancelable) e.preventDefault(); // Lock scroll while actively dragging card
+
+                    if (touchGhost) {
+                        touchGhost.style.left = (touch.clientX - touchGhost.offsetWidth / 2) + 'px';
+                        touchGhost.style.top = (touch.clientY - touchGhost.offsetHeight / 2) + 'px';
+                    }
+
+                    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const slotTarget = elUnder ? elUnder.closest('.tm-slot-card, .tm-dropzone-new-slot') : null;
+
+                    if (currentHoverTarget && currentHoverTarget !== slotTarget) {
+                        currentHoverTarget.classList.remove('drag-over');
+                    }
+                    if (slotTarget) {
+                        slotTarget.classList.add('drag-over');
+                        currentHoverTarget = slotTarget;
+                    } else {
+                        currentHoverTarget = null;
+                    }
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', function(e) {
+                if (!touchDragSource) return;
+
+                if (isTouchDragging) {
+                    if (currentHoverTarget) {
+                        currentHoverTarget.classList.remove('drag-over');
+
+                        if (currentHoverTarget.classList.contains('tm-slot-card')) {
+                            handleSlotDrop({
+                                preventDefault: () => {},
+                                dataTransfer: { getData: () => null }
+                            }, currentHoverTarget);
+                        } else if (currentHoverTarget.classList.contains('tm-dropzone-new-slot')) {
+                            handleNewSlotDrop({
+                                preventDefault: () => {},
+                                dataTransfer: { getData: () => null }
+                            }, currentHoverTarget);
+                        }
+                    }
+
+                    if (touchDragSource.classList.contains('tm-wasit-item')) {
+                        handleWasitDragEnd(e, touchDragSource);
+                    } else if (touchDragSource.classList.contains('tm-slot-card')) {
+                        handleSlotDragEnd(e, touchDragSource);
+                    }
+                }
+
+                if (touchGhost) {
+                    touchGhost.remove();
+                    touchGhost = null;
+                }
+                touchDragSource = null;
+                currentHoverTarget = null;
+                isTouchDragging = false;
+            });
+
+            document.addEventListener('touchcancel', function() {
+                if (touchGhost) {
+                    touchGhost.remove();
+                    touchGhost = null;
+                }
+                if (touchDragSource) {
+                    touchDragSource.classList.remove('is-dragging');
+                }
+                if (currentHoverTarget) {
+                    currentHoverTarget.classList.remove('drag-over');
+                }
+                touchDragSource = null;
+                currentHoverTarget = null;
+                isTouchDragging = false;
+            });
+        })();
 
         /* Search and Filter logic inside Modal */
         let modalCurrentFilter = 'all';

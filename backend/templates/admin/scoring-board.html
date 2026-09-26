@@ -338,10 +338,14 @@
       font-family: var(--font-score);
       font-size: clamp(125px, 16.5vw, 220px);
       font-weight: 700;
-      line-height: 0.95;
+      line-height: 1;
       text-align: center;
       position: relative;
       letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(6%);
     }
 
     .main-score.aka {
@@ -360,41 +364,69 @@
         0 6px 20px rgba(0,0,0,0.9);
     }
 
-    /* Senshu Badge (Elevated Gold Championship Crown - Zero Digit Overlap) */
+    /* Senshu Badge: Price Tag on Top-Right Corner of Score Box Outline */
     .senshu-badge {
       display: none;
       position: absolute;
-      bottom: calc(100% + 12px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      top: -15px;
+      right: -8px;
+      background: linear-gradient(135deg, #ffd54f 0%, #f59e0b 55%, #d97706 100%);
       color: #000000;
       font-family: var(--font-condensed);
-      font-size: clamp(16px, 1.6vw, 24px);
+      font-size: clamp(13px, 1.35vw, 19px);
       font-weight: 900;
-      padding: 5px 22px;
-      border-radius: 20px;
-      border: 1.5px solid #ffffff;
-      box-shadow: 0 0 25px rgba(245, 158, 11, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      letter-spacing: 0.14em;
+      padding: 3px 12px 3px 10px;
+      border-radius: 6px;
+      border: 2px solid #ffffff;
+      box-shadow: 
+        0 4px 14px rgba(0, 0, 0, 0.75), 
+        0 0 20px rgba(245, 158, 11, 0.85);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       white-space: nowrap;
-      z-index: 25;
+      z-index: 30;
+      transform: rotate(2deg);
+      transform-origin: center right;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .senshu-badge::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: #78350f;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
     }
 
     .senshu-active .senshu-badge {
-      display: block;
-      animation: senshuShine 2s infinite alternate;
+      display: inline-flex;
+      align-items: center;
+      animation: senshuTagPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
     .senshu-active {
       border-color: #fbbf24 !important;
-      box-shadow: 0 0 35px rgba(245, 158, 11, 0.55), inset 0 0 25px rgba(245, 158, 11, 0.25) !important;
+      box-shadow: 
+        0 0 28px rgba(245, 158, 11, 0.55), 
+        inset 0 0 20px rgba(245, 158, 11, 0.2) !important;
     }
 
-    @keyframes senshuShine {
-      from { transform: translateX(-50%) scale(1); filter: brightness(1); }
-      to { transform: translateX(-50%) scale(1.05); filter: brightness(1.2); }
+    @keyframes senshuTagPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.6) rotate(-8deg) translateY(-8px);
+      }
+      70% {
+        transform: scale(1.08) rotate(3deg) translateY(0);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(2deg) translateY(0);
+      }
     }
 
     .team-score {
@@ -461,23 +493,23 @@
 
     /* Bottom Digital Timer & Branding Bar */
     .bottom-bar {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
-      justify-content: space-between;
       height: clamp(120px, 16.5vh, 185px);
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(8, 12, 22, 0.98) 100%);
       border: 1.5px solid rgba(255, 255, 255, 0.18);
       border-radius: 18px;
-      padding: 0 36px;
+      padding: 0 32px;
       box-shadow: 0 14px 45px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       position: relative;
+      gap: 16px;
     }
 
     .bottom-info-slot {
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      width: clamp(280px, 28vw, 480px);
       flex-shrink: 0;
     }
 
@@ -485,14 +517,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex: 1;
       min-width: 0;
+      position: relative;
     }
 
     /* Rock-Solid Tabular Jitter-Free Timer Engine */
     .digital-timer {
       font-family: 'Barlow Condensed', 'Outfit', sans-serif;
-      font-size: clamp(95px, 14vw, 185px);
+      font-size: clamp(82px, 9.8vw, 142px);
       font-weight: 800;
       color: #ffffff;
       line-height: 0.82;
@@ -558,18 +590,23 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      width: clamp(320px, 32vw, 560px);
-      height: 100%;
       flex-shrink: 0;
+      height: 100%;
+      width: clamp(280px, 28vw, 480px);
     }
 
     .sponsor-logo {
-      height: 100%;
-      max-height: 98%;
+      height: 90%;
+      max-height: clamp(90px, 14.5vh, 155px);
       max-width: 100%;
       width: auto;
       object-fit: contain;
-      filter: drop-shadow(0 0 22px rgba(255,255,255,0.65)) drop-shadow(0 4px 24px rgba(0,0,0,0.95));
+      filter: 
+        brightness(3.2) 
+        contrast(1.35)
+        drop-shadow(0 0 24px rgba(255, 255, 255, 0.85)) 
+        drop-shadow(0 4px 20px rgba(0, 0, 0, 1));
+      transition: filter 0.25s ease;
     }
 
     /* FULLSCREEN OVERLAY BANNERS (Covers entire board down to top of timer footer) */
