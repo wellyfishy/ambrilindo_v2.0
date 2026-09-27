@@ -305,7 +305,7 @@ tr.bagan-row-hidden { display: none !important; }
                         <select id="bagan-status-filter" class="form-select">
                             <option value="">Semua Status</option>
                             <option value="active">Sedang Berjalan di Tatami</option>
-                            <option value="finished">Selesai (Ada Juara)</option>
+                            <option value="finished">Selesai</option>
                             <option value="unfinished">Belum Selesai</option>
                         </select>
                     </div>
@@ -329,7 +329,7 @@ tr.bagan-row-hidden { display: none !important; }
                             {% for bagan in bagans %}
                             <tr data-search="{{ bagan.kode }} {{ bagan.nama_bagan }} {% if bagan.active_tatami %}tatami {{ bagan.active_tatami }}{% endif %}"
                                 data-tipe="{{ bagan.tipe_tanding }}"
-                                data-status="{% if bagan.active_tatami %}active{% elif bagan.finished_matches == bagan.total_matches and bagan.total_matches > 0 or bagan.juara_1 %}finished{% else %}unfinished{% endif %}"
+                                data-status="{% if bagan.active_tatami %}active{% elif bagan.is_finished %}finished{% else %}unfinished{% endif %}"
                                 data-pool-kind="{% if 'BOB' in bagan.nama_bagan|upper or 'BEST OF THE BEST' in bagan.nama_bagan|upper or bagan.nomor_tanding and 'BOB' in bagan.nomor_tanding.nama_nomor_tanding|upper %}bob{% elif 'POOL ' in bagan.nama_bagan|upper or bagan.pool > 1 %}pool{% else %}final{% endif %}">
                                 <td style="text-align: center;" class="text-muted small">{{ forloop.counter }}</td>
                                 <td>
@@ -346,7 +346,7 @@ tr.bagan-row-hidden { display: none !important; }
                                     </div>
                                     <div class="d-flex align-items-center gap-2 mt-1">
                                         {% if bagan.total_matches > 0 %}
-                                            {% if bagan.finished_matches == bagan.total_matches %}
+                                            {% if bagan.is_finished or bagan.finished_matches == bagan.total_matches %}
                                                 <span class="badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 10px;">
                                                     <i class="fas fa-check-double me-1"></i>Selesai ({{ bagan.finished_matches }}/{{ bagan.total_matches }})
                                                 </span>
@@ -359,6 +359,10 @@ tr.bagan-row-hidden { display: none !important; }
                                                     {{ bagan.total_matches }} Partai
                                                 </span>
                                             {% endif %}
+                                        {% elif bagan.is_finished %}
+                                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 10px;">
+                                                <i class="fas fa-check-double me-1"></i>Selesai
+                                            </span>
                                         {% endif %}
                                     </div>
                                 </td>

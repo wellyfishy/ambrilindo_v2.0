@@ -1253,22 +1253,6 @@ def admin_dashboard(request, event_pk):
         return redirect('auth')
     nomor_tandings = NomorTanding.objects.filter(event=event).annotate(jumlat_atlet=Count('atlet'))
     
-    active_tatamis = Tatami.objects.filter(event=event, detail_bagan__isnull=False).select_related('detail_bagan__bagan')
-    active_bagan_tatami = {
-        t.detail_bagan.bagan_id: t.tatami_number
-        for t in active_tatamis if t.detail_bagan and t.detail_bagan.bagan_id
-    }
-
-    bagans = (
-        Bagan.objects.filter(event=event)
-        .select_related('nomor_tanding', 'juara_1', 'juara_2', 'juara_3a', 'juara_3b')
-        .annotate(
-            total_matches=Count('detailbagan', distinct=True),
-            finished_matches=Count('detailbagan', filter=Q(detailbagan__selesai=True), distinct=True),
-        )
-        .order_by('-kode')
-    )
-    
     if request.method == 'POST':
         submit_type = request.POST.get('submit_type')
         handlers = {
@@ -1288,15 +1272,71 @@ def admin_dashboard(request, event_pk):
         else:
             messages.warning(request, f"Aksi tidak dikenal: {submit_type}")
             return redirect('admin-dashboard', event_pk=event_pk)
+
+    active_tatamis = Tatami.objects.filter(event=event, detail_bagan__isnull=False).select_related('detail_bagan__bagan')
+    active_bagan_tatami = {
+        t.detail_bagan.bagan_id: t.tatami_number
+        for t in active_tatamis if t.detail_bagan and t.detail_bagan.bagan_id
+    }
+
+    bagans = (
+        Bagan.objects.filter(event=event)
+        .select_related('nomor_tanding', 'juara_1', 'juara_2', 'juara_3a', 'juara_3b')
+        .order_by('-kode')
+    )
+
+    from collections import defaultdict
+    bagan_dbs = defaultdict(list)
+    for db in DetailBagan.objects.filter(bagan__event=event).values(
+        'bagan_id', 'round', 'urutan', 'atlet1_id', 'atlet2_id', 'selesai', 'pemenang'
+    ):
+        bagan_dbs[db['bagan_id']].append(db)
+
+    for b in bagans:
+        b.active_tatami = active_bagan_tatami.get(b.pk)
+        raw_dbs = bagan_dbs.get(b.pk, [])
+        dbs = [m for m in raw_dbs if m['round'] != 10]
+        fin_count = sum(1 for m in dbs if m['selesai'])
+        has_juara_1 = b.juara_1_id is not None
+        r4_finished = any(m['selesai'] for m in dbs if m['round'] == 4)
+        r5_match = next((m for m in dbs if m['round'] == 5 and m['urutan'] == 1), None)
+        r5_has_contestants = bool(r5_match and r5_match['atlet1_id'] and r5_match['atlet2_id'])
+        r5_finished = bool(r5_match and r5_match['selesai'])
+        r5_pending = r5_has_contestants and not r5_finished
+
+        if b.round_robin:
+            contested_matches = [m for m in dbs if (m['atlet1_id'] and m['atlet2_id']) or m['selesai']]
+            calc_total = len(contested_matches)
+            is_finished = (fin_count >= calc_total and calc_total > 0) or has_juara_1
+        else:
+            atlet_ids = set()
+            for m in dbs:
+                if m['atlet1_id']:
+                    atlet_ids.add(m['atlet1_id'])
+                if m['atlet2_id']:
+                    atlet_ids.add(m['atlet2_id'])
+            n_atlets = len(atlet_ids)
+            if n_atlets <= 1:
+                calc_total = fin_count if fin_count > 0 else 0
+                is_finished = has_juara_1 or (n_atlets == 1 and fin_count > 0)
+            else:
+                r5_addition = 1 if (r5_finished or r5_has_contestants) else 0
+                calc_total = max(fin_count, (n_atlets - 1) + r5_addition)
+                is_finished = (
+                    has_juara_1 or
+                    (r4_finished and not r5_pending) or
+                    (fin_count >= calc_total and calc_total > 0)
+                )
+
+        b.is_finished = is_finished
+        b.finished_matches = fin_count
+        b.total_matches = fin_count if is_finished else calc_total
             
     event_mapping = get_event_mapping(event.pk)
     if event_mapping and event_mapping.get('hosted_event_name'):
         event_mapping['is_mismatch'] = (event.nama_event or '').strip().lower() != event_mapping.get('hosted_event_name', '').strip().lower()
 
     hosted_events = []
-
-    for b in bagans:
-        b.active_tatami = active_bagan_tatami.get(b.pk)
 
     context = {
         'on': 'utama',
@@ -1616,7 +1656,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     bagan = Bagan.objects.get(pk=bagan_pk)
     if bagan.round_robin:
         return redirect('admin-bagan-detail-round-robin', event_pk=event_pk, bagan_pk=bagan_pk)
-    all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
+    all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding).order_by('nama_atlet')
     detail_bagans_round_1 = list(DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan'))
     detail_bagans_round_2 = list(DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan'))
     detail_bagans_round_3 = list(DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan'))
@@ -1645,71 +1685,185 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     else:
         referchange = False
 
-    if request.method == 'POST':
         if request.POST.get('submit_type') == 'simpan_juara':
             juara_1_pk = request.POST.get('juara_1_pk')
             juara_2_pk = request.POST.get('juara_2_pk')
             juara_3a_pk = request.POST.get('juara_3a_pk')
             juara_3b_pk = request.POST.get('juara_3b_pk')
-            if juara_1_pk == '-':
-                bagan.juara_1 = None
-            else:
-                bagan.juara_1 = Atlet.objects.filter(pk=juara_1_pk).first()
-            if juara_2_pk == '-':
-                bagan.juara_2 = None
-            else:
-                bagan.juara_2 = Atlet.objects.filter(pk=juara_2_pk).first()
-            if juara_3a_pk == '-':
-                bagan.juara_3a = None
-            else:
-                bagan.juara_3a = Atlet.objects.filter(pk=juara_3a_pk).first()
-            if juara_3b_pk == '-':
-                bagan.juara_3b = None
-            else:
-                bagan.juara_3b = Atlet.objects.filter(pk=juara_3b_pk).first()
+            bagan.juara_1 = None if juara_1_pk == '-' else Atlet.objects.filter(pk=juara_1_pk).first()
+            bagan.juara_2 = None if juara_2_pk == '-' else Atlet.objects.filter(pk=juara_2_pk).first()
+            bagan.juara_3a = None if juara_3a_pk == '-' else Atlet.objects.filter(pk=juara_3a_pk).first()
+            bagan.juara_3b = None if juara_3b_pk == '-' else Atlet.objects.filter(pk=juara_3b_pk).first()
+            bagan.save()
+            messages.success(request, f"Berhasil menyimpan hasil juara untuk {bagan.nama_bagan}.")
+
+            payload = {
+                'status': 'finished',
+                'kode_realtime': get_kode_realtime(detail_bagan_round_5),
+                'juara_1': bagan.juara_1.nama_atlet if bagan.juara_1 else None,
+                'juara_1_kode': bagan.juara_1.kode_atlet if (bagan.juara_1 and bagan.juara_1.kode_atlet) else None,
+                'juara_2': bagan.juara_2.nama_atlet if bagan.juara_2 else None,
+                'juara_2_kode': bagan.juara_2.kode_atlet if (bagan.juara_2 and bagan.juara_2.kode_atlet) else None,
+                'juara_3a': bagan.juara_3a.nama_atlet if bagan.juara_3a else None,
+                'juara_3a_kode': bagan.juara_3a.kode_atlet if (bagan.juara_3a and bagan.juara_3a.kode_atlet) else None,
+                'juara_3b': bagan.juara_3b.nama_atlet if bagan.juara_3b else None,
+                'juara_3b_kode': bagan.juara_3b.kode_atlet if (bagan.juara_3b and bagan.juara_3b.kode_atlet) else None,
+            }
+            send_to_hosted_async(payload, endpoint='api/final-result/', event=event)
+            return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+
         elif request.POST.get('submit_type') == 'generate_juara':
-            if detail_bagan_round_5 and detail_bagan_round_5.atlet1:
-                bagan.juara_1 = detail_bagan_round_5.atlet1
+            target_bagan = bagan
+            final_bagan = None
+            is_redirect_to_final = False
+
+            if bagan.nomor_tanding:
+                final_bagan = Bagan.objects.filter(
+                    event=event,
+                    nomor_tanding=bagan.nomor_tanding
+                ).filter(
+                    Q(pool=0) | Q(nama_bagan__iendswith='- Final') | Q(nama_bagan__iendswith='FINAL')
+                ).first()
+
+            if final_bagan and final_bagan.pk != bagan.pk:
+                # User berada pada bagan preliminary pool (e.g. Pool A / Pool B)
+                fb_final_match = DetailBagan.objects.filter(
+                    bagan=final_bagan, round=4, selesai=True, pemenang__in=['1', '2']
+                ).first()
+                if not fb_final_match:
+                    messages.warning(
+                        request,
+                        f"Bagan ini adalah {bagan.nama_bagan} (babak penyisihan pool). "
+                        f"Penentuan juara kategori secara lengkap dilakukan pada bagan Final ({final_bagan.nama_bagan}) "
+                        f"setelah partai final selesai dimainkan."
+                    )
+                    return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+                target_bagan = final_bagan
+                is_redirect_to_final = True
+
+            tb_r4 = list(DetailBagan.objects.filter(bagan=target_bagan, round=4).order_by('urutan'))
+            tb_r3 = list(DetailBagan.objects.filter(bagan=target_bagan, round=3).order_by('urutan'))
+            tb_r5 = DetailBagan.objects.filter(bagan=target_bagan, round=5).first()
+
+            j1 = None
+            j2 = None
+            j3a = None
+            j3b = None
+
+            # 1. Juara 1 & Juara 2 dari Final match (Round 4)
+            final_match = next((db for db in tb_r4 if db.selesai and db.pemenang in ('1', '2')), None)
+            if final_match:
+                if final_match.pemenang == '1':
+                    j1 = final_match.atlet1
+                    j2 = final_match.atlet2
+                elif final_match.pemenang == '2':
+                    j1 = final_match.atlet2
+                    j2 = final_match.atlet1
+            elif tb_r5 and tb_r5.atlet1:
+                j1 = tb_r5.atlet1
+                for db in tb_r4:
+                    if db.pemenang == '1':
+                        j2 = db.atlet2
+                    elif db.pemenang == '2':
+                        j2 = db.atlet1
+
+            # 2. Juara 3A & Juara 3B
+            # Jika ada partai perebutan juara 3 (Round 5) dengan 2 atlet selesai:
+            if tb_r5 and tb_r5.atlet1 and tb_r5.atlet2 and tb_r5.selesai and tb_r5.pemenang in ('1', '2'):
+                j3a = tb_r5.atlet1 if tb_r5.pemenang == '1' else tb_r5.atlet2
+                j3b = tb_r5.atlet2 if tb_r5.pemenang == '1' else tb_r5.atlet1
             else:
-                bagan.juara_1 = None
-            for db in detail_bagans_round_4:
-                if db.pemenang == '1':
-                    bagan.juara_2 = db.atlet2
-                elif db.pemenang == '2':
-                    bagan.juara_2 = db.atlet1
-                else:
-                    bagan.juara_2 = None
-            for i, db in enumerate(detail_bagans_round_3):
-                if db.pemenang == '1':
-                    pemenang = db.atlet2
-                elif db.pemenang == '2':
-                    pemenang = db.atlet1
-                else:
-                    pemenang = None
-                if i == 0:
-                    bagan.juara_3a = pemenang
-                else:
-                    bagan.juara_3b = pemenang
-        bagan.save()
+                # Cek apakah Semifinal (Round 3) dimainkan di bagan ini
+                r3_played = [db for db in tb_r3 if db.selesai and db.pemenang in ('1', '2')]
+                if r3_played:
+                    for i, db in enumerate(r3_played):
+                        loser = db.atlet2 if db.pemenang == '1' else db.atlet1
+                        if i == 0:
+                            j3a = loser
+                        elif i == 1:
+                            j3b = loser
+                elif target_bagan.nomor_tanding:
+                    # Kategori multi-pool (e.g. Pool A & Pool B & Final)
+                    # Juara 3A dan Juara 3B diambil dari runner-up masing-masing pool
+                    sibling_pools = list(
+                        Bagan.objects.filter(event=event, nomor_tanding=target_bagan.nomor_tanding)
+                        .exclude(pk=target_bagan.pk)
+                        .order_by('nama_bagan')
+                    )
 
-        payload = {
-            'status': 'finished',
-            'kode_realtime': get_kode_realtime(detail_bagan_round_5),
-            'juara_1': bagan.juara_1.nama_atlet if bagan.juara_1 else None,
-            'juara_1_kode': bagan.juara_1.kode_atlet if (bagan.juara_1 and bagan.juara_1.kode_atlet) else None,
-            'juara_2': bagan.juara_2.nama_atlet if bagan.juara_2 else None,
-            'juara_2_kode': bagan.juara_2.kode_atlet if (bagan.juara_2 and bagan.juara_2.kode_atlet) else None,
-            'juara_3a': bagan.juara_3a.nama_atlet if bagan.juara_3a else None,
-            'juara_3a_kode': bagan.juara_3a.kode_atlet if (bagan.juara_3a and bagan.juara_3a.kode_atlet) else None,
-            'juara_3b': bagan.juara_3b.nama_atlet if bagan.juara_3b else None,
-            'juara_3b_kode': bagan.juara_3b.kode_atlet if (bagan.juara_3b and bagan.juara_3b.kode_atlet) else None,
-        }
-        send_to_hosted_async(payload, endpoint='api/final-result/', event=event)
+                    def get_pool_runner_up(p):
+                        p_r5 = DetailBagan.objects.filter(bagan=p, round=5, selesai=True, pemenang__in=['1', '2']).first()
+                        if p_r5 and p_r5.atlet1 and p_r5.atlet2:
+                            return p_r5.atlet1 if p_r5.pemenang == '1' else p_r5.atlet2
+                        m = DetailBagan.objects.filter(
+                            bagan=p, round__in=[1, 2, 3, 4], selesai=True, pemenang__in=['1', '2']
+                        ).order_by('-round', 'urutan').first()
+                        if m:
+                            return m.atlet2 if m.pemenang == '1' else m.atlet1
+                        return None
 
-        return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
+                    pool_runners_up = []
+                    for p in sibling_pools:
+                        ru = get_pool_runner_up(p)
+                        if ru:
+                            pool_runners_up.append((p.nama_bagan, ru))
+
+                    pool_a_ru = next((ru for name, ru in pool_runners_up if 'POOL A' in name.upper()), None)
+                    pool_b_ru = next((ru for name, ru in pool_runners_up if 'POOL B' in name.upper()), None)
+                    if pool_a_ru or pool_b_ru:
+                        j3a = pool_a_ru
+                        j3b = pool_b_ru
+                    elif len(pool_runners_up) >= 2:
+                        j3a = pool_runners_up[0][1]
+                        j3b = pool_runners_up[1][1]
+                    elif len(pool_runners_up) == 1:
+                        j3a = pool_runners_up[0][1]
+
+            target_bagan.juara_1 = j1
+            target_bagan.juara_2 = j2
+            target_bagan.juara_3a = j3a
+            target_bagan.juara_3b = j3b
+            target_bagan.save()
+
+            messages.success(
+                request,
+                f"Berhasil meng-generate juara turnamen untuk {target_bagan.nama_bagan}: "
+                f"Juara 1: {j1.nama_atlet if j1 else '-'}, "
+                f"Juara 2: {j2.nama_atlet if j2 else '-'}, "
+                f"Juara 3A: {j3a.nama_atlet if j3a else '-'}, "
+                f"Juara 3B: {j3b.nama_atlet if j3b else '-'}"
+            )
+
+            tb_r5_obj = DetailBagan.objects.filter(bagan=target_bagan, round=5).first()
+            payload = {
+                'status': 'finished',
+                'kode_realtime': get_kode_realtime(tb_r5_obj) if tb_r5_obj else '',
+                'juara_1': target_bagan.juara_1.nama_atlet if target_bagan.juara_1 else None,
+                'juara_1_kode': target_bagan.juara_1.kode_atlet if (target_bagan.juara_1 and target_bagan.juara_1.kode_atlet) else None,
+                'juara_2': target_bagan.juara_2.nama_atlet if target_bagan.juara_2 else None,
+                'juara_2_kode': target_bagan.juara_2.kode_atlet if (target_bagan.juara_2 and target_bagan.juara_2.kode_atlet) else None,
+                'juara_3a': target_bagan.juara_3a.nama_atlet if target_bagan.juara_3a else None,
+                'juara_3a_kode': target_bagan.juara_3a.kode_atlet if (target_bagan.juara_3a and target_bagan.juara_3a.kode_atlet) else None,
+                'juara_3b': target_bagan.juara_3b.nama_atlet if target_bagan.juara_3b else None,
+                'juara_3b_kode': target_bagan.juara_3b.kode_atlet if (target_bagan.juara_3b and target_bagan.juara_3b.kode_atlet) else None,
+            }
+            send_to_hosted_async(payload, endpoint='api/final-result/', event=event)
+
+            if is_redirect_to_final:
+                return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=target_bagan.pk)
+            return redirect('admin-bagan-detail', event_pk=event_pk, bagan_pk=bagan_pk)
 
     kop, _ = KopSurat.objects.get_or_create(event=event)
     event_date_range = get_event_date_range(event)
+
+    final_bagan = None
+    if not bagan.is_final_bagan and bagan.nomor_tanding:
+        final_bagan = Bagan.objects.filter(
+            event=event,
+            nomor_tanding=bagan.nomor_tanding
+        ).filter(
+            Q(pool=0) | Q(nama_bagan__iendswith='- Final') | Q(nama_bagan__iendswith='FINAL')
+        ).exclude(pk=bagan.pk).first()
 
     context = {
         'on': 'utama',
@@ -1719,6 +1873,7 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
         'admin_tatami': admin_tatami,
         'tatami': tatami,
         'bagan': bagan,
+        'final_bagan': final_bagan,
         'detail_bagans_round_1': detail_bagans_round_1,
         'detail_bagans_round_2': detail_bagans_round_2,
         'detail_bagans_round_3': detail_bagans_round_3,
