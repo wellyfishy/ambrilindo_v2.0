@@ -727,7 +727,7 @@
         }
         .card-header-row {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 6px;
             flex-wrap: wrap;
             padding-right: 20px;
@@ -763,16 +763,10 @@
             color: #38bdf8;
             white-space: nowrap;
         }
-        .card-status-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 1px;
-        }
         .card-status-badge {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 700;
-            padding: 1.5px 6px;
+            padding: 1.5px 5px;
             border-radius: 3px;
             display: inline-flex;
             align-items: center;
@@ -1756,6 +1750,11 @@
                     <div class="nt-chip-header">
                         <div class="nt-chip-title">
                             {% if nt.discipline == 'kata' %}🥋{% else %}🥊{% endif %} {{ nt.nama }}
+                            {% if nt.progress_status == 'running' %}
+                                <span class="card-status-badge status-running" style="font-size: 8.5px; padding: 1px 4px; vertical-align: middle;"><i class="fas fa-play-circle fa-beat"></i> Running</span>
+                            {% elif nt.progress_status == 'selesai' %}
+                                <span class="card-status-badge status-selesai" style="font-size: 8.5px; padding: 1px 4px; vertical-align: middle;"><i class="fas fa-check-circle"></i> Selesai</span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="nt-chip-meta">
@@ -2019,8 +2018,6 @@
                                             <span class="card-seq-badge">#{{ forloop.counter }}</span>
                                             <span class="card-disc-icon">🚩</span>
                                             <span class="card-content card-title-bold" contenteditable="true">{{ cell.cell_title }}</span>
-                                        </div>
-                                        <div class="card-status-row">
                                             <span class="card-status-badge status-festival"><i class="fas fa-flag"></i> Festival</span>
                                         </div>
                                     </div>
@@ -2031,8 +2028,6 @@
                                             <span class="card-disc-icon">{% if 'kata' in cell.cell_title|lower %}🥋{% else %}🥊{% endif %}</span>
                                             <span class="card-content card-title-bold" contenteditable="true">{{ cell.cell_title }}</span>
                                             {% if cell.atlet_count %}<span class="card-atlet-count">({{ cell.atlet_count }})</span>{% endif %}
-                                        </div>
-                                        <div class="card-status-row">
                                             {% if cell.progress_status == 'running' %}
                                                 <span class="card-status-badge status-running">
                                                     <i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa {{ cell.remaining_matches }} Match
@@ -2040,10 +2035,6 @@
                                             {% elif cell.progress_status == 'selesai' %}
                                                 <span class="card-status-badge status-selesai">
                                                     <i class="fas fa-check-circle"></i> SELESAI
-                                                </span>
-                                            {% else %}
-                                                <span class="card-status-badge status-unstarted">
-                                                    <i class="fas fa-clock"></i> BELUM MULAI
                                                 </span>
                                             {% endif %}
                                         </div>
@@ -2511,8 +2502,6 @@
                         statusBadgeHtml = `<span class="card-status-badge status-running"><i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${remMatches} Match</span>`;
                     } else if (progStatus === 'selesai') {
                         statusBadgeHtml = `<span class="card-status-badge status-selesai"><i class="fas fa-check-circle"></i> SELESAI</span>`;
-                    } else {
-                        statusBadgeHtml = `<span class="card-status-badge status-unstarted"><i class="fas fa-clock"></i> BELUM MULAI</span>`;
                     }
 
                     card.innerHTML = `
@@ -2522,8 +2511,6 @@
                                 <span class="card-disc-icon">${discIcon}</span>
                                 <span class="card-content card-title-bold" contenteditable="true">${escapeHtml(ntName)}</span>
                                 <span class="card-atlet-count">(${atletCount})</span>
-                            </div>
-                            <div class="card-status-row">
                                 ${statusBadgeHtml}
                             </div>
                         </div>
@@ -3610,16 +3597,28 @@
             el.classList.remove('status-running', 'status-selesai', 'status-belum_disentuh', 'status-unstarted');
             el.classList.add(`status-${status}`);
 
-            const badge = el.querySelector('.card-status-badge');
-            if (badge) {
-                badge.className = `card-status-badge status-${status}`;
-                if (status === 'running') {
-                    badge.innerHTML = `<i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${catData.remaining_matches} Match`;
-                } else if (status === 'selesai') {
-                    badge.innerHTML = `<i class="fas fa-check-circle"></i> SELESAI`;
-                } else {
-                    badge.innerHTML = `<i class="fas fa-clock"></i> BELUM MULAI`;
+            const headerRow = el.querySelector('.card-header-row');
+            let badge = el.querySelector('.card-status-badge');
+            if (status === 'running') {
+                if (!badge && headerRow) {
+                    badge = document.createElement('span');
+                    headerRow.appendChild(badge);
                 }
+                if (badge) {
+                    badge.className = `card-status-badge status-running`;
+                    badge.innerHTML = `<i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${catData.remaining_matches} Match`;
+                }
+            } else if (status === 'selesai') {
+                if (!badge && headerRow) {
+                    badge = document.createElement('span');
+                    headerRow.appendChild(badge);
+                }
+                if (badge) {
+                    badge.className = `card-status-badge status-selesai`;
+                    badge.innerHTML = `<i class="fas fa-check-circle"></i> SELESAI`;
+                }
+            } else {
+                if (badge) badge.remove();
             }
         }
 
@@ -4532,8 +4531,6 @@
                         statusBadgeHtml = `<span class="card-status-badge status-running"><i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${remMatches} Match</span>`;
                     } else if (progStatus === 'selesai') {
                         statusBadgeHtml = `<span class="card-status-badge status-selesai"><i class="fas fa-check-circle"></i> SELESAI</span>`;
-                    } else {
-                        statusBadgeHtml = `<span class="card-status-badge status-unstarted"><i class="fas fa-clock"></i> BELUM MULAI</span>`;
                     }
 
                     card.innerHTML = `
@@ -4543,8 +4540,6 @@
                                 <span class="card-disc-icon">${discIcon}</span>
                                 <span class="card-content card-title-bold" contenteditable="true">${escapeHtml(c.nama)}</span>
                                 <span class="card-atlet-count">(${c.atletCount})</span>
-                            </div>
-                            <div class="card-status-row">
                                 ${statusBadgeHtml}
                             </div>
                         </div>

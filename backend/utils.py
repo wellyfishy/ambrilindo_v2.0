@@ -94,17 +94,29 @@ def process_sync_queue():
                 logger.info(f"SyncQueue #{item.pk} to {item.endpoint} SUCCEEDED.")
                 # Lanjut ke item berikutnya secara berurutan
             else:
-                item.status = 'failed'
                 item.retry_count += 1
                 item.last_error = str(result)
-                item.save(update_fields=['status', 'retry_count', 'last_error', 'updated_at'])
-                logger.warning(
-                    f"SyncQueue #{item.pk} to {item.endpoint} FAILED (retry {item.retry_count}): {result}. "
-                    "Halting FIFO queue until connection is restored."
-                )
-                # PRINSIP KETAT FIFO: Berhenti di sini! Jangan kirim data setelahnya
-                # sampai data ini berhasil terkirim ke server publik.
-                break
+                err_str = str(result).lower()
+                is_unrecoverable = ('404' in err_str) or ('400' in err_str) or (item.retry_count >= 5)
+
+                if is_unrecoverable:
+                    item.status = 'abandoned'
+                    item.save(update_fields=['status', 'retry_count', 'last_error', 'updated_at'])
+                    logger.warning(
+                        f"SyncQueue #{item.pk} to {item.endpoint} ABANDONED (retry {item.retry_count}): {result}. "
+                        "Skipping unrecoverable item to keep live sync queue flowing."
+                    )
+                    # Lanjut ke antrean berikutnya agar partai live lain tidak terblokir
+                    continue
+                else:
+                    item.status = 'failed'
+                    item.save(update_fields=['status', 'retry_count', 'last_error', 'updated_at'])
+                    logger.warning(
+                        f"SyncQueue #{item.pk} to {item.endpoint} FAILED (retry {item.retry_count}): {result}. "
+                        "Halting FIFO queue until connection is restored."
+                    )
+                    # PRINSIP KETAT FIFO: Berhenti di sini untuk error jaringan sementara
+                    break
     except Exception as e:
         logger.error(f"Unexpected error in process_sync_queue: {e}")
     finally:

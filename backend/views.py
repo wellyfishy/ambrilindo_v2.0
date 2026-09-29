@@ -4088,6 +4088,21 @@ def broadcast_tatami_match_update(tatami):
         except Exception:
             pass
 
+    # Push Tatami live status directly to hosted web portal in background
+    if event and getattr(event, 'is_live_sync_enabled', False) and tatami.tatami_number:
+        try:
+            from .sync_service import push_tatami_live_status
+            from .utils import _sync_executor
+            _sync_executor.submit(
+                push_tatami_live_status,
+                event.pk,
+                tatami.tatami_number,
+                is_running,
+                active_db
+            )
+        except Exception:
+            pass
+
 
 def broadcast_match_finished(detail_bagan, winner_atlet=None, target_slot=None, next_detail_bagan=None, tatami=None):
     if not detail_bagan:
@@ -5537,16 +5552,29 @@ def notify_bagan_running(request, detailbagan_pk):
         return JsonResponse({'success': False, 'message': 'DetailBagan tidak ditemukan'}, status=404)
 
     tatami_obj = Tatami.objects.filter(detail_bagan=detail_bagan).first()
+    if not tatami_obj and detail_bagan.assigned_tatami:
+        tatami_obj = detail_bagan.assigned_tatami
+
+    ring_number = ''
+    if tatami_obj and tatami_obj.tatami_number is not None:
+        ring_number = tatami_obj.tatami_number
+    else:
+        req_tatami = request.POST.get('tatami_pk') or request.GET.get('tatami')
+        if req_tatami:
+            t_fallback = Tatami.objects.filter(pk=req_tatami).first()
+            if t_fallback and t_fallback.tatami_number is not None:
+                ring_number = t_fallback.tatami_number
+
     payload = {
         'status': 'running',
         'detail_bagan_id': detail_bagan.pk,
         'bagan_id': detail_bagan.bagan.pk,
         'round': detail_bagan.round,
         'urutan': detail_bagan.urutan,
-        'vr1': detail_bagan.vr1,
-        'vr2': detail_bagan.vr2,
+        'vr1': bool(detail_bagan.vr1),
+        'vr2': bool(detail_bagan.vr2),
         'kode_realtime': get_kode_realtime(detail_bagan),
-        'ring_number': tatami_obj.tatami_number if (tatami_obj and tatami_obj.tatami_number is not None) else '',
+        'ring_number': ring_number,
     }
     if detail_bagan.round != 10:
         send_to_hosted_async(payload, endpoint='api/status/', event=detail_bagan.bagan.event if detail_bagan.bagan else None)
