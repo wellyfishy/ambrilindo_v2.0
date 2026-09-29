@@ -463,12 +463,14 @@
       height: 100%;
       border-radius: 10px;
       font-family: var(--font-condensed);
-      font-size: clamp(20px, 2.4vw, 40px);
+      font-size: clamp(14px, 1.4vw, 26px);
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.38);
+      color: rgba(255, 255, 255, 0.42);
       background: rgba(255, 255, 255, 0.05);
       border: 2px solid rgba(255, 255, 255, 0.12);
-      letter-spacing: 0.08em;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      text-transform: uppercase;
       box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -946,7 +948,8 @@
     }
 
     /* ========================================================
-       CHECK STICK JURI (4-JUDGE CONTROLLER DIAGNOSTIC OVERLAY)
+       CHECK STICK JURI (MOUSE CHECK - 4-JUDGE DIAGNOSTIC OVERLAY)
+       High-Contrast, Broadcast-Scale & Ultra-Compact for Arena Visibility (20m+ distance)
        ======================================================== */
     .ms-check-screen {
       height: 100%;
@@ -958,33 +961,21 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      padding: clamp(6px, 1.2vh, 16px) clamp(10px, 1.5vw, 24px);
-      overflow-y: auto;
-      overflow-x: hidden;
+      padding: clamp(4px, 0.8vh, 10px) clamp(8px, 1.2vw, 18px);
+      overflow: hidden;
       pointer-events: auto;
       box-sizing: border-box;
     }
 
-    .ms-check-screen::-webkit-scrollbar {
-      width: 6px;
-    }
-    .ms-check-screen::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.25);
-    }
-    .ms-check-screen::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-    }
-
     .ms-check-header {
       width: 100%;
-      max-width: 1500px;
+      max-width: 1600px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: clamp(4px, 0.7vh, 8px);
+      margin-bottom: clamp(3px, 0.6vh, 6px);
       padding-bottom: clamp(3px, 0.5vh, 6px);
-      border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.16);
       flex-shrink: 0;
       box-sizing: border-box;
     }
@@ -994,25 +985,29 @@
     }
 
     .ms-check-eyebrow {
-      font-size: clamp(10px, 0.9vw, 14px);
-      font-weight: 800;
+      font-family: var(--font-condensed);
+      font-size: clamp(12px, 1.3vh, 18px);
+      font-weight: 900;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--gold-bright);
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
+      text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+      line-height: 1;
     }
 
     .pulse-dot {
-      width: 8px;
-      height: 8px;
+      width: clamp(8px, 1vh, 12px);
+      height: clamp(8px, 1vh, 12px);
       border-radius: 50%;
       background-color: #22c55e;
-      box-shadow: 0 0 10px #22c55e;
+      box-shadow: 0 0 12px #22c55e;
       animation: pulseGreen 1.5s infinite;
       display: inline-block;
+      flex-shrink: 0;
     }
 
     @keyframes pulseGreen {
@@ -1022,13 +1017,13 @@
 
     .ms-check-title {
       font-family: var(--font-condensed);
-      font-size: clamp(20px, 2.6vw, 38px);
+      font-size: clamp(26px, 3.6vh, 46px);
       font-weight: 900;
-      letter-spacing: 0.04em;
-      line-height: 1.05;
+      letter-spacing: 0.05em;
+      line-height: 1;
       margin: 0;
       color: #ffffff;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 255, 255, 0.4);
     }
 
     .ms-check-stats {
@@ -1039,38 +1034,43 @@
 
     .ms-stat-pill {
       background: rgba(255, 255, 255, 0.08);
-      border: 1.5px solid rgba(255, 255, 255, 0.18);
-      border-radius: 8px;
-      padding: clamp(3px, 0.5vh, 6px) clamp(8px, 1vw, 16px);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      border-radius: 10px;
+      padding: clamp(3px, 0.6vh, 6px) clamp(12px, 1.4vw, 22px);
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+      align-items: center;
+      gap: clamp(8px, 1vw, 16px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     }
 
     .ms-stat-pill .stat-label {
-      font-size: clamp(9px, 0.85vw, 12px);
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      color: #94a3b8;
-      text-transform: uppercase;
-    }
-
-    .ms-stat-pill .stat-num {
       font-family: var(--font-condensed);
-      font-size: clamp(16px, 1.8vw, 26px);
+      font-size: clamp(12px, 1.5vh, 18px);
       font-weight: 900;
-      color: var(--gold-bright);
+      letter-spacing: 0.1em;
+      color: #cbd5e1;
+      text-transform: uppercase;
       line-height: 1;
     }
 
-    /* 4-Jury 2x2 Grid - Fully Contained & Zero Overflow on 100% Zoom */
+    .ms-stat-pill .stat-num {
+      font-family: var(--font-score);
+      font-size: clamp(26px, 3.6vh, 46px);
+      font-weight: 800;
+      color: var(--gold-bright);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 16px rgba(251, 191, 36, 0.7);
+    }
+
+    /* 4-Jury 2x2 Grid - Fully Contained, Maximum Compact & Zero Overflow */
     .ms-judge-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-      gap: clamp(6px, 1vh, 12px);
+      gap: clamp(5px, 0.8vh, 10px);
       width: 100%;
-      max-width: 1500px;
+      max-width: 1600px;
       flex: 1;
       min-height: 0;
       height: 100%;
@@ -1078,14 +1078,14 @@
     }
 
     .ms-judge-box {
-      background: rgba(15, 23, 42, 0.94);
-      border: 1.5px solid rgba(255, 255, 255, 0.14);
-      border-radius: 10px;
-      padding: clamp(5px, 0.8vh, 10px) clamp(8px, 1vw, 14px);
+      background: rgba(15, 23, 42, 0.96);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: clamp(4px, 0.7vh, 8px) clamp(8px, 1vw, 14px);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
@@ -1094,67 +1094,75 @@
     }
 
     .ms-judge-box.all-tested {
-      border-color: #22c55e;
-      box-shadow: 0 0 25px rgba(34, 197, 94, 0.3), inset 0 0 20px rgba(34, 197, 94, 0.1);
+      border-color: #22c55e !important;
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.4), inset 0 0 25px rgba(34, 197, 94, 0.15) !important;
     }
 
     .ms-judge-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: clamp(2px, 0.4vh, 5px);
-      margin-bottom: clamp(2px, 0.4vh, 5px);
-      border-bottom: 1.5px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: clamp(2px, 0.35vh, 4px);
+      margin-bottom: clamp(2px, 0.35vh, 4px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.12);
       flex-shrink: 0;
     }
 
     .ms-judge-name {
       font-family: var(--font-condensed);
-      font-size: clamp(16px, 1.8vw, 26px);
+      font-size: clamp(20px, 2.7vh, 36px);
       font-weight: 900;
       color: #ffffff;
       display: flex;
       align-items: center;
-      gap: 8px;
-      letter-spacing: 0.05em;
+      gap: clamp(8px, 1vw, 12px);
+      letter-spacing: 0.06em;
       line-height: 1;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
     }
 
     .badge-num {
       background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
       color: #ffffff;
-      border-radius: 5px;
-      width: clamp(20px, 2vw, 28px);
-      height: clamp(20px, 2vw, 28px);
+      border-radius: 6px;
+      width: clamp(24px, 3vh, 38px);
+      height: clamp(24px, 3vh, 38px);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(12px, 1.2vw, 16px);
+      font-size: clamp(15px, 2vh, 24px);
       font-weight: 900;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.65);
     }
 
     .ms-judge-status {
-      font-size: clamp(11px, 1.1vw, 14px);
-      font-weight: 800;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.08);
-      padding: clamp(2px, 0.35vh, 4px) clamp(8px, 0.8vw, 12px);
-      border-radius: 16px;
-      letter-spacing: 0.05em;
+      font-family: var(--font-condensed);
+      font-size: clamp(14px, 1.9vh, 22px);
+      font-weight: 900;
+      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      padding: clamp(2px, 0.4vh, 5px) clamp(10px, 1vw, 16px);
+      border-radius: 20px;
+      letter-spacing: 0.06em;
       transition: all 0.25s ease;
-      line-height: 1.1;
+      line-height: 1;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+      white-space: nowrap;
     }
 
     .ms-judge-box.all-tested .ms-judge-status {
-      background: #15803d;
-      color: #ffffff;
-      box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+      background: #16a34a !important;
+      color: #ffffff !important;
+      border-color: #86efac !important;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.85) !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9) !important;
     }
 
     .ms-judge-body {
       display: flex;
       flex-direction: column;
-      gap: clamp(3px, 0.6vh, 8px);
+      gap: clamp(2px, 0.5vh, 6px);
       flex: 1;
       min-height: 0;
       justify-content: space-between;
@@ -1166,126 +1174,139 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: clamp(2px, 0.4vh, 5px);
+      gap: clamp(2px, 0.35vh, 4px);
       min-height: 0;
     }
 
     .ms-tier-label {
-      font-size: clamp(11px, 1.15vw, 15px);
+      font-family: var(--font-condensed);
+      font-size: clamp(15px, 2vh, 24px);
       font-weight: 900;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       text-transform: uppercase;
       flex-shrink: 0;
       line-height: 1;
+      padding: 1px 0;
     }
 
-    .ms-tier.red .ms-tier-label { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
-    .ms-tier.blue .ms-tier-label { color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+    .ms-tier.red .ms-tier-label {
+      color: #f87171;
+      text-shadow: 0 0 14px rgba(239, 68, 68, 0.7), 0 2px 6px rgba(0, 0, 0, 0.9);
+    }
+    .ms-tier.blue .ms-tier-label {
+      color: #60a5fa;
+      text-shadow: 0 0 14px rgba(59, 130, 246, 0.7), 0 2px 6px rgba(0, 0, 0, 0.9);
+    }
 
     .col-dot {
-      width: 8px;
-      height: 8px;
+      width: clamp(8px, 1.1vh, 12px);
+      height: clamp(8px, 1.1vh, 12px);
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .col-dot.red { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
-    .col-dot.blue { background-color: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+    .col-dot.red { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+    .col-dot.blue { background-color: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
 
     /* Row of 3 Full-Width Point Cells */
     .ms-btn-deck {
       flex: 1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: clamp(5px, 0.8vw, 12px);
+      gap: clamp(4px, 0.7vw, 10px);
       align-items: stretch;
       min-height: 0;
     }
 
     .ms-btn-cell {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1.5px solid rgba(255, 255, 255, 0.16);
-      border-radius: 8px;
-      padding: clamp(4px, 0.7vh, 10px) clamp(6px, 0.9vw, 14px);
+      background: rgba(255, 255, 255, 0.07);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      padding: clamp(3px, 0.6vh, 8px) clamp(6px, 0.9vw, 14px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: clamp(4px, 0.6vw, 10px);
+      gap: clamp(5px, 0.7vw, 10px);
       height: 100%;
       min-height: 0;
       box-sizing: border-box;
-      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
       user-select: none;
       cursor: pointer;
     }
 
     .ms-btn-cell:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.32);
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.38);
       transform: translateY(-1px);
     }
 
     .point-num {
       font-family: var(--font-score);
-      font-size: clamp(22px, 2.8vw, 42px);
-      font-weight: 700;
+      font-size: clamp(32px, 4.8vh, 62px);
+      font-weight: 800;
       color: #ffffff;
       line-height: 1;
       flex-shrink: 0;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
     }
 
     .point-name {
       font-family: var(--font-condensed);
-      font-size: clamp(12px, 1.4vw, 22px);
+      font-size: clamp(16px, 2.3vh, 30px);
       font-weight: 900;
-      letter-spacing: 0.06em;
-      color: #f8fafc;
+      letter-spacing: 0.05em;
+      color: #ffffff;
       text-align: left;
       flex: 1;
       margin-left: 2px;
       text-transform: uppercase;
-      line-height: 1;
+      line-height: 1.05;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
     }
 
     .chk-flag {
-      font-size: clamp(16px, 2vw, 30px);
+      font-size: clamp(24px, 3.6vh, 46px);
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.25);
-      min-width: clamp(16px, 1.8vw, 26px);
+      color: rgba(255, 255, 255, 0.45);
+      min-width: clamp(22px, 3.2vh, 40px);
       text-align: center;
       transition: all 0.2s ease;
       flex-shrink: 0;
       line-height: 1;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
 
-    /* Tested state: marked green */
+    /* Tested state: high-contrast green illumination visible at 20m */
     .ms-btn-cell.tested {
-      border-color: rgba(34, 197, 94, 0.7);
-      background: rgba(34, 197, 94, 0.12);
+      border: 2px solid #22c55e !important;
+      background: rgba(34, 197, 94, 0.22) !important;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.35) !important;
     }
 
     .ms-btn-cell.tested .chk-flag {
-      color: #22c55e;
-      text-shadow: 0 0 12px rgba(34, 197, 94, 0.95);
+      color: #4ade80 !important;
+      text-shadow: 0 0 16px rgba(74, 222, 128, 1), 0 0 25px rgba(34, 197, 94, 0.9) !important;
     }
 
     /* Active / Pressed NOW state (flashing vibrant red/blue glow) */
     .ms-btn-cell.active.red {
       background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
-      border-color: #fca5a5 !important;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+      border-color: #fecaca !important;
+      box-shadow: 0 0 35px rgba(239, 68, 68, 1), inset 0 2px 0 rgba(255, 255, 255, 0.8) !important;
       transform: scale(1.03);
     }
 
     .ms-btn-cell.active.blue {
       background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
-      border-color: #93c5fd !important;
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+      border-color: #bfdbfe !important;
+      box-shadow: 0 0 35px rgba(59, 130, 246, 1), inset 0 2px 0 rgba(255, 255, 255, 0.8) !important;
       transform: scale(1.03);
     }
 
@@ -1293,75 +1314,83 @@
     .ms-btn-cell.active .point-num,
     .ms-btn-cell.active .chk-flag {
       color: #ffffff !important;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
     }
 
-    /* Compact Screen Adaptations (Laptops, 768p, 100% Zoom) */
+    /* Compact Screen Adaptations (Laptops, 768p / 720p TV - keeps text bold & large) */
     @media (max-height: 760px) {
       .ms-check-screen {
-        padding: 4px 12px;
+        padding: 3px 8px;
       }
       .ms-check-header {
-        margin-bottom: 3px;
-        padding-bottom: 3px;
+        margin-bottom: 2px;
+        padding-bottom: 2px;
       }
       .ms-check-title {
-        font-size: 20px;
+        font-size: 24px;
+      }
+      .ms-check-eyebrow {
+        font-size: 11px;
+        margin-bottom: 1px;
       }
       .ms-stat-pill {
-        padding: 2px 8px;
+        padding: 2px 10px;
+        gap: 8px;
       }
       .ms-stat-pill .stat-label {
-        font-size: 8px;
+        font-size: 12px;
       }
       .ms-stat-pill .stat-num {
-        font-size: 15px;
+        font-size: 26px;
       }
       .ms-judge-grid {
         gap: 5px;
       }
       .ms-judge-box {
-        padding: 4px 8px;
+        padding: 3px 6px;
+        border-radius: 10px;
       }
       .ms-judge-head {
         padding-bottom: 2px;
         margin-bottom: 2px;
       }
       .ms-judge-name {
-        font-size: 14px;
+        font-size: 20px;
       }
       .badge-num {
-        width: 18px;
-        height: 18px;
-        font-size: 10px;
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
       }
       .ms-judge-status {
-        font-size: 10px;
-        padding: 1px 6px;
+        font-size: 13px;
+        padding: 2px 8px;
       }
       .ms-judge-body {
-        gap: 3px;
+        gap: 2px;
       }
       .ms-tier {
         gap: 2px;
       }
       .ms-tier-label {
-        font-size: 10px;
+        font-size: 13px;
       }
       .ms-btn-deck {
         gap: 4px;
       }
       .ms-btn-cell {
         padding: 2px 6px;
+        border-radius: 8px;
       }
       .point-num {
-        font-size: 18px;
+        font-size: 34px;
       }
       .point-name {
-        font-size: 11px;
+        font-size: 16px;
       }
       .chk-flag {
-        font-size: 14px;
+        font-size: 26px;
+        min-width: 24px;
       }
     }
 
@@ -1513,16 +1542,27 @@
       z-index: 5;
     }
 
-    /* Muted score cell (Lower score per judge) */
+    /* Lower score per judge (no background, vivid colored text with high contrast) */
     .kata-table td.score.muted-score {
-      background: rgba(15, 23, 42, 0.55) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
-      color: #64748b !important;
-      opacity: 0.3 !important;
+      background: transparent !important;
+      opacity: 1 !important;
+      filter: none !important;
       box-shadow: none !important;
-      transform: scale(0.94) !important;
-      text-shadow: none !important;
-      filter: grayscale(85%);
+      transform: scale(0.98) !important;
+    }
+
+    .kata-table tr.aka td.score.muted-score {
+      background: transparent !important;
+      border: 2px solid rgba(239, 68, 68, 0.45) !important;
+      color: #f87171 !important;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 12px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .kata-table tr.ao td.score.muted-score {
+      background: transparent !important;
+      border: 2px solid rgba(59, 130, 246, 0.45) !important;
+      color: #60a5fa !important;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 12px rgba(59, 130, 246, 0.4) !important;
     }
 
     /* Kata Overlay Modal Entrance */
@@ -1737,11 +1777,10 @@
         </div>
       </div>
       <div class="criteria-bar" name="criteria">
-        <div class="criteria-pill" id="akac1">C1</div>
-        <div class="criteria-pill" id="akac2">C2</div>
-        <div class="criteria-pill" id="akac3">C3</div>
-        <div class="criteria-pill" id="akac4">HC</div>
-        <div class="criteria-pill" id="akac5">H</div>
+        <div class="criteria-pill" id="akac1">Chui 1</div>
+        <div class="criteria-pill" id="akac2">Chui 2</div>
+        <div class="criteria-pill" id="akac3">Hansoku Chui</div>
+        <div class="criteria-pill" id="akac4">Hansoku</div>
       </div>
     </div>
 
@@ -1770,11 +1809,10 @@
         </div>
       </div>
       <div class="criteria-bar" name="criteria">
-        <div class="criteria-pill" id="aoc1">C1</div>
-        <div class="criteria-pill" id="aoc2">C2</div>
-        <div class="criteria-pill" id="aoc3">C3</div>
-        <div class="criteria-pill" id="aoc4">HC</div>
-        <div class="criteria-pill" id="aoc5">H</div>
+        <div class="criteria-pill" id="aoc1">Chui 1</div>
+        <div class="criteria-pill" id="aoc2">Chui 2</div>
+        <div class="criteria-pill" id="aoc3">Hansoku Chui</div>
+        <div class="criteria-pill" id="aoc4">Hansoku</div>
       </div>
     </div>
 
@@ -2943,7 +2981,7 @@
         document.getElementById('ao-score').innerText = '0';
         $('#aka-senshu-wrapper').removeClass('senshu-active');
         $('#ao-senshu-wrapper').removeClass('senshu-active');
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 4; i++) {
           $(`#akac${i}`).removeClass('active-red');
           $(`#aoc${i}`).removeClass('active-blue');
         }
@@ -3042,25 +3080,31 @@
         reset_banners();
       } else if (data.command === 'aka-criteria-inc') {
         aka_criteria++;
-        if (aka_criteria >= 1 && aka_criteria <= 5) {
+        if (aka_criteria >= 1 && aka_criteria <= 4) {
           $(`#akac${aka_criteria}`).addClass('active-red');
         }
-        const critTitle = aka_criteria >= 5 ? 'HANSOKU' : (aka_criteria === 4 ? 'HC' : `C${aka_criteria}`);
-        showScoreBanner('aka', 'PELANGGARAN', critTitle, 1200);
+        let critTitle = 'CHUI 1';
+        if (aka_criteria === 2) critTitle = 'CHUI 2';
+        else if (aka_criteria === 3) critTitle = 'HANSOKU CHUI';
+        else if (aka_criteria >= 4) critTitle = 'HANSOKU';
+        showScoreBanner('aka', 'PELANGGARAN', critTitle, 1400);
       } else if (data.command === 'aka-criteria-dec') {
-        if (aka_criteria >= 1 && aka_criteria <= 5) {
+        if (aka_criteria >= 1 && aka_criteria <= 4) {
           $(`#akac${aka_criteria}`).removeClass('active-red');
         }
         if (aka_criteria > 0) aka_criteria--;
       } else if (data.command === 'ao-criteria-inc') {
         ao_criteria++;
-        if (ao_criteria >= 1 && ao_criteria <= 5) {
+        if (ao_criteria >= 1 && ao_criteria <= 4) {
           $(`#aoc${ao_criteria}`).addClass('active-blue');
         }
-        const critTitle = ao_criteria >= 5 ? 'HANSOKU' : (ao_criteria === 4 ? 'HC' : `C${ao_criteria}`);
-        showScoreBanner('ao', 'PELANGGARAN', critTitle, 1200);
+        let critTitle = 'CHUI 1';
+        if (ao_criteria === 2) critTitle = 'CHUI 2';
+        else if (ao_criteria === 3) critTitle = 'HANSOKU CHUI';
+        else if (ao_criteria >= 4) critTitle = 'HANSOKU';
+        showScoreBanner('ao', 'PELANGGARAN', critTitle, 1400);
       } else if (data.command === 'ao-criteria-dec') {
-        if (ao_criteria >= 1 && ao_criteria <= 5) {
+        if (ao_criteria >= 1 && ao_criteria <= 4) {
           $(`#aoc${ao_criteria}`).removeClass('active-blue');
         }
         if (ao_criteria > 0) ao_criteria--;

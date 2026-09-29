@@ -453,35 +453,359 @@
             background: rgba(59, 130, 246, 0.08);
         }
 
-        /* Match Card */
+        /* =========================================================
+           📊 ROSTER PROGRESS DASHBOARD STYLES
+           ========================================================= */
+        .roster-progress-dashboard {
+            background: linear-gradient(135deg, rgba(18, 20, 28, 0.95) 0%, rgba(23, 26, 36, 0.95) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+        }
+        .progress-dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .dash-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .live-dot-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .dash-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.04em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-auto-sync {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dash-metric-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 900px) {
+            .dash-metric-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+        .dash-metric-card {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .dash-metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+        }
+        .metric-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .metric-icon.blue { background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .metric-icon.emerald { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .metric-icon.amber { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .metric-icon.purple { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .metric-body { flex: 1; min-width: 0; }
+        .metric-val {
+            font-family: 'Oswald', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Progress Bar */
+        .dash-progress-bar-wrap {
+            margin-bottom: 12px;
+        }
+        .dash-progress-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dash-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+            border-radius: 999px;
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+        .dash-progress-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* Tatamis Live Strip */
+        .dash-tatamis-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .tatami-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .tatami-live-pill.is-live {
+            background: rgba(59, 130, 246, 0.12);
+            border-color: rgba(59, 130, 246, 0.45);
+        }
+        .tatami-live-pill.is-live .t-pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            box-shadow: 0 0 6px #3b82f6;
+            animation: pulseLiveDot 1.5s infinite;
+        }
+        @keyframes pulseLiveDot {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+        .tatami-live-pill.is-standby .t-pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #64748b;
+        }
+        .t-pill-name {
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.02em;
+        }
+        .t-pill-info {
+            color: var(--text-primary);
+        }
+        .t-cat-name {
+            color: #93c5fd;
+        }
+
+        /* =========================================================
+           🥋 ON-SCREEN 1-PAGE RUN SHEET CARD STYLES
+           ========================================================= */
         .tt-card {
             position: relative;
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-color);
-            border-bottom: 2px solid rgba(0, 0, 0, 0.45);
-            border-radius: 4px;
-            padding: 4px 8px;
-            margin: 0;
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            margin-bottom: 6px;
             box-sizing: border-box;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             cursor: grab;
             user-select: none;
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            overflow: hidden;
-            min-height: 20px !important; /* Ensure very short durations remain readable */
         }
-
+        .tt-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
         .tt-card:active {
             cursor: grabbing;
         }
-
         .tt-card.is-dragging {
-            opacity: 0.4;
-            transform: scale(0.98);
+            opacity: 0.35;
+            transform: scale(0.97);
         }
+
+        /* Status Colors */
+        .tt-card.status-running {
+            border-left: 4px solid #3b82f6 !important;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.14) 0%, var(--bg-surface-elevated) 100%) !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.22) !important;
+        }
+        .tt-card.status-selesai {
+            border-left: 4px solid #10b981 !important;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-surface-elevated) 100%) !important;
+        }
+        .tt-card.status-belum_disentuh,
+        .tt-card.status-unstarted {
+            border-left: 4px solid #64748b !important;
+            background: var(--bg-surface-elevated) !important;
+        }
+        .tt-card.is-festival-card {
+            border-left: 4px solid #f59e0b !important;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, var(--bg-surface-elevated) 100%) !important;
+        }
+        .tt-card.is-break-card {
+            border: 1.5px dashed #0284c7 !important;
+            background: rgba(2, 132, 199, 0.1) !important;
+            padding: 8px 10px;
+            align-items: center;
+            text-align: center;
+        }
+        .card-break-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 11.5px;
+            width: 100%;
+        }
+        .card-break-title {
+            outline: none;
+            color: #38bdf8;
+            font-weight: 700;
+        }
+        .card-main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            width: 100%;
+        }
+        .card-header-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding-right: 20px;
+        }
+        .card-seq-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 17px;
+            font-weight: 800;
+            font-size: 10.5px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border-radius: 3px;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+        .card-disc-icon {
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .card-content.card-title-bold {
+            font-weight: 700;
+            font-size: 12px;
+            color: #f8fafc;
+            line-height: 1.25;
+            outline: none;
+        }
+        .card-atlet-count {
+            font-weight: 700;
+            font-size: 11px;
+            color: #38bdf8;
+            white-space: nowrap;
+        }
+        .card-status-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 1px;
+        }
+        .card-status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1.5px 6px;
+            border-radius: 3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        .card-status-badge.status-running {
+            background: rgba(59, 130, 246, 0.25);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.45);
+        }
+        .card-status-badge.status-selesai {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .card-status-badge.status-unstarted,
+        .card-status-badge.status-belum_disentuh {
+            background: rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        .card-status-badge.status-festival {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        /* Tool badges in Tatami Header */
+        .badge-tool-blue { background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+        .badge-tool-green { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+        .badge-tool-amber { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.4); color: #fde047; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
 
         .tt-card.conflict-card {
             border-color: var(--red-core) !important;
@@ -501,25 +825,6 @@
             border-radius: 3px;
             pointer-events: none;
             z-index: 2;
-        }
-
-        .tt-card.is-festival-card {
-            background: rgba(245, 158, 11, 0.15) !important;
-            border-color: rgba(245, 158, 11, 0.7) !important;
-            box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2) !important;
-        }
-        .tt-card.is-festival-card .card-content {
-            color: #f59e0b !important;
-            font-weight: 700 !important;
-        }
-        .tt-card.is-break-card {
-            background: rgba(56, 189, 248, 0.12) !important;
-            border: 1px dashed rgba(56, 189, 248, 0.65) !important;
-            box-shadow: none !important;
-        }
-        .tt-card.is-break-card .card-content {
-            color: #7dd3fc !important;
-            font-weight: 700;
         }
         .auto-schedule-result-bar {
             background: linear-gradient(90deg, #092014 0%, #0d1b2a 100%);
@@ -937,6 +1242,131 @@
                 display: none !important;
             }
 
+            /* =========================================================
+               🖨️ DETAILED TIMELINE PRINT STYLES
+               ========================================================= */
+            body.print-detailed-active #main-content,
+            body.print-detailed-active .main-content,
+            body.print-detailed-active #days-container,
+            body.print-detailed-active #print-simple-container,
+            body.print-detailed-active #print-kop-header {
+                display: none !important;
+            }
+            body.print-detailed-active #print-detailed-container {
+                display: block !important;
+                width: 100% !important;
+            }
+            body:not(.print-detailed-active) #print-detailed-container {
+                display: none !important;
+            }
+
+            .detailed-print-page {
+                box-sizing: border-box;
+                padding: 4mm 6mm;
+                background: #fff !important;
+                color: #0f172a !important;
+                font-family: 'Inter', system-ui, sans-serif;
+            }
+            .detailed-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 2px solid #cbd5e1;
+                padding-bottom: 6px;
+                margin-bottom: 8px;
+            }
+            .detailed-day-section {
+                margin-bottom: 12px;
+                page-break-inside: avoid;
+            }
+            .detailed-day-bar {
+                background: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-left: 3px solid #b91c1c;
+                padding: 3px 8px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 6px;
+            }
+            .detailed-day-title {
+                font-family: 'Oswald', sans-serif;
+                font-weight: 700;
+                font-size: 12px;
+                color: #b91c1c;
+                text-transform: uppercase;
+            }
+            .detailed-day-date {
+                font-size: 10px;
+                font-weight: 600;
+                color: #475569;
+            }
+            .detailed-grid {
+                display: flex;
+                gap: 10px;
+            }
+            .detailed-col {
+                border: 1px solid #cbd5e1;
+                border-radius: 4px;
+                background: #fff;
+                overflow: hidden;
+            }
+            .detailed-col-header {
+                background: #f1f5f9;
+                padding: 4px 8px;
+                border-bottom: 1px solid #cbd5e1;
+                font-size: 11px;
+                font-weight: 800;
+                color: #0f172a;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .detailed-col-sub {
+                font-size: 9px;
+                font-weight: 600;
+                color: #64748b;
+            }
+            .detailed-col-body {
+                padding: 6px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .detailed-card {
+                border: 1px solid #e2e8f0;
+                border-left: 3.5px solid #3b82f6;
+                background: #fafafa;
+                border-radius: 3px;
+                padding: 4px 6px;
+                font-size: 9.5px;
+            }
+            .detailed-card.is-break {
+                border-left: 3.5px solid #0284c7;
+                background: #f0fdf4;
+                border-top: 1px dashed #0284c7;
+                border-bottom: 1px dashed #0284c7;
+            }
+            .detailed-card.is-festival {
+                border-left: 3.5px solid #f59e0b;
+                background: #fffbeb;
+            }
+            .detailed-time {
+                font-size: 8.5px;
+                font-weight: 700;
+                color: #2563eb;
+                margin-bottom: 2px;
+            }
+            .detailed-dur {
+                color: #64748b;
+                font-weight: 600;
+            }
+            .detailed-title {
+                font-weight: 700;
+                color: #0f172a;
+                line-height: 1.2;
+            }
+
             .simple-roster-page {
                 box-sizing: border-box;
                 padding: 1.5mm 2.5mm;
@@ -1290,6 +1720,7 @@
         }
         #print-kop-header { display: none; }
         #print-simple-container { display: none; }
+        #print-detailed-container { display: none; }
     </style>
 </head>
 <body>
@@ -1316,11 +1747,12 @@
 
         <div id="nt-pool">
             {% for nt in nt_with_group %}
-                <div class="nt-chip {% if nt.discipline == 'kata' %}is-kata{% else %}is-kumite{% endif %}" draggable="true"
+                <div class="nt-chip {% if nt.discipline == 'kata' %}is-kata{% else %}is-kumite{% endif %} status-{{ nt.progress_status|default:'belum_disentuh' }}" draggable="true"
                      data-nt-id="{{ nt.pk }}" data-nt-name="{{ nt.nama }}"
                      data-age-group="{{ nt.age_group }}" data-atlet-count="{{ nt.atlet_count }}"
                      data-matches="{{ nt.matches }}" data-duration="{{ nt.est_duration_minutes }}"
-                     data-discipline="{{ nt.discipline }}" data-is-festival="{% if nt.is_festival %}true{% else %}false{% endif %}">
+                     data-discipline="{{ nt.discipline }}" data-is-festival="{% if nt.is_festival %}true{% else %}false{% endif %}"
+                     data-status="{{ nt.progress_status|default:'belum_disentuh' }}">
                     <div class="nt-chip-header">
                         <div class="nt-chip-title">
                             {% if nt.discipline == 'kata' %}🥋{% else %}🥊{% endif %} {{ nt.nama }}
@@ -1334,7 +1766,11 @@
                         {% else %}
                             <span class="nt-badge-mini">{{ nt.atlet_count }} Atlet</span>
                             <span class="nt-badge-mini">{{ nt.matches }} Partai</span>
-                            <span class="nt-badge-mini dur">~{{ nt.est_duration_minutes }}m</span>
+                            {% if nt.progress_status == 'running' %}
+                                <span class="nt-badge-mini" style="background: rgba(59, 130, 246, 0.25); color: #60a5fa;"><i class="fas fa-play-circle fa-beat"></i> Running (Sisa {{ nt.remaining_matches }})</span>
+                            {% elif nt.progress_status == 'selesai' %}
+                                <span class="nt-badge-mini" style="background: rgba(16, 185, 129, 0.2); color: #34d399;"><i class="fas fa-check-circle"></i> Selesai</span>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
@@ -1426,6 +1862,81 @@
             </div>
         </div>
 
+        <!-- Roster Progress Dashboard -->
+        <div class="roster-progress-dashboard" id="roster-progress-dashboard">
+            <div class="progress-dash-header">
+                <div class="dash-title-wrap">
+                    <span class="live-dot-pulse"></span>
+                    <h4 class="dash-title"><i class="fas fa-chart-line text-warning"></i> LIVE ROSTER &amp; MATCH PROGRESS</h4>
+                </div>
+                <div class="dash-auto-sync">
+                    <span class="text-secondary"><i class="fas fa-sync-alt fa-spin"></i> Live auto-refresh</span>
+                </div>
+            </div>
+
+            <!-- 4 Metric Cards -->
+            <div class="dash-metric-cards">
+                <div class="dash-metric-card">
+                    <div class="metric-icon blue"><i class="fas fa-trophy"></i></div>
+                    <div class="metric-body">
+                        <div class="metric-val" id="prog-total-matches">{{ progress_summary.total_matches|default:0 }}</div>
+                        <div class="metric-label">Total Partai</div>
+                    </div>
+                </div>
+                <div class="dash-metric-card">
+                    <div class="metric-icon emerald"><i class="fas fa-check-circle"></i></div>
+                    <div class="metric-body">
+                        <div class="metric-val" id="prog-finished-matches">{{ progress_summary.finished_matches|default:0 }}</div>
+                        <div class="metric-label">Partai Selesai (<span id="prog-pct-label">{{ progress_summary.overall_pct|default:"0.0" }}%</span>)</div>
+                    </div>
+                </div>
+                <div class="dash-metric-card">
+                    <div class="metric-icon amber"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="metric-body">
+                        <div class="metric-val" id="prog-remaining-matches">{{ progress_summary.remaining_matches|default:0 }}</div>
+                        <div class="metric-label">Sisa Partai</div>
+                    </div>
+                </div>
+                <div class="dash-metric-card">
+                    <div class="metric-icon purple"><i class="fas fa-bolt"></i></div>
+                    <div class="metric-body">
+                        <div class="metric-val" id="prog-running-cats">{{ progress_summary.running_categories_count|default:0 }}</div>
+                        <div class="metric-label">Bagan Sedang Berjalan</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Progress Bar -->
+            <div class="dash-progress-bar-wrap">
+                <div class="dash-progress-track">
+                    <div class="dash-progress-fill" id="prog-bar-fill" style="width: {{ progress_summary.overall_pct|default:0 }}%;"></div>
+                </div>
+                <div class="dash-progress-stats">
+                    <span>Kemajuan Pertandingan: <strong id="prog-pct-text">{{ progress_summary.overall_pct|default:0 }}%</strong></span>
+                    <span><span id="prog-matches-stat">{{ progress_summary.finished_matches|default:0 }} dari {{ progress_summary.total_matches|default:0 }}</span> partai selesai</span>
+                </div>
+            </div>
+
+            <!-- Live Tatamis Status Strip -->
+            <div class="dash-tatamis-strip" id="prog-tatamis-strip">
+                {% for t_stat in progress_summary.tatamis_live %}
+                <div class="tatami-live-pill {% if t_stat.is_running %}is-live{% else %}is-standby{% endif %}" id="tatami-live-pill-{{ t_stat.tatami_id }}">
+                    <span class="t-pill-dot"></span>
+                    <span class="t-pill-name">Tatami {{ t_stat.tatami_number }}:</span>
+                    <span class="t-pill-info">
+                        {% if t_stat.is_running %}
+                            <strong class="t-cat-name">{{ t_stat.category_name }}</strong> &bull; Match #{{ t_stat.urutan }} ({{ t_stat.atlet1_name }} vs {{ t_stat.atlet2_name }})
+                        {% else %}
+                            <span class="text-secondary">Standby / Belum Ada Match Aktif</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="text-secondary" style="font-size:11.5px; font-style:italic;">Belum ada tatami yang aktif.</div>
+                {% endfor %}
+            </div>
+        </div>
+
         <!-- Action Toolbar -->
         <div class="toolbar">
             <button id="add-tatami-btn" class="btn-tool" type="button"><i class="fas fa-vector-square"></i> Tambah Tatami</button>
@@ -1435,14 +1946,11 @@
             
             <div style="height:20px; width:1px; background:var(--border-color); margin:0 4px;"></div>
 
-            <label>Mulai Default:
+            <!-- Hidden on screen (no timer detail display), kept for background defaults & auto scheduler -->
+            <div style="display:none;">
                 <input type="time" id="start-time-input" value="08:30">
-            </label>
-            <label>Menit/match:
-                <input type="number" id="duration-input" value="4" min="1" style="width: 55px;">
-            </label>
-
-            <div style="height:20px; width:1px; background:var(--border-color); margin:0 4px;"></div>
+                <input type="number" id="duration-input" value="4" min="1">
+            </div>
 
             <button id="kop-surat-btn" class="btn-tool" type="button"><i class="fas fa-file-invoice"></i> Kop Surat</button>
             <button id="print-detailed-btn" class="btn-tool" type="button" title="Cetak run sheet timeline dengan visualisasi durasi waktu"><i class="fas fa-print"></i> Cetak Timeline (Detail)</button>
@@ -1472,13 +1980,13 @@
                                 Tatami {{ col.tatami.tatami_number }} <span class="tatami-athlete-counter-wrap">(<span class="tatami-match-counter">{{ col.total_matches|default:0 }}</span> Partai &bull; <span class="tatami-atlet-counter">{{ col.total_atlets|default:0 }}</span> Atlet)</span>
                             </span>
                             <div class="tatami-actions-row">
-                                <a href="{% url 'timetable-call-sheet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:#60a5fa; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none;" title="Cetak Lembar Panggilan (Call Sheet)">
+                                <a href="{% url 'timetable-call-sheet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge badge-tool-blue" title="Cetak Lembar Panggilan (Call Sheet)">
                                     📋 LO Sheet
                                 </a>
-                                <a href="{% url 'timetable-bulk-print' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); color:#34d399; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none;" title="Print Seluruh Bagan Tatami ini">
+                                <a href="{% url 'timetable-bulk-print' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge badge-tool-green" title="Print Seluruh Bagan Tatami ini">
                                     🖨️ Bagan
                                 </a>
-                                <a href="{% url 'timetable-tatami-booklet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge" style="background:var(--bg-surface-elevated); border:1px solid #f59e0b; color:#fbbf24; font-size:11px; padding:3px 7px; border-radius:4px; text-decoration:none; display:inline-flex; align-items:center; gap:3px;" title="Cetak Buku Tatami (Sampul + Roster)">
+                                <a href="{% url 'timetable-tatami-booklet' event_pk=event.pk day_pk=day.pk tatami_pk=col.tatami.pk %}" target="_blank" class="badge badge-tool-amber" title="Cetak Buku Tatami (Sampul + Roster)">
                                     📕 Buku Tatami
                                 </a>
                                 <button class="remove-tatami-btn" type="button" data-tatami-id="{{ col.tatami.pk }}" title="Hapus Tatami">✕</button>
@@ -1487,8 +1995,60 @@
 
                         <div class="tatami-card-list" data-tatami-id="{{ col.tatami.pk }}">
                             {% for cell in col.cells %}
-                            <div class="tt-card {% if cell.is_festival %}is-festival-card{% elif cell.is_break %}is-break-card{% endif %}" draggable="true" data-tatami-id="{{ col.tatami.pk }}" data-nt-id="{% if cell.nomor_tanding %}{{ cell.nomor_tanding.pk }}{% endif %}" data-time="{{ cell.cell_time }}" data-duration="{{ cell.cell_duration }}" data-atlet-count="{{ cell.atlet_count }}" data-matches="{{ cell.matches }}" style="height: {% widthratio cell.cell_duration 10 24 %}px; min-height: {% widthratio cell.cell_duration 10 24 %}px; max-height: {% widthratio cell.cell_duration 10 24 %}px; box-sizing: border-box;">
-                                <div class="card-content" contenteditable="true">{% if cell.nomor_tanding %}{{ cell.cell_title }} ({{ cell.atlet_count }}){% if cell.cell_time %} ({{ cell.cell_time }}){% endif %}{% else %}{{ cell.cell_title }}{% if cell.cell_time and not cell.cell_time in cell.cell_title %} ({{ cell.cell_time }}){% endif %}{% endif %}</div>
+                            <div class="tt-card {% if cell.is_festival %}is-festival-card{% elif cell.is_break %}is-break-card is-ishoma-card{% endif %} status-{{ cell.progress_status|default:'belum_disentuh' }}"
+                                 draggable="true"
+                                 data-tatami-id="{{ col.tatami.pk }}"
+                                 data-nt-id="{% if cell.nomor_tanding %}{{ cell.nomor_tanding.pk }}{% endif %}"
+                                 data-time="{{ cell.cell_time }}"
+                                 data-duration="{{ cell.cell_duration }}"
+                                 data-atlet-count="{{ cell.atlet_count }}"
+                                 data-matches="{{ cell.matches }}"
+                                 data-status="{{ cell.progress_status|default:'belum_disentuh' }}"
+                                 data-finished="{{ cell.finished_matches|default:0 }}"
+                                 data-remaining="{{ cell.remaining_matches|default:cell.matches }}"
+                                 data-total="{{ cell.total_matches|default:cell.matches }}">
+
+                                {% if cell.is_break %}
+                                    <div class="card-break-content">
+                                        <i class="fas fa-utensils mr-1"></i>
+                                        <span class="card-content card-break-title" contenteditable="true">{{ cell.cell_title|default:"🍱 ISHOMA / ISTIRAHAT" }}</span>
+                                    </div>
+                                {% elif cell.is_festival %}
+                                    <div class="card-main-content">
+                                        <div class="card-header-row">
+                                            <span class="card-seq-badge">#{{ forloop.counter }}</span>
+                                            <span class="card-disc-icon">🚩</span>
+                                            <span class="card-content card-title-bold" contenteditable="true">{{ cell.cell_title }}</span>
+                                        </div>
+                                        <div class="card-status-row">
+                                            <span class="card-status-badge status-festival"><i class="fas fa-flag"></i> Festival</span>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="card-main-content">
+                                        <div class="card-header-row">
+                                            <span class="card-seq-badge">#{{ forloop.counter }}</span>
+                                            <span class="card-disc-icon">{% if 'kata' in cell.cell_title|lower %}🥋{% else %}🥊{% endif %}</span>
+                                            <span class="card-content card-title-bold" contenteditable="true">{{ cell.cell_title }}</span>
+                                            {% if cell.atlet_count %}<span class="card-atlet-count">({{ cell.atlet_count }})</span>{% endif %}
+                                        </div>
+                                        <div class="card-status-row">
+                                            {% if cell.progress_status == 'running' %}
+                                                <span class="card-status-badge status-running">
+                                                    <i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa {{ cell.remaining_matches }} Match
+                                                </span>
+                                            {% elif cell.progress_status == 'selesai' %}
+                                                <span class="card-status-badge status-selesai">
+                                                    <i class="fas fa-check-circle"></i> SELESAI
+                                                </span>
+                                            {% else %}
+                                                <span class="card-status-badge status-unstarted">
+                                                    <i class="fas fa-clock"></i> BELUM MULAI
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                                 <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
                             </div>
                             {% endfor %}
@@ -1506,6 +2066,7 @@
     
     <!-- Dedicated 1-Page Simple Roster Print Container -->
     <div id="print-simple-container"></div>
+    <div id="print-detailed-container"></div>
 
     <!-- Auto Schedule Modal -->
     <div id="auto-schedule-modal" class="modal-overlay">
@@ -1923,23 +2484,49 @@
                     const estDur = parseInt(e.dataTransfer.getData('nt-duration') || '15', 10);
                     if (!ntId) return;
 
+                    const catForCard = CATEGORIES_MAP.get(parseInt(ntId, 10));
+                    const matchesForCard = catForCard && typeof catForCard.matches !== 'undefined' ? catForCard.matches : Math.max(0, atletCount > 1 ? (atletCount - 1) : 0);
+                    const disc = catForCard ? catForCard.discipline : (ntName.toLowerCase().includes('kata') ? 'kata' : 'kumite');
+                    const discIcon = disc === 'kata' ? '🥋' : '🥊';
+                    const progStatus = (catForCard && catForCard.progress_status) || 'belum_disentuh';
+                    const remMatches = (catForCard && typeof catForCard.remaining_matches !== 'undefined') ? catForCard.remaining_matches : matchesForCard;
+                    const finMatches = (catForCard && typeof catForCard.finished_matches !== 'undefined') ? catForCard.finished_matches : 0;
+                    const totMatches = (catForCard && typeof catForCard.total_matches !== 'undefined') ? catForCard.total_matches : matchesForCard;
+
                     const card = document.createElement('div');
-                    card.className = 'tt-card';
+                    card.className = `tt-card status-${progStatus}`;
                     card.draggable = true;
                     card.dataset.tatamiId = targetCol.dataset.tatamiId;
                     card.dataset.ntId = ntId;
                     card.dataset.duration = estDur;
                     card.dataset.atletCount = atletCount;
-                    const catForCard = CATEGORIES_MAP.get(parseInt(ntId, 10));
-                    const matchesForCard = catForCard && typeof catForCard.matches !== 'undefined' ? catForCard.matches : Math.max(0, atletCount > 1 ? (atletCount - 1) : 0);
                     card.dataset.matches = matchesForCard;
-                    const initH = Math.round(estDur * PX_PER_MIN);
-                    card.style.height = `${initH}px`;
-                    card.style.minHeight = `${initH}px`;
-                    card.style.maxHeight = `${initH}px`;
-                    card.style.boxSizing = 'border-box';
+                    card.dataset.status = progStatus;
+                    card.dataset.remaining = remMatches;
+                    card.dataset.finished = finMatches;
+                    card.dataset.total = totMatches;
+
+                    let statusBadgeHtml = '';
+                    if (progStatus === 'running') {
+                        statusBadgeHtml = `<span class="card-status-badge status-running"><i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${remMatches} Match</span>`;
+                    } else if (progStatus === 'selesai') {
+                        statusBadgeHtml = `<span class="card-status-badge status-selesai"><i class="fas fa-check-circle"></i> SELESAI</span>`;
+                    } else {
+                        statusBadgeHtml = `<span class="card-status-badge status-unstarted"><i class="fas fa-clock"></i> BELUM MULAI</span>`;
+                    }
+
                     card.innerHTML = `
-                        <div class="card-content" contenteditable="true">${ntName} (${atletCount})</div>
+                        <div class="card-main-content">
+                            <div class="card-header-row">
+                                <span class="card-seq-badge">#</span>
+                                <span class="card-disc-icon">${discIcon}</span>
+                                <span class="card-content card-title-bold" contenteditable="true">${escapeHtml(ntName)}</span>
+                                <span class="card-atlet-count">(${atletCount})</span>
+                            </div>
+                            <div class="card-status-row">
+                                ${statusBadgeHtml}
+                            </div>
+                        </div>
                         <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
                     `;
                     attachCardEvents(card);
@@ -2026,12 +2613,19 @@
                 card.dataset.time = timeStr;
                 card.dataset.duration = dur;
                 card.dataset.atletCount = perTatami;
-                card.style.height = `${festHeight}px`;
-                card.style.minHeight = `${festHeight}px`;
-                card.style.maxHeight = `${festHeight}px`;
-                card.style.boxSizing = 'border-box';
+                card.dataset.status = 'festival';
                 card.innerHTML = `
-                    <div class="card-content" contenteditable="true">FESTIVAL (${perTatami}) (${timeStr})</div>
+                    <div class="card-main-content">
+                        <div class="card-header-row">
+                            <span class="card-seq-badge">#</span>
+                            <span class="card-disc-icon">🚩</span>
+                            <span class="card-content card-title-bold" contenteditable="true">FESTIVAL</span>
+                            <span class="card-atlet-count">(${perTatami} Atlet)</span>
+                        </div>
+                        <div class="card-status-row">
+                            <span class="card-status-badge status-festival"><i class="fas fa-flag"></i> Festival</span>
+                        </div>
+                    </div>
                     <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
                 `;
                 attachCardEvents(card);
@@ -2080,7 +2674,10 @@
                     bCard.dataset.time = '12:00 - 13:00';
                     bCard.dataset.duration = 60;
                     bCard.innerHTML = `
-                        <div class="card-content" contenteditable="true">🍱 ISHOMA (12:00 - 13:00)</div>
+                        <div class="card-break-content">
+                            <i class="fas fa-utensils mr-1"></i>
+                            <span class="card-content card-break-title" contenteditable="true">🍱 ISHOMA / ISTIRAHAT SIANG</span>
+                        </div>
                         <button class="remove-card-btn" type="button" title="Hapus ISHOMA">✕</button>
                     `;
                     attachCardEvents(bCard);
@@ -2100,6 +2697,7 @@
             const ishomaEndMs = parseTimeToDate('13:00').getTime();
             const ishomaThresholdMs = parseTimeToDate('12:30').getTime();
 
+            let seq = 1;
             cards.forEach((card, idx) => {
                 delete card.dataset.keepGap;
                 delete card.dataset.justMoved;
@@ -2161,28 +2759,35 @@
                 const timeStr = `${startStr} - ${endStr}`;
                 card.dataset.time = timeStr;
 
-                // Mathematical vertical height: strictly proportional to duration!
-                const cardHeightPx = Math.round(dur * PX_PER_MIN);
-                card.style.height = `${cardHeightPx}px`;
-                card.style.minHeight = `${cardHeightPx}px`;
-                card.style.maxHeight = `${cardHeightPx}px`;
-                card.style.boxSizing = 'border-box';
+                // Reset any artificial duration height - natural compact run sheet cell height
+                card.style.height = '';
+                card.style.minHeight = '';
+                card.style.maxHeight = '';
+
+                // Update sequence number badge
+                if (!isBreak) {
+                    const seqEl = card.querySelector('.card-seq-badge');
+                    if (seqEl) {
+                        seqEl.textContent = `#${seq}`;
+                    }
+                    seq++;
+                }
 
                 const content = card.querySelector('.card-content');
                 if (content) {
                     if (isBreak) {
                         let txt = content.textContent.replace(/\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
-                        if (!txt) txt = '🍱 ISHOMA';
-                        content.textContent = `${txt} (${timeStr})`;
+                        if (!txt) txt = '🍱 ISHOMA / ISTIRAHAT SIANG';
+                        content.textContent = txt;
                     } else if (isFestival) {
                         let txt = content.textContent.replace(/\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
-                        if (!txt) txt = `FESTIVAL (${card.dataset.atletCount || '0'})`;
-                        content.textContent = `${txt} (${timeStr})`;
+                        if (!txt || txt.startsWith('FESTIVAL')) txt = 'FESTIVAL';
+                        content.textContent = txt;
                     } else if (cat) {
-                        content.textContent = `${cat.nama} (${cat.atlet_count}) (${timeStr})`;
+                        content.textContent = cat.nama;
                     } else {
                         let txt = content.textContent.replace(/\(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\)/g, '').trim();
-                        content.textContent = `${txt} (${timeStr})`;
+                        content.textContent = txt;
                     }
                 }
 
@@ -2412,7 +3017,9 @@
         const printDetailedBtn = document.getElementById('print-detailed-btn');
         if (printDetailedBtn) {
             printDetailedBtn.addEventListener('click', () => {
+                generateDetailedTimelinePrint();
                 document.body.classList.remove('print-simple-active');
+                document.body.classList.add('print-detailed-active');
                 window.print();
             });
         }
@@ -2421,13 +3028,14 @@
         if (printSimpleBtn) {
             printSimpleBtn.addEventListener('click', () => {
                 generateSimpleRosterPrint();
+                document.body.classList.remove('print-detailed-active');
                 document.body.classList.add('print-simple-active');
                 window.print();
             });
         }
 
         window.addEventListener('afterprint', () => {
-            document.body.classList.remove('print-simple-active');
+            document.body.classList.remove('print-simple-active', 'print-detailed-active');
         });
 
         function escapeHtml(str) {
@@ -2842,6 +3450,262 @@
 
             container.innerHTML = pageHtml;
         }
+
+        function generateDetailedTimelinePrint() {
+            const container = document.getElementById('print-detailed-container');
+            if (!container) return;
+
+            const kopOrg = document.getElementById('kop-nama-input')?.value || "{{ kop_surat.nama_organisasi|default:event.nama_event|escapejs }}";
+            const kopAlamat = document.getElementById('kop-alamat-input')?.value || "{{ kop_surat.alamat|default:''|escapejs }}";
+            const kopKontak = document.getElementById('kop-kontak-input')?.value || "{{ kop_surat.kontak|default:''|escapejs }}";
+            const kopLogoUrl = "{{ kop_surat.logo_url|default:''|escapejs }}";
+
+            const dayBlocks = document.querySelectorAll('.day-block');
+            const now = new Date();
+            const printedTimeStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' +
+                                   String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+            const ambrilindoLogoUrl = "{% static 'img/ambrilindo-logo.png' %}";
+            const customLogoHtml = kopLogoUrl ? `<img src="${kopLogoUrl}" class="simple-roster-logo" alt="Logo Event" style="height:42px; width:auto; max-width:60px; object-fit:contain;">` : '';
+            const metaParts = [];
+            if (kopAlamat) metaParts.push(escapeHtml(kopAlamat));
+            if (kopKontak) metaParts.push(escapeHtml(kopKontak));
+            const metaStr = metaParts.join(' &bull; ');
+
+            let daySectionsHtml = '';
+
+            dayBlocks.forEach((dayBlock, dayIdx) => {
+                const dayLabel = dayBlock.querySelector('.day-label-text')?.innerText?.trim() || `Hari ${dayIdx + 1}`;
+                const dateInputVal = dayBlock.querySelector('.day-date-input')?.value || '';
+                let dayDateFormatted = '';
+                if (dateInputVal) {
+                    try {
+                        const [y, m, d] = dateInputVal.split('-').map(Number);
+                        const dt = new Date(y, m - 1, d);
+                        dayDateFormatted = dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                    } catch (e) {
+                        dayDateFormatted = dateInputVal;
+                    }
+                }
+
+                const tatamiCols = Array.from(dayBlock.querySelectorAll('.tatami-column'));
+                if (tatamiCols.length === 0) return;
+
+                let colsHtml = '';
+                tatamiCols.forEach((col, cIdx) => {
+                    const labelEl = col.querySelector('.tatami-name-label');
+                    let tatamiName = `Tatami ${cIdx + 1}`;
+                    if (labelEl) {
+                        const clone = labelEl.cloneNode(true);
+                        const counterWrap = clone.querySelector('.tatami-athlete-counter-wrap');
+                        if (counterWrap) counterWrap.remove();
+                        tatamiName = clone.textContent.trim() || `Tatami ${cIdx + 1}`;
+                    }
+
+                    const cards = Array.from(col.querySelectorAll('.tt-card'));
+                    let cardsHtml = '';
+                    let matchCount = 0;
+                    let athCount = 0;
+                    let seq = 1;
+
+                    cards.forEach(card => {
+                        const isBreak = card.classList.contains('is-break-card');
+                        const isFest = card.classList.contains('is-festival-card');
+                        const cData = extractCardData(card);
+                        const dur = card.dataset.duration || '15';
+                        const timeStr = card.dataset.time || (cData.timeStr || '');
+
+                        if (!isBreak) {
+                            matchCount += cData.matches || 0;
+                            athCount += cData.atletCount || 0;
+                        }
+
+                        if (isBreak) {
+                            cardsHtml += `
+                                <div class="detailed-card is-break">
+                                    <div class="detailed-time"><i class="fas fa-clock"></i> ${timeStr ? escapeHtml(timeStr) : '12:00 - 13:00'} <span class="detailed-dur">(${dur} menit)</span></div>
+                                    <div class="detailed-title"><i class="fas fa-utensils"></i> ${escapeHtml(cData.title || '🍱 ISHOMA / ISTIRAHAT SIANG')}</div>
+                                </div>
+                            `;
+                        } else {
+                            const discIcon = cData.discipline === 'kata' ? '🥋 ' : (cData.discipline === 'kumite' ? '🥊 ' : '');
+                            const seqLabel = `#${seq++}`;
+                            cardsHtml += `
+                                <div class="detailed-card ${isFest ? 'is-festival' : ''}">
+                                    <div class="detailed-time"><i class="fas fa-clock"></i> ${timeStr ? escapeHtml(timeStr) : '-'} <span class="detailed-dur">(${dur} menit)</span></div>
+                                    <div class="detailed-title">
+                                        <span class="roster-num-badge">${seqLabel}</span>
+                                        ${discIcon}${escapeHtml(cData.title)} ${cData.atletCount ? `(${cData.atletCount} Atlet &bull; ${cData.matches} Partai)` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    colsHtml += `
+                        <div class="detailed-col" style="flex: 1; min-width: 0;">
+                            <div class="detailed-col-header">
+                                <span>${escapeHtml(tatamiName.toUpperCase())}</span>
+                                <span class="detailed-col-sub">(${matchCount} Partai &bull; ${athCount} Atlet)</span>
+                            </div>
+                            <div class="detailed-col-body">
+                                ${cardsHtml || '<div style="padding:10px; color:#94a3b8; font-style:italic;">Belum ada partai</div>'}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                daySectionsHtml += `
+                    <div class="detailed-day-section">
+                        <div class="detailed-day-bar">
+                            <span class="detailed-day-title"><i class="fas fa-calendar-day"></i> ${escapeHtml(dayLabel)}</span>
+                            ${dayDateFormatted ? `<span class="detailed-day-date">${escapeHtml(dayDateFormatted)}</span>` : ''}
+                        </div>
+                        <div class="detailed-grid">
+                            ${colsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="detailed-print-page">
+                    <div class="detailed-header">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            ${customLogoHtml}
+                            <div>
+                                <h3 style="margin:0; font-family:'Oswald',sans-serif; font-size:15px; color:#0f172a;">${escapeHtml(kopOrg)}</h3>
+                                ${metaStr ? `<p style="margin:2px 0 0; font-size:9.5px; color:#475569;">${metaStr}</p>` : ''}
+                                <div style="margin-top:2px; font-size:11.5px; font-weight:800; color:#b91c1c; text-transform:uppercase;">TIMELINE DETAIL PERTANDINGAN DENGAN ESTIMASI WAKTU</div>
+                            </div>
+                        </div>
+                        <div style="text-align:right; font-size:8.5px; color:#475569;">
+                            Dicetak: ${printedTimeStr}<br>
+                            <strong>Ambrilindo Timetable Engine</strong>
+                        </div>
+                    </div>
+
+                    ${daySectionsHtml}
+
+                    <div style="margin-top:14px; border-top:1px solid #cbd5e1; padding-top:6px; font-size:9px; color:#64748b; text-align:center;">
+                        Jadwal dan estimasi waktu bersifat panduan dinamis sesuai jalannya pertandingan di lapangan. Atlet &amp; official wajib bersiap 30 menit sebelum partai dimulai.
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 📊 LIVE AUTO-POLLING ROSTER PROGRESS
+        // ==========================================
+        const PROGRESS_DATA_URL = "{% url 'timetable-progress-data' event_pk=event.pk %}";
+
+        function updateProgressBadgeOnElement(el, catData) {
+            if (!catData) return;
+            const status = catData.status || 'belum_disentuh';
+            el.dataset.status = status;
+            el.dataset.finished = catData.finished_matches || 0;
+            el.dataset.remaining = catData.remaining_matches || 0;
+            el.dataset.total = catData.total_matches || 0;
+
+            el.classList.remove('status-running', 'status-selesai', 'status-belum_disentuh', 'status-unstarted');
+            el.classList.add(`status-${status}`);
+
+            const badge = el.querySelector('.card-status-badge');
+            if (badge) {
+                badge.className = `card-status-badge status-${status}`;
+                if (status === 'running') {
+                    badge.innerHTML = `<i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${catData.remaining_matches} Match`;
+                } else if (status === 'selesai') {
+                    badge.innerHTML = `<i class="fas fa-check-circle"></i> SELESAI`;
+                } else {
+                    badge.innerHTML = `<i class="fas fa-clock"></i> BELUM MULAI`;
+                }
+            }
+        }
+
+        function fetchLiveProgressData() {
+            fetch(PROGRESS_DATA_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success || !data.summary) return;
+                    const s = data.summary;
+
+                    // 1. Update Metrics
+                    const elTotal = document.getElementById('prog-total-matches');
+                    if (elTotal) elTotal.textContent = s.total_matches;
+                    const elFin = document.getElementById('prog-finished-matches');
+                    if (elFin) elFin.textContent = s.finished_matches;
+                    const elPctLabel = document.getElementById('prog-pct-label');
+                    if (elPctLabel) elPctLabel.textContent = `${s.overall_pct}%`;
+                    const elRem = document.getElementById('prog-remaining-matches');
+                    if (elRem) elRem.textContent = s.remaining_matches;
+                    const elRunCats = document.getElementById('prog-running-cats');
+                    if (elRunCats) elRunCats.textContent = s.running_categories_count;
+
+                    // 2. Update Progress Bar
+                    const elBar = document.getElementById('prog-bar-fill');
+                    if (elBar) elBar.style.width = `${s.overall_pct}%`;
+                    const elPctText = document.getElementById('prog-pct-text');
+                    if (elPctText) elPctText.textContent = `${s.overall_pct}%`;
+                    const elStat = document.getElementById('prog-matches-stat');
+                    if (elStat) elStat.textContent = `${s.finished_matches} dari ${s.total_matches}`;
+
+                    // 3. Update Tatamis Live Strip
+                    const strip = document.getElementById('prog-tatamis-strip');
+                    if (strip && Array.isArray(s.tatamis_live)) {
+                        let stripHtml = '';
+                        s.tatamis_live.forEach(t => {
+                            if (t.is_running) {
+                                stripHtml += `
+                                    <div class="tatami-live-pill is-live" id="tatami-live-pill-${t.tatami_id}">
+                                        <span class="t-pill-dot"></span>
+                                        <span class="t-pill-name">Tatami ${t.tatami_number}:</span>
+                                        <span class="t-pill-info">
+                                            <strong class="t-cat-name">${escapeHtml(t.category_name)}</strong> &bull; Match #${t.urutan} (${escapeHtml(t.atlet1_name)} vs ${escapeHtml(t.atlet2_name)})
+                                        </span>
+                                    </div>
+                                `;
+                            } else {
+                                stripHtml += `
+                                    <div class="tatami-live-pill is-standby" id="tatami-live-pill-${t.tatami_id}">
+                                        <span class="t-pill-dot"></span>
+                                        <span class="t-pill-name">Tatami ${t.tatami_number}:</span>
+                                        <span class="t-pill-info"><span class="text-secondary">Standby / Belum Ada Match Aktif</span></span>
+                                    </div>
+                                `;
+                            }
+                        });
+                        strip.innerHTML = stripHtml;
+                    }
+
+                    // 4. Update Cards in Tatamis
+                    if (data.categories) {
+                        document.querySelectorAll('.tt-card[data-nt-id]').forEach(card => {
+                            const ntId = card.dataset.ntId;
+                            if (ntId && data.categories[ntId]) {
+                                updateProgressBadgeOnElement(card, data.categories[ntId]);
+                            }
+                        });
+
+                        // 5. Update Chips in Pool
+                        document.querySelectorAll('.nt-chip[data-nt-id]').forEach(chip => {
+                            const ntId = chip.dataset.ntId;
+                            if (ntId && data.categories[ntId]) {
+                                const catData = data.categories[ntId];
+                                chip.dataset.status = catData.status;
+                                chip.classList.remove('status-running', 'status-selesai', 'status-belum_disentuh');
+                                chip.classList.add(`status-${catData.status}`);
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.warn('Progress data fetch error:', err);
+                });
+        }
+
+        // Run live progress poll every 12 seconds
+        setInterval(fetchLiveProgressData, 12000);
 
         const removeLogoFlag = document.getElementById('kop-remove-logo-flag');
         const removeLogoBtn = document.getElementById('kop-logo-remove-btn');
@@ -3604,12 +4468,19 @@
                     card.dataset.time = festTimeStr;
                     card.dataset.duration = festivalDur;
                     card.dataset.atletCount = festPerTatami;
-                    card.style.height = `${festHeightPx}px`;
-                    card.style.minHeight = `${festHeightPx}px`;
-                    card.style.maxHeight = `${festHeightPx}px`;
-                    card.style.boxSizing = 'border-box';
+                    card.dataset.status = 'festival';
                     card.innerHTML = `
-                        <div class="card-content" contenteditable="true">FESTIVAL (${festPerTatami}) (${festTimeStr})</div>
+                        <div class="card-main-content">
+                            <div class="card-header-row">
+                                <span class="card-seq-badge">#</span>
+                                <span class="card-disc-icon">🚩</span>
+                                <span class="card-content card-title-bold" contenteditable="true">FESTIVAL</span>
+                                <span class="card-atlet-count">(${festPerTatami} Atlet)</span>
+                            </div>
+                            <div class="card-status-row">
+                                <span class="card-status-badge status-festival"><i class="fas fa-flag"></i> Festival</span>
+                            </div>
+                        </div>
                         <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
                     `;
                     attachCardEvents(card);
@@ -3623,30 +4494,60 @@
                 if (!targetCol) return;
                 const cardList = targetCol.querySelector('.tatami-card-list');
                 const dropzone = cardList.querySelector('.tatami-dropzone');
-                const cardHeightPx = Math.round(c.dur * PX_PER_MIN);
 
                 const card = document.createElement('div');
                 card.draggable = true;
                 card.dataset.tatamiId = c.tid;
                 card.dataset.time = c.timeStr;
                 card.dataset.duration = c.dur;
-                card.style.height = `${cardHeightPx}px`;
-                card.style.minHeight = `${cardHeightPx}px`;
-                card.style.maxHeight = `${cardHeightPx}px`;
-                card.style.boxSizing = 'border-box';
 
                 if (c.isIshoma) {
                     card.className = 'tt-card is-break-card is-ishoma-card';
                     card.innerHTML = `
-                        <div class="card-content" contenteditable="true">🍱 ISHOMA (${c.timeStr})</div>
+                        <div class="card-break-content">
+                            <i class="fas fa-utensils mr-1"></i>
+                            <span class="card-content card-break-title" contenteditable="true">🍱 ISHOMA / ISTIRAHAT SIANG</span>
+                        </div>
                         <button class="remove-card-btn" type="button" title="Hapus ISHOMA">✕</button>
                     `;
                 } else {
-                    card.className = 'tt-card';
+                    const catForC = CATEGORIES_MAP.get(parseInt(c.ntId, 10));
+                    const disc = catForC ? catForC.discipline : (c.nama.toLowerCase().includes('kata') ? 'kata' : 'kumite');
+                    const discIcon = disc === 'kata' ? '🥋' : '🥊';
+                    const progStatus = (catForC && catForC.progress_status) || 'belum_disentuh';
+                    const remMatches = (catForC && typeof catForC.remaining_matches !== 'undefined') ? catForC.remaining_matches : (c.atletCount > 1 ? c.atletCount - 1 : 0);
+                    const finMatches = (catForC && typeof catForC.finished_matches !== 'undefined') ? catForC.finished_matches : 0;
+                    const totMatches = (catForC && typeof catForC.total_matches !== 'undefined') ? catForC.total_matches : (c.atletCount > 1 ? c.atletCount - 1 : 0);
+
+                    card.className = `tt-card status-${progStatus}`;
                     card.dataset.ntId = c.ntId;
                     card.dataset.atletCount = c.atletCount;
+                    card.dataset.status = progStatus;
+                    card.dataset.remaining = remMatches;
+                    card.dataset.finished = finMatches;
+                    card.dataset.total = totMatches;
+
+                    let statusBadgeHtml = '';
+                    if (progStatus === 'running') {
+                        statusBadgeHtml = `<span class="card-status-badge status-running"><i class="fas fa-play-circle fa-beat"></i> RUNNING &bull; Sisa ${remMatches} Match</span>`;
+                    } else if (progStatus === 'selesai') {
+                        statusBadgeHtml = `<span class="card-status-badge status-selesai"><i class="fas fa-check-circle"></i> SELESAI</span>`;
+                    } else {
+                        statusBadgeHtml = `<span class="card-status-badge status-unstarted"><i class="fas fa-clock"></i> BELUM MULAI</span>`;
+                    }
+
                     card.innerHTML = `
-                        <div class="card-content" contenteditable="true">${c.nama} (${c.atletCount}) (${c.timeStr})</div>
+                        <div class="card-main-content">
+                            <div class="card-header-row">
+                                <span class="card-seq-badge">#</span>
+                                <span class="card-disc-icon">${discIcon}</span>
+                                <span class="card-content card-title-bold" contenteditable="true">${escapeHtml(c.nama)}</span>
+                                <span class="card-atlet-count">(${c.atletCount})</span>
+                            </div>
+                            <div class="card-status-row">
+                                ${statusBadgeHtml}
+                            </div>
+                        </div>
                         <button class="remove-card-btn" type="button" title="Hapus dari Tatami ini">✕</button>
                     `;
                 }
@@ -3698,6 +4599,7 @@
             updateChipUsedState();
             updateTatamiAthleteCounters();
             runConflictDetection();
+            fetchLiveProgressData();
         });
     </script>
 </body>

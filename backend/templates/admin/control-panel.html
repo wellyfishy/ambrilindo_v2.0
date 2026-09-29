@@ -341,9 +341,9 @@
   border: 1.5px solid rgba(255, 255, 255, 0.18);
   color: #94a3b8;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  width: 36px;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 10px;
   height: 34px;
   border-radius: 6px;
   display: inline-flex;
@@ -352,6 +352,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  white-space: nowrap;
 }
 .pill-crit:hover {
   background: rgba(255, 255, 255, 0.16);
@@ -1479,11 +1480,10 @@
                         <span class="criteria-title"><i class="fas fa-exclamation-triangle text-warning me-1"></i>Pelanggaran</span>
                         <div class="criteria-group">
                             <button type="button" class="btn-crit-step" onclick="stepCriteria('ao', -1)" title="Kurangi Pelanggaran"><i class="fas fa-minus"></i></button>
-                            <span class="pill-crit" id="aoc-1" onclick="setCriteriaLevel('ao', 1)">C1</span>
-                            <span class="pill-crit" id="aoc-2" onclick="setCriteriaLevel('ao', 2)">C2</span>
-                            <span class="pill-crit" id="aoc-3" onclick="setCriteriaLevel('ao', 3)">C3</span>
-                            <span class="pill-crit" id="aoc-4" onclick="setCriteriaLevel('ao', 4)">HC</span>
-                            <span class="pill-crit" id="aoc-5" onclick="setCriteriaLevel('ao', 5)">H</span>
+                            <span class="pill-crit" id="aoc-1" onclick="setCriteriaLevel('ao', 1)">Chui 1</span>
+                            <span class="pill-crit" id="aoc-2" onclick="setCriteriaLevel('ao', 2)">Chui 2</span>
+                            <span class="pill-crit" id="aoc-3" onclick="setCriteriaLevel('ao', 3)">Hansoku Chui</span>
+                            <span class="pill-crit" id="aoc-4" onclick="setCriteriaLevel('ao', 4)">Hansoku</span>
                             <button type="button" class="btn-crit-step" onclick="stepCriteria('ao', 1)" title="Tambah Pelanggaran"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
@@ -1647,11 +1647,10 @@
                         <span class="criteria-title"><i class="fas fa-exclamation-triangle text-warning me-1"></i>Pelanggaran</span>
                         <div class="criteria-group">
                             <button type="button" class="btn-crit-step" onclick="stepCriteria('aka', -1)" title="Kurangi Pelanggaran"><i class="fas fa-minus"></i></button>
-                            <span class="pill-crit" id="akac-1" onclick="setCriteriaLevel('aka', 1)">C1</span>
-                            <span class="pill-crit" id="akac-2" onclick="setCriteriaLevel('aka', 2)">C2</span>
-                            <span class="pill-crit" id="akac-3" onclick="setCriteriaLevel('aka', 3)">C3</span>
-                            <span class="pill-crit" id="akac-4" onclick="setCriteriaLevel('aka', 4)">HC</span>
-                            <span class="pill-crit" id="akac-5" onclick="setCriteriaLevel('aka', 5)">H</span>
+                            <span class="pill-crit" id="akac-1" onclick="setCriteriaLevel('aka', 1)">Chui 1</span>
+                            <span class="pill-crit" id="akac-2" onclick="setCriteriaLevel('aka', 2)">Chui 2</span>
+                            <span class="pill-crit" id="akac-3" onclick="setCriteriaLevel('aka', 3)">Hansoku Chui</span>
+                            <span class="pill-crit" id="akac-4" onclick="setCriteriaLevel('aka', 4)">Hansoku</span>
                             <button type="button" class="btn-crit-step" onclick="stepCriteria('aka', 1)" title="Tambah Pelanggaran"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
@@ -2111,7 +2110,7 @@
 
         if (side === 'aka') {
             const diff = target - aka_criteria;
-            aka_criteria = Math.max(0, Math.min(5, target));
+            aka_criteria = Math.max(0, Math.min(4, target));
             $('#aka-criteria-input').val(aka_criteria);
             updateCriteriaUI('aka', aka_criteria);
             if (diff > 0) {
@@ -2121,7 +2120,7 @@
             }
         } else {
             const diff = target - ao_criteria;
-            ao_criteria = Math.max(0, Math.min(5, target));
+            ao_criteria = Math.max(0, Math.min(4, target));
             $('#ao-criteria-input').val(ao_criteria);
             updateCriteriaUI('ao', ao_criteria);
             if (diff > 0) {
@@ -2140,7 +2139,7 @@
     function updateCriteriaUI(side, level) {
         const prefix = side === 'aka' ? 'akac-' : 'aoc-';
         const activeClass = side === 'aka' ? 'active-red' : 'active-blue';
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 4; i++) {
             const el = $(`#${prefix}${i}`);
             if (i <= level) el.addClass(activeClass);
             else el.removeClass(activeClass);

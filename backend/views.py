@@ -6240,6 +6240,197 @@ def format_day_label(day):
         return f"Day {day_number}, {t.day} {INDO_MONTHS[t.month - 1]} {t.year}"
     return f"Day {day_number}"
 
+def get_roster_progress_data(event):
+    """
+    Menghitung status progress pertandingan untuk setiap NomorTanding / Bagan pada event:
+    - 'selesai' (hijau): Seluruh match selesai dimainkan / juara_1 telah ditentukan.
+    - 'running' (biru/kuning): Sedang dimainkan di tatami aktif atau sudah ada match selesai tapi belum tuntas semua.
+      Menyertakan perhitungan 'remaining_matches' (sisa berapa match).
+    - 'belum_disentuh' (abu-abu/netral): Belum ada match yang selesai dan tidak sedang aktif di tatami.
+    """
+    from collections import defaultdict
+
+    atlet_counts = dict(
+        Atlet.objects.filter(nomor_tanding__event=event)
+        .values('nomor_tanding').annotate(cnt=Count('id'))
+        .values_list('nomor_tanding', 'cnt')
+    )
+
+    # 1. Active matches on tatamis
+    active_tatamis = Tatami.objects.filter(event=event, detail_bagan__isnull=False).select_related(
+        'detail_bagan__bagan', 'detail_bagan__atlet1', 'detail_bagan__atlet2', 'detail_bagan__bagan__nomor_tanding'
+    )
+    active_bagan_tatami = {}
+    active_match_info_per_tatami = []
+
+    all_tatamis_for_event = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
+    tatami_live_map = {}
+    for t in active_tatamis:
+        if t.detail_bagan and not t.detail_bagan.selesai and t.detail_bagan.bagan_id:
+            active_bagan_tatami[t.detail_bagan.bagan_id] = t.tatami_number
+            m = t.detail_bagan
+            cat_name = m.bagan.nomor_tanding.nama_nomor_tanding if (m.bagan and m.bagan.nomor_tanding) else (m.bagan.nama_bagan if m.bagan else '')
+            tatami_live_map[t.pk] = {
+                'tatami_id': t.pk,
+                'tatami_number': t.tatami_number,
+                'is_running': True,
+                'match_pk': m.pk,
+                'category_name': cat_name,
+                'round': m.round,
+                'urutan': m.urutan,
+                'atlet1_name': m.atlet1.nama_atlet if m.atlet1 else 'Aka',
+                'atlet2_name': m.atlet2.nama_atlet if m.atlet2 else 'Ao',
+            }
+
+    for t in all_tatamis_for_event:
+        if t.pk in tatami_live_map:
+            active_match_info_per_tatami.append(tatami_live_map[t.pk])
+        else:
+            active_match_info_per_tatami.append({
+                'tatami_id': t.pk,
+                'tatami_number': t.tatami_number,
+                'is_running': False,
+                'match_pk': None,
+                'category_name': None,
+                'round': None,
+                'urutan': None,
+                'atlet1_name': None,
+                'atlet2_name': None,
+            })
+
+    # 2. DetailBagans per Bagan
+    all_bagans = list(
+        Bagan.objects.filter(event=event)
+        .select_related('nomor_tanding', 'juara_1')
+    )
+    raw_dbs = list(DetailBagan.objects.filter(bagan__event=event).values(
+        'bagan_id', 'round', 'urutan', 'atlet1_id', 'atlet2_id', 'selesai', 'pemenang'
+    ))
+    bagan_dbs = defaultdict(list)
+    for db in raw_dbs:
+        bagan_dbs[db['bagan_id']].append(db)
+
+    # Calculate status per bagan
+    bagan_status_map = {}
+    for b in all_bagans:
+        dbs = [m for m in bagan_dbs.get(b.pk, []) if m['round'] != 10]
+        fin_count = sum(1 for m in dbs if m['selesai'])
+        has_juara_1 = b.juara_1_id is not None
+        r4_finished = any(m['selesai'] for m in dbs if m['round'] == 4)
+        r5_match = next((m for m in dbs if m['round'] == 5 and m['urutan'] == 1), None)
+        r5_has_contestants = bool(r5_match and r5_match['atlet1_id'] and r5_match['atlet2_id'])
+        r5_finished = bool(r5_match and r5_match['selesai'])
+        r5_pending = r5_has_contestants and not r5_finished
+
+        if b.round_robin:
+            contested_matches = [m for m in dbs if (m['atlet1_id'] and m['atlet2_id']) or m['selesai']]
+            calc_total = len(contested_matches)
+            is_finished = (fin_count >= calc_total and calc_total > 0) or has_juara_1
+            if not is_finished and calc_total <= fin_count and fin_count > 0:
+                calc_total = fin_count + 1
+        else:
+            atlet_ids = set()
+            for m in dbs:
+                if m['atlet1_id']:
+                    atlet_ids.add(m['atlet1_id'])
+                if m['atlet2_id']:
+                    atlet_ids.add(m['atlet2_id'])
+            n_atlets = len(atlet_ids)
+            if n_atlets <= 1:
+                is_finished = has_juara_1 or (r4_finished and not r5_pending)
+                calc_total = fin_count if is_finished else (fin_count + 1 if fin_count > 0 else 0)
+            else:
+                r5_addition = 1 if (r5_finished or r5_has_contestants) else 0
+                calc_total = max(fin_count, (n_atlets - 1) + r5_addition)
+                is_finished = (
+                    has_juara_1 or
+                    (r4_finished and not r5_pending) or
+                    (fin_count >= calc_total and calc_total > 0)
+                )
+                if not is_finished and calc_total <= fin_count and fin_count > 0:
+                    calc_total = fin_count + 1
+
+        b_total = fin_count if is_finished else calc_total
+        b_fin = fin_count
+        b_active_tatami = active_bagan_tatami.get(b.pk)
+
+        bagan_status_map[b.pk] = {
+            'total_matches': b_total,
+            'finished_matches': b_fin,
+            'is_finished': is_finished,
+            'active_tatami': b_active_tatami,
+        }
+
+    # 3. Group by NomorTanding
+    all_nt = list(NomorTanding.objects.filter(event=event).order_by('nama_nomor_tanding'))
+    nt_bagans_map = defaultdict(list)
+    for b in all_bagans:
+        if b.nomor_tanding_id:
+            nt_bagans_map[b.nomor_tanding_id].append(b)
+
+    categories_progress = {}
+    for nt in all_nt:
+        b_list = nt_bagans_map.get(nt.pk, [])
+        ath_cnt = atlet_counts.get(nt.pk, 0)
+        if b_list:
+            nt_total = sum(bagan_status_map[b.pk]['total_matches'] for b in b_list)
+            nt_fin = sum(bagan_status_map[b.pk]['finished_matches'] for b in b_list)
+            nt_all_fin = all(bagan_status_map[b.pk]['is_finished'] for b in b_list) and len(b_list) > 0
+            act_tat = next((bagan_status_map[b.pk]['active_tatami'] for b in b_list if bagan_status_map[b.pk]['active_tatami']), None)
+
+            if nt_all_fin:
+                status = 'selesai'
+            elif act_tat or (nt_fin > 0 and not nt_all_fin):
+                status = 'running'
+            else:
+                status = 'belum_disentuh'
+
+            remaining = max(0, nt_total - nt_fin)
+            pct = round((nt_fin / max(1, nt_total)) * 100, 1) if nt_total > 0 else (100.0 if nt_all_fin else 0.0)
+        else:
+            nt_total = max(0, ath_cnt - 1) if ath_cnt > 1 else (1 if ath_cnt == 1 else 0)
+            nt_fin = 0
+            remaining = nt_total
+            status = 'belum_disentuh'
+            act_tat = None
+            pct = 0.0
+
+        categories_progress[nt.pk] = {
+            'nt_id': nt.pk,
+            'nama': nt.nama_nomor_tanding,
+            'atlet_count': ath_cnt,
+            'status': status,
+            'total_matches': nt_total,
+            'finished_matches': nt_fin,
+            'remaining_matches': remaining,
+            'active_tatami': act_tat,
+            'progress_pct': pct,
+        }
+
+    # 4. Overall Progress Summary
+    total_m = sum(c['total_matches'] for c in categories_progress.values())
+    fin_m = sum(c['finished_matches'] for c in categories_progress.values())
+    rem_m = sum(c['remaining_matches'] for c in categories_progress.values())
+    running_cats = sum(1 for c in categories_progress.values() if c['status'] == 'running')
+    selesai_cats = sum(1 for c in categories_progress.values() if c['status'] == 'selesai')
+    belum_cats = sum(1 for c in categories_progress.values() if c['status'] == 'belum_disentuh')
+    total_cats = len(categories_progress)
+    overall_pct = round((fin_m / max(1, total_m)) * 100, 1) if total_m > 0 else 0.0
+
+    summary = {
+        'total_matches': total_m,
+        'finished_matches': fin_m,
+        'remaining_matches': rem_m,
+        'running_categories_count': running_cats,
+        'finished_categories_count': selesai_cats,
+        'unstarted_categories_count': belum_cats,
+        'total_categories_count': total_cats,
+        'overall_pct': overall_pct,
+        'tatamis_live': active_match_info_per_tatami,
+    }
+
+    return summary, categories_progress
+
 def timetable_editor(request, event_pk):
     if not request.user.is_authenticated:
         return redirect('auth')
@@ -6258,6 +6449,9 @@ def timetable_editor(request, event_pk):
         .values_list('nomor_tanding', 'cnt')
     )
     nomor_tanding_qs = NomorTanding.objects.filter(event=event).order_by('nama_nomor_tanding')
+
+    # Calculate real-time roster progress
+    progress_summary, categories_progress = get_roster_progress_data(event)
 
     # Build detailed metadata per nomor_tanding
     nt_with_group = []
@@ -6356,6 +6550,8 @@ def timetable_editor(request, event_pk):
             matches = 0
             est_dur = 0
 
+        prog = categories_progress.get(nt.pk, {})
+
         nt_with_group.append({
             'pk': nt.pk,
             'nama': nt.nama_nomor_tanding,
@@ -6365,6 +6561,12 @@ def timetable_editor(request, event_pk):
             'discipline': discipline,
             'est_duration_minutes': est_dur,
             'is_festival': is_fest,
+            'progress_status': prog.get('status', 'belum_disentuh'),
+            'total_matches': prog.get('total_matches', matches),
+            'finished_matches': prog.get('finished_matches', 0),
+            'remaining_matches': prog.get('remaining_matches', matches),
+            'active_tatami': prog.get('active_tatami'),
+            'progress_pct': prog.get('progress_pct', 0.0),
         })
 
     ordered_labels = [
@@ -6398,6 +6600,11 @@ def timetable_editor(request, event_pk):
                         c.cell_duration = 15
                         c.atlet_count = 0
                         c.matches = 0
+                        c.progress_status = 'belum_disentuh'
+                        c.finished_matches = 0
+                        c.remaining_matches = 0
+                        c.active_tatami = None
+                        c.progress_pct = 0.0
 
                         if c.nomor_tanding:
                             c.cell_title = c.nomor_tanding.nama_nomor_tanding
@@ -6412,6 +6619,16 @@ def timetable_editor(request, event_pk):
                                 c.cell_time = ct.strip()
                             total_col_atlets += c.atlet_count
                             total_col_matches += c.matches
+
+                            # Attach real progress
+                            prog = categories_progress.get(c.nomor_tanding_id, {})
+                            c.progress_status = prog.get('status', 'belum_disentuh')
+                            c.total_matches = prog.get('total_matches', c.matches)
+                            c.finished_matches = prog.get('finished_matches', 0)
+                            c.remaining_matches = prog.get('remaining_matches', c.matches)
+                            c.active_tatami = prog.get('active_tatami')
+                            c.progress_pct = prog.get('progress_pct', 0.0)
+
                         elif c.custom_text:
                             ct = c.custom_text.strip()
                             time_m = re.search(r'(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})', ct)
@@ -6427,15 +6644,19 @@ def timetable_editor(request, event_pk):
                             ct_upper = ct.upper()
                             if 'FESTIVAL' in ct_upper:
                                 c.is_festival = True
+                                c.progress_status = 'festival'
                                 m = re.search(r'\((\d+)\)', ct)
                                 if m:
                                     c.atlet_count = int(m.group(1))
                                 c.matches = c.atlet_count
+                                c.total_matches = c.matches
+                                c.remaining_matches = c.matches
                                 c.cell_title = f"FESTIVAL ({c.atlet_count})" if c.atlet_count else "FESTIVAL"
                                 total_col_atlets += c.atlet_count
                                 total_col_matches += c.matches
                             elif any(k in ct_upper for k in ['ISHOMA', 'BREAK', 'ISTIRAHAT', 'JEDA']):
                                 c.is_break = True
+                                c.progress_status = 'break'
                                 c.cell_title = ct.replace(f"({c.cell_time})", "").strip() if c.cell_time else ct
                             else:
                                 c.cell_title = ct.replace(f"({c.cell_time})", "").strip() if c.cell_time else ct
@@ -6448,6 +6669,49 @@ def timetable_editor(request, event_pk):
                 'total_matches': total_col_matches,
             })
 
+        # Build synchronized run-sheet table rows for 1-page roster view
+        has_any_break = False
+        common_break_title = '🍱 ISHOMA / ISTIRAHAT'
+        max_pre_rows = 0
+        max_post_rows = 0
+
+        for col in tatami_columns:
+            pre = []
+            post = []
+            break_seen = False
+            seq = 1
+            for c in col['cells']:
+                if c.is_break:
+                    break_seen = True
+                    has_any_break = True
+                    if c.cell_title:
+                        common_break_title = c.cell_title
+                    continue
+                c.seq = seq
+                seq += 1
+                if break_seen:
+                    post.append(c)
+                else:
+                    pre.append(c)
+            col['pre_cards'] = pre
+            col['post_cards'] = post
+            if len(pre) > max_pre_rows:
+                max_pre_rows = len(pre)
+            if len(post) > max_post_rows:
+                max_post_rows = len(post)
+
+        day_table_rows = []
+        for r in range(max_pre_rows):
+            r_cells = [col['pre_cards'][r] if r < len(col['pre_cards']) else None for col in tatami_columns]
+            day_table_rows.append({'type': 'match', 'cells': r_cells, 'row_num': r + 1})
+
+        if has_any_break:
+            day_table_rows.append({'type': 'break', 'title': common_break_title})
+
+        for r in range(max_post_rows):
+            r_cells = [col['post_cards'][r] if r < len(col['post_cards']) else None for col in tatami_columns]
+            day_table_rows.append({'type': 'match', 'cells': r_cells, 'row_num': max_pre_rows + r + 1})
+
         days_data.append({
             'pk': day.pk,
             'label': format_day_label(day),
@@ -6455,6 +6719,9 @@ def timetable_editor(request, event_pk):
             'rows': day.rows.all(),
             'cell_map': cell_map,
             'tatami_columns': tatami_columns,
+            'table_rows': day_table_rows,
+            'has_any_break': has_any_break,
+            'common_break_title': common_break_title,
         })
 
     kop, _ = KopSurat.objects.get_or_create(event=event)
@@ -6486,8 +6753,25 @@ def timetable_editor(request, event_pk):
         'festival_atlets_per_tatami': festival_atlets_per_tatami,
         'conflict_data_json': conflict_data,
         'categories_meta_json': nt_with_group,
+        'progress_summary': progress_summary,
+        'categories_progress_json': categories_progress,
     }
     return render(request, 'admin/timetable_editor.html', context)
+
+
+def timetable_progress_data(request, event_pk):
+    """
+    Endpoint JSON untuk polling / live update Roster Progress tanpa reload halaman.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    event = get_object_or_404(Event, pk=event_pk)
+    summary, categories_progress = get_roster_progress_data(event)
+    return JsonResponse({
+        'success': True,
+        'summary': summary,
+        'categories': categories_progress,
+    })
 
 
 @require_POST

@@ -51,6 +51,7 @@ urlpatterns = [
 
     # Roster Maker
     path('event/<int:event_pk>/timetable/', timetable_editor, name='timetable-editor'),
+    path('event/<int:event_pk>/timetable/progress-data/', timetable_progress_data, name='timetable-progress-data'),
     path('event/<int:event_pk>/timetable/save/', timetable_save, name='timetable-save'),
     path('event/<int:event_pk>/timetable/sync-to-web/', sync_roster_to_hosted_view, name='timetable-sync-to-web'),
     path('event/<int:event_pk>/timetable/add-tatami/', add_tatami, name='timetable-add-tatami'),
