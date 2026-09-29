@@ -1281,7 +1281,11 @@ def admin_dashboard(request, event_pk):
 
     bagans = (
         Bagan.objects.filter(event=event)
-        .select_related('nomor_tanding', 'juara_1', 'juara_2', 'juara_3a', 'juara_3b')
+        .select_related(
+            'nomor_tanding',
+            'juara_1', 'juara_2', 'juara_3a', 'juara_3b',
+            'peringkat_5', 'peringkat_6', 'peringkat_7', 'peringkat_8'
+        )
         .order_by('-kode')
     )
 
@@ -1308,6 +1312,8 @@ def admin_dashboard(request, event_pk):
             contested_matches = [m for m in dbs if (m['atlet1_id'] and m['atlet2_id']) or m['selesai']]
             calc_total = len(contested_matches)
             is_finished = (fin_count >= calc_total and calc_total > 0) or has_juara_1
+            if not is_finished and calc_total <= fin_count and fin_count > 0:
+                calc_total = fin_count + 1
         else:
             atlet_ids = set()
             for m in dbs:
@@ -1317,8 +1323,8 @@ def admin_dashboard(request, event_pk):
                     atlet_ids.add(m['atlet2_id'])
             n_atlets = len(atlet_ids)
             if n_atlets <= 1:
-                calc_total = fin_count if fin_count > 0 else 0
-                is_finished = has_juara_1 or (n_atlets == 1 and fin_count > 0)
+                is_finished = has_juara_1 or (r4_finished and not r5_pending)
+                calc_total = fin_count if is_finished else (fin_count + 1 if fin_count > 0 else 0)
             else:
                 r5_addition = 1 if (r5_finished or r5_has_contestants) else 0
                 calc_total = max(fin_count, (n_atlets - 1) + r5_addition)
@@ -1327,6 +1333,8 @@ def admin_dashboard(request, event_pk):
                     (r4_finished and not r5_pending) or
                     (fin_count >= calc_total and calc_total > 0)
                 )
+                if not is_finished and calc_total <= fin_count and fin_count > 0:
+                    calc_total = fin_count + 1
 
         b.is_finished = is_finished
         b.finished_matches = fin_count
@@ -1451,6 +1459,10 @@ def summary(request, event_pk):
             'juara_2__perguruan', 'juara_2__utusan',
             'juara_3a__perguruan', 'juara_3a__utusan',
             'juara_3b__perguruan', 'juara_3b__utusan',
+            'peringkat_5__perguruan', 'peringkat_5__utusan',
+            'peringkat_6__perguruan', 'peringkat_6__utusan',
+            'peringkat_7__perguruan', 'peringkat_7__utusan',
+            'peringkat_8__perguruan', 'peringkat_8__utusan',
         )
         .order_by('kode', 'nama_bagan')
     )
@@ -1576,6 +1588,31 @@ def summary(request, event_pk):
                 perguruan_medals[p.pk]['total'] += 1
                 perguruan_medals[p.pk]['winners'].append(winner_info)
 
+        # Top 5 s/d 8
+        for rank_num, rank_label in [
+            ('5', 'Peringkat 5'),
+            ('6', 'Peringkat 6'),
+            ('7', 'Peringkat 7'),
+            ('8', 'Peringkat 8'),
+        ]:
+            atlet_obj = getattr(bagan, f'peringkat_{rank_num}', None)
+            if atlet_obj:
+                u = atlet_obj.utusan
+                p = atlet_obj.perguruan
+                winner_info = {
+                    'juara': rank_num,
+                    'juara_label': rank_label,
+                    'badge_class': 'badge-secondary',
+                    'medal_icon': '🎖️',
+                    'atlet_nama': atlet_obj.nama_atlet,
+                    'utusan_nama': u.nama_utusan if u else '-',
+                    'perguruan_nama': p.nama_perguruan if p else '-',
+                    'bagan_nama': bagan.nama_bagan,
+                    'bagan_kode': bagan.kode or '',
+                    'bagan_pk': bagan.pk,
+                }
+                all_winners.append(winner_info)
+
         if is_finished:
             finished_bagan += 1
 
@@ -1690,12 +1727,21 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
             juara_2_pk = request.POST.get('juara_2_pk')
             juara_3a_pk = request.POST.get('juara_3a_pk')
             juara_3b_pk = request.POST.get('juara_3b_pk')
-            bagan.juara_1 = None if juara_1_pk == '-' else Atlet.objects.filter(pk=juara_1_pk).first()
-            bagan.juara_2 = None if juara_2_pk == '-' else Atlet.objects.filter(pk=juara_2_pk).first()
-            bagan.juara_3a = None if juara_3a_pk == '-' else Atlet.objects.filter(pk=juara_3a_pk).first()
-            bagan.juara_3b = None if juara_3b_pk == '-' else Atlet.objects.filter(pk=juara_3b_pk).first()
+            peringkat_5_pk = request.POST.get('peringkat_5_pk')
+            peringkat_6_pk = request.POST.get('peringkat_6_pk')
+            peringkat_7_pk = request.POST.get('peringkat_7_pk')
+            peringkat_8_pk = request.POST.get('peringkat_8_pk')
+
+            bagan.juara_1 = None if juara_1_pk in ('-', '', None) else Atlet.objects.filter(pk=juara_1_pk).first()
+            bagan.juara_2 = None if juara_2_pk in ('-', '', None) else Atlet.objects.filter(pk=juara_2_pk).first()
+            bagan.juara_3a = None if juara_3a_pk in ('-', '', None) else Atlet.objects.filter(pk=juara_3a_pk).first()
+            bagan.juara_3b = None if juara_3b_pk in ('-', '', None) else Atlet.objects.filter(pk=juara_3b_pk).first()
+            bagan.peringkat_5 = None if peringkat_5_pk in ('-', '', None) else Atlet.objects.filter(pk=peringkat_5_pk).first()
+            bagan.peringkat_6 = None if peringkat_6_pk in ('-', '', None) else Atlet.objects.filter(pk=peringkat_6_pk).first()
+            bagan.peringkat_7 = None if peringkat_7_pk in ('-', '', None) else Atlet.objects.filter(pk=peringkat_7_pk).first()
+            bagan.peringkat_8 = None if peringkat_8_pk in ('-', '', None) else Atlet.objects.filter(pk=peringkat_8_pk).first()
             bagan.save()
-            messages.success(request, f"Berhasil menyimpan hasil juara untuk {bagan.nama_bagan}.")
+            messages.success(request, f"Berhasil menyimpan hasil peringkat untuk {bagan.nama_bagan}.")
 
             payload = {
                 'status': 'finished',
@@ -1741,6 +1787,11 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
                 target_bagan = final_bagan
                 is_redirect_to_final = True
 
+            all_related = list(
+                Bagan.objects.filter(event=event, nomor_tanding=target_bagan.nomor_tanding)
+            ) if target_bagan.nomor_tanding else [target_bagan]
+            pool_bagans = [b for b in all_related if b.pk != target_bagan.pk]
+
             tb_r4 = list(DetailBagan.objects.filter(bagan=target_bagan, round=4).order_by('urutan'))
             tb_r3 = list(DetailBagan.objects.filter(bagan=target_bagan, round=3).order_by('urutan'))
             tb_r5 = DetailBagan.objects.filter(bagan=target_bagan, round=5).first()
@@ -1749,6 +1800,42 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
             j2 = None
             j3a = None
             j3b = None
+            p5 = None
+            p6 = None
+            p7 = None
+            p8 = None
+
+            # Helper mencari atlet yang dikalahkan oleh pemenang tertentu pada babak/bagan tertentu
+            def find_defeated_by(winner_atlet, search_rounds, search_bagans):
+                if not winner_atlet:
+                    return None
+                for r in search_rounds:
+                    for b in search_bagans:
+                        m = DetailBagan.objects.filter(
+                            bagan=b, round=r, selesai=True, pemenang__in=['1', '2']
+                        ).filter(
+                            Q(atlet1=winner_atlet, pemenang='1') | Q(atlet2=winner_atlet, pemenang='2')
+                        ).first()
+                        if m:
+                            opp = m.atlet2 if m.atlet1 == winner_atlet else m.atlet1
+                            if opp and opp != winner_atlet:
+                                return opp
+                return None
+
+            # 0. Jika kategori hanya 1 atlet (Walkover / Bye), otomatis juara 1
+            search_bagans = [target_bagan] + pool_bagans
+            distinct_atlets = set()
+            for bg in search_bagans:
+                for d in DetailBagan.objects.filter(bagan=bg):
+                    if d.atlet1: distinct_atlets.add(d.atlet1)
+                    if d.atlet2: distinct_atlets.add(d.atlet2)
+            if len(distinct_atlets) == 1:
+                j1 = list(distinct_atlets)[0]
+                sole_match = DetailBagan.objects.filter(bagan=target_bagan, round=4, urutan=1).first()
+                if sole_match and not sole_match.selesai:
+                    sole_match.selesai = True
+                    sole_match.pemenang = '1' if sole_match.atlet1 == j1 else '2'
+                    sole_match.save(update_fields=['selesai', 'pemenang'])
 
             # 1. Juara 1 & Juara 2 dari Final match (Round 4)
             final_match = next((db for db in tb_r4 if db.selesai and db.pemenang in ('1', '2')), None)
@@ -1773,65 +1860,94 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
                 j3a = tb_r5.atlet1 if tb_r5.pemenang == '1' else tb_r5.atlet2
                 j3b = tb_r5.atlet2 if tb_r5.pemenang == '1' else tb_r5.atlet1
             else:
-                # Cek apakah Semifinal (Round 3) dimainkan di bagan ini
                 r3_played = [db for db in tb_r3 if db.selesai and db.pemenang in ('1', '2')]
                 if r3_played:
-                    for i, db in enumerate(r3_played):
-                        loser = db.atlet2 if db.pemenang == '1' else db.atlet1
-                        if i == 0:
-                            j3a = loser
-                        elif i == 1:
-                            j3b = loser
-                elif target_bagan.nomor_tanding:
-                    # Kategori multi-pool (e.g. Pool A & Pool B & Final)
-                    # Juara 3A dan Juara 3B diambil dari runner-up masing-masing pool
-                    sibling_pools = list(
-                        Bagan.objects.filter(event=event, nomor_tanding=target_bagan.nomor_tanding)
-                        .exclude(pk=target_bagan.pk)
-                        .order_by('nama_bagan')
-                    )
+                    # Single-pool: kalah dari Juara 1 di R3 = Juara 3, kalah dari Juara 2 di R3 = Juara 3 Bersama
+                    j3a = find_defeated_by(j1, [3], [target_bagan])
+                    j3b = find_defeated_by(j2, [3], [target_bagan])
+                    if not j3a or not j3b:
+                        for i, db in enumerate(r3_played):
+                            loser = db.atlet2 if db.pemenang == '1' else db.atlet1
+                            if not j3a and loser != j3b:
+                                j3a = loser
+                            elif not j3b and loser != j3a:
+                                j3b = loser
+                elif pool_bagans:
+                    # Multi-pool: kalah dari Juara 1 di final pool = Juara 3, kalah dari Juara 2 di final pool = Juara 3 Bersama
+                    j3a = find_defeated_by(j1, [4], pool_bagans)
+                    j3b = find_defeated_by(j2, [4], pool_bagans)
+                    if not j3a or not j3b:
+                        for p in pool_bagans:
+                            m = DetailBagan.objects.filter(bagan=p, round=4, selesai=True, pemenang__in=['1', '2']).first()
+                            if m:
+                                loser = m.atlet2 if m.pemenang == '1' else m.atlet1
+                                if loser:
+                                    if not j3a and loser != j3b:
+                                        j3a = loser
+                                    elif not j3b and loser != j3a:
+                                        j3b = loser
 
-                    def get_pool_runner_up(p):
-                        p_r5 = DetailBagan.objects.filter(bagan=p, round=5, selesai=True, pemenang__in=['1', '2']).first()
-                        if p_r5 and p_r5.atlet1 and p_r5.atlet2:
-                            return p_r5.atlet1 if p_r5.pemenang == '1' else p_r5.atlet2
-                        m = DetailBagan.objects.filter(
-                            bagan=p, round__in=[1, 2, 3, 4], selesai=True, pemenang__in=['1', '2']
-                        ).order_by('-round', 'urutan').first()
-                        if m:
-                            return m.atlet2 if m.pemenang == '1' else m.atlet1
-                        return None
+            # 3. Peringkat 5 s/d 8 (Hierarki Lawan)
+            # P5: Kalah dari Juara 1 di babak sebelumnya
+            # P6: Kalah dari Juara 2 di babak sebelumnya
+            # P7: Kalah dari Juara 3 di babak sebelumnya
+            # P8: Kalah dari Juara 4 (Juara 3 Bersama) di babak sebelumnya
+            r3_played = [db for db in tb_r3 if db.selesai and db.pemenang in ('1', '2')]
+            if r3_played:
+                # Single-pool: babak sebelumnya adalah Round 2 (Perempatfinal / 8 Besar)
+                p5 = find_defeated_by(j1, [2], [target_bagan])
+                p6 = find_defeated_by(j2, [2], [target_bagan])
+                p7 = find_defeated_by(j3a, [2], [target_bagan])
+                p8 = find_defeated_by(j3b, [2], [target_bagan])
 
-                    pool_runners_up = []
-                    for p in sibling_pools:
-                        ru = get_pool_runner_up(p)
-                        if ru:
-                            pool_runners_up.append((p.nama_bagan, ru))
+                assigned = {j1, j2, j3a, j3b, p5, p6, p7, p8} - {None}
+                r2_losers = []
+                for m in DetailBagan.objects.filter(bagan=target_bagan, round=2, selesai=True, pemenang__in=['1', '2']):
+                    loser = m.atlet2 if m.pemenang == '1' else m.atlet1
+                    if loser and loser not in assigned and loser not in r2_losers:
+                        r2_losers.append(loser)
+                for loser in r2_losers:
+                    if not p5: p5 = loser
+                    elif not p6: p6 = loser
+                    elif not p7: p7 = loser
+                    elif not p8: p8 = loser
+            elif pool_bagans:
+                # Multi-pool: babak sebelumnya adalah Round 3 (Semifinal Pool)
+                p5 = find_defeated_by(j1, [3], pool_bagans)
+                p6 = find_defeated_by(j2, [3], pool_bagans)
+                p7 = find_defeated_by(j3a, [3], pool_bagans)
+                p8 = find_defeated_by(j3b, [3], pool_bagans)
 
-                    pool_a_ru = next((ru for name, ru in pool_runners_up if 'POOL A' in name.upper()), None)
-                    pool_b_ru = next((ru for name, ru in pool_runners_up if 'POOL B' in name.upper()), None)
-                    if pool_a_ru or pool_b_ru:
-                        j3a = pool_a_ru
-                        j3b = pool_b_ru
-                    elif len(pool_runners_up) >= 2:
-                        j3a = pool_runners_up[0][1]
-                        j3b = pool_runners_up[1][1]
-                    elif len(pool_runners_up) == 1:
-                        j3a = pool_runners_up[0][1]
+                assigned = {j1, j2, j3a, j3b, p5, p6, p7, p8} - {None}
+                pool_sf_losers = []
+                for p in pool_bagans:
+                    for m in DetailBagan.objects.filter(bagan=p, round=3, selesai=True, pemenang__in=['1', '2']):
+                        loser = m.atlet2 if m.pemenang == '1' else m.atlet1
+                        if loser and loser not in assigned and loser not in pool_sf_losers:
+                            pool_sf_losers.append(loser)
+                for loser in pool_sf_losers:
+                    if not p5: p5 = loser
+                    elif not p6: p6 = loser
+                    elif not p7: p7 = loser
+                    elif not p8: p8 = loser
 
             target_bagan.juara_1 = j1
             target_bagan.juara_2 = j2
             target_bagan.juara_3a = j3a
             target_bagan.juara_3b = j3b
+            target_bagan.peringkat_5 = p5
+            target_bagan.peringkat_6 = p6
+            target_bagan.peringkat_7 = p7
+            target_bagan.peringkat_8 = p8
             target_bagan.save()
 
             messages.success(
                 request,
-                f"Berhasil meng-generate juara turnamen untuk {target_bagan.nama_bagan}: "
+                f"Berhasil meng-generate peringkat Top 1-8 untuk {target_bagan.nama_bagan}: "
                 f"Juara 1: {j1.nama_atlet if j1 else '-'}, "
                 f"Juara 2: {j2.nama_atlet if j2 else '-'}, "
-                f"Juara 3A: {j3a.nama_atlet if j3a else '-'}, "
-                f"Juara 3B: {j3b.nama_atlet if j3b else '-'}"
+                f"Juara 3: {j3a.nama_atlet if j3a else '-'}, "
+                f"Juara 3 Bersama: {j3b.nama_atlet if j3b else '-'}"
             )
 
             tb_r5_obj = DetailBagan.objects.filter(bagan=target_bagan, round=5).first()
@@ -3315,6 +3431,362 @@ def admin_perguruan(request, event_pk):
     }
     return render(request, 'admin/perguruan.html', context)
 
+def is_prelim_pool_bagan(b):
+    name_upper = (b.nama_bagan or '').upper().strip()
+    if 'POOL ' in name_upper and not (name_upper.endswith('- FINAL') or name_upper.endswith('FINAL')):
+        return True
+    if b.pool and b.pool > 1 and not (name_upper.endswith('- FINAL') or name_upper.endswith('FINAL')):
+        return True
+    return False
+
+def get_or_compute_top8(target_bagan, event):
+    if is_prelim_pool_bagan(target_bagan):
+        return None
+
+    all_related = list(
+        Bagan.objects.filter(event=event, nomor_tanding=target_bagan.nomor_tanding)
+    ) if target_bagan.nomor_tanding else [target_bagan]
+    
+    pool_bagans = [b for b in all_related if b.pk != target_bagan.pk]
+
+    tb_r4 = list(DetailBagan.objects.filter(bagan=target_bagan, round=4).order_by('urutan'))
+    tb_r3 = list(DetailBagan.objects.filter(bagan=target_bagan, round=3).order_by('urutan'))
+    tb_r5 = DetailBagan.objects.filter(bagan=target_bagan, round=5).first()
+
+    j1 = target_bagan.juara_1
+    j2 = target_bagan.juara_2
+    j3a = target_bagan.juara_3a
+    j3b = target_bagan.juara_3b
+    p5 = target_bagan.peringkat_5
+    p6 = target_bagan.peringkat_6
+    p7 = target_bagan.peringkat_7
+    p8 = target_bagan.peringkat_8
+
+    # 0. Check single athlete category (1 atlet tunggal -> otomatis Juara 1)
+    if not j1:
+        search_bagans = [target_bagan] + pool_bagans
+        distinct_atlets = set()
+        for bg in search_bagans:
+            for d in DetailBagan.objects.filter(bagan=bg):
+                if d.atlet1: distinct_atlets.add(d.atlet1)
+                if d.atlet2: distinct_atlets.add(d.atlet2)
+        if len(distinct_atlets) == 1:
+            j1 = list(distinct_atlets)[0]
+            sole_match = DetailBagan.objects.filter(bagan=target_bagan, round=4, urutan=1).first()
+            if sole_match and not sole_match.selesai:
+                sole_match.selesai = True
+                sole_match.pemenang = '1' if sole_match.atlet1 == j1 else '2'
+                sole_match.save(update_fields=['selesai', 'pemenang'])
+
+    def find_defeated_by(winner_atlet, search_rounds, search_bagans):
+        if not winner_atlet:
+            return None
+        for r in search_rounds:
+            for b in search_bagans:
+                m = DetailBagan.objects.filter(
+                    bagan=b, round=r, selesai=True, pemenang__in=['1', '2']
+                ).filter(
+                    Q(atlet1=winner_atlet, pemenang='1') | Q(atlet2=winner_atlet, pemenang='2')
+                ).first()
+                if m:
+                    opp = m.atlet2 if m.atlet1 == winner_atlet else m.atlet1
+                    if opp and opp != winner_atlet:
+                        return opp
+        return None
+
+    # 1. Juara 1 & Juara 2
+    if not j1 or not j2:
+        final_match = next((db for db in tb_r4 if db.selesai and db.pemenang in ('1', '2')), None)
+        if final_match:
+            if final_match.pemenang == '1':
+                j1 = j1 or final_match.atlet1
+                j2 = j2 or final_match.atlet2
+            elif final_match.pemenang == '2':
+                j1 = j1 or final_match.atlet2
+                j2 = j2 or final_match.atlet1
+
+    # 2. Juara 3A & Juara 3B
+    if not j3a or not j3b:
+        if tb_r5 and tb_r5.atlet1 and tb_r5.atlet2 and tb_r5.selesai and tb_r5.pemenang in ('1', '2'):
+            j3a = j3a or (tb_r5.atlet1 if tb_r5.pemenang == '1' else tb_r5.atlet2)
+            j3b = j3b or (tb_r5.atlet2 if tb_r5.pemenang == '1' else tb_r5.atlet1)
+        else:
+            r3_played = [db for db in tb_r3 if db.selesai and db.pemenang in ('1', '2')]
+            if r3_played:
+                j3a = j3a or find_defeated_by(j1, [3], [target_bagan])
+                j3b = j3b or find_defeated_by(j2, [3], [target_bagan])
+                if not j3a or not j3b:
+                    for db in r3_played:
+                        loser = db.atlet2 if db.pemenang == '1' else db.atlet1
+                        if not j3a and loser != j3b:
+                            j3a = loser
+                        elif not j3b and loser != j3a:
+                            j3b = loser
+            elif pool_bagans:
+                j3a = j3a or find_defeated_by(j1, [4], pool_bagans)
+                j3b = j3b or find_defeated_by(j2, [4], pool_bagans)
+                if not j3a or not j3b:
+                    for p in pool_bagans:
+                        m = DetailBagan.objects.filter(bagan=p, round=4, selesai=True, pemenang__in=['1', '2']).first()
+                        if m:
+                            loser = m.atlet2 if m.pemenang == '1' else m.atlet1
+                            if loser:
+                                if not j3a and loser != j3b:
+                                    j3a = loser
+                                elif not j3b and loser != j3a:
+                                    j3b = loser
+
+    # 3. Peringkat 5 - 8
+    if not (p5 and p6 and p7 and p8):
+        r3_played = [db for db in tb_r3 if db.selesai and db.pemenang in ('1', '2')]
+        if r3_played:
+            p5 = p5 or find_defeated_by(j1, [2], [target_bagan])
+            p6 = p6 or find_defeated_by(j2, [2], [target_bagan])
+            p7 = p7 or find_defeated_by(j3a, [2], [target_bagan])
+            p8 = p8 or find_defeated_by(j3b, [2], [target_bagan])
+
+            assigned = {j1, j2, j3a, j3b, p5, p6, p7, p8} - {None}
+            r2_losers = []
+            for m in DetailBagan.objects.filter(bagan=target_bagan, round=2, selesai=True, pemenang__in=['1', '2']):
+                loser = m.atlet2 if m.pemenang == '1' else m.atlet1
+                if loser and loser not in assigned and loser not in r2_losers:
+                    r2_losers.append(loser)
+            for loser in r2_losers:
+                if not p5: p5 = loser
+                elif not p6: p6 = loser
+                elif not p7: p7 = loser
+                elif not p8: p8 = loser
+        elif pool_bagans:
+            p5 = p5 or find_defeated_by(j1, [3], pool_bagans)
+            p6 = p6 or find_defeated_by(j2, [3], pool_bagans)
+            p7 = p7 or find_defeated_by(j3a, [3], pool_bagans)
+            p8 = p8 or find_defeated_by(j3b, [3], pool_bagans)
+
+            assigned = {j1, j2, j3a, j3b, p5, p6, p7, p8} - {None}
+            pool_sf_losers = []
+            for p in pool_bagans:
+                for m in DetailBagan.objects.filter(bagan=p, round=3, selesai=True, pemenang__in=['1', '2']):
+                    loser = m.atlet2 if m.pemenang == '1' else m.atlet1
+                    if loser and loser not in assigned and loser not in pool_sf_losers:
+                        pool_sf_losers.append(loser)
+            for loser in pool_sf_losers:
+                if not p5: p5 = loser
+                elif not p6: p6 = loser
+                elif not p7: p7 = loser
+                elif not p8: p8 = loser
+
+    # Auto-save
+    update_fields = []
+    if j1 and target_bagan.juara_1_id != getattr(j1, 'pk', None):
+        target_bagan.juara_1 = j1
+        update_fields.append('juara_1')
+    if j2 and target_bagan.juara_2_id != getattr(j2, 'pk', None):
+        target_bagan.juara_2 = j2
+        update_fields.append('juara_2')
+    if j3a and target_bagan.juara_3a_id != getattr(j3a, 'pk', None):
+        target_bagan.juara_3a = j3a
+        update_fields.append('juara_3a')
+    if j3b and target_bagan.juara_3b_id != getattr(j3b, 'pk', None):
+        target_bagan.juara_3b = j3b
+        update_fields.append('juara_3b')
+    if p5 and target_bagan.peringkat_5_id != getattr(p5, 'pk', None):
+        target_bagan.peringkat_5 = p5
+        update_fields.append('peringkat_5')
+    if p6 and target_bagan.peringkat_6_id != getattr(p6, 'pk', None):
+        target_bagan.peringkat_6 = p6
+        update_fields.append('peringkat_6')
+    if p7 and target_bagan.peringkat_7_id != getattr(p7, 'pk', None):
+        target_bagan.peringkat_7 = p7
+        update_fields.append('peringkat_7')
+    if p8 and target_bagan.peringkat_8_id != getattr(p8, 'pk', None):
+        target_bagan.peringkat_8 = p8
+        update_fields.append('peringkat_8')
+        
+    if update_fields:
+        target_bagan.save(update_fields=update_fields)
+
+    return {
+        'juara_1': j1,
+        'juara_2': j2,
+        'juara_3a': j3a,
+        'juara_3b': j3b,
+        'peringkat_5': p5,
+        'peringkat_6': p6,
+        'peringkat_7': p7,
+        'peringkat_8': p8,
+    }
+
+
+def _handle_export_rekapan_excel(event, bagans):
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    import re
+    
+    wb = Workbook()
+    
+    # Border & Styling
+    thin_border_side = Side(border_style="thin", color="CBD5E1")
+    cell_border = Border(left=thin_border_side, right=thin_border_side, top=thin_border_side, bottom=thin_border_side)
+    
+    title_font = Font(name="Calibri", size=15, bold=True, color="0F172A")
+    sub_font = Font(name="Calibri", size=11, color="475569")
+    meta_font = Font(name="Calibri", size=10, italic=True, color="64748B")
+    
+    hdr_fill = PatternFill(start_color="1E293B", end_color="1E293B", fill_type="solid")
+    hdr_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+    
+    zebra_fill = PatternFill(start_color="F8FAFC", end_color="F8FAFC", fill_type="solid")
+    white_fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+    
+    data_font = Font(name="Calibri", size=11, color="0F172A")
+    rank_font = Font(name="Calibri", size=11, bold=True, color="0F172A")
+    category_font = Font(name="Calibri", size=11, bold=True, color="0F172A")
+    
+    center_center_align = Alignment(horizontal="center", vertical="center")
+    left_center_align = Alignment(horizontal="left", vertical="center", wrap_text=True)
+
+    # =============================================================
+    # SHEET 1: REKAPAN JUARA (No | Nomor Tanding | Peringkat | Nama | Kontingen | Perguruan)
+    # =============================================================
+    ws1 = wb.active
+    ws1.title = "Rekapan Juara"
+    ws1.views.sheetView[0].showGridLines = True
+    
+    # Title Block
+    ws1.cell(row=1, column=1, value="DAFTAR JUARA & PERINGKAT (TOP 1 - 8)").font = title_font
+    ws1.cell(row=2, column=1, value=f"Event: {event.nama_event}").font = sub_font
+    now_str = timezone.localtime(timezone.now()).strftime("%d/%m/%Y %H:%M")
+    ws1.cell(row=3, column=1, value=f"Tanggal Export: {now_str}").font = meta_font
+    
+    headers = ["No", "Nomor Tanding", "Peringkat", "Nama", "Kontingen", "Perguruan"]
+    header_row_idx = 5
+    ws1.row_dimensions[header_row_idx].height = 26
+    
+    for col_idx, h_text in enumerate(headers, 1):
+        c = ws1.cell(row=header_row_idx, column=col_idx, value=h_text)
+        c.border = cell_border
+        c.alignment = center_center_align
+        c.fill = hdr_fill
+        c.font = hdr_font
+        
+    ws1.column_dimensions['A'].width = 8
+    ws1.column_dimensions['B'].width = 42
+    ws1.column_dimensions['C'].width = 12
+    ws1.column_dimensions['D'].width = 36
+    ws1.column_dimensions['E'].width = 25
+    ws1.column_dimensions['F'].width = 20
+
+    row_counter = 0
+    cur_row = header_row_idx + 1
+    
+    for b in bagans:
+        if is_prelim_pool_bagan(b):
+            continue
+            
+        top8 = get_or_compute_top8(b, event)
+        if not top8:
+            continue
+            
+        row_counter += 1
+        
+        nt_label = b.nomor_tanding.nama_nomor_tanding if b.nomor_tanding else b.nama_bagan
+        if nt_label.upper().endswith('- FINAL'):
+            nt_label = nt_label[:-7].strip()
+        elif nt_label.upper().endswith('FINAL') and not nt_label.upper().endswith('BEST OF THE BEST'):
+            nt_label = nt_label[:-5].strip()
+            
+        rank_mapping = [
+            (1, top8['juara_1']),
+            (2, top8['juara_2']),
+            (3, top8['juara_3a']),
+            (3, top8['juara_3b']),
+            (5, top8['peringkat_5']),
+            (6, top8['peringkat_6']),
+            (7, top8['peringkat_7']),
+            (8, top8['peringkat_8']),
+        ]
+        
+        entries = []
+        for r_num, atlet in rank_mapping:
+            if atlet:
+                nama = atlet.nama_atlet or "-"
+                kontingen = atlet.utusan.nama_utusan if (atlet.utusan and atlet.utusan.nama_utusan) else "-"
+                perguruan = atlet.perguruan.nama_perguruan if (atlet.perguruan and atlet.perguruan.nama_perguruan) else "-"
+                entries.append((r_num, nama, kontingen, perguruan))
+                
+        num_rows = max(1, len(entries))
+        start_row = cur_row
+        end_row = cur_row + num_rows - 1
+        
+        bg_fill = white_fill if row_counter % 2 == 1 else zebra_fill
+        
+        # Merge No and Nomor Tanding vertically if there are multiple winners
+        if num_rows > 1:
+            ws1.merge_cells(start_row=start_row, start_column=1, end_row=end_row, end_column=1)
+            ws1.merge_cells(start_row=start_row, start_column=2, end_row=end_row, end_column=2)
+            
+        for r_idx in range(start_row, end_row + 1):
+            ws1.row_dimensions[r_idx].height = 24
+            
+            # Format cell No
+            c_no = ws1.cell(row=r_idx, column=1)
+            c_no.border = cell_border
+            c_no.fill = bg_fill
+            
+            # Format cell Nomor Tanding
+            c_nt = ws1.cell(row=r_idx, column=2)
+            c_nt.border = cell_border
+            c_nt.fill = bg_fill
+            
+            # Format cell Peringkat, Nama, Kontingen, Perguruan
+            line_idx = r_idx - start_row
+            if entries:
+                r_val, name_val, kont_val, perg_val = entries[line_idx]
+            else:
+                r_val, name_val, kont_val, perg_val = "-", "-", "-", "-"
+                
+            c_p = ws1.cell(row=r_idx, column=3, value=r_val)
+            c_p.font = rank_font
+            c_p.border = cell_border
+            c_p.fill = bg_fill
+            c_p.alignment = center_center_align
+            
+            c_n = ws1.cell(row=r_idx, column=4, value=name_val)
+            c_n.font = data_font
+            c_n.border = cell_border
+            c_n.fill = bg_fill
+            c_n.alignment = left_center_align
+
+            c_k = ws1.cell(row=r_idx, column=5, value=kont_val)
+            c_k.font = data_font
+            c_k.border = cell_border
+            c_k.fill = bg_fill
+            c_k.alignment = left_center_align
+
+            c_pg = ws1.cell(row=r_idx, column=6, value=perg_val)
+            c_pg.font = data_font
+            c_pg.border = cell_border
+            c_pg.fill = bg_fill
+            c_pg.alignment = left_center_align
+            
+        # Set values and alignments on the top-left merged cells
+        ws1.cell(row=start_row, column=1, value=row_counter).font = data_font
+        ws1.cell(row=start_row, column=1).alignment = center_center_align
+        ws1.cell(row=start_row, column=2, value=nt_label).font = category_font
+        ws1.cell(row=start_row, column=2).alignment = left_center_align
+        
+        cur_row = end_row + 1
+        
+    ws1.freeze_panes = "A6"
+    ws1.cell(row=3, column=1, value=f"Tanggal Export: {now_str} | Total Nomor Tanding: {row_counter}").font = meta_font
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', event.nama_event).strip('_')
+    response['Content-Disposition'] = f'attachment; filename="rekapan_juara_{event.pk}_{safe_name}.xlsx"'
+    wb.save(response)
+    return response
+
 def admin_rekapan(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
@@ -3346,29 +3818,54 @@ def admin_rekapan(request, event_pk):
             'juara_2__perguruan', 'juara_2__utusan',
             'juara_3a__perguruan', 'juara_3a__utusan',
             'juara_3b__perguruan', 'juara_3b__utusan',
+            'peringkat_5__perguruan', 'peringkat_5__utusan',
+            'peringkat_6__perguruan', 'peringkat_6__utusan',
+            'peringkat_7__perguruan', 'peringkat_7__utusan',
+            'peringkat_8__perguruan', 'peringkat_8__utusan',
         ).order_by('kode')
     )
 
-    bagans = []
+    clean_bagans = []
     finished_count = 0
     for b in all_bagans:
+        # Do not count or list preliminary Pool A / Pool B bagans
+        if is_prelim_pool_bagan(b):
+            continue
+
+        # Auto-compute Top 1-8 if not yet present
+        top8 = get_or_compute_top8(b, event)
+        if top8:
+            b.juara_1 = top8['juara_1']
+            b.juara_2 = top8['juara_2']
+            b.juara_3a = top8['juara_3a']
+            b.juara_3b = top8['juara_3b']
+            b.peringkat_5 = top8['peringkat_5']
+            b.peringkat_6 = top8['peringkat_6']
+            b.peringkat_7 = top8['peringkat_7']
+            b.peringkat_8 = top8['peringkat_8']
+
         b.is_finished = bool(b.juara_1)
         if b.is_finished:
             finished_count += 1
+            
         scheduled_days = nt_day_map.get(b.nomor_tanding_id)
         if not scheduled_days:
             # category isn't placed on the timetable at all yet -> always show
-            bagans.append(b)
+            clean_bagans.append(b)
         elif scheduled_days & selected_set:
-            bagans.append(b)
+            clean_bagans.append(b)
 
-    total_count = len(all_bagans)
+    # Check if Excel export was requested
+    if request.GET.get('export') == 'excel':
+        return _handle_export_rekapan_excel(event, clean_bagans)
+
+    total_count = len(clean_bagans)
     pending_count = max(0, total_count - finished_count)
 
     context = {
         'on': 'rekapan',
         'event': event,
-        'bagans': bagans,
+        'bagans': clean_bagans,
         'days_for_filter': days_for_filter,
         'selected_day_ids': selected_set,
         'admin_tatami': admin_tatami,
@@ -6056,7 +6553,28 @@ def timetable_save(request, event_pk):
             if cells_to_create:
                 TimetableCell.objects.bulk_create(cells_to_create)
 
-    return JsonResponse({'success': True})
+    sync_result = None
+    if data.get('sync_to_web'):
+        try:
+            from .sync_service import push_roster_to_hosted
+            ok, sync_msg = push_roster_to_hosted(event_pk)
+            sync_result = {'success': ok, 'message': sync_msg}
+        except Exception as e:
+            sync_result = {'success': False, 'message': str(e)}
+
+    return JsonResponse({'success': True, 'sync_result': sync_result})
+
+
+@require_POST
+def sync_roster_to_hosted_view(request, event_pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    try:
+        from .sync_service import push_roster_to_hosted
+        ok, msg = push_roster_to_hosted(event_pk)
+        return JsonResponse({'success': ok, 'message': msg})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 @require_POST
 def add_tatami(request, event_pk):
@@ -6761,6 +7279,10 @@ def summary_booklet(request, event_pk):
                 'juara_2__perguruan', 'juara_2__utusan',
                 'juara_3a__perguruan', 'juara_3a__utusan',
                 'juara_3b__perguruan', 'juara_3b__utusan',
+                'peringkat_5__perguruan', 'peringkat_5__utusan',
+                'peringkat_6__perguruan', 'peringkat_6__utusan',
+                'peringkat_7__perguruan', 'peringkat_7__utusan',
+                'peringkat_8__perguruan', 'peringkat_8__utusan',
             )
             .order_by('kode', 'nama_bagan')
         )
@@ -6773,6 +7295,10 @@ def summary_booklet(request, event_pk):
                 'juara_2__perguruan', 'juara_2__utusan',
                 'juara_3a__perguruan', 'juara_3a__utusan',
                 'juara_3b__perguruan', 'juara_3b__utusan',
+                'peringkat_5__perguruan', 'peringkat_5__utusan',
+                'peringkat_6__perguruan', 'peringkat_6__utusan',
+                'peringkat_7__perguruan', 'peringkat_7__utusan',
+                'peringkat_8__perguruan', 'peringkat_8__utusan',
             )
             .order_by('kode', 'nama_bagan')
         )
@@ -6856,6 +7382,10 @@ def summary_booklet(request, event_pk):
             'juara_2': b.juara_2,
             'juara_3a': b.juara_3a,
             'juara_3b': b.juara_3b,
+            'peringkat_5': b.peringkat_5,
+            'peringkat_6': b.peringkat_6,
+            'peringkat_7': b.peringkat_7,
+            'peringkat_8': b.peringkat_8,
             'juara_3_label': 'Juara 3 Bersama' if has_3b else 'Juara 3',
         })
 

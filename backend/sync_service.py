@@ -11,7 +11,8 @@ from django.db.models import Prefetch
 from django.utils.text import slugify
 
 from .models import (
-    Event, NomorTanding, Perguruan, Utusan, Atlet, Bagan, DetailBagan, Role
+    Event, NomorTanding, Perguruan, Utusan, Atlet, Bagan, DetailBagan, Role,
+    Tatami, TimetableDay, TimetableRow, TimetableCell
 )
 from .utils import get_kode_realtime
 
@@ -613,3 +614,179 @@ def force_sync_results_to_hosted(event_pk):
     msg = data.get('message', f"Berhasil menyinkronkan ulang {len(results_payload)} hasil pertandingan ke public.")
     logger.info(msg)
     return True, msg
+
+
+def push_roster_to_hosted(event_pk):
+    """
+    Mengirimkan seluruh struktur Roster (Jadwal/Timetable) dan status aktif Tatami
+    ke server web publik (hosted).
+    Mendukung sinkronisasi revisi berulang secara cepat dan aman.
+    """
+    event = Event.objects.filter(pk=event_pk).first()
+    if not event:
+        return False, f"Event PK {event_pk} tidak ditemukan di database lokal."
+
+    mapping = get_event_mapping(event_pk)
+    target_hosted_id = mapping.get('hosted_event_id')
+    hosted_name = mapping.get('hosted_event_name')
+
+    if not target_hosted_id:
+        ok, hosted_events = fetch_hosted_events()
+        if ok and isinstance(hosted_events, list):
+            local_name = (event.nama_event or '').strip().lower()
+            matching = [ev for ev in hosted_events if local_name in ev.get('nama_event', '').lower() or ev.get('nama_event', '').lower() in local_name]
+            if len(matching) == 1:
+                target_hosted_id = matching[0]['id']
+                hosted_name = matching[0]['nama_event']
+                set_event_mapping(event_pk, target_hosted_id, hosted_name)
+
+    if not target_hosted_id:
+        return False, "Event lokal belum dihubungkan ke Event di Web Public. Silakan hubungkan event di menu Sinkronisasi terlebih dahulu."
+
+    # 1. Kumpulkan data Tatami & live status
+    tatamis_qs = Tatami.objects.filter(event=event).select_related(
+        'detail_bagan__bagan__nomor_tanding', 'detail_bagan__atlet1', 'detail_bagan__atlet2'
+    ).order_by('tatami_number')
+
+    tatamis_payload = []
+    for t in tatamis_qs:
+        db = t.detail_bagan
+        is_active = bool(db and not db.selesai)
+        cat_name = ""
+        match_label = ""
+        aka_name = ""
+        ao_name = ""
+        kr = ""
+        if db:
+            cat_name = db.bagan.nomor_tanding.nama_nomor_tanding if (db.bagan and db.bagan.nomor_tanding) else (db.bagan.nama_bagan if db.bagan else '')
+            match_label = f"Babak {db.round} - Partai #{db.urutan}"
+            aka_name = db.atlet1.nama_atlet if db.atlet1 else "-"
+            ao_name = db.atlet2.nama_atlet if db.atlet2 else "-"
+            kr = get_kode_realtime(db)
+            is_active = not db.selesai
+
+        tatamis_payload.append({
+            'tatami_number': t.tatami_number,
+            'is_active': is_active,
+            'current_category': cat_name,
+            'current_match_label': match_label,
+            'current_atlet_aka': aka_name,
+            'current_atlet_ao': ao_name,
+            'kode_realtime': kr,
+        })
+
+    # Hitung jumlah atlet & partai per nomor tanding
+    from django.db.models import Count
+    atlet_counts = dict(
+        Atlet.objects.filter(event=event, nomor_tanding__isnull=False)
+        .values('nomor_tanding').annotate(cnt=Count('id'))
+        .values_list('nomor_tanding', 'cnt')
+    )
+
+    # 2. Kumpulkan data TimetableDay, Rows, Cells
+    days_qs = TimetableDay.objects.filter(event=event).prefetch_related(
+        'rows__cells__tatami', 'rows__cells__nomor_tanding'
+    ).order_by('order')
+
+    days_payload = []
+    for day in days_qs:
+        rows_payload = []
+        for row in day.rows.all().order_by('order'):
+            cells_payload = []
+            if row.row_type == 'slot':
+                for cell in row.cells.all():
+                    nt = cell.nomor_tanding
+                    nt_name = nt.nama_nomor_tanding if nt else cell.custom_text
+                    atlet_cnt = atlet_counts.get(nt.pk, 0) if nt else 0
+                    matches_cnt = max(0, atlet_cnt - 1) if atlet_cnt > 1 else (1 if atlet_cnt == 1 else 0)
+
+                    cells_payload.append({
+                        'tatami_number': cell.tatami.tatami_number,
+                        'nomor_tanding_name': nt_name,
+                        'category_name': nt_name,
+                        'total_matches': matches_cnt,
+                        'total_atlets': atlet_cnt,
+                        'estimated_time': cell.custom_text if cell.custom_text else '',
+                        'custom_text': cell.custom_text,
+                    })
+
+            rows_payload.append({
+                'order': row.order,
+                'row_type': row.row_type,
+                'time_label': row.time_label,
+                'label_text': row.label_text,
+                'cells': cells_payload,
+            })
+
+        days_payload.append({
+            'order': day.order,
+            'tanggal': str(day.tanggal) if day.tanggal else None,
+            'label': f"Hari {day.order + 1} ({day.tanggal})" if day.tanggal else f"Hari {day.order + 1}",
+            'rows': rows_payload,
+        })
+
+    payload = {
+        'event_id': target_hosted_id,
+        'tatamis': tatamis_payload,
+        'days': days_payload,
+    }
+
+    base_url = get_hosted_base_url()
+    url = f"{base_url}/api/sync/push-roster/"
+    headers = get_api_headers()
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=20)
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Gagal mengirim push roster ke server hosted: {e}")
+        return False, f"Gagal koneksi ke server publik: {str(e)}"
+
+    if data.get('status') != 'success':
+        return False, data.get('error', 'Server publik mengembalikan error saat sinkronisasi roster.')
+
+    msg = data.get('message', 'Roster berhasil disinkronkan ke Web Public!')
+    logger.info(msg)
+    return True, msg
+
+
+def push_tatami_live_status(event_pk, tatami_number, is_active=True, detail_bagan=None):
+    """
+    Mengirimkan pembaruan status live satu tatami ke web publik.
+    """
+    mapping = get_event_mapping(event_pk)
+    target_hosted_id = mapping.get('hosted_event_id')
+    if not target_hosted_id:
+        return False, "Event belum terhubung ke web"
+
+    cat_name = ""
+    match_label = ""
+    aka = ""
+    ao = ""
+    kr = ""
+    if detail_bagan:
+        cat_name = detail_bagan.bagan.nomor_tanding.nama_nomor_tanding if (detail_bagan.bagan and detail_bagan.bagan.nomor_tanding) else (detail_bagan.bagan.nama_bagan if detail_bagan.bagan else '')
+        match_label = f"Babak {detail_bagan.round} - Partai #{detail_bagan.urutan}"
+        aka = detail_bagan.atlet1.nama_atlet if detail_bagan.atlet1 else "-"
+        ao = detail_bagan.atlet2.nama_atlet if detail_bagan.atlet2 else "-"
+        kr = get_kode_realtime(detail_bagan)
+
+    payload = {
+        'event_id': target_hosted_id,
+        'tatami_number': tatami_number,
+        'is_active': is_active,
+        'category_name': cat_name,
+        'match_label': match_label,
+        'atlet_aka': aka,
+        'atlet_ao': ao,
+        'kode_realtime': kr,
+    }
+    base_url = get_hosted_base_url()
+    url = f"{base_url}/api/sync/tatami-status/"
+    headers = get_api_headers()
+    try:
+        r = requests.post(url, json=payload, headers=headers, timeout=5)
+        return r.status_code == 200, "OK"
+    except Exception as e:
+        return False, str(e)

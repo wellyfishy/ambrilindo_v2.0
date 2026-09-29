@@ -194,6 +194,11 @@ tr.bagan-row-hidden { display: none !important; }
     color: #fff;
 }
 
+.juara-badge-other {
+    background: #475569;
+    color: #fff;
+}
+
 .juara-name {
     color: var(--text-primary);
     white-space: nowrap;
@@ -417,6 +422,30 @@ tr.bagan-row-hidden { display: none !important; }
                                                 <div class="juara-row">
                                                     <span class="juara-badge juara-badge-3" title="Juara 3 Bersama">3</span>
                                                     <span class="juara-name" title="{{ bagan.juara_3b.nama_atlet }}">{{ bagan.juara_3b.nama_atlet }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if bagan.peringkat_5 %}
+                                                <div class="juara-row">
+                                                    <span class="juara-badge juara-badge-other" title="Peringkat 5">5</span>
+                                                    <span class="juara-name" title="{{ bagan.peringkat_5.nama_atlet }}">{{ bagan.peringkat_5.nama_atlet }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if bagan.peringkat_6 %}
+                                                <div class="juara-row">
+                                                    <span class="juara-badge juara-badge-other" title="Peringkat 6">6</span>
+                                                    <span class="juara-name" title="{{ bagan.peringkat_6.nama_atlet }}">{{ bagan.peringkat_6.nama_atlet }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if bagan.peringkat_7 %}
+                                                <div class="juara-row">
+                                                    <span class="juara-badge juara-badge-other" title="Peringkat 7">7</span>
+                                                    <span class="juara-name" title="{{ bagan.peringkat_7.nama_atlet }}">{{ bagan.peringkat_7.nama_atlet }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if bagan.peringkat_8 %}
+                                                <div class="juara-row">
+                                                    <span class="juara-badge juara-badge-other" title="Peringkat 8">8</span>
+                                                    <span class="juara-name" title="{{ bagan.peringkat_8.nama_atlet }}">{{ bagan.peringkat_8.nama_atlet }}</span>
                                                 </div>
                                             {% endif %}
                                         </div>

@@ -1383,6 +1383,9 @@
                 <button type="button" class="btn-tool success" id="save-timetable-btn">
                     <i class="fas fa-save"></i> Simpan Jadwal
                 </button>
+                <button type="button" class="btn-tool" id="sync-roster-btn" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; font-weight: 600;" onclick="syncRosterToWeb()">
+                    <i class="fas fa-cloud-upload-alt"></i> Sync Roster ke Web
+                </button>
                 <span id="save-status" style="font-size:12px; font-weight:600; margin-left:4px;"></span>
             </div>
         </div>
@@ -2326,27 +2329,77 @@
                 });
             });
 
-            fetch(SAVE_URL, {
+            payload.sync_to_web = true;
+
+                fetch(SAVE_URL, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.sync_result && data.sync_result.success) {
+                            saveStatus.innerText = '✓ Disimpan & Tersinkron ke Web!';
+                        } else {
+                            saveStatus.innerText = '✓ Berhasil Disimpan!';
+                        }
+                        saveStatus.style.color = '#10b981';
+                        setTimeout(() => { saveStatus.innerText = ''; }, 3000);
+                    } else {
+                        saveStatus.innerText = 'Gagal menyimpan.';
+                        saveStatus.style.color = '#f87171';
+                    }
+                })
+                .catch(() => {
+                    saveStatus.innerText = 'Error koneksi.';
+                    saveStatus.style.color = '#f87171';
+                });
+            });
+
+        const SYNC_ROSTER_URL = "{% url 'timetable-sync-to-web' event_pk=event.pk %}";
+
+        window.syncRosterToWeb = function() {
+            const btn = document.getElementById('sync-roster-btn');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyinkronkan...';
+            }
+            saveStatus.innerText = 'Mengunggah roster ke Web...';
+            saveStatus.style.color = '#60a5fa';
+
+            fetch(SYNC_ROSTER_URL, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
             })
             .then(res => res.json())
             .then(data => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
                 if (data.success) {
-                    saveStatus.innerText = '✓ Berhasil Disimpan!';
+                    saveStatus.innerText = '✓ Roster Aktif di Web!';
                     saveStatus.style.color = '#10b981';
-                    setTimeout(() => { saveStatus.innerText = ''; }, 2500);
+                    alert('✓ ' + data.message);
+                    setTimeout(() => { saveStatus.innerText = ''; }, 3500);
                 } else {
-                    saveStatus.innerText = 'Gagal menyimpan.';
+                    saveStatus.innerText = 'Gagal sync.';
                     saveStatus.style.color = '#f87171';
+                    alert('Gagal menyinkronkan roster: ' + (data.message || 'Error tidak diketahui.'));
                 }
             })
-            .catch(() => {
-                saveStatus.innerText = 'Error koneksi.';
+            .catch(err => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+                saveStatus.innerText = 'Error koneksi web.';
                 saveStatus.style.color = '#f87171';
+                alert('Error koneksi saat sync roster ke web: ' + err);
             });
-        });
+        };
 
         // Kop Surat Modal handling
         const kopModal = document.getElementById('kop-surat-modal');

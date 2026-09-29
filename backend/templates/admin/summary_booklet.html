@@ -880,6 +880,12 @@
             border: 1px solid #fdba74;
         }
 
+        .podium-rank-pill.other {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #94a3b8;
+        }
+
         .podium-row-logo {
             width: 14px;
             height: 14px;
@@ -2022,6 +2028,83 @@
                                 </div>
                                 <div class="podium-row-kontingen">
                                     {{ item.juara_3b.perguruan.nama_perguruan|default:"" }}{% if item.juara_3b.perguruan and item.juara_3b.utusan %} • {% endif %}{{ item.juara_3b.utusan.nama_utusan|default:"-" }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Peringkat 5 s/d 8 -->
+                            {% if item.peringkat_5 %}
+                            <div class="podium-row place-other">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill other">5.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.peringkat_5.utusan and item.peringkat_5.utusan.logo %}
+                                        <img src="{{ item.peringkat_5.utusan.logo.url }}" alt="{{ item.peringkat_5.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.peringkat_5.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.peringkat_5.nama_atlet }}">{{ item.peringkat_5.nama_atlet }}</span>
+                                </div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.peringkat_5.perguruan.nama_perguruan|default:"" }}{% if item.peringkat_5.perguruan and item.peringkat_5.utusan %} • {% endif %}{{ item.peringkat_5.utusan.nama_utusan|default:"-" }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if item.peringkat_6 %}
+                            <div class="podium-row place-other">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill other">6.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.peringkat_6.utusan and item.peringkat_6.utusan.logo %}
+                                        <img src="{{ item.peringkat_6.utusan.logo.url }}" alt="{{ item.peringkat_6.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.peringkat_6.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.peringkat_6.nama_atlet }}">{{ item.peringkat_6.nama_atlet }}</span>
+                                </div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.peringkat_6.perguruan.nama_perguruan|default:"" }}{% if item.peringkat_6.perguruan and item.peringkat_6.utusan %} • {% endif %}{{ item.peringkat_6.utusan.nama_utusan|default:"-" }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if item.peringkat_7 %}
+                            <div class="podium-row place-other">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill other">7.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.peringkat_7.utusan and item.peringkat_7.utusan.logo %}
+                                        <img src="{{ item.peringkat_7.utusan.logo.url }}" alt="{{ item.peringkat_7.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.peringkat_7.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.peringkat_7.nama_atlet }}">{{ item.peringkat_7.nama_atlet }}</span>
+                                </div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.peringkat_7.perguruan.nama_perguruan|default:"" }}{% if item.peringkat_7.perguruan and item.peringkat_7.utusan %} • {% endif %}{{ item.peringkat_7.utusan.nama_utusan|default:"-" }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if item.peringkat_8 %}
+                            <div class="podium-row place-other">
+                                <div class="podium-row-left">
+                                    <span class="podium-rank-pill other">8.</span>
+                                    <div class="podium-row-logo">
+                                        {% if item.peringkat_8.utusan and item.peringkat_8.utusan.logo %}
+                                        <img src="{{ item.peringkat_8.utusan.logo.url }}" alt="{{ item.peringkat_8.utusan.nama_utusan }}">
+                                        {% else %}
+                                        <span class="kontingen-monogram-sm">{{ item.peringkat_8.utusan.nama_utusan|default:"-"|slice:":2" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="podium-row-name" title="{{ item.peringkat_8.nama_atlet }}">{{ item.peringkat_8.nama_atlet }}</span>
+                                </div>
+                                <div class="podium-row-kontingen">
+                                    {{ item.peringkat_8.perguruan.nama_perguruan|default:"" }}{% if item.peringkat_8.perguruan and item.peringkat_8.utusan %} • {% endif %}{{ item.peringkat_8.utusan.nama_utusan|default:"-" }}
                                 </div>
                             </div>
                             {% endif %}

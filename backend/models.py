@@ -85,6 +85,10 @@ class Bagan(models.Model):
     juara_2 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara2", null=True, blank=True)
     juara_3a = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3a", null=True, blank=True)
     juara_3b = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="juara3b", null=True, blank=True)
+    peringkat_5 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="peringkat5", null=True, blank=True)
+    peringkat_6 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="peringkat6", null=True, blank=True)
+    peringkat_7 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="peringkat7", null=True, blank=True)
+    peringkat_8 = models.ForeignKey(Atlet, on_delete=models.SET_NULL, related_name="peringkat8", null=True, blank=True)
     round_robin = models.BooleanField(default=False)
     pool = models.IntegerField(default=1)
     kode = models.CharField(max_length=50, null=True, blank=True)
@@ -121,6 +125,23 @@ class Bagan(models.Model):
             return True
         name = (self.nama_bagan or '').upper().strip()
         return name.endswith('- FINAL') or name.endswith('FINAL')
+
+    @property
+    def top_8_list(self):
+        """
+        Mengembalikan list atlet peringkat 1 s/d 8.
+        """
+        ranks = [
+            (1, 'Juara 1 (Emas)', self.juara_1),
+            (2, 'Juara 2 (Perak)', self.juara_2),
+            (3, 'Juara 3 (Perunggu)', self.juara_3a),
+            (4, 'Juara 3 Bersama (Peringkat 4)', self.juara_3b),
+            (5, 'Peringkat 5', self.peringkat_5),
+            (6, 'Peringkat 6', self.peringkat_6),
+            (7, 'Peringkat 7', self.peringkat_7),
+            (8, 'Peringkat 8', self.peringkat_8),
+        ]
+        return [{'rank': r, 'label': lbl, 'atlet': a} for r, lbl, a in ranks if a is not None]
 
     def __str__(self):
         return f'{self.nama_bagan}'

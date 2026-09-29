@@ -18,5 +18,15 @@
     "hosted_event_id": 25,
     "hosted_event_name": "SELEKPROV INKANAS KALTIM 2026",
     "target_mode": "production"
+  },
+  "local_1_production": {
+    "hosted_event_id": 31,
+    "hosted_event_name": "SATRIA WADOKAI CUP I (Testing)",
+    "target_mode": "production"
+  },
+  "local_8_local": {
+    "hosted_event_id": 45,
+    "hosted_event_name": "SELEKPROV INKANAS KALTIM 2026",
+    "target_mode": "local"
   }
 }
