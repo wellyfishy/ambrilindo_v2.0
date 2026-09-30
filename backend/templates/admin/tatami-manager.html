@@ -241,6 +241,346 @@
             color: #ffffff;
         }
 
+        /* Sticky Arena HUD / Match Command Bar */
+        .tm-arena-hud {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(13, 16, 23, 0.95);
+            backdrop-filter: blur(14px);
+            border-bottom: 1.5px solid var(--border-glass);
+            padding: 10px 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .hud-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        @media (max-width: 991px) {
+            .hud-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+
+        .hud-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-control);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 52px;
+        }
+
+        .hud-section.live-section {
+            border-left: 4px solid #ef4444;
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(255, 255, 255, 0.02));
+        }
+
+        .hud-section.next-section {
+            border-left: 4px solid #3b82f6;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.12), rgba(255, 255, 255, 0.02));
+        }
+
+        .hud-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .hud-tag {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            padding: 3px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .hud-tag.live {
+            background: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        .hud-tag.next {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
+        }
+
+        .hud-match-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .hud-fighter {
+            font-weight: 600;
+            font-size: 12.5px;
+        }
+        .hud-fighter.aka {
+            color: #fca5a5;
+        }
+        .hud-fighter.ao {
+            color: #93c5fd;
+        }
+
+        .hud-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-hud-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 11px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .btn-hud-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-hud-btn.btn-hud-auto {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            border-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+        }
+        .btn-hud-btn.btn-hud-auto:hover {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-hud-btn.btn-hud-rotate {
+            background: linear-gradient(135deg, #047857, #059669);
+            border-color: #10b981;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
+        }
+        .btn-hud-btn.btn-hud-rotate:hover {
+            background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.5);
+        }
+
+        .btn-hud-btn.btn-hud-prev {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+        }
+        .btn-hud-btn.btn-hud-prev:hover {
+            background: linear-gradient(135deg, #0369a1, #0ea5e9);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.5);
+        }
+
+        .btn-hud-btn.btn-hud-shift {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+        }
+        .btn-hud-btn.btn-hud-shift:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-hud-btn.btn-hud-play {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+            border-color: #ef4444;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+        }
+        .btn-hud-btn.btn-hud-play:hover {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.6);
+        }
+
+        .live-dot-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+            animation: pulse-dot 1.2s infinite;
+        }
+
+        /* Match Card Enhancements in Bracket Tree */
+        .match.is-active-match {
+            border: 2.5px solid #ef4444 !important;
+            box-shadow: 0 0 22px rgba(239, 68, 68, 0.55), 0 0 8px rgba(239, 68, 68, 0.3) !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .match.is-next-match {
+            border: 2.5px solid #3b82f6 !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.45), 0 0 8px rgba(59, 130, 246, 0.25) !important;
+            transform: scale(1.015);
+            z-index: 9;
+        }
+
+        .badge-up-next {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+            box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
+        }
+
+        .match-quick-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(10, 12, 18, 0.7);
+            border-top: 1px solid var(--border-glass);
+            border-radius: 0 0 var(--radius-card) var(--radius-card);
+        }
+
+        .match-quick-bar button {
+            flex: 1;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 4px;
+            border: 1px solid var(--border-glass);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-mq-prev {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.35), rgba(3, 105, 161, 0.45));
+            border-color: #38bdf8 !important;
+            color: #e0f2fe;
+        }
+        .btn-mq-prev:hover {
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        .btn-mq-modal {
+            flex: 0 0 30px !important;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff;
+        }
+        .btn-mq-modal:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Floating Bracket Canvas Dock (Zoom & Jump Controls) */
+        .tm-canvas-controls {
+            position: fixed;
+            bottom: 24px;
+            right: 28px;
+            z-index: 95;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(13, 16, 23, 0.92);
+            padding: 6px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(12px);
+        }
+
+        .btn-canvas-ctrl {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 32px;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 800;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-canvas-ctrl:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-canvas-ctrl.btn-ctrl-live {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+        .btn-canvas-ctrl.btn-ctrl-live:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .btn-canvas-ctrl.btn-ctrl-next {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+        .btn-canvas-ctrl.btn-ctrl-next:hover {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        /* Pulse Highlight on Center Focus */
+        .highlight-pulse {
+            animation: card-center-flash 1.6s ease-out;
+        }
+
+        @keyframes card-center-flash {
+            0% { outline: 4px solid #f59e0b; box-shadow: 0 0 35px #f59e0b; }
+            50% { outline: 4px solid #f59e0b; box-shadow: 0 0 25px #f59e0b; }
+            100% { outline: 0px solid transparent; }
+        }
+
         /* Tatami Tabs Strip */
         .tatami-tabs-strip {
             background: rgba(17, 18, 23, 0.7);
@@ -995,18 +1335,12 @@
             font-weight: 600;
         }
 
-        /* 2-Column Modal Workspace (Slots vs Pool) */
+        /* Single-Column Focused Modal Workspace */
         .tm-slots-workspace {
-            display: grid;
-            grid-template-columns: 1.25fr 1fr;
-            gap: 18px;
-            align-items: start;
-        }
-
-        @media (max-width: 900px) {
-            .tm-slots-workspace {
-                grid-template-columns: 1fr;
-            }
+            display: block;
+            max-width: 840px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .tm-section-subhead {
@@ -1163,119 +1497,58 @@
         /* Drag & Drop Feedback Styling */
         .tm-slot-drag-handle, .tm-item-drag-handle {
             color: var(--text-muted);
-            cursor: grab;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            font-size: 11px;
-            transition: color 0.15s;
-        }
-        .tm-slot-drag-handle:hover, .tm-item-drag-handle:hover {
-            color: var(--text-primary);
-        }
-        .tm-slot-drag-handle:active, .tm-item-drag-handle:active {
-            cursor: grabbing;
-        }
-
         /* Position Slot Cards */
         .tm-slots-grid {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .tm-slot-card {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.025);
             border: 1px solid var(--border-glass);
-            border-radius: var(--radius-control);
-            padding: 12px 14px;
+            border-radius: var(--radius-card);
+            padding: 14px 16px;
             transition: all 0.18s ease;
             position: relative;
         }
 
-        .tm-slot-card[draggable="true"] {
-            cursor: grab;
-        }
-        .tm-slot-card[draggable="true"]:active {
-            cursor: grabbing;
-        }
-
         .tm-slot-card.is-occupied {
             background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
         .tm-slot-card.has-conflict {
             border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.05);
+            background: rgba(239, 68, 68, 0.06);
         }
 
         .tm-slot-card.is-vacant {
             background: rgba(255, 255, 255, 0.015);
-            border: 1px dashed rgba(255, 255, 255, 0.18);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
         }
         .tm-slot-card.is-vacant:hover {
-            border-color: rgba(59, 130, 246, 0.45);
-            background: rgba(59, 130, 246, 0.03);
-        }
-
-        .tm-slot-card.is-dragging, .tm-wasit-item.is-dragging {
-            opacity: 0.35 !important;
-            transform: scale(0.98);
-        }
-
-        .tm-slot-card.drag-over {
-            border: 2px dashed #3b82f6 !important;
-            background: rgba(59, 130, 246, 0.18) !important;
-            box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
-            transform: scale(1.015);
-        }
-
-        /* Quick-Add Dropzone Card at Bottom of Slots */
-        .tm-dropzone-new-slot {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px 18px;
-            border: 1.5px dashed rgba(255, 255, 255, 0.18);
-            border-radius: var(--radius-control);
-            background: rgba(255, 255, 255, 0.015);
-            color: var(--text-secondary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-        .tm-dropzone-new-slot:hover {
-            border-color: rgba(59, 130, 246, 0.5);
-            background: rgba(59, 130, 246, 0.05);
-            color: #ffffff;
-        }
-        .tm-dropzone-new-slot.drag-over {
-            border: 2px dashed #10b981 !important;
-            background: rgba(16, 185, 129, 0.2) !important;
-            color: #34d399 !important;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
-            transform: scale(1.02);
+            border-color: rgba(56, 189, 248, 0.5);
+            background: rgba(56, 189, 248, 0.02);
         }
 
         .tm-slot-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .tm-slot-role-badge {
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 800;
             text-transform: uppercase;
-            padding: 2px 7px;
+            padding: 3px 8px;
             border-radius: 4px;
             background: rgba(255, 255, 255, 0.08);
             color: #ffffff;
+            letter-spacing: 0.03em;
         }
         .tm-slot-role-badge.referee { background: #dc2626; color: #ffffff; }
         .tm-slot-role-badge.kansa { background: #f59e0b; color: #451a03; }
@@ -1286,7 +1559,7 @@
             color: #fca5a5;
             background: rgba(239, 68, 68, 0.25);
             border: 1px solid rgba(239, 68, 68, 0.5);
-            padding: 1px 7px;
+            padding: 2px 7px;
             border-radius: 3px;
         }
 
@@ -1296,7 +1569,7 @@
             color: #34d399;
             background: rgba(16, 185, 129, 0.18);
             border: 1px solid rgba(16, 185, 129, 0.4);
-            padding: 1px 7px;
+            padding: 2px 7px;
             border-radius: 3px;
         }
 
@@ -1307,7 +1580,7 @@
             color: #cbd5e1;
             background: rgba(148, 163, 184, 0.15);
             border: 1px solid rgba(148, 163, 184, 0.3);
-            padding: 1px 7px;
+            padding: 2px 7px;
             border-radius: 4px;
         }
 
@@ -1318,36 +1591,33 @@
             gap: 12px;
         }
 
+        .tm-slot-assigned-info {
+            flex: 1;
+        }
+
         .tm-assigned-name {
-            font-size: 14.5px;
+            font-size: 15px;
             font-weight: 700;
             color: #ffffff;
         }
 
         .tm-assigned-meta {
-            font-size: 12px;
+            font-size: 12.5px;
             color: #94a3b8;
-            margin-top: 2px;
+            margin-top: 3px;
             display: flex;
             align-items: center;
             gap: 6px;
             font-weight: 500;
-        }
-
-        .tm-slot-empty-hint {
-            color: #cbd5e1;
-            font-size: 12px;
-            font-weight: 500;
-            line-height: 1.4;
-            display: block;
+            flex-wrap: wrap;
         }
 
         .btn-slot-remove {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: #94a3b8;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
@@ -1357,248 +1627,158 @@
         }
         .btn-slot-remove:hover {
             background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
             color: #f87171;
         }
 
-        .tm-wasit-quick-select {
-            background: #1e293b;
-            border: 1px solid #475569;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 500;
-            padding: 5px 8px;
-            border-radius: var(--radius-control);
-            outline: none;
-            flex: 1;
-            transition: border-color 0.15s;
-        }
-        .tm-wasit-quick-select:focus {
-            border-color: #3b82f6;
-        }
-
-        .btn-tm-quick-add {
-            background: #10b981;
-            color: #ffffff;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: var(--radius-control);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .btn-tm-quick-add:hover {
-            background: #059669;
-        }
-
-        /* Pool Drawer in Modal */
-        .tm-pool-drawer {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-card);
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .tm-drawer-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .tm-modal-search-box {
-            position: relative;
-        }
-        .tm-modal-search-box i {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 12px;
-        }
-        .tm-modal-search-input {
+        /* Fuzzy Searchable Standby Wasit Component */
+        .tm-slot-empty-state {
             width: 100%;
-            background: #0c0d12;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            font-size: 12px;
-            padding: 7px 10px 7px 30px;
+        }
+
+        .tm-fuzzy-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .tm-fuzzy-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #090b10;
+            border: 1.5px solid rgba(255, 255, 255, 0.18);
             border-radius: var(--radius-control);
-            outline: none;
-            transition: border-color 0.15s;
+            padding: 6px 12px;
+            transition: all 0.18s ease;
         }
-        .tm-modal-search-input:focus {
-            border-color: #3b82f6;
+        .tm-fuzzy-input-wrapper:focus-within {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            background: #0c1017;
         }
-        .tm-modal-search-input::placeholder {
+
+        .tm-fuzzy-search-icon {
             color: #64748b;
+            font-size: 13px;
+            margin-right: 10px;
         }
 
-        .tm-modal-filter-chips {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .m-chip {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            color: #cbd5e1;
-            font-size: 11px;
+        .tm-fuzzy-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 13px;
             font-weight: 600;
-            padding: 3px 10px;
-            border-radius: var(--radius-pill);
+            flex: 1;
+            padding: 3px 0;
+        }
+        .tm-fuzzy-input::placeholder {
+            color: #64748b;
+            font-size: 12.5px;
+            font-weight: 400;
+        }
+
+        .btn-fuzzy-toggle {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
             cursor: pointer;
-            transition: all 0.15s ease;
+            padding: 2px 6px;
+            font-size: 12px;
+            transition: color 0.15s;
         }
-        .m-chip:hover {
-            background: rgba(255, 255, 255, 0.12);
+        .btn-fuzzy-toggle:hover {
             color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        .m-chip.active {
-            background: #2563eb;
-            color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
         }
 
-        .tm-modal-wasit-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 480px;
+        .tm-fuzzy-dropdown {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            max-height: 270px;
             overflow-y: auto;
-            padding-right: 4px;
+            background: #0d1117;
+            border: 1.5px solid #38bdf8;
+            border-radius: 8px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+            z-index: 1080;
+            padding: 6px;
         }
 
-        .tm-wasit-item {
-            background: #111217;
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-control);
+        .tm-fuzzy-option {
             padding: 9px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            transition: all 0.15s ease;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.12s ease;
+            outline: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .tm-wasit-item[draggable="true"] {
-            cursor: grab;
+        .tm-fuzzy-option:last-child {
+            border-bottom: none;
         }
-        .tm-wasit-item[draggable="true"]:active {
-            cursor: grabbing;
+        .tm-fuzzy-option:hover, .tm-fuzzy-option:focus, .tm-fuzzy-option.is-highlighted {
+            background: #1d4ed8;
+            color: #ffffff;
         }
-        .tm-wasit-item:hover {
-            border-color: var(--border-highlight);
-            background: rgba(255, 255, 255, 0.05);
+        .tm-fuzzy-option:hover .tm-fo-meta, .tm-fuzzy-option:focus .tm-fo-meta, .tm-fuzzy-option.is-highlighted .tm-fo-meta {
+            color: #cbd5e1;
         }
-
-        .tm-wasit-item.priority-1 {
-            border-color: rgba(16, 185, 129, 0.45);
-            background: rgba(16, 185, 129, 0.06);
+        .tm-fuzzy-option:hover .text-info, .tm-fuzzy-option:focus .text-info, .tm-fuzzy-option.is-highlighted .text-info {
+            color: #93c5fd !important;
         }
 
-        .tm-item-name {
+        .tm-fo-name {
             font-size: 13.5px;
             font-weight: 700;
             color: #ffffff;
         }
 
-        .tm-item-meta {
+        .tm-fo-meta {
             font-size: 11.5px;
             color: #94a3b8;
             margin-top: 2px;
-            font-weight: 500;
         }
 
-        .tm-prio-badge {
-            font-size: 9.5px;
-            font-weight: 800;
+        .tm-fo-badge {
+            font-size: 10px;
+            font-weight: 700;
             padding: 2px 7px;
-            border-radius: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .badge-tatami-team {
+            background: rgba(37, 99, 235, 0.25);
+            border: 1px solid #3b82f6;
+            color: #93c5fd;
         }
         .badge-success {
-            background: rgba(16, 185, 129, 0.18);
-            border: 1px solid rgba(16, 185, 129, 0.45);
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
             color: #34d399;
         }
         .badge-lendable {
-            background: rgba(6, 182, 212, 0.18);
-            border: 1px solid rgba(6, 182, 212, 0.45);
+            background: rgba(6, 182, 212, 0.2);
+            border: 1px solid #06b6d4;
             color: #38bdf8;
         }
-        .badge-primary {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            color: #93c5fd;
-        }
         .badge-warning {
-            background: rgba(245, 158, 11, 0.18);
-            border: 1px solid rgba(245, 158, 11, 0.45);
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid #f59e0b;
             color: #fbbf24;
         }
         .badge-dark {
             background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #cbd5e1;
         }
 
-        .btn-tm-assign {
-            background: rgba(255, 255, 255, 0.09);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .btn-tm-assign:hover, .btn-tm-assign:focus {
-            background: #2563eb;
-            border-color: #3b82f6;
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
-        }
-
-        .dropdown-menu-dark {
-            background: #181b24 !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85) !important;
-            border-radius: 6px !important;
-            padding: 6px !important;
-            z-index: 2100 !important;
-        }
-        .dropdown-menu-dark .dropdown-item {
-            color: #e2e8f0 !important;
-            font-size: 12px !important;
-            font-weight: 600 !important;
-            border-radius: 4px !important;
-            padding: 7px 12px !important;
-            transition: all 0.12s ease !important;
-        }
-        .dropdown-menu-dark .dropdown-item:hover, .dropdown-menu-dark .dropdown-item:focus {
-            background: #2563eb !important;
-            color: #ffffff !important;
-        }
-
-        .tm-duty-tag {
-            font-size: 10.5px;
-            font-weight: 800;
-            color: #60a5fa;
-            background: rgba(37, 99, 235, 0.18);
-            border: 1px solid rgba(37, 99, 235, 0.35);
-            padding: 3px 8px;
-            border-radius: 4px;
+        .tm-fuzzy-empty {
+            padding: 14px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12.5px;
+            font-style: italic;
         }
 
         /* Modal Footer Hint */
@@ -1714,8 +1894,104 @@
         </div>
     </div>
 
+    <!-- Sticky Arena HUD / Match Command Bar (Always Visible Above Tree) -->
+    <div class="tm-arena-hud" id="tmArenaHud">
+        <div class="hud-grid">
+            <!-- LIVE MATCH SECTION -->
+            <div class="hud-section live-section">
+                <div class="hud-content">
+                    <span class="hud-tag live"><span class="live-dot-pulse"></span> LIVE</span>
+                    {% if current_live_match %}
+                        <div class="hud-match-title">
+                            <span class="badge bg-secondary font-monospace" style="font-size: 11px;">#{{ current_live_match.urutan }}</span>
+                            <span>{{ current_live_match.bagan.nomor_tanding.nama_nomor_tanding|default:current_live_match.bagan.nama_bagan }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1 small">
+                            <span class="hud-fighter aka">{{ current_live_match.atlet1.nama_atlet|default:"Menunggu" }}</span>
+                            <span class="text-muted">vs</span>
+                            <span class="hud-fighter ao">{{ current_live_match.atlet2.nama_atlet|default:"Menunggu" }}</span>
+                        </div>
+                    {% else %}
+                        <span class="text-muted small">Tatami {{ selected_tatami.tatami_number }} Standby &bull; Belum ada partai berjalan</span>
+                    {% endif %}
+                </div>
+                <div class="hud-btn-group">
+                    {% if current_live_match %}
+                        <button type="button" class="btn-hud-btn" onclick="centerMatchCard({{ current_live_match.pk }})" title="Pusatkan posisi bagan ke partai live">
+                            <i class="fas fa-crosshairs text-danger"></i>
+                        </button>
+                        <button type="button" class="btn-hud-btn" onclick="openMatchModal({{ current_live_match.pk }})" title="Lihat/Edit Wasit Partai Live">
+                            <i class="fas fa-user-edit text-warning"></i>
+                            <span>{{ current_live_match.assigned_wasit_count }} Wasit</span>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- UP NEXT MATCH SECTION -->
+            <div class="hud-section next-section" id="hudNextSection" {% if next_up_match %}data-match-pk="{{ next_up_match.pk }}"{% endif %}>
+                <div class="hud-content">
+                    <span class="hud-tag next"><i class="fas fa-forward"></i> UP NEXT</span>
+                    {% if next_up_match %}
+                        <div class="hud-match-title">
+                            <span class="badge bg-warning text-dark font-monospace" style="font-size: 11px;">#{{ next_up_match.urutan }}</span>
+                            <span class="hud-fighter aka">{{ next_up_match.atlet1.nama_atlet|default:"Menunggu" }}</span>
+                            <span class="text-muted">vs</span>
+                            <span class="hud-fighter ao">{{ next_up_match.atlet2.nama_atlet|default:"Menunggu" }}</span>
+                        </div>
+                        <span id="hudNextWasitBadge" class="badge {% if next_up_match.is_panel_complete %}bg-success{% else %}bg-warning text-dark{% endif %}" style="font-size: 11px;">
+                            {% if next_up_match.is_panel_complete %}
+                                <i class="fas fa-check-circle me-1"></i> {{ next_up_match.assigned_wasit_count }} Wasit Siap
+                            {% else %}
+                                <i class="fas fa-user-clock me-1"></i> Wasit ({{ next_up_match.assigned_wasit_count }}/{{ next_up_match.required_wasit_count }})
+                            {% endif %}
+                        </span>
+                    {% else %}
+                        <span class="text-muted small">Semua partai bagan ini telah selesai</span>
+                    {% endif %}
+                </div>
+                <div class="hud-btn-group">
+                    {% if next_up_match %}
+                        <!-- 1-Click Fast Actions on Sticky Bar -->
+                        <button type="button" class="btn-hud-btn btn-hud-prev" onclick="quickUsePreviousMatch({{ next_up_match.pk }})" title="Gunakan susunan wasit & juri dari partai sebelumnya di tatami ini">
+                            <i class="fas fa-history"></i> Wasit Sebelumnya
+                        </button>
+                        <button type="button" class="btn-hud-btn" onclick="centerMatchCard({{ next_up_match.pk }})" title="Pusatkan posisi bagan ke partai ini">
+                            <i class="fas fa-crosshairs text-primary"></i>
+                        </button>
+                        <button type="button" class="btn-hud-btn" onclick="openMatchModal({{ next_up_match.pk }})" title="Buka Modal Rinci Wasit">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                        <form method="POST" class="ajax-tm-form d-inline-block m-0" onsubmit="return confirm('Jalankan Partai #{{ next_up_match.urutan }} ke arena Tatami {{ selected_tatami.tatami_number }} sekarang?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="submit_type" value="set_active_match">
+                            <input type="hidden" name="detailbagan_pk" value="{{ next_up_match.pk }}">
+                            <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
+                            <button type="submit" class="btn-hud-btn btn-hud-play" title="Aktifkan partai ini ke arena live">
+                                <i class="fas fa-play"></i> Jalankan
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Canvas Controls Dock (Zoom & Jump) -->
+    <div class="tm-canvas-controls">
+        <button type="button" class="btn-canvas-ctrl" onclick="zoomBracket(0.12)" title="Perbesar Bagan (Zoom In)"><i class="fas fa-search-plus"></i></button>
+        <button type="button" class="btn-canvas-ctrl" onclick="zoomBracket(-0.12)" title="Perkecil Bagan (Zoom Out)"><i class="fas fa-search-minus"></i></button>
+        <button type="button" class="btn-canvas-ctrl" onclick="resetZoomBracket()" title="Reset Ukuran Bagan (100%)">100%</button>
+        {% if current_live_match %}
+            <button type="button" class="btn-canvas-ctrl btn-ctrl-live" onclick="centerMatchCard({{ current_live_match.pk }})" title="Lompat ke Partai Live"><i class="fas fa-satellite-dish"></i> LIVE</button>
+        {% endif %}
+        {% if next_up_match %}
+            <button type="button" class="btn-canvas-ctrl btn-ctrl-next" onclick="centerMatchCard({{ next_up_match.pk }})" title="Lompat ke Partai Berikutnya"><i class="fas fa-forward"></i> NEXT</button>
+        {% endif %}
+    </div>
+
     <!-- Tournament Bracket Viewport -->
-    <main class="bracket-scroll-viewport">
+    <main class="bracket-scroll-viewport" id="bracketViewport">
         <div class="bracket-watermark" aria-hidden="true">
             <img src="{% static 'img/ambrilindo-logo.webp' %}" alt="">
         </div>
@@ -1891,6 +2167,154 @@
             window.location.href = url;
         }
 
+        /* Quick 1-Click Referee Actions on Bracket Tree & HUD */
+        async function quickAutoAssignMatch(matchPk) {
+            if (!matchPk) return;
+            showToast('Menyusun wasit tatami bebas konflik...', 'info');
+            await postTmAction({
+                submit_type: 'auto_assign_match_panel',
+                detailbagan_pk: matchPk,
+            });
+        }
+
+        async function quickUsePreviousMatch(matchPk) {
+            if (!matchPk) return;
+            showToast('Menyalin susunan wasit dari partai sebelumnya...', 'info');
+            await postTmAction({
+                submit_type: 'use_previous_match_panel',
+                detailbagan_pk: matchPk,
+            });
+        }
+
+        async function quickRotateMatch(matchPk) {
+            if (!matchPk) return;
+            showToast('Merotasi kursi wasit 1 langkah...', 'info');
+            await postTmAction({
+                submit_type: 'rotate_match_panel',
+                detailbagan_pk: matchPk,
+            });
+        }
+
+        async function quickShiftMatch(matchPk, shiftLetter) {
+            if (!matchPk) return;
+            showToast(`Menerapkan susunan Tim Panel ${shiftLetter}...`, 'info');
+            await postTmAction({
+                submit_type: 'apply_panel_shift',
+                detailbagan_pk: matchPk,
+                shift: shiftLetter,
+            });
+        }
+
+        /* Auto-Center Navigation for Bracket Tree */
+        function centerMatchCard(matchPk) {
+            if (!matchPk) return;
+            const card = document.getElementById(`db-${matchPk}`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                card.classList.add('highlight-pulse');
+                setTimeout(() => card.classList.remove('highlight-pulse'), 1800);
+            }
+        }
+
+        /* Canvas Zoom Engine */
+        let currentBracketZoom = 1.0;
+        function zoomBracket(delta) {
+            currentBracketZoom = Math.max(0.65, Math.min(1.5, currentBracketZoom + delta));
+            const grid = document.getElementById('bracket-grid');
+            if (grid) {
+                grid.style.transform = `scale(${currentBracketZoom})`;
+                grid.style.transformOrigin = 'top left';
+                setTimeout(drawConnectors, 100);
+            }
+            showToast(`Zoom bagan: ${Math.round(currentBracketZoom * 100)}%`, 'info');
+        }
+
+        function resetZoomBracket() {
+            currentBracketZoom = 1.0;
+            const grid = document.getElementById('bracket-grid');
+            if (grid) {
+                grid.style.transform = 'scale(1)';
+                setTimeout(drawConnectors, 100);
+            }
+            showToast('Zoom bagan direset ke 100%', 'info');
+        }
+
+        /* Tap-to-Assign Handler for Seniors (No Drag & Drop Required) */
+        let activeTapSlotPosisi = null;
+        let activeTapSlotLabel = null;
+
+        function handleSlotTapSelect(slotEl) {
+            const posisi = slotEl.getAttribute('data-posisi');
+            const label = slotEl.getAttribute('data-posisi-label') || posisi;
+
+            if (activeTapSlotPosisi === posisi) {
+                clearTapSlotSelect();
+                return;
+            }
+
+            document.querySelectorAll('.tm-slot-card.is-tap-selected').forEach(c => c.classList.remove('is-tap-selected'));
+            slotEl.classList.add('is-tap-selected');
+            activeTapSlotPosisi = posisi;
+            activeTapSlotLabel = label;
+
+            const guideAlert = document.getElementById('tmTapGuideAlert');
+            const guideLabel = document.getElementById('tmTapGuideSlotLabel');
+            if (guideAlert && guideLabel) {
+                guideLabel.textContent = label;
+                guideAlert.classList.remove('d-none');
+            }
+
+            showToast(`Slot "${label}" dipilih. Sentuh wasit di sebelah kanan untuk menugaskannya.`, 'info');
+        }
+
+        function clearTapSlotSelect() {
+            activeTapSlotPosisi = null;
+            activeTapSlotLabel = null;
+            document.querySelectorAll('.tm-slot-card.is-tap-selected').forEach(c => c.classList.remove('is-tap-selected'));
+            const guideAlert = document.getElementById('tmTapGuideAlert');
+            if (guideAlert) guideAlert.classList.add('d-none');
+        }
+
+        function handleWasitCardTap(wasitEl, event) {
+            if (event && event.target && event.target.closest('.dropdown, .dropdown-menu, button, form')) {
+                return;
+            }
+
+            const wasitId = wasitEl.getAttribute('data-wasit-id');
+            const wasitName = wasitEl.getAttribute('data-wasit-name');
+            const matchPk = getTmMatchPk();
+
+            if (!matchPk || !wasitId) return;
+
+            if (activeTapSlotPosisi) {
+                const targetPos = activeTapSlotPosisi;
+                const targetLbl = activeTapSlotLabel;
+                clearTapSlotSelect();
+                showToast(`Menugaskan ${wasitName} ke ${targetLbl}...`, 'info');
+                postTmAction({
+                    submit_type: 'assign_match_wasit',
+                    detailbagan_pk: matchPk,
+                    wasit_id: wasitId,
+                    posisi: targetPos,
+                    active_slots: getTmActiveSlots(),
+                });
+            } else {
+                const emptySlot = document.querySelector('.tm-slot-card.is-vacant');
+                if (emptySlot) {
+                    const targetPos = emptySlot.getAttribute('data-posisi');
+                    const targetLbl = emptySlot.getAttribute('data-posisi-label') || targetPos;
+                    showToast(`Mengisi slot kosong (${targetLbl}) dengan ${wasitName}...`, 'info');
+                    postTmAction({
+                        submit_type: 'assign_match_wasit',
+                        detailbagan_pk: matchPk,
+                        wasit_id: wasitId,
+                        posisi: targetPos,
+                        active_slots: getTmActiveSlots(),
+                    });
+                }
+            }
+        }
+
         /* SVG Bracket Connectors Engine (Mirroring bagan-detail) */
         function drawConnectors() {
             const svg = document.getElementById('connector-svg');
@@ -1976,6 +2400,15 @@
             }
             setTimeout(drawConnectors, 100);
             setTimeout(drawConnectors, 300);
+
+            // Auto-center to active live match or next match on load
+            setTimeout(() => {
+                {% if current_live_match %}
+                    centerMatchCard({{ current_live_match.pk }});
+                {% elif next_up_match %}
+                    centerMatchCard({{ next_up_match.pk }});
+                {% endif %}
+            }, 350);
         });
         window.addEventListener('resize', () => requestAnimationFrame(drawConnectors));
 
@@ -2038,11 +2471,6 @@
             if (isTmSubmitting) return;
             isTmSubmitting = true;
 
-            const prevSearch = document.getElementById('modalWasitSearch')?.value || '';
-            const prevFilter = modalCurrentFilter;
-            const listEl = document.getElementById('modalWasitListContainer');
-            const prevScrollTop = listEl ? listEl.scrollTop : 0;
-
             const formData = new FormData(form);
             formData.set('ajax', '1');
 
@@ -2073,23 +2501,6 @@
                         const container = document.getElementById('modalBodyContainer');
                         if (container) {
                             container.innerHTML = data.html;
-                            if (prevSearch) {
-                                const searchInput = document.getElementById('modalWasitSearch');
-                                if (searchInput) searchInput.value = prevSearch;
-                            }
-                            if (prevFilter) {
-                                modalCurrentFilter = prevFilter;
-                                const activeChip = document.querySelector(`.tm-modal-filter-chips .m-chip[data-filter="${prevFilter}"]`);
-                                if (activeChip) {
-                                    document.querySelectorAll('.tm-modal-filter-chips .m-chip').forEach(b => b.classList.remove('active'));
-                                    activeChip.classList.add('active');
-                                }
-                            }
-                            filterModalWasitList();
-                            const newListEl = document.getElementById('modalWasitListContainer');
-                            if (newListEl && prevScrollTop) {
-                                newListEl.scrollTop = prevScrollTop;
-                            }
                         }
                     }
 
@@ -2101,6 +2512,25 @@
                             if (badge) {
                                 badge.innerHTML = `<i class="fas fa-users"></i> ${data.assigned_count} Wasit`;
                                 badge.className = `badge-wasit-status ${data.is_panel_complete ? 'ready' : 'pending'}`;
+                            }
+                        }
+
+                        // Update HUD Up Next badge if this match is the up-next match
+                        const hudNextSection = document.getElementById('hudNextSection');
+                        if (hudNextSection && hudNextSection.getAttribute('data-match-pk') == data.match_pk) {
+                            const hudBadge = document.getElementById('hudNextWasitBadge');
+                            if (hudBadge) {
+                                const hasConflict = data.wasits ? data.wasits.some(w => w.has_conflict) : false;
+                                if (hasConflict) {
+                                    hudBadge.className = 'badge bg-danger';
+                                    hudBadge.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Ada Konflik Perguruan!';
+                                } else if (data.is_panel_complete) {
+                                    hudBadge.className = 'badge bg-success';
+                                    hudBadge.innerHTML = `<i class="fas fa-check-circle me-1"></i> ${data.assigned_count} Wasit Siap`;
+                                } else {
+                                    hudBadge.className = 'badge bg-warning text-dark';
+                                    hudBadge.innerHTML = `<i class="fas fa-user-clock me-1"></i> Wasit (${data.assigned_count}/5)`;
+                                }
                             }
                         }
                     }
@@ -2194,289 +2624,125 @@
             });
         }
 
-        /* HTML5 Drag & Drop Controller */
-        let draggedTmItem = null;
-
-        function handleWasitDragStart(e, el) {
-            draggedTmItem = {
-                type: 'from_pool',
-                wasitId: el.getAttribute('data-wasit-id'),
-                wasitName: el.getAttribute('data-wasit-name'),
-            };
-            if (e.dataTransfer) {
-                e.dataTransfer.setData('text/plain', JSON.stringify(draggedTmItem));
-                e.dataTransfer.effectAllowed = 'copy';
-            }
-            el.classList.add('is-dragging');
-        }
-
-        function handleWasitDragEnd(e, el) {
-            draggedTmItem = null;
-            el.classList.remove('is-dragging');
-            document.querySelectorAll('.tm-slot-card.drag-over, .tm-dropzone-new-slot.drag-over').forEach(c => c.classList.remove('drag-over'));
-        }
-
-        function handleSlotDragStart(e, el) {
-            draggedTmItem = {
-                type: 'from_slot',
-                fromPosisi: el.getAttribute('data-posisi'),
-                wasitId: el.getAttribute('data-wasit-id'),
-                wasitName: el.getAttribute('data-wasit-name'),
-            };
-            if (e.dataTransfer) {
-                e.dataTransfer.setData('text/plain', JSON.stringify(draggedTmItem));
-                e.dataTransfer.effectAllowed = 'move';
-            }
-            el.classList.add('is-dragging');
-        }
-
-        function handleSlotDragEnd(e, el) {
-            draggedTmItem = null;
-            el.classList.remove('is-dragging');
-            document.querySelectorAll('.tm-slot-card.drag-over, .tm-dropzone-new-slot.drag-over').forEach(c => c.classList.remove('drag-over'));
-        }
-
-        function handleSlotDragOver(e, el) {
-            e.preventDefault();
-            if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-            if (!el.classList.contains('drag-over')) {
-                el.classList.add('drag-over');
+        /* ==========================================================================
+           Fuzzy Searchable Standby Wasit Dropdown Controller
+           ========================================================================== */
+        function openFuzzyDropdown(input) {
+            closeAllFuzzyDropdowns();
+            const container = input.closest('.tm-fuzzy-container');
+            if (!container) return;
+            const dropdown = container.querySelector('.tm-fuzzy-dropdown');
+            if (dropdown) {
+                dropdown.classList.remove('d-none');
+                filterFuzzyOptions(input);
             }
         }
 
-        function handleSlotDragLeave(e, el) {
-            el.classList.remove('drag-over');
+        function toggleFuzzyDropdown(btn) {
+            const container = btn.closest('.tm-fuzzy-container');
+            if (!container) return;
+            const input = container.querySelector('.tm-fuzzy-input');
+            const dropdown = container.querySelector('.tm-fuzzy-dropdown');
+            if (!dropdown) return;
+            if (dropdown.classList.contains('d-none')) {
+                openFuzzyDropdown(input);
+                if (input) input.focus();
+            } else {
+                dropdown.classList.add('d-none');
+            }
         }
 
-        function handleSlotDrop(e, el) {
-            e.preventDefault();
-            el.classList.remove('drag-over');
-            let data = draggedTmItem;
-            if (!data && e.dataTransfer) {
-                try {
-                    const raw = e.dataTransfer.getData('text/plain');
-                    if (raw) data = JSON.parse(raw);
-                } catch (err) {}
-            }
-            if (!data) return;
+        function closeAllFuzzyDropdowns() {
+            document.querySelectorAll('.tm-fuzzy-dropdown').forEach(d => {
+                d.classList.add('d-none');
+                d.querySelectorAll('.tm-fuzzy-option.is-highlighted').forEach(opt => opt.classList.remove('is-highlighted'));
+            });
+        }
 
-            const targetPosisi = el.getAttribute('data-posisi');
+        function filterFuzzyOptions(input) {
+            const container = input.closest('.tm-fuzzy-container');
+            if (!container) return;
+            const query = (input.value || '').toLowerCase().trim();
+            const words = query.split(/\s+/).filter(Boolean);
+            const options = container.querySelectorAll('.tm-fuzzy-option');
+            const noMatch = container.querySelector('.tm-fuzzy-no-match');
+
+            let visibleCount = 0;
+            options.forEach(opt => {
+                const searchStr = (opt.getAttribute('data-search') || '').toLowerCase();
+                const matches = (words.length === 0) || words.every(w => searchStr.includes(w));
+                opt.style.display = matches ? 'block' : 'none';
+                if (matches) visibleCount++;
+            });
+
+            if (noMatch) {
+                noMatch.classList.toggle('d-none', visibleCount > 0);
+            }
+        }
+
+        function handleFuzzyKeydown(e, input) {
+            const container = input.closest('.tm-fuzzy-container');
+            if (!container) return;
+            const dropdown = container.querySelector('.tm-fuzzy-dropdown');
+            if (!dropdown || dropdown.classList.contains('d-none')) {
+                if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                    openFuzzyDropdown(input);
+                }
+                return;
+            }
+
+            const visibleOpts = Array.from(dropdown.querySelectorAll('.tm-fuzzy-option')).filter(o => o.style.display !== 'none');
+            const currentHighlighted = dropdown.querySelector('.tm-fuzzy-option.is-highlighted');
+            let idx = visibleOpts.indexOf(currentHighlighted);
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (currentHighlighted) currentHighlighted.classList.remove('is-highlighted');
+                idx = (idx + 1) % visibleOpts.length;
+                if (visibleOpts[idx]) {
+                    visibleOpts[idx].classList.add('is-highlighted');
+                    visibleOpts[idx].scrollIntoView({ block: 'nearest' });
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentHighlighted) currentHighlighted.classList.remove('is-highlighted');
+                idx = (idx - 1 + visibleOpts.length) % visibleOpts.length;
+                if (visibleOpts[idx]) {
+                    visibleOpts[idx].classList.add('is-highlighted');
+                    visibleOpts[idx].scrollIntoView({ block: 'nearest' });
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const targetOpt = currentHighlighted || visibleOpts[0];
+                if (targetOpt) {
+                    targetOpt.click();
+                }
+            } else if (e.key === 'Escape') {
+                closeAllFuzzyDropdowns();
+            }
+        }
+
+        function selectFuzzyWasit(posisi, wasitId, wasitName) {
+            closeAllFuzzyDropdowns();
             const matchPk = getTmMatchPk();
-            if (!matchPk || !targetPosisi) return;
+            if (!matchPk || !wasitId) return;
 
-            if (data.type === 'from_pool') {
-                postTmAction({
-                    submit_type: 'assign_match_wasit',
-                    detailbagan_pk: matchPk,
-                    wasit_id: data.wasitId,
-                    posisi: targetPosisi,
-                    active_slots: getTmActiveSlots(),
-                });
-            } else if (data.type === 'from_slot') {
-                if (data.fromPosisi === targetPosisi) return;
-                postTmAction({
-                    submit_type: 'swap_match_wasits',
-                    detailbagan_pk: matchPk,
-                    from_posisi: data.fromPosisi,
-                    to_posisi: targetPosisi,
-                    active_slots: getTmActiveSlots(),
-                });
-            }
-        }
-
-        function handleNewSlotDragOver(e, el) {
-            e.preventDefault();
-            if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-            if (!el.classList.contains('drag-over')) {
-                el.classList.add('drag-over');
-            }
-        }
-
-        function handleNewSlotDragLeave(e, el) {
-            el.classList.remove('drag-over');
-        }
-
-        function handleNewSlotDrop(e, el) {
-            e.preventDefault();
-            el.classList.remove('drag-over');
-            let data = draggedTmItem;
-            if (!data && e.dataTransfer) {
-                try {
-                    const raw = e.dataTransfer.getData('text/plain');
-                    if (raw) data = JSON.parse(raw);
-                } catch (err) {}
-            }
-            if (!data) return;
-
-            const matchPk = getTmMatchPk();
-            if (!matchPk) return;
-
-            if (data.type === 'from_pool' || data.type === 'from_slot') {
-                addTmSlot('judge', data.wasitId);
-            }
-        }
-
-        /* Touch Drag-and-Drop Adapter for Tablets (iPad, Galaxy Tab) & Mobile Phones */
-        (function initTouchDragDrop() {
-            let touchDragSource = null;
-            let touchGhost = null;
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let isTouchDragging = false;
-            let currentHoverTarget = null;
-
-            document.addEventListener('touchstart', function(e) {
-                const draggable = e.target.closest('[draggable="true"]');
-                if (!draggable) return;
-
-                // Don't intercept clicks on interactive buttons, selects, or dropdowns
-                if (e.target.closest('button, select, input, a, .dropdown-menu, .btn-tm-assign')) return;
-
-                const touch = e.touches[0];
-                touchStartX = touch.clientX;
-                touchStartY = touch.clientY;
-                touchDragSource = draggable;
-                isTouchDragging = false;
-            }, { passive: true });
-
-            document.addEventListener('touchmove', function(e) {
-                if (!touchDragSource) return;
-                const touch = e.touches[0];
-                const dx = touch.clientX - touchStartX;
-                const dy = touch.clientY - touchStartY;
-
-                // 8px threshold before activating drag mode (preserves native vertical scrolling if user just scrolls)
-                if (!isTouchDragging && Math.hypot(dx, dy) > 8) {
-                    isTouchDragging = true;
-
-                    if (touchDragSource.classList.contains('tm-wasit-item')) {
-                        handleWasitDragStart({ dataTransfer: { setData: () => {}, effectAllowed: '' } }, touchDragSource);
-                    } else if (touchDragSource.classList.contains('tm-slot-card')) {
-                        handleSlotDragStart({ dataTransfer: { setData: () => {}, effectAllowed: '' } }, touchDragSource);
-                    }
-
-                    // Create floating visual ghost element
-                    touchGhost = touchDragSource.cloneNode(true);
-                    touchGhost.classList.add('tm-touch-ghost');
-                    touchGhost.style.position = 'fixed';
-                    touchGhost.style.pointerEvents = 'none';
-                    touchGhost.style.zIndex = '99999';
-                    touchGhost.style.opacity = '0.9';
-                    touchGhost.style.transform = 'scale(1.03) rotate(1.5deg)';
-                    touchGhost.style.boxShadow = '0 14px 30px rgba(0,0,0,0.65)';
-                    touchGhost.style.width = touchDragSource.offsetWidth + 'px';
-                    document.body.appendChild(touchGhost);
-                }
-
-                if (isTouchDragging) {
-                    if (e.cancelable) e.preventDefault(); // Lock scroll while actively dragging card
-
-                    if (touchGhost) {
-                        touchGhost.style.left = (touch.clientX - touchGhost.offsetWidth / 2) + 'px';
-                        touchGhost.style.top = (touch.clientY - touchGhost.offsetHeight / 2) + 'px';
-                    }
-
-                    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
-                    const slotTarget = elUnder ? elUnder.closest('.tm-slot-card, .tm-dropzone-new-slot') : null;
-
-                    if (currentHoverTarget && currentHoverTarget !== slotTarget) {
-                        currentHoverTarget.classList.remove('drag-over');
-                    }
-                    if (slotTarget) {
-                        slotTarget.classList.add('drag-over');
-                        currentHoverTarget = slotTarget;
-                    } else {
-                        currentHoverTarget = null;
-                    }
-                }
-            }, { passive: false });
-
-            document.addEventListener('touchend', function(e) {
-                if (!touchDragSource) return;
-
-                if (isTouchDragging) {
-                    if (currentHoverTarget) {
-                        currentHoverTarget.classList.remove('drag-over');
-
-                        if (currentHoverTarget.classList.contains('tm-slot-card')) {
-                            handleSlotDrop({
-                                preventDefault: () => {},
-                                dataTransfer: { getData: () => null }
-                            }, currentHoverTarget);
-                        } else if (currentHoverTarget.classList.contains('tm-dropzone-new-slot')) {
-                            handleNewSlotDrop({
-                                preventDefault: () => {},
-                                dataTransfer: { getData: () => null }
-                            }, currentHoverTarget);
-                        }
-                    }
-
-                    if (touchDragSource.classList.contains('tm-wasit-item')) {
-                        handleWasitDragEnd(e, touchDragSource);
-                    } else if (touchDragSource.classList.contains('tm-slot-card')) {
-                        handleSlotDragEnd(e, touchDragSource);
-                    }
-                }
-
-                if (touchGhost) {
-                    touchGhost.remove();
-                    touchGhost = null;
-                }
-                touchDragSource = null;
-                currentHoverTarget = null;
-                isTouchDragging = false;
-            });
-
-            document.addEventListener('touchcancel', function() {
-                if (touchGhost) {
-                    touchGhost.remove();
-                    touchGhost = null;
-                }
-                if (touchDragSource) {
-                    touchDragSource.classList.remove('is-dragging');
-                }
-                if (currentHoverTarget) {
-                    currentHoverTarget.classList.remove('drag-over');
-                }
-                touchDragSource = null;
-                currentHoverTarget = null;
-                isTouchDragging = false;
-            });
-        })();
-
-        /* Search and Filter logic inside Modal */
-        let modalCurrentFilter = 'all';
-
-        function setModalWasitFilter(filter, btn) {
-            modalCurrentFilter = filter;
-            document.querySelectorAll('.tm-modal-filter-chips .m-chip').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            filterModalWasitList();
-        }
-
-        function filterModalWasitList() {
-            const query = (document.getElementById('modalWasitSearch')?.value || '').toLowerCase().trim();
-            const items = document.querySelectorAll('#modalWasitListContainer .tm-wasit-item');
-
-            items.forEach(item => {
-                const name = item.getAttribute('data-name') || '';
-                const perguruan = item.getAttribute('data-perguruan') || '';
-                const kab = item.getAttribute('data-kab') || '';
-                const priority = parseInt(item.getAttribute('data-priority') || '5');
-                const isAvail = item.getAttribute('data-available') === 'true';
-
-                const matchesQuery = !query || name.includes(query) || perguruan.includes(query) || kab.includes(query);
-
-                let matchesFilter = true;
-                if (modalCurrentFilter === 'prio1') {
-                    matchesFilter = (priority === 1);
-                } else if (modalCurrentFilter === 'avail') {
-                    matchesFilter = isAvail;
-                }
-
-                item.style.display = (matchesQuery && matchesFilter) ? 'flex' : 'none';
+            showToast(`Menugaskan ${wasitName}...`, 'info');
+            postTmAction({
+                submit_type: 'assign_match_wasit',
+                detailbagan_pk: matchPk,
+                wasit_id: wasitId,
+                posisi: posisi,
+                active_slots: getTmActiveSlots()
             });
         }
+
+        // Close dropdown when clicked outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.tm-fuzzy-container')) {
+                closeAllFuzzyDropdowns();
+            }
+        });
 
         /* Auto-Follow Tatami Operator Controls */
         let autoFollowEnabled = localStorage.getItem('tm_auto_follow') !== 'false'; // default true

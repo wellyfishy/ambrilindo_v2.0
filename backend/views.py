@@ -4368,14 +4368,20 @@ def sync_match_wasits_to_tatami(detail_bagan, tatami):
     return
 
 
-def auto_assign_panel_for_match(match, event, target_positions=None):
+def auto_assign_panel_for_match(match, event, target_positions=None, tatami=None):
     """
     Automated conflict-free referee assignment tailored specifically to a match's AKA and AO athletes.
-    Strictly prevents wasits from the same perguruan or kab/kota as the fighters.
-    Supports dynamic target_positions or defaults to match rule.
+    Strictly prevents wasits from the same perguruan as the fighters.
+    Prioritizes referees stationed at the active Tatami before falling back to event pool.
     """
     if not match or not match.bagan:
         return []
+    if isinstance(target_positions, Tatami):
+        tatami = target_positions
+        target_positions = None
+    if not tatami:
+        tatami = match.assigned_tatami or Tatami.objects.filter(event=event, detail_bagan=match).first()
+
     if target_positions:
         req_positions = [p for p in target_positions if p]
     else:
@@ -4388,6 +4394,13 @@ def auto_assign_panel_for_match(match, event, target_positions=None):
         conflict_perguruan_ids.add(match.atlet1.perguruan_id)
     if match.atlet2 and match.atlet2.perguruan_id:
         conflict_perguruan_ids.add(match.atlet2.perguruan_id)
+
+    tatami_wasit_ids = set()
+    if tatami:
+        tatami_wasit_ids = set(
+            WasitTatami.objects.filter(tatami=tatami, event=event)
+            .values_list('wasit_id', flat=True)
+        )
 
     all_event_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan'))
     all_tatami_assignments = {a.wasit_id: a for a in WasitTatami.objects.filter(event=event)}
@@ -4402,23 +4415,37 @@ def auto_assign_panel_for_match(match, event, target_positions=None):
         .values_list('wasit_id', flat=True)
     ) if active_other_matches else set()
 
-    pool_1 = []  # Diff perguruan, available
-    pool_2 = []  # Diff perguruan, on duty elsewhere (can borrow)
-    pool_3 = []  # Fallback if referee numbers are limited (same perguruan)
+    # Tier 1A: Stationed at THIS tatami, non-conflicted, available
+    tier_1_avail = []
+    # Tier 1B: Stationed at THIS tatami, non-conflicted, can rotate / on duty
+    tier_1_duty = []
+    # Tier 2A: Other event wasits, non-conflicted, available
+    tier_2_avail = []
+    # Tier 2B: Other event wasits, non-conflicted, can borrow
+    tier_2_duty = []
+    # Tier 3: Fallback (same perguruan if numbers critical)
+    tier_fallback = []
 
     for w in all_event_wasits:
         is_conflict = bool(w.perguruan_id and w.perguruan_id in conflict_perguruan_ids)
+        is_at_this_tatami = (w.pk in tatami_wasit_ids)
         wt = all_tatami_assignments.get(w.pk)
-        is_on_duty = (w.pk in active_live_wasit_ids) or bool(wt and wt.posisi != 'pool')
+        is_on_duty = (w.pk in active_live_wasit_ids) or bool(wt and wt.posisi != 'pool' and tatami and wt.tatami_id != tatami.pk)
         is_available = not is_on_duty
 
         if not is_conflict:
-            if is_available:
-                pool_1.append(w)
+            if is_at_this_tatami:
+                if is_available:
+                    tier_1_avail.append(w)
+                else:
+                    tier_1_duty.append(w)
             else:
-                pool_2.append(w)
+                if is_available:
+                    tier_2_avail.append(w)
+                else:
+                    tier_2_duty.append(w)
         else:
-            pool_3.append(w)
+            tier_fallback.append(w)
 
     chosen = []
 
@@ -4430,11 +4457,197 @@ def auto_assign_panel_for_match(match, event, target_positions=None):
                 continue
             chosen.append(w)
 
-    try_pick(pool_1)
+    try_pick(tier_1_avail)
     if len(chosen) < needed_count:
-        try_pick(pool_2)
+        try_pick(tier_1_duty)
     if len(chosen) < needed_count:
-        try_pick(pool_3)
+        try_pick(tier_2_avail)
+    if len(chosen) < needed_count:
+        try_pick(tier_2_duty)
+    if len(chosen) < needed_count:
+        try_pick(tier_fallback)
+
+    with transaction.atomic():
+        WasitDetailBagan.objects.filter(detail_bagan=match).delete()
+        for idx, w in enumerate(chosen):
+            pos = req_positions[idx] if idx < len(req_positions) else 'pool'
+            WasitDetailBagan.objects.create(
+                event=event,
+                detail_bagan=match,
+                wasit=w,
+                posisi=pos
+            )
+
+    return chosen
+
+
+def rotate_panel_for_match(match, event, target_positions=None, tatami=None):
+    """
+    Clockwise rotation of referee panel for a match.
+    Shifts appointed referees by one seat in the standard sequence:
+    referee -> judge_1 -> judge_2 -> judge_3 -> judge_4 -> kansa (or standby) -> referee.
+    Automatically resolves any perguruan conflict with AKA / AO fighters.
+    """
+    if not match or not match.bagan:
+        return []
+    if isinstance(target_positions, Tatami):
+        tatami = target_positions
+        target_positions = None
+    if not tatami:
+        tatami = match.assigned_tatami or Tatami.objects.filter(event=event, detail_bagan=match).first()
+
+    if target_positions:
+        req_positions = [p for p in target_positions if p]
+    else:
+        panel_rule = get_dynamic_panel_rule(match)
+        req_positions = panel_rule['required_positions']
+
+    needed_count = len(req_positions)
+
+    # 1. Gather current assignments or previous match assignments to rotate
+    current_wasits = list(WasitDetailBagan.objects.filter(detail_bagan=match).select_related('wasit__perguruan').order_by('posisi'))
+
+    if not current_wasits and tatami:
+        if tatami.detail_bagan and tatami.detail_bagan != match:
+            current_wasits = list(WasitDetailBagan.objects.filter(detail_bagan=tatami.detail_bagan).select_related('wasit__perguruan').order_by('posisi'))
+        if not current_wasits:
+            last_m = DetailBagan.objects.filter(
+                bagan__event=event,
+                wasit_assignments__isnull=False
+            ).exclude(pk=match.pk).order_by('-selesai', '-urutan').first()
+            if last_m:
+                current_wasits = list(WasitDetailBagan.objects.filter(detail_bagan=last_m).select_related('wasit__perguruan').order_by('posisi'))
+
+    # If no previous panel found, fall back to auto-assign
+    if not current_wasits:
+        return auto_assign_panel_for_match(match, event, target_positions=req_positions, tatami=tatami)
+
+    # 2. Get tatami pool wasits to allow rotation with standby referees
+    tatami_wasit_list = []
+    if tatami:
+        tatami_wasit_list = [wt.wasit for wt in WasitTatami.objects.filter(tatami=tatami, event=event).select_related('wasit__perguruan')]
+    if not tatami_wasit_list:
+        tatami_wasit_list = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan'))
+
+    # Extract distinct assigned wasits in order of current positions
+    assigned_wasits = [cw.wasit for cw in current_wasits]
+    standby_wasits = [w for w in tatami_wasit_list if w not in assigned_wasits]
+
+    # Full circular rotation queue = assigned wasits + standby wasits
+    full_queue = assigned_wasits + standby_wasits
+
+    if len(full_queue) >= 2:
+        # Step forward by 1 seat: last element moves to the front
+        rotated_queue = [full_queue[-1]] + full_queue[:-1]
+    else:
+        rotated_queue = full_queue
+
+    # 3. Conflict resolution against match AKA / AO athletes
+    conflict_perguruan_ids = set()
+    if match.atlet1 and match.atlet1.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet1.perguruan_id)
+    if match.atlet2 and match.atlet2.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet2.perguruan_id)
+
+    chosen = []
+    unpicked = list(rotated_queue)
+
+    for i in range(needed_count):
+        best_cand = None
+        for cand in unpicked:
+            is_conflict = bool(cand.perguruan_id and cand.perguruan_id in conflict_perguruan_ids)
+            if not is_conflict:
+                best_cand = cand
+                break
+        if not best_cand and unpicked:
+            best_cand = unpicked[0]
+
+        if best_cand:
+            chosen.append(best_cand)
+            unpicked.remove(best_cand)
+
+    if len(chosen) < needed_count:
+        for w in tatami_wasit_list:
+            if w not in chosen and len(chosen) < needed_count:
+                chosen.append(w)
+
+    with transaction.atomic():
+        WasitDetailBagan.objects.filter(detail_bagan=match).delete()
+        for idx, w in enumerate(chosen):
+            pos = req_positions[idx] if idx < len(req_positions) else 'pool'
+            WasitDetailBagan.objects.create(
+                event=event,
+                detail_bagan=match,
+                wasit=w,
+                posisi=pos
+            )
+
+    return chosen
+
+
+def apply_panel_shift_for_match(match, event, shift='A', target_positions=None, tatami=None):
+    """
+    Applies Panel A or Panel B referee team to the match.
+    Divides the tatami referee pool into two alternating shifts.
+    """
+    if not match or not match.bagan:
+        return []
+    if isinstance(target_positions, Tatami):
+        tatami = target_positions
+        target_positions = None
+    if not tatami:
+        tatami = match.assigned_tatami or Tatami.objects.filter(event=event, detail_bagan=match).first()
+
+    if target_positions:
+        req_positions = [p for p in target_positions if p]
+    else:
+        panel_rule = get_dynamic_panel_rule(match)
+        req_positions = panel_rule['required_positions']
+
+    needed_count = len(req_positions)
+
+    tatami_wasits = []
+    if tatami:
+        tatami_wasits = [wt.wasit for wt in WasitTatami.objects.filter(tatami=tatami, event=event).select_related('wasit__perguruan').order_by('id')]
+    if not tatami_wasits:
+        tatami_wasits = list(Wasit.objects.filter(event=event, is_active=True).select_related('perguruan').order_by('id'))
+
+    shift = str(shift).upper()
+    if shift == 'B':
+        primary_pool = [w for idx, w in enumerate(tatami_wasits) if idx % 2 == 1]
+        secondary_pool = [w for idx, w in enumerate(tatami_wasits) if idx % 2 == 0]
+    else:
+        primary_pool = [w for idx, w in enumerate(tatami_wasits) if idx % 2 == 0]
+        secondary_pool = [w for idx, w in enumerate(tatami_wasits) if idx % 2 == 1]
+
+    ordered_pool = primary_pool + secondary_pool
+
+    conflict_perguruan_ids = set()
+    if match.atlet1 and match.atlet1.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet1.perguruan_id)
+    if match.atlet2 and match.atlet2.perguruan_id:
+        conflict_perguruan_ids.add(match.atlet2.perguruan_id)
+
+    chosen = []
+    for w in primary_pool:
+        if len(chosen) >= needed_count:
+            break
+        if not (w.perguruan_id and w.perguruan_id in conflict_perguruan_ids):
+            chosen.append(w)
+
+    if len(chosen) < needed_count:
+        for w in secondary_pool:
+            if len(chosen) >= needed_count:
+                break
+            if w not in chosen and not (w.perguruan_id and w.perguruan_id in conflict_perguruan_ids):
+                chosen.append(w)
+
+    if len(chosen) < needed_count:
+        for w in ordered_pool:
+            if len(chosen) >= needed_count:
+                break
+            if w not in chosen:
+                chosen.append(w)
 
     with transaction.atomic():
         WasitDetailBagan.objects.filter(detail_bagan=match).delete()
@@ -4595,11 +4808,19 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None, active_sl
         else:
             tatami_label = "Pool Standby"
 
+        is_my_tatami = bool(wt and selected_tatami and wt.tatami_id == selected_tatami.pk)
+        w.is_my_tatami = is_my_tatami
+
         if is_assigned_to_this_match:
             prio_rank = 6
             prio_symbol = "✓"
             rec_badge = "primary"
             rec_label = "Ditugaskan di Partai Ini"
+        elif is_my_tatami and not is_conflict:
+            prio_rank = 0
+            prio_symbol = "★"
+            rec_badge = "tatami-team"
+            rec_label = f"★ Tim Tatami {selected_tatami.tatami_number} (Bebas Konflik)"
         elif not is_conflict and is_available:
             prio_rank = 1
             prio_symbol = "★"
@@ -5009,13 +5230,17 @@ def admin_tatami_manager(request, event_pk):
             if not match_obj:
                 return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
 
-            chosen = auto_assign_panel_for_match(match_obj, event, target_positions=active_slots)
+            chosen = auto_assign_panel_for_match(match_obj, event, target_positions=active_slots, tatami=selected_tatami)
             active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
             if active_t:
                 sync_match_wasits_to_tatami(match_obj, active_t)
 
             modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
             html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            wasit_list_data = [
+                {'posisi': s['posisi_label'], 'name': s['assigned'].wasit.nama_wasit, 'perg': (s['assigned'].wasit.perguruan.nama_perguruan if s['assigned'].wasit.perguruan else 'Umum')}
+                for s in modal_ctx['position_slots'] if s['assigned']
+            ]
             return JsonResponse({
                 'status': 'success',
                 'message': f"Sukses menyusun {len(chosen)} wasit bebas konflik untuk partai ini!",
@@ -5023,6 +5248,149 @@ def admin_tatami_manager(request, event_pk):
                 'assigned_count': modal_ctx['assigned_count'],
                 'is_panel_complete': modal_ctx['is_panel_complete'],
                 'match_pk': match_obj.pk,
+                'wasits': wasit_list_data,
+            })
+
+        elif submit_type == 'rotate_match_panel':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
+
+            chosen = rotate_panel_for_match(match_obj, event, target_positions=active_slots, tatami=selected_tatami)
+            active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+            if active_t:
+                sync_match_wasits_to_tatami(match_obj, active_t)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            wasit_list_data = [
+                {'posisi': s['posisi_label'], 'name': s['assigned'].wasit.nama_wasit, 'perg': (s['assigned'].wasit.perguruan.nama_perguruan if s['assigned'].wasit.perguruan else 'Umum')}
+                for s in modal_ctx['position_slots'] if s['assigned']
+            ]
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Sukses merotasi 1 kursi ({len(chosen)} wasit)! Susunan bebas konflik perguruan.",
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+                'wasits': wasit_list_data,
+            })
+
+        elif submit_type == 'use_previous_match_panel':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
+
+            # Resolve previous match that has referees assigned
+            prev_match = None
+            if selected_tatami:
+                # 1. Currently active match on this tatami (if different from this match)
+                if selected_tatami.detail_bagan and selected_tatami.detail_bagan != match_obj and selected_tatami.detail_bagan.wasit_assignments.exists():
+                    prev_match = selected_tatami.detail_bagan
+                # 2. Or last finished match on this tatami
+                if not prev_match:
+                    prev_match = DetailBagan.objects.filter(
+                        assigned_tatami=selected_tatami,
+                        wasit_assignments__isnull=False
+                    ).exclude(pk=match_obj.pk).order_by('-selesai', '-urutan').first()
+
+            # 3. Or previous match in the same tournament bracket
+            if not prev_match and match_obj.bagan:
+                prev_match = DetailBagan.objects.filter(
+                    bagan=match_obj.bagan,
+                    urutan__lt=match_obj.urutan,
+                    wasit_assignments__isnull=False
+                ).order_by('-urutan').first()
+
+            # 4. Fallback to any recent match with referees
+            if not prev_match:
+                prev_match = DetailBagan.objects.filter(
+                    bagan__event=event,
+                    wasit_assignments__isnull=False
+                ).exclude(pk=match_obj.pk).order_by('-id').first()
+
+            if not prev_match:
+                return JsonResponse({'status': 'error', 'message': 'Tidak ditemukan partai sebelumnya yang memiliki susunan wasit.'}, status=400)
+
+            prev_assignments = list(WasitDetailBagan.objects.filter(detail_bagan=prev_match).select_related('wasit__perguruan'))
+            if not prev_assignments:
+                return JsonResponse({'status': 'error', 'message': 'Partai sebelumnya belum memiliki susunan wasit.'}, status=400)
+
+            with transaction.atomic():
+                WasitDetailBagan.objects.filter(detail_bagan=match_obj).delete()
+                new_assignments = []
+                for pa in prev_assignments:
+                    new_assignments.append(WasitDetailBagan(
+                        event=event,
+                        detail_bagan=match_obj,
+                        wasit=pa.wasit,
+                        posisi=pa.posisi
+                    ))
+                WasitDetailBagan.objects.bulk_create(new_assignments)
+
+                active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+                if active_t:
+                    sync_match_wasits_to_tatami(match_obj, active_t)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            wasit_list_data = [
+                {'posisi': s['posisi_label'], 'name': s['assigned'].wasit.nama_wasit, 'perg': (s['assigned'].wasit.perguruan.nama_perguruan if s['assigned'].wasit.perguruan else 'Umum')}
+                for s in modal_ctx['position_slots'] if s['assigned']
+            ]
+            has_conflict = bool(modal_ctx.get('conflict_warnings'))
+            msg = f"Berhasil menyalin {len(new_assignments)} wasit dari Partai #{prev_match.urutan}!"
+            if has_conflict:
+                msg += " (Perhatian: Ada wasit yang satu perguruan dengan atlet)"
+
+            return JsonResponse({
+                'status': 'success',
+                'message': msg,
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+                'wasits': wasit_list_data,
+            })
+
+        elif submit_type == 'apply_panel_shift':
+            detailbagan_pk = request.POST.get('detailbagan_pk')
+            shift = request.POST.get('shift', 'A')
+            active_slots_raw = request.POST.get('active_slots')
+            active_slots = [p.strip() for p in active_slots_raw.split(',') if p.strip()] if active_slots_raw else None
+
+            match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
+            if not match_obj:
+                return JsonResponse({'status': 'error', 'message': 'Partai tidak valid.'}, status=400)
+
+            chosen = apply_panel_shift_for_match(match_obj, event, shift=shift, target_positions=active_slots, tatami=selected_tatami)
+            active_t = Tatami.objects.filter(event=event, detail_bagan=match_obj).first()
+            if active_t:
+                sync_match_wasits_to_tatami(match_obj, active_t)
+
+            modal_ctx = get_match_tatami_modal_context(match_obj, event, selected_tatami, active_slots=active_slots)
+            html = render_to_string('admin/partials/tatami_match_modal_body.html', modal_ctx, request=request)
+            wasit_list_data = [
+                {'posisi': s['posisi_label'], 'name': s['assigned'].wasit.nama_wasit, 'perg': (s['assigned'].wasit.perguruan.nama_perguruan if s['assigned'].wasit.perguruan else 'Umum')}
+                for s in modal_ctx['position_slots'] if s['assigned']
+            ]
+            return JsonResponse({
+                'status': 'success',
+                'message': f"Sukses menerapkan susunan Panel {shift.upper()} ({len(chosen)} wasit)!",
+                'html': html,
+                'assigned_count': modal_ctx['assigned_count'],
+                'is_panel_complete': modal_ctx['is_panel_complete'],
+                'match_pk': match_obj.pk,
+                'wasits': wasit_list_data,
             })
 
         elif submit_type == 'clear_match_panel':
@@ -5210,6 +5578,43 @@ def admin_tatami_manager(request, event_pk):
     for t in tatamis:
         t.assigned_count = tatami_panel_counts.get(t.pk, 0)
 
+    current_live_match = selected_tatami.detail_bagan if (selected_tatami and selected_tatami.detail_bagan and not selected_tatami.detail_bagan.selesai) else None
+
+    next_up_match = None
+    if selected_tatami:
+        candidate_qs = DetailBagan.objects.filter(
+            bagan__event=event,
+            selesai=False
+        ).select_related(
+            'bagan__nomor_tanding', 'atlet1__perguruan', 'atlet1__utusan',
+            'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami'
+        ).prefetch_related('wasit_assignments__wasit__perguruan')
+
+        if current_live_match:
+            candidate_qs = candidate_qs.exclude(pk=current_live_match.pk)
+
+        if selected_bagan:
+            next_up_match = candidate_qs.filter(bagan=selected_bagan, atlet1__isnull=False, atlet2__isnull=False).order_by('round', 'urutan').first()
+            if not next_up_match:
+                next_up_match = candidate_qs.filter(bagan=selected_bagan).order_by('round', 'urutan').first()
+
+        if not next_up_match:
+            next_up_match = candidate_qs.filter(assigned_tatami=selected_tatami, atlet1__isnull=False, atlet2__isnull=False).order_by('round', 'urutan').first()
+
+        if not next_up_match:
+            next_up_match = candidate_qs.filter(atlet1__isnull=False, atlet2__isnull=False).order_by('round', 'urutan').first()
+
+    if current_live_match:
+        annotate_match_bracket(current_live_match)
+    if next_up_match:
+        annotate_match_bracket(next_up_match)
+
+    tatami_roster_wasits = list(
+        WasitTatami.objects.filter(tatami=selected_tatami, event=event)
+        .select_related('wasit__perguruan')
+        .order_by('posisi', 'wasit__nama_wasit')
+    ) if selected_tatami else []
+
     context = {
         'on': 'tatami-manager',
         'event': event,
@@ -5224,6 +5629,9 @@ def admin_tatami_manager(request, event_pk):
         'detail_bagans_round_3': detail_bagans_round_3,
         'detail_bagans_round_4': detail_bagans_round_4,
         'detail_bagan_round_5': detail_bagan_round_5,
+        'current_live_match': current_live_match,
+        'next_up_match': next_up_match,
+        'tatami_roster_wasits': tatami_roster_wasits,
         'referchange': referchange,
         'perguruans': perguruans,
         'posisi_choices': WasitTatami.POSISI_CHOICES,

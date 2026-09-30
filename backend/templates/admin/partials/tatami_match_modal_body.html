@@ -3,42 +3,10 @@
 <!-- Hidden Meta for Active State & Preset Tracking -->
 <div id="tmActiveSlotsData" class="d-none" data-slots="{{ active_slots_str }}" data-preset="{{ current_preset }}" data-match-pk="{{ match.pk }}"></div>
 
-<!-- Match Header & Info -->
-<div class="tm-modal-header-banner">
-    <div class="tm-meta-left">
-        <span class="tm-category-title">{{ match.bagan.nomor_tanding.nama_nomor_tanding|default:match.bagan.nama_bagan }}</span>
-        <div class="tm-meta-pills">
-            <span class="tm-pill pill-round">Babak {{ match.round }}</span>
-            <span class="tm-pill pill-match">Partai #{{ match.urutan }}</span>
-            <span class="tm-pill pill-rule"><i class="fas fa-layer-group"></i> {{ panel_rule.format_name }}</span>
-            {% if active_tatami %}
-                <span class="tm-pill pill-live"><span class="live-dot"></span> LIVE DI TATAMI {{ active_tatami.tatami_number }}</span>
-            {% elif match.selesai %}
-                <span class="tm-pill pill-finished"><i class="fas fa-check-circle"></i> Selesai</span>
-            {% else %}
-                <span class="tm-pill pill-ready"><i class="fas fa-clock"></i> Siap Tanding</span>
-            {% endif %}
-        </div>
-    </div>
-    <div class="tm-meta-right">
-        <!-- Quick Activate to Tatami -->
-        <form method="POST" class="ajax-tm-form d-inline-flex align-items-center gap-2">
-            {% csrf_token %}
-            <input type="hidden" name="submit_type" value="set_active_match">
-            <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
-            <input type="hidden" name="active_slots" value="{{ active_slots_str }}">
-            <select name="tatami_pk" class="tm-tatami-select" title="Pilih Tatami untuk menjalankan partai ini">
-                {% for t in tatamis %}
-                    <option value="{{ t.pk }}" {% if active_tatami and active_tatami.pk == t.pk %}selected{% elif not active_tatami and selected_tatami and selected_tatami.pk == t.pk %}selected{% endif %}>
-                        Tatami {{ t.tatami_number }}
-                    </option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn-tm-action btn-tm-live" title="Jadikan partai ini sebagai partai berjalan di Tatami terpilih">
-                <i class="fas fa-play"></i>
-                <span>{% if active_tatami %}Ganti Tatami{% else %}Aktifkan ke Tatami{% endif %}</span>
-            </button>
-        </form>
+<!-- Clean Category Header -->
+<div class="d-flex align-items-center justify-content-between mb-2 px-1">
+    <div class="text-white fw-bold font-oswald" style="font-size: 15px; letter-spacing: 0.04em;">
+        <i class="fas fa-trophy text-warning me-1"></i> {{ match.bagan.nomor_tanding.nama_nomor_tanding|default:match.bagan.nama_bagan }}
     </div>
 </div>
 
@@ -172,16 +140,18 @@
                     </button>
                 </div>
 
-                <!-- Auto-assign button -->
-                <form method="POST" class="ajax-tm-form d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_type" value="auto_assign_match_panel">
-                    <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
-                    <input type="hidden" name="active_slots" value="{{ active_slots_str }}">
-                    <button type="submit" class="btn-tm-action btn-tm-auto" title="Otomatis susun wasit bebas konflik untuk partai ini">
-                        <i class="fas fa-magic"></i> Auto-Susun
-                    </button>
-                </form>
+                <!-- Use Previous Match button -->
+                <div class="btn-group btn-group-sm">
+                    <form method="POST" class="ajax-tm-form d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_type" value="use_previous_match_panel">
+                        <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
+                        <input type="hidden" name="active_slots" value="{{ active_slots_str }}">
+                        <button type="submit" class="btn-tm-action btn-tm-prev" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 1px solid #38bdf8; color: #ffffff; font-weight: 700; padding: 6px 14px; font-size: 13px;" title="Gunakan susunan wasit & juri dari partai sebelumnya di tatami ini">
+                            <i class="fas fa-history me-1"></i> Gunakan Wasit Partai Sebelumnya
+                        </button>
+                    </form>
+                </div>
 
                 <!-- Clear button -->
                 {% if assigned_count > 0 %}
@@ -202,26 +172,10 @@
             {% for slot in position_slots %}
                 <div class="tm-slot-card {% if slot.assigned %}is-occupied{% else %}is-vacant{% endif %} {% if slot.has_conflict %}has-conflict{% endif %}"
                      data-posisi="{{ slot.posisi_code }}"
-                     data-posisi-label="{{ slot.posisi_label }}"
-                     data-is-occupied="{% if slot.assigned %}true{% else %}false{% endif %}"
-                     {% if slot.assigned %}
-                         draggable="true"
-                         data-wasit-id="{{ slot.assigned.wasit.pk }}"
-                         data-wasit-name="{{ slot.assigned.wasit.nama_wasit }}"
-                         ondragstart="handleSlotDragStart(event, this)"
-                         ondragend="handleSlotDragEnd(event, this)"
-                     {% endif %}
-                     ondragover="handleSlotDragOver(event, this)"
-                     ondragleave="handleSlotDragLeave(event, this)"
-                     ondrop="handleSlotDrop(event, this)">
+                     data-posisi-label="{{ slot.posisi_label }}">
                     
                     <div class="tm-slot-header">
                         <div class="d-flex align-items-center gap-2">
-                            {% if slot.assigned %}
-                                <span class="tm-slot-drag-handle" title="Tarik kartu ini untuk menukar posisi atau memindahkan ke slot lain">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </span>
-                            {% endif %}
                             <span class="tm-slot-role-badge {{ slot.posisi_code }}">
                                 {{ slot.posisi_label }}
                             </span>
@@ -281,143 +235,57 @@
                             </form>
                         {% else %}
                             <div class="tm-slot-empty-state">
-                                <span class="tm-slot-empty-hint">
-                                    <i class="fas fa-hand-pointer text-primary me-1"></i> Tarik wasit ke sini atau pilih:
-                                </span>
-                                <div class="tm-quick-assign-wrap">
-                                    <form method="POST" class="ajax-tm-form d-flex align-items-center gap-1 w-100 mt-1">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="submit_type" value="assign_match_wasit">
-                                        <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
-                                        <input type="hidden" name="posisi" value="{{ slot.posisi_code }}">
-                                        <input type="hidden" name="active_slots" value="{{ active_slots_str }}">
-                                        <select name="wasit_id" class="tm-wasit-quick-select" required>
-                                            <option value="">-- Pilih Wasit Standby --</option>
-                                            {% for w in pool_candidates %}
-                                                <option value="{{ w.pk }}">
-                                                    {{ w.priority_badge_symbol }} {{ w.nama_wasit }} ({{ w.perguruan.nama_perguruan|default:"PB" }} - {{ w.kab_kota|default:"-" }})
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                        <button type="submit" class="btn-tm-quick-add" title="Tugaskan wasit terpilih ke slot ini">
-                                            <i class="fas fa-plus"></i>
+                                <div class="tm-fuzzy-container" data-posisi="{{ slot.posisi_code }}">
+                                    <div class="tm-fuzzy-input-wrapper">
+                                        <i class="fas fa-search tm-fuzzy-search-icon"></i>
+                                        <input type="text"
+                                               class="tm-fuzzy-input"
+                                               placeholder="Pilih atau ketik wasit standby..."
+                                               autocomplete="off"
+                                               onfocus="openFuzzyDropdown(this)"
+                                               onclick="openFuzzyDropdown(this)"
+                                               oninput="filterFuzzyOptions(this)"
+                                               onkeydown="handleFuzzyKeydown(event, this)">
+                                        <button type="button" class="btn-fuzzy-toggle" onclick="toggleFuzzyDropdown(this)" title="Pilih wasit standby">
+                                            <i class="fas fa-chevron-down"></i>
                                         </button>
-                                    </form>
+                                    </div>
+                                    <div class="tm-fuzzy-dropdown d-none">
+                                        {% for w in pool_candidates %}
+                                            {% if not w.is_assigned_to_this_match %}
+                                                <div class="tm-fuzzy-option"
+                                                     tabindex="0"
+                                                     data-wasit-id="{{ w.pk }}"
+                                                     data-wasit-name="{{ w.nama_wasit }}"
+                                                     data-search="{{ w.nama_wasit|lower }} {{ w.perguruan.nama_perguruan|default:''|lower }} {{ w.kab_kota|default:''|lower }} {{ w.lisensi|default:''|lower }}"
+                                                     onclick="selectFuzzyWasit('{{ slot.posisi_code }}', '{{ w.pk }}', '{{ w.nama_wasit|escapejs }}')">
+                                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                                        <span class="tm-fo-name">
+                                                            {{ w.priority_badge_symbol }} {{ w.nama_wasit }}
+                                                        </span>
+                                                        {% if w.recommendation_badge %}
+                                                            <span class="tm-fo-badge badge-{{ w.recommendation_badge }}">
+                                                                {{ w.recommendation_label }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="tm-fo-meta">
+                                                        <span class="text-info">{{ w.perguruan.nama_perguruan|default:"PB / Umum" }}</span>
+                                                        {% if w.kab_kota %} &bull; <span>{{ w.kab_kota }}</span>{% endif %}
+                                                        {% if w.lisensi %} &bull; <span class="text-muted">({{ w.lisensi }})</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% empty %}
+                                            <div class="tm-fuzzy-empty">Tidak ada wasit standby.</div>
+                                        {% endfor %}
+                                        <div class="tm-fuzzy-empty tm-fuzzy-no-match d-none">Tidak ada wasit standby yang cocok.</div>
+                                    </div>
                                 </div>
                             </div>
                         {% endif %}
                     </div>
                 </div>
-            {% endfor %}
-
-            <!-- Quick Dropzone to Add New Slot Automatically -->
-            <div class="tm-dropzone-new-slot"
-                 ondragover="handleNewSlotDragOver(event, this)"
-                 ondragleave="handleNewSlotDragLeave(event, this)"
-                 ondrop="handleNewSlotDrop(event, this)">
-                <i class="fas fa-plus-circle text-primary me-2 fs-5"></i>
-                <span class="fw-semibold">Drop wasit ke sini untuk menambah slot baru otomatis</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Candidate Wasit Pool Drawer -->
-    <div class="tm-pool-drawer">
-        <div class="tm-drawer-header">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-users text-info"></i>
-                <span class="fw-bold">POOL WASIT EVENT</span>
-            </div>
-            <span class="badge bg-secondary font-monospace" id="modalPoolCount">{{ pool_candidates|length }} Wasit</span>
-        </div>
-
-        <!-- Search in Modal -->
-        <div class="tm-modal-search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="modalWasitSearch" class="tm-modal-search-input" placeholder="Cari nama, perguruan, kab/kota..." onkeyup="filterModalWasitList()">
-        </div>
-
-        <!-- Filter Chips in Modal -->
-        <div class="tm-modal-filter-chips">
-            <button type="button" class="m-chip active" data-filter="all" onclick="setModalWasitFilter('all', this)">Semua</button>
-            <button type="button" class="m-chip" data-filter="prio1" onclick="setModalWasitFilter('prio1', this)" title="Prioritas 1: Standby & Beda Perguruan">★ Prioritas 1</button>
-            <button type="button" class="m-chip" data-filter="avail" onclick="setModalWasitFilter('avail', this)">Standby</button>
-        </div>
-
-        <!-- Wasit List in Modal (Draggable) -->
-        <div class="tm-modal-wasit-list" id="modalWasitListContainer">
-            {% for w in pool_candidates %}
-                <div class="tm-wasit-item priority-{{ w.priority_rank }} {% if w.is_assigned_to_this_match %}is-assigned-here{% endif %}"
-                     draggable="{% if w.is_assigned_to_this_match %}false{% else %}true{% endif %}"
-                     data-wasit-id="{{ w.pk }}"
-                     data-wasit-name="{{ w.nama_wasit }}"
-                     data-name="{{ w.nama_wasit|lower }}"
-                     data-perguruan="{{ w.perguruan.nama_perguruan|default:''|lower }}"
-                     data-kab="{{ w.kab_kota|default:''|lower }}"
-                     data-priority="{{ w.priority_rank }}"
-                     data-available="{% if w.is_available %}true{% else %}false{% endif %}"
-                     ondragstart="handleWasitDragStart(event, this)"
-                     ondragend="handleWasitDragEnd(event, this)">
-                    
-                    <div class="tm-item-drag-handle" title="Tarik untuk menugaskan ke slot">
-                        <i class="fas fa-grip-vertical"></i>
-                    </div>
-
-                    <div class="tm-item-info">
-                        <div class="tm-item-name-row">
-                            <span class="tm-item-name">{{ w.nama_wasit }}</span>
-                            <span class="tm-prio-badge badge-{{ w.recommendation_badge }}">
-                                {{ w.recommendation_label }}
-                            </span>
-                        </div>
-                        <div class="tm-item-meta">
-                            <span class="perg">{{ w.perguruan.nama_perguruan|default:"PB / Umum" }}</span>
-                            {% if w.kab_kota %}
-                                <span>&bull; {{ w.kab_kota }}</span>
-                            {% endif %}
-                            {% if w.lisensi %}
-                                <span>&bull; {{ w.lisensi }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="tm-item-actions">
-                        {% if w.is_assigned_to_this_match %}
-                            <span class="tm-duty-tag"><i class="fas fa-check"></i> Bertugas</span>
-                        {% else %}
-                            <div class="dropdown">
-                                <button class="btn-tm-assign dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Pilih slot secara manual">
-                                    <i class="fas fa-user-plus"></i> Tugaskan
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                                    {% for slot in position_slots %}
-                                        <li>
-                                            <form method="POST" class="ajax-tm-form">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="submit_type" value="assign_match_wasit">
-                                                <input type="hidden" name="detailbagan_pk" value="{{ match.pk }}">
-                                                <input type="hidden" name="wasit_id" value="{{ w.pk }}">
-                                                <input type="hidden" name="posisi" value="{{ slot.posisi_code }}">
-                                                <input type="hidden" name="active_slots" value="{{ active_slots_str }}">
-                                                <button type="submit" class="dropdown-item">
-                                                    Ke {{ slot.posisi_label }} {% if slot.assigned %}(Ganti {{ slot.assigned.wasit.nama_wasit }}){% endif %}
-                                                </button>
-                                            </form>
-                                        </li>
-                                    {% endfor %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <button type="button" class="dropdown-item text-primary" onclick="addSlotWithWasit('judge', '{{ w.pk }}')">
-                                            <i class="fas fa-plus-circle me-1"></i> Buat Slot Juri Baru & Tugaskan
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            {% empty %}
-                <div class="text-center text-muted py-4 small">Tidak ada data wasit yang tersedia.</div>
             {% endfor %}
         </div>
     </div>

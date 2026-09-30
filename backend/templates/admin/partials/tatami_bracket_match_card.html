@@ -1,5 +1,5 @@
 {% load static %}
-<div class="match {% if db.active_on_tatami %}is-active-match{% endif %} {% if db.selesai %}is-finished{% endif %}"
+<div class="match {% if db.active_on_tatami %}is-active-match{% elif next_up_match and db.pk == next_up_match.pk %}is-next-match{% endif %} {% if db.selesai %}is-finished{% endif %}"
      data-id="r{{ db.round }}m{{ db.urutan }}"
      id="db-{{ db.pk }}"
      onclick="openMatchModal({{ db.pk }})"
@@ -12,6 +12,10 @@
                 <span class="badge-live-tatami">
                     <span class="live-dot"></span> LIVE TATAMI {{ db.active_on_tatami.tatami_number }}
                 </span>
+            {% elif next_up_match and db.pk == next_up_match.pk %}
+                <span class="badge-up-next">
+                    <i class="fas fa-forward"></i> UP NEXT
+                </span>
             {% elif db.selesai %}
                 <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
             {% endif %}
@@ -20,15 +24,19 @@
             {% if db.assigned_wasit_count > 0 %}
                 <span class="badge-wasit-status {% if db.is_panel_complete %}ready{% else %}pending{% endif %}"
                       title="{{ db.assigned_wasit_count }}/{{ db.required_wasit_count }} Wasit Ditugaskan">
-                    <i class="fas fa-users"></i> {{ db.assigned_wasit_count }} Wasit
+                    {% if db.is_panel_complete %}
+                        <i class="fas fa-check-circle text-success me-1"></i> {{ db.assigned_wasit_count }} Wasit
+                    {% else %}
+                        <i class="fas fa-user-clock text-warning me-1"></i> {{ db.assigned_wasit_count }}/{{ db.required_wasit_count }}
+                    {% endif %}
                 </span>
             {% else %}
                 <span class="badge-wasit-status pending" title="Belum ada wasit ditugaskan">
-                    <i class="fas fa-user-plus"></i> Atur Wasit
+                    <i class="fas fa-user-plus me-1"></i> Atur Wasit
                 </span>
             {% endif %}
             {% if db.has_wasit_conflict %}
-                <span class="badge-wasit-status conflict" title="Ada potensi konflik perguruan antara wasit & atlet!">
+                <span class="badge-wasit-status conflict" title="Peringatan: Ada wasit satu perguruan dengan atlet!">
                     <i class="fas fa-exclamation-triangle"></i>
                 </span>
             {% endif %}
@@ -76,4 +84,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Quick Action Bar on Card (Instantly visible for UP NEXT match on tree) -->
+    {% if next_up_match and db.pk == next_up_match.pk and not db.selesai %}
+    <div class="match-quick-bar" onclick="event.stopPropagation()">
+        <button type="button" class="btn-mq-prev" onclick="quickUsePreviousMatch({{ db.pk }})" title="Gunakan susunan wasit & juri dari partai sebelumnya di tatami ini">
+            <i class="fas fa-history me-1"></i> Wasit Sebelumnya
+        </button>
+        <button type="button" class="btn-mq-modal" onclick="openMatchModal({{ db.pk }})" title="Buka Pengaturan Lengkap Wasit">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+    </div>
+    {% endif %}
 </div>
