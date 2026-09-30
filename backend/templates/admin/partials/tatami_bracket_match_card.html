@@ -1,20 +1,16 @@
 {% load static %}
-<div class="match {% if db.active_on_tatami %}is-active-match{% elif next_up_match and db.pk == next_up_match.pk %}is-next-match{% endif %} {% if db.selesai %}is-finished{% endif %}"
+<div class="match {% if db.active_on_tatami %}is-active-match{% endif %} {% if db.selesai %}is-finished{% endif %}"
      data-id="r{{ db.round }}m{{ db.urutan }}"
      id="db-{{ db.pk }}"
      onclick="openMatchModal({{ db.pk }})"
-     title="Klik untuk mengatur wasit & mengaktifkan partai #{{ db.urutan }}">
+     title="Klik untuk mengatur wasit & partai #{{ db.urutan }}">
 
     <div class="match-header">
         <div class="match-header-left">
-            <span class="match-num">Match {{ db.urutan }}</span>
+            <span class="match-num" style="color: #cbd5e1; font-weight: 700;">Match {{ db.urutan }}</span>
             {% if db.active_on_tatami %}
                 <span class="badge-live-tatami">
                     <span class="live-dot"></span> LIVE TATAMI {{ db.active_on_tatami.tatami_number }}
-                </span>
-            {% elif next_up_match and db.pk == next_up_match.pk %}
-                <span class="badge-up-next">
-                    <i class="fas fa-forward"></i> UP NEXT
                 </span>
             {% elif db.selesai %}
                 <span class="match-badge-finish"><i class="fas fa-check-circle"></i> Selesai</span>
@@ -54,7 +50,7 @@
                 <span>{% if db.pemenang == '1' %}<i class="fas fa-crown text-warning me-1" title="Pemenang"></i>{% endif %}{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
             </div>
             <div class="player-sub">
-                {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                {% if db.atlet1 %}<span class="text-info fw-bold">{{ db.atlet1.perguruan.nama_perguruan|default:"-" }}</span> &bull; <span class="text-white text-opacity-95 fw-bold">{{ db.atlet1.utusan.nama_utusan|default:"-" }}</span>{% else %}&mdash;{% endif %}
             </div>
         </div>
         <div class="player-score-wrap">
@@ -75,7 +71,7 @@
                 <span>{% if db.pemenang == '2' %}<i class="fas fa-crown text-warning me-1" title="Pemenang"></i>{% endif %}{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
             </div>
             <div class="player-sub">
-                {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                {% if db.atlet2 %}<span class="text-info fw-bold">{{ db.atlet2.perguruan.nama_perguruan|default:"-" }}</span> &bull; <span class="text-white text-opacity-95 fw-bold">{{ db.atlet2.utusan.nama_utusan|default:"-" }}</span>{% else %}&mdash;{% endif %}
             </div>
         </div>
         <div class="player-score-wrap">
@@ -84,16 +80,4 @@
             </div>
         </div>
     </div>
-
-    <!-- Quick Action Bar on Card (Instantly visible for UP NEXT match on tree) -->
-    {% if next_up_match and db.pk == next_up_match.pk and not db.selesai %}
-    <div class="match-quick-bar" onclick="event.stopPropagation()">
-        <button type="button" class="btn-mq-prev" onclick="quickUsePreviousMatch({{ db.pk }})" title="Gunakan susunan wasit & juri dari partai sebelumnya di tatami ini">
-            <i class="fas fa-history me-1"></i> Wasit Sebelumnya
-        </button>
-        <button type="button" class="btn-mq-modal" onclick="openMatchModal({{ db.pk }})" title="Buka Pengaturan Lengkap Wasit">
-            <i class="fas fa-sliders-h"></i>
-        </button>
-    </div>
-    {% endif %}
 </div>

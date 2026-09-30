@@ -4269,17 +4269,17 @@ def find_best_match_for_tatami(tatami, event, exclude_current=False):
 PANEL_PRESETS = {
     'kumite_3': {
         'label': 'Kumite 3 Org',
-        'desc': '1 Wasit Utama, 2 Juri',
+        'desc': '1 Wasit, 2 Juri',
         'positions': ['referee', 'judge_1', 'judge_2'],
     },
     'kumite_5': {
         'label': 'Kumite 5 Org',
-        'desc': '1 Wasit Utama, 4 Juri (Tanpa Kansa)',
+        'desc': '1 Wasit, 4 Juri (Tanpa Kansa)',
         'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4'],
     },
     'kumite_6': {
         'label': 'Kumite 6 Org (WKF)',
-        'desc': '1 Wasit Utama, 4 Juri, 1 Kansa',
+        'desc': '1 Wasit, 4 Juri, 1 Kansa',
         'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'kansa'],
     },
     'kata_3': {
@@ -4299,7 +4299,7 @@ PANEL_PRESETS = {
     },
     'solo_1': {
         'label': '1 Wasit',
-        'desc': 'Wasit Utama Saja',
+        'desc': 'Wasit Saja',
         'positions': ['referee'],
     },
 }
@@ -4736,7 +4736,9 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None, active_sl
 
     pos_display_dict = dict(WasitTatami.POSISI_CHOICES)
     pos_friendly_names = {
-        'referee': 'Wasit Utama (Referee)',
+        'referee': 'Wasit',
+        'wasit': 'Wasit',
+        'wasit_utama': 'Wasit',
         'wasit_2': 'Wasit 2',
         'judge_1': 'Juri 1',
         'judge_2': 'Juri 2',
@@ -4745,8 +4747,8 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None, active_sl
         'judge_5': 'Juri 5',
         'judge_6': 'Juri 6',
         'judge_7': 'Juri 7',
-        'kansa': 'Kansa (Pengawas)',
-        'tatami_manager': 'Tatami Manager',
+        'kansa': 'Kansa',
+        'tatami_manager': 'Manager',
     }
 
     conflict_warnings = []
@@ -4761,11 +4763,17 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None, active_sl
                 has_conflict = True
                 perg_name = w.perguruan.nama_perguruan if w.perguruan else 'Umum'
                 conflict_reason = f"Perguruan sama dengan atlet ({perg_name})"
-                conflict_warnings.append(f"{asg.get_posisi_display()}: {w.nama_wasit} — {conflict_reason}")
+                pos_short = pos_friendly_names.get(asg.posisi, asg.posisi.replace('_', ' ').title())
+                conflict_warnings.append(f"{pos_short}: {w.nama_wasit} — {conflict_reason}")
+
+        clean_label = pos_friendly_names.get(pos_code)
+        if not clean_label:
+            raw_label = pos_display_dict.get(pos_code, pos_code.replace('_', ' ').title())
+            clean_label = raw_label.split('(')[0].strip()
 
         position_slots.append({
             'posisi_code': pos_code,
-            'posisi_label': pos_friendly_names.get(pos_code, pos_display_dict.get(pos_code, pos_code.replace('_', ' ').title())),
+            'posisi_label': clean_label,
             'assigned': asg,
             'has_conflict': has_conflict,
             'conflict_reason': conflict_reason,
@@ -5566,7 +5574,7 @@ def admin_tatami_manager(request, event_pk):
 
     # Master Wasit Statistics for Top Bar
     all_wasits = list(Wasit.objects.filter(event=event).select_related('perguruan').order_by('nama_wasit'))
-    all_tatami_assignments = list(WasitTatami.objects.filter(event=event))
+    all_tatami_assignments = list(WasitTatami.objects.filter(event=event).select_related('wasit__perguruan'))
     total_wasit = len(all_wasits)
     assigned_wasit_count = len([a for a in all_tatami_assignments if a.posisi != 'pool'])
     available_wasit_count = max(0, total_wasit - assigned_wasit_count)
@@ -5582,16 +5590,24 @@ def admin_tatami_manager(request, event_pk):
 
     next_up_match = None
     if selected_tatami:
+        # Exclude ALL matches currently active on ANY tatami in this event
+        # to prevent cross-tatami collision (e.g. Tatami 2 running Match #3
+        # should not appear as UP NEXT on Tatami 1)
+        active_on_any_tatami = set(
+            Tatami.objects.filter(
+                event=event, detail_bagan__isnull=False, detail_bagan__selesai=False
+            ).values_list('detail_bagan_id', flat=True)
+        )
+
         candidate_qs = DetailBagan.objects.filter(
             bagan__event=event,
             selesai=False
+        ).exclude(
+            pk__in=active_on_any_tatami
         ).select_related(
             'bagan__nomor_tanding', 'atlet1__perguruan', 'atlet1__utusan',
             'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami'
         ).prefetch_related('wasit_assignments__wasit__perguruan')
-
-        if current_live_match:
-            candidate_qs = candidate_qs.exclude(pk=current_live_match.pk)
 
         if selected_bagan:
             next_up_match = candidate_qs.filter(bagan=selected_bagan, atlet1__isnull=False, atlet2__isnull=False).order_by('round', 'urutan').first()

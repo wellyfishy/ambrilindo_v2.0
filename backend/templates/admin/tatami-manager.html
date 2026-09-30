@@ -21,15 +21,15 @@
             --bg-surface: #111217;
             --bg-surface-elevated: #161822;
             --bg-card: rgba(18, 23, 34, 0.94);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --border-highlight: rgba(255, 255, 255, 0.18);
+            --border-glass: rgba(255, 255, 255, 0.14);
+            --border-highlight: rgba(255, 255, 255, 0.28);
             --cal-red: #ef4444;
             --cal-blue: #3b82f6;
             --cal-gold: #f59e0b;
             --cal-green: #10b981;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
             --radius-card: 10px;
             --radius-control: 8px;
             --radius-pill: 9999px;
@@ -65,7 +65,7 @@
             border-bottom: 1px solid var(--border-glass);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 110;
             padding: 12px 20px;
         }
 
@@ -241,53 +241,42 @@
             color: #ffffff;
         }
 
-        /* Sticky Arena HUD / Match Command Bar */
+        /* Sticky Arena HUD / Live Match Command Bar (High Contrast) */
         .tm-arena-hud {
             position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(13, 16, 23, 0.95);
+            top: 48px;
+            z-index: 99;
+            background: rgba(11, 14, 20, 0.98);
             backdrop-filter: blur(14px);
-            border-bottom: 1.5px solid var(--border-glass);
-            padding: 10px 24px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.16);
+            padding: 8px 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
             transition: all 0.2s ease;
         }
 
         .hud-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.35fr;
-            gap: 16px;
+            display: flex;
             align-items: center;
-        }
-
-        @media (max-width: 991px) {
-            .hud-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
+            width: 100%;
         }
 
         .hud-section {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: var(--radius-control);
-            padding: 8px 14px;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 14px;
             min-height: 52px;
+            width: 100%;
         }
 
         .hud-section.live-section {
-            border-left: 4px solid #ef4444;
-            background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(255, 255, 255, 0.02));
-        }
-
-        .hud-section.next-section {
-            border-left: 4px solid #3b82f6;
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.12), rgba(255, 255, 255, 0.02));
+            border-left: 5px solid #ef4444;
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.22), rgba(20, 24, 34, 0.96));
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
         }
 
         .hud-content {
@@ -581,11 +570,14 @@
             100% { outline: 0px solid transparent; }
         }
 
-        /* Tatami Tabs Strip */
+        /* Tatami Tabs Strip (Top Sticky Bar) */
         .tatami-tabs-strip {
-            background: rgba(17, 18, 23, 0.7);
-            border-bottom: 1px solid var(--border-glass);
-            padding: 8px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #0d1017;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.16);
+            padding: 8px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -605,27 +597,27 @@
             gap: 8px;
             padding: 6px 14px;
             border-radius: var(--radius-control);
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
-            color: var(--text-secondary);
+            background: #171b26;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f1f5f9;
             text-decoration: none;
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 700;
             transition: all 0.18s ease;
             white-space: nowrap;
         }
 
         .tatami-tab-item:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: #2563eb;
             color: #ffffff;
-            border-color: var(--border-highlight);
+            border-color: #3b82f6;
         }
 
         .tatami-tab-item.active {
-            background: rgba(229, 37, 37, 0.14);
-            border-color: rgba(229, 37, 37, 0.4);
-            color: #fca5a5;
-            box-shadow: 0 0 14px rgba(229, 37, 37, 0.15);
+            background: #dc2626;
+            border-color: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(220, 38, 38, 0.45);
         }
 
         .tatami-tab-item .count-badge {
@@ -678,7 +670,7 @@
 
         .bracket-outer {
             position: relative;
-            width: 100%;
+            width: max-content;
             min-width: 100%;
             height: 100%;
             z-index: 1;
@@ -978,13 +970,14 @@
         }
 
         .player-name.empty {
-            color: var(--text-muted);
+            color: #94a3b8;
             font-style: italic;
         }
 
         .player-sub {
             font-size: 11.5px;
-            color: var(--text-muted);
+            color: #cbd5e1;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1037,15 +1030,15 @@
 
         .tm-modal-window {
             background: #111217;
-            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
             border-radius: var(--radius-card);
-            width: 100%;
-            max-width: 1080px;
-            max-height: 90vh;
+            width: 98vw;
+            max-width: 1480px;
+            max-height: 94vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
             animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -1335,12 +1328,13 @@
             font-weight: 600;
         }
 
-        /* Single-Column Focused Modal Workspace */
+        /* Full-Width Modal Workspace */
         .tm-slots-workspace {
             display: block;
-            max-width: 840px;
+            max-width: 100%;
             margin: 0 auto;
             width: 100%;
+            padding-bottom: 220px;
         }
 
         .tm-section-subhead {
@@ -1404,13 +1398,13 @@
         }
 
         .btn-tm-preset {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: var(--text-secondary);
+            background: #141a26;
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            color: #e2e8f0;
             font-family: var(--font-sans);
             font-size: 11px;
             font-weight: 600;
-            padding: 4px 10px;
+            padding: 5px 11px;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -1419,25 +1413,25 @@
             gap: 6px;
         }
         .btn-tm-preset:hover {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: rgba(59, 130, 246, 0.4);
+            background: #1e293b;
+            border-color: #38bdf8;
             color: #ffffff;
             transform: translateY(-1px);
         }
         .btn-tm-preset.is-active {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(37, 99, 235, 0.25));
-            border-color: #3b82f6;
+            background: #0284c7;
+            border-color: #38bdf8;
             color: #ffffff;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
             font-weight: 700;
         }
         .btn-tm-preset .preset-count {
             font-family: var(--font-mono);
             font-size: 9.5px;
-            padding: 1px 5px;
+            padding: 1px 6px;
             border-radius: 4px;
-            background: rgba(0, 0, 0, 0.3);
-            opacity: 0.85;
+            background: rgba(0, 0, 0, 0.45);
+            color: #ffffff;
         }
 
         .tm-preset-custom-tag {
@@ -1475,8 +1469,9 @@
         }
 
         .btn-slot-delete {
-            background: transparent;
-            border: none;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
             color: var(--text-muted);
             width: 22px;
             height: 22px;
@@ -1489,263 +1484,533 @@
             transition: all 0.15s ease;
         }
         .btn-slot-delete:hover {
-            background: rgba(239, 68, 68, 0.25);
-            color: #f87171;
+            background: rgba(239, 68, 68, 0.25) !important;
+            color: #f87171 !important;
             transform: scale(1.1);
         }
 
         /* Drag & Drop Feedback Styling */
         .tm-slot-drag-handle, .tm-item-drag-handle {
             color: var(--text-muted);
-        /* Position Slot Cards */
+        }
+
+        /* Position Slot Cards (100% Full Modal Width Responsive Row) */
         .tm-slots-grid {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: nowrap;
             gap: 12px;
+            align-items: stretch;
+            width: 100%;
         }
 
         .tm-slot-card {
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius-card);
-            padding: 14px 16px;
-            transition: all 0.18s ease;
+            flex: 1 1 0;
+            min-width: 0;
+            width: 100%;
+            background: #141923;
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 12px 10px;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 245px;
+            cursor: pointer;
+            user-select: none;
+            z-index: 1;
+        }
+
+        .tm-slot-card:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
         }
 
         .tm-slot-card.is-occupied {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: #0f1c2e;
+            border-color: #0284c7;
+            box-shadow: 0 4px 18px rgba(2, 132, 199, 0.25);
         }
 
         .tm-slot-card.has-conflict {
             border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.06);
+            background: #201014;
+            box-shadow: 0 4px 18px rgba(239, 68, 68, 0.3);
         }
 
         .tm-slot-card.is-vacant {
-            background: rgba(255, 255, 255, 0.015);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
+            background: #131722;
+            border: 1.5px dashed rgba(255, 255, 255, 0.24);
         }
         .tm-slot-card.is-vacant:hover {
-            border-color: rgba(56, 189, 248, 0.5);
-            background: rgba(56, 189, 248, 0.02);
+            border-color: #38bdf8;
+            background: #172030;
+        }
+
+        /* Highest Z-Index overlay container when active */
+        .tm-slot-card.is-active-card {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5), 0 16px 36px rgba(0, 0, 0, 0.9) !important;
+            z-index: 99998 !important;
+            transform: none !important;
         }
 
         .tm-slot-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .tm-slot-role-badge {
             font-family: var(--font-mono);
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
             padding: 3px 8px;
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
             letter-spacing: 0.03em;
+            white-space: nowrap;
+            display: inline-block;
         }
-        .tm-slot-role-badge.referee { background: #dc2626; color: #ffffff; }
-        .tm-slot-role-badge.kansa { background: #f59e0b; color: #451a03; }
+        .tm-slot-role-badge[class*="judge"] {
+            background: #0369a1;
+            border: 1px solid #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+        }
+        .tm-slot-role-badge.referee, .tm-slot-role-badge.wasit_2, .tm-slot-role-badge.wasit {
+            background: #b91c1c;
+            border: 1px solid #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+        }
+        .tm-slot-role-badge.kansa {
+            background: #b45309;
+            border: 1px solid #f59e0b;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+        .tm-slot-role-badge.tatami_manager {
+            background: #475569;
+            border: 1px solid #94a3b8;
+            color: #ffffff;
+        }
 
         .tm-conflict-chip {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
-            color: #fca5a5;
-            background: rgba(239, 68, 68, 0.25);
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            padding: 2px 7px;
+            color: #ffffff;
+            background: #dc2626;
+            border: 1px solid #ef4444;
+            padding: 2px 6px;
             border-radius: 3px;
+            white-space: nowrap;
         }
 
         .tm-ok-chip {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
-            color: #34d399;
-            background: rgba(16, 185, 129, 0.18);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            padding: 2px 7px;
+            color: #ffffff;
+            background: #059669;
+            border: 1px solid #10b981;
+            padding: 2px 6px;
             border-radius: 3px;
+            white-space: nowrap;
         }
 
-        .tm-vacant-chip {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            color: #cbd5e1;
-            background: rgba(148, 163, 184, 0.15);
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            padding: 2px 7px;
-            border-radius: 4px;
+        .btn-slot-delete {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 3px;
+            transition: all 0.15s ease;
+        }
+        .btn-slot-delete:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
         }
 
+        /* Centered Vertical Layout: Photo On Top, Name Below */
         .tm-slot-body {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .tm-slot-assigned-info {
+            text-align: center;
             flex: 1;
+            gap: 4px;
+            padding: 6px 2px;
+            width: 100%;
         }
 
-        .tm-assigned-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: #ffffff;
+        .tm-slot-avatar-wrap {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 8px auto;
+            flex-shrink: 0;
         }
 
-        .tm-assigned-meta {
-            font-size: 12.5px;
-            color: #94a3b8;
-            margin-top: 3px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            flex-wrap: wrap;
+        .tm-slot-assigned-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 2px solid #38bdf8;
+            box-shadow: 0 4px 18px rgba(56, 189, 248, 0.35);
+            background: #1e293b;
+            display: block;
         }
 
-        .btn-slot-remove {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-sm);
+        .tm-slot-assigned-avatar.vacant-avatar {
+            opacity: 0.45;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            filter: grayscale(1);
+        }
+
+        .tm-slot-card:hover .tm-slot-assigned-avatar.vacant-avatar {
+            opacity: 0.85;
+            border-color: #38bdf8;
+            border-style: solid;
+            filter: grayscale(0.2);
+        }
+
+        .tm-slot-change-hint {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 132, 199, 0.88);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            pointer-events: none;
+        }
+        .tm-slot-card:hover .tm-slot-change-hint {
+            opacity: 1;
+        }
+
+        .tm-slot-add-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #0284c7;
+            border: 2px solid #141923;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .tm-assigned-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.25;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .tm-assigned-meta {
+            font-size: 12px;
+            color: #e2e8f0;
+            font-weight: 600;
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .tm-assigned-perg {
+            font-weight: 800;
+            color: #38bdf8 !important;
+        }
+
+        .tm-assigned-kab {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .tm-assigned-bullet {
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0 1px;
+        }
+
+        .tm-vacant-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #38bdf8;
+            line-height: 1.25;
+            margin-top: 2px;
+        }
+
+        .tm-vacant-meta {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .tm-slot-footer {
+            width: 100%;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .tm-status-chip-active {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .tm-status-vacant-chip {
+            font-size: 10.5px;
+            color: #64748b;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-slot-remove {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+            color: #fca5a5 !important;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
             cursor: pointer;
             transition: all 0.15s ease;
         }
         .btn-slot-remove:hover {
-            background: rgba(239, 68, 68, 0.25);
-            border-color: #ef4444;
-            color: #f87171;
+            background: #dc2626 !important;
+            border-color: #ef4444 !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
         }
 
-        /* Fuzzy Searchable Standby Wasit Component */
-        .tm-slot-empty-state {
-            width: 100%;
-        }
-
-        .tm-fuzzy-container {
-            position: relative;
-            width: 100%;
-        }
-
-        .tm-fuzzy-input-wrapper {
-            display: flex;
-            align-items: center;
-            background: #090b10;
-            border: 1.5px solid rgba(255, 255, 255, 0.18);
-            border-radius: var(--radius-control);
-            padding: 6px 12px;
-            transition: all 0.18s ease;
-        }
-        .tm-fuzzy-input-wrapper:focus-within {
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-            background: #0c1017;
-        }
-
-        .tm-fuzzy-search-icon {
-            color: #64748b;
-            font-size: 13px;
-            margin-right: 10px;
-        }
-
-        .tm-fuzzy-input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
-            flex: 1;
-            padding: 3px 0;
-        }
-        .tm-fuzzy-input::placeholder {
-            color: #64748b;
-            font-size: 12.5px;
-            font-weight: 400;
-        }
-
-        .btn-fuzzy-toggle {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            padding: 2px 6px;
-            font-size: 12px;
-            transition: color 0.15s;
-        }
-        .btn-fuzzy-toggle:hover {
-            color: #ffffff;
-        }
-
+        /* Suggestion Select Overlay: Large & Elderly-Friendly Popover */
         .tm-fuzzy-dropdown {
             position: absolute;
-            top: calc(100% + 5px);
+            top: -10px;
             left: 0;
-            right: 0;
-            max-height: 270px;
+            width: 480px;
+            max-width: calc(100vw - 32px);
+            height: 460px;
+            max-height: 480px;
+            background: #0b111e;
+            border: 2px solid #38bdf8;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.98), 0 0 24px rgba(56, 189, 248, 0.4);
+            z-index: 99999 !important;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            overflow-x: hidden !important;
+            animation: fadeInOverlay 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: left;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .tm-fuzzy-search-bar {
+            padding: 10px 14px;
+            background: #0f172a;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.14);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            min-height: 52px;
+        }
+
+        .tm-fuzzy-role-tag {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .tm-fuzzy-role-tag[class*="judge"] {
+            background: #0369a1;
+            border: 1px solid #38bdf8;
+            color: #ffffff;
+        }
+        .tm-fuzzy-role-tag.referee, .tm-fuzzy-role-tag.wasit_2, .tm-fuzzy-role-tag.wasit {
+            background: #b91c1c;
+            border: 1px solid #ef4444;
+            color: #ffffff;
+        }
+        .tm-fuzzy-role-tag.kansa {
+            background: #b45309;
+            border: 1px solid #f59e0b;
+            color: #ffffff;
+        }
+        .tm-fuzzy-role-tag.tatami_manager {
+            background: #475569;
+            border: 1px solid #94a3b8;
+            color: #ffffff;
+        }
+
+        .tm-fuzzy-search-input {
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            color: #ffffff !important;
+            font-size: 14.5px;
+            font-weight: 600;
+            flex: 1;
+            min-width: 0;
+            padding: 4px 0;
+        }
+        .tm-fuzzy-search-input::placeholder {
+            color: #94a3b8;
+            font-size: 13.5px;
+            font-weight: 500;
+        }
+
+        .btn-fuzzy-close {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #cbd5e1;
+            font-size: 16px;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .btn-fuzzy-close:hover {
+            color: #ffffff;
+            background: #dc2626;
+            border-color: #ef4444;
+            transform: scale(1.05);
+        }
+
+        .tm-fuzzy-options-list {
             overflow-y: auto;
-            background: #0d1117;
-            border: 1.5px solid #38bdf8;
-            border-radius: 8px;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
-            z-index: 1080;
-            padding: 6px;
+            overflow-x: hidden !important;
+            flex: 1;
+            padding: 8px 10px;
+        }
+        .tm-fuzzy-options-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .tm-fuzzy-options-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+        }
+        .tm-fuzzy-options-list::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .tm-fuzzy-options-list::-webkit-scrollbar-thumb:hover {
+            background: #475569;
         }
 
         .tm-fuzzy-option {
-            padding: 9px 12px;
-            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.12s ease;
+            transition: all 0.12s ease;
             outline: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
         }
         .tm-fuzzy-option:last-child {
-            border-bottom: none;
+            margin-bottom: 0;
         }
         .tm-fuzzy-option:hover, .tm-fuzzy-option:focus, .tm-fuzzy-option.is-highlighted {
             background: #1d4ed8;
+            border-color: #3b82f6;
             color: #ffffff;
+            box-shadow: 0 4px 14px rgba(29, 78, 216, 0.45);
+            transform: translateY(-1px);
         }
         .tm-fuzzy-option:hover .tm-fo-meta, .tm-fuzzy-option:focus .tm-fo-meta, .tm-fuzzy-option.is-highlighted .tm-fo-meta {
-            color: #cbd5e1;
+            color: #e2e8f0;
         }
         .tm-fuzzy-option:hover .text-info, .tm-fuzzy-option:focus .text-info, .tm-fuzzy-option.is-highlighted .text-info {
             color: #93c5fd !important;
         }
+        .tm-fuzzy-empty {
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .tm-fo-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            background: #1e293b;
+            flex-shrink: 0;
+        }
 
         .tm-fo-name {
-            font-size: 13.5px;
+            font-size: 15.5px;
             font-weight: 700;
             color: #ffffff;
+            line-height: 1.3;
         }
 
         .tm-fo-meta {
-            font-size: 11.5px;
+            font-size: 13px;
             color: #94a3b8;
-            margin-top: 2px;
+            margin-top: 3px;
+            line-height: 1.3;
         }
 
         .tm-fo-badge {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 4px;
+            padding: 3px 8px;
+            border-radius: 5px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .badge-tatami-team {
             background: rgba(37, 99, 235, 0.25);
@@ -1811,69 +2076,17 @@
 </head>
 <body>
 
-    <!-- Top Navigation Header -->
-    <header class="tm-header">
-        <div class="tm-nav-strip">
-            <!-- Left: Brand & Breadcrumb -->
-            <div class="tm-nav-left">
-                <span class="tm-badge-brand">
-                    <i class="fas fa-tv"></i> TATAMI MANAGER
-                </span>
-                <nav class="tm-breadcrumb" aria-label="Breadcrumb">
-                    <a href="{% url 'admin-dashboard' event_pk=event.pk %}">
-                        <i class="fas fa-chevron-left"></i> Dashboard
-                    </a>
-                    <span>/</span>
-                    <span>Bagan Arena</span>
-                </nav>
-            </div>
+    <!-- Global CSRF Token for postTmAction quick-actions outside modal -->
+    <form id="globalCsrfForm" class="d-none">{% csrf_token %}</form>
 
-            <!-- Center: Bagan / Category Selector Dropdown -->
-            <div class="tm-nav-center">
-                <div class="tm-bagan-selector-wrap">
-                    <span class="tm-category-badge">BAGAN</span>
-                    <select id="baganSelector" class="tm-select-bagan" onchange="switchBagan(this.value)">
-                        {% for b in all_bagans %}
-                            <option value="{{ b.pk }}" {% if selected_bagan and selected_bagan.pk == b.pk %}selected{% endif %}>
-                                ({{ b.kode }}) {{ b.nomor_tanding.nama_nomor_tanding|default:b.nama_bagan }}
-                                {% if b.pool and b.pool > 1 %} &bull; Pool {{ b.pool }}{% endif %}
-                            </option>
-                        {% empty %}
-                            <option value="">Belum ada bagan yang dibuat</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-
-            <!-- Right: Actions & Stats -->
-            <div class="tm-nav-actions">
-                <div class="ws-status-pill" id="wsPill" title="Status sinkronisasi real-time via WebSocket">
-                    <div class="ws-dot"></div>
-                    <span id="wsText">Live Sync</span>
-                </div>
-
-                <button type="button" class="btn-tm btn-tm-outline" id="autoFollowToggle" onclick="toggleAutoFollow()" title="Otomatis beralih bagan saat operator tatami menjalankan partai baru">
-                    <i class="fas fa-satellite-dish text-success" id="autoFollowIcon"></i>
-                    <span id="autoFollowText">Auto-Follow: ON</span>
-                </button>
-
-                {% if is_admin %}
-                <a href="{% url 'admin-wasit' event_pk=event.pk %}" class="btn-tm btn-tm-outline" title="Kelola Master Wasit">
-                    <i class="fas fa-users-cog"></i> Master Wasit
-                </a>
-                {% endif %}
-
-                <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn-tm btn-tm-outline">
-                    <i class="fas fa-home"></i> Event
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Tatami Tabs Strip -->
+    <!-- Top Sticky Arena & Navigation Strip (Compact Unified Bar) -->
     <div class="tatami-tabs-strip">
         <div class="tatami-tabs-list">
-            <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase;">
+            <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn-tm btn-tm-outline" title="Kembali ke Dashboard Event" style="font-weight: 700; color: #ffffff; border-color: rgba(255,255,255,0.25);">
+                <i class="fas fa-chevron-left me-1"></i> Dashboard
+            </a>
+
+            <span style="font-size: 11px; font-weight: 800; color: #cbd5e1; letter-spacing: 0.08em; text-transform: uppercase; margin-left: 8px;">
                 ARENA:
             </span>
             {% for t in tatamis %}
@@ -1883,94 +2096,99 @@
                     <span class="count-badge">{{ t.assigned_count }} Wasit</span>
                 </a>
             {% empty %}
-                <span class="text-muted small">Belum ada tatami yang dibuat.</span>
+                <span class="text-white text-opacity-80 small">Belum ada tatami yang dibuat.</span>
             {% endfor %}
         </div>
 
-        <div class="tatami-stats-pill">
-            <span class="text-info"><i class="fas fa-users"></i> <strong>{{ metrics.assigned_wasit }}</strong>/{{ metrics.total_wasit }} Bertugas</span>
-            <span>&bull;</span>
-            <span class="text-success"><strong>{{ metrics.available_wasit }}</strong> Standby</span>
+        <!-- Center & Right: Bagan Selector & Live Sync Controls -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="tm-bagan-selector-wrap" style="max-width: 420px;">
+                <span class="tm-category-badge" style="background: rgba(239, 68, 68, 0.25); border-color: #ef4444; color: #ffffff; font-weight: 800;">BAGAN</span>
+                <select id="baganSelector" class="tm-select-bagan" onchange="switchBagan(this.value)" style="background: #161a24; border-color: rgba(255,255,255,0.25); color: #ffffff; font-weight: 700;">
+                    {% for b in all_bagans %}
+                        <option value="{{ b.pk }}" {% if selected_bagan and selected_bagan.pk == b.pk %}selected{% endif %}>
+                            ({{ b.kode }}) {{ b.nomor_tanding.nama_nomor_tanding|default:b.nama_bagan }}
+                            {% if b.pool and b.pool > 1 %} &bull; Pool {{ b.pool }}{% endif %}
+                        </option>
+                    {% empty %}
+                        <option value="">Belum ada bagan yang dibuat</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="ws-status-pill" id="wsPill" title="Status sinkronisasi real-time via WebSocket" style="border-color: rgba(255,255,255,0.25); color: #ffffff;">
+                <div class="ws-dot"></div>
+                <span id="wsText">Live Sync</span>
+            </div>
+
+            <button type="button" class="btn-tm btn-tm-outline" id="autoFollowToggle" onclick="toggleAutoFollow()" title="Otomatis beralih bagan saat operator tatami menjalankan partai baru" style="border-color: rgba(255,255,255,0.25); color: #ffffff;">
+                <i class="fas fa-satellite-dish text-success" id="autoFollowIcon"></i>
+                <span id="autoFollowText">Auto-Follow: ON</span>
+            </button>
+
+            {% if is_admin %}
+            <a href="{% url 'admin-wasit' event_pk=event.pk %}" class="btn-tm btn-tm-outline" title="Kelola Master Wasit" style="border-color: rgba(255,255,255,0.25); color: #ffffff;">
+                <i class="fas fa-users-cog"></i> <span class="d-none d-lg-inline">Master Wasit</span>
+            </a>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Sticky Arena HUD / Match Command Bar (Always Visible Above Tree) -->
+    <!-- Sticky Arena HUD: High-Contrast LIVE Match Bar Only -->
     <div class="tm-arena-hud" id="tmArenaHud">
         <div class="hud-grid">
-            <!-- LIVE MATCH SECTION -->
+            <!-- LIVE MATCH SECTION (FULL WIDTH) -->
             <div class="hud-section live-section">
                 <div class="hud-content">
                     <span class="hud-tag live"><span class="live-dot-pulse"></span> LIVE</span>
                     {% if current_live_match %}
                         <div class="hud-match-title">
-                            <span class="badge bg-secondary font-monospace" style="font-size: 11px;">#{{ current_live_match.urutan }}</span>
-                            <span>{{ current_live_match.bagan.nomor_tanding.nama_nomor_tanding|default:current_live_match.bagan.nama_bagan }}</span>
+                            <span class="badge bg-danger font-monospace" style="font-size: 12px; font-weight: 800; padding: 4px 8px;">PARTAI #{{ current_live_match.urutan }}</span>
+                            <span class="fw-bold text-white fs-6">
+                                {{ current_live_match.bagan.nomor_tanding.nama_nomor_tanding|default:current_live_match.bagan.nama_bagan }}
+                                {% if current_live_match.bagan.pool and current_live_match.bagan.pool > 1 %}&bull; Pool {{ current_live_match.bagan.pool }}{% endif %}
+                            </span>
                         </div>
-                        <div class="d-flex align-items-center gap-1 small">
-                            <span class="hud-fighter aka">{{ current_live_match.atlet1.nama_atlet|default:"Menunggu" }}</span>
-                            <span class="text-muted">vs</span>
-                            <span class="hud-fighter ao">{{ current_live_match.atlet2.nama_atlet|default:"Menunggu" }}</span>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <!-- AKA Fighter -->
+                            <div class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="background: rgba(220, 38, 38, 0.35); border: 1.5px solid #ef4444;">
+                                <span class="badge" style="background: #dc2626; color: #fff; font-size: 10.5px; font-weight: 800;">AKA</span>
+                                <span class="text-white fw-bold" style="font-size: 14px;">{{ current_live_match.atlet1.nama_atlet|default:"Menunggu" }}</span>
+                                {% if current_live_match.atlet1.perguruan %}
+                                    <span class="text-info fw-bold" style="font-size: 12.5px;">({{ current_live_match.atlet1.perguruan.nama_perguruan }})</span>
+                                {% endif %}
+                            </div>
+
+                            <span class="badge bg-secondary text-white fw-bold px-2 py-1" style="font-size: 10px;">VS</span>
+
+                            <!-- AO Fighter -->
+                            <div class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="background: rgba(2, 132, 199, 0.35); border: 1.5px solid #0284c7;">
+                                <span class="badge" style="background: #0284c7; color: #fff; font-size: 10.5px; font-weight: 800;">AO</span>
+                                <span class="text-white fw-bold" style="font-size: 14px;">{{ current_live_match.atlet2.nama_atlet|default:"Menunggu" }}</span>
+                                {% if current_live_match.atlet2.perguruan %}
+                                    <span class="text-info fw-bold" style="font-size: 12.5px;">({{ current_live_match.atlet2.perguruan.nama_perguruan }})</span>
+                                {% endif %}
+                            </div>
                         </div>
                     {% else %}
-                        <span class="text-muted small">Tatami {{ selected_tatami.tatami_number }} Standby &bull; Belum ada partai berjalan</span>
+                        <!-- High Contrast Standby Notification -->
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary font-monospace" style="font-size: 11px; font-weight: 800; padding: 4px 8px;">STANDBY</span>
+                            <span class="text-white fw-bold" style="font-size: 14.5px;">
+                                <i class="fas fa-clock text-warning me-1"></i> Tatami {{ selected_tatami.tatami_number }} Standby &mdash; Belum ada partai yang sedang berjalan.
+                            </span>
+                        </div>
                     {% endif %}
                 </div>
                 <div class="hud-btn-group">
                     {% if current_live_match %}
-                        <button type="button" class="btn-hud-btn" onclick="centerMatchCard({{ current_live_match.pk }})" title="Pusatkan posisi bagan ke partai live">
-                            <i class="fas fa-crosshairs text-danger"></i>
+                        <button type="button" class="btn-hud-btn" onclick="centerMatchCard({{ current_live_match.pk }})" title="Pusatkan posisi bagan ke partai live" style="background: rgba(239,68,68,0.3); border-color: #ef4444; color: #ffffff; font-weight: 700;">
+                            <i class="fas fa-crosshairs text-danger"></i> Pusatkan
                         </button>
-                        <button type="button" class="btn-hud-btn" onclick="openMatchModal({{ current_live_match.pk }})" title="Lihat/Edit Wasit Partai Live">
-                            <i class="fas fa-user-edit text-warning"></i>
-                            <span>{{ current_live_match.assigned_wasit_count }} Wasit</span>
+                        <button type="button" class="btn-hud-btn" id="hudLiveWasitBtn" onclick="openMatchModal({{ current_live_match.pk }})" title="Lihat/Edit Susunan Wasit Partai Live" style="background: rgba(245,158,11,0.3); border-color: #f59e0b; color: #ffffff; font-weight: 700;">
+                            <i class="fas fa-user-shield text-warning"></i>
+                            <span id="hudLiveWasitBadge">{{ current_live_match.assigned_wasit_count }}/5 Wasit</span>
                         </button>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- UP NEXT MATCH SECTION -->
-            <div class="hud-section next-section" id="hudNextSection" {% if next_up_match %}data-match-pk="{{ next_up_match.pk }}"{% endif %}>
-                <div class="hud-content">
-                    <span class="hud-tag next"><i class="fas fa-forward"></i> UP NEXT</span>
-                    {% if next_up_match %}
-                        <div class="hud-match-title">
-                            <span class="badge bg-warning text-dark font-monospace" style="font-size: 11px;">#{{ next_up_match.urutan }}</span>
-                            <span class="hud-fighter aka">{{ next_up_match.atlet1.nama_atlet|default:"Menunggu" }}</span>
-                            <span class="text-muted">vs</span>
-                            <span class="hud-fighter ao">{{ next_up_match.atlet2.nama_atlet|default:"Menunggu" }}</span>
-                        </div>
-                        <span id="hudNextWasitBadge" class="badge {% if next_up_match.is_panel_complete %}bg-success{% else %}bg-warning text-dark{% endif %}" style="font-size: 11px;">
-                            {% if next_up_match.is_panel_complete %}
-                                <i class="fas fa-check-circle me-1"></i> {{ next_up_match.assigned_wasit_count }} Wasit Siap
-                            {% else %}
-                                <i class="fas fa-user-clock me-1"></i> Wasit ({{ next_up_match.assigned_wasit_count }}/{{ next_up_match.required_wasit_count }})
-                            {% endif %}
-                        </span>
-                    {% else %}
-                        <span class="text-muted small">Semua partai bagan ini telah selesai</span>
-                    {% endif %}
-                </div>
-                <div class="hud-btn-group">
-                    {% if next_up_match %}
-                        <!-- 1-Click Fast Actions on Sticky Bar -->
-                        <button type="button" class="btn-hud-btn btn-hud-prev" onclick="quickUsePreviousMatch({{ next_up_match.pk }})" title="Gunakan susunan wasit & juri dari partai sebelumnya di tatami ini">
-                            <i class="fas fa-history"></i> Wasit Sebelumnya
-                        </button>
-                        <button type="button" class="btn-hud-btn" onclick="centerMatchCard({{ next_up_match.pk }})" title="Pusatkan posisi bagan ke partai ini">
-                            <i class="fas fa-crosshairs text-primary"></i>
-                        </button>
-                        <button type="button" class="btn-hud-btn" onclick="openMatchModal({{ next_up_match.pk }})" title="Buka Modal Rinci Wasit">
-                            <i class="fas fa-sliders-h"></i>
-                        </button>
-                        <form method="POST" class="ajax-tm-form d-inline-block m-0" onsubmit="return confirm('Jalankan Partai #{{ next_up_match.urutan }} ke arena Tatami {{ selected_tatami.tatami_number }} sekarang?');">
-                            {% csrf_token %}
-                            <input type="hidden" name="submit_type" value="set_active_match">
-                            <input type="hidden" name="detailbagan_pk" value="{{ next_up_match.pk }}">
-                            <input type="hidden" name="tatami_pk" value="{{ selected_tatami.pk }}">
-                            <button type="submit" class="btn-hud-btn btn-hud-play" title="Aktifkan partai ini ke arena live">
-                                <i class="fas fa-play"></i> Jalankan
-                            </button>
-                        </form>
                     {% endif %}
                 </div>
             </div>
@@ -1984,9 +2202,6 @@
         <button type="button" class="btn-canvas-ctrl" onclick="resetZoomBracket()" title="Reset Ukuran Bagan (100%)">100%</button>
         {% if current_live_match %}
             <button type="button" class="btn-canvas-ctrl btn-ctrl-live" onclick="centerMatchCard({{ current_live_match.pk }})" title="Lompat ke Partai Live"><i class="fas fa-satellite-dish"></i> LIVE</button>
-        {% endif %}
-        {% if next_up_match %}
-            <button type="button" class="btn-canvas-ctrl btn-ctrl-next" onclick="centerMatchCard({{ next_up_match.pk }})" title="Lompat ke Partai Berikutnya"><i class="fas fa-forward"></i> NEXT</button>
         {% endif %}
     </div>
 
@@ -2321,7 +2536,15 @@
             if (!svg) return;
             svg.innerHTML = '';
 
-            const outer = svg.parentElement.getBoundingClientRect();
+            // Sync SVG size with bracket-outer's full content dimensions
+            // to prevent connector clipping when grid is zoomed or wider than viewport
+            const outerEl = svg.parentElement;
+            if (outerEl) {
+                svg.style.width = outerEl.scrollWidth + 'px';
+                svg.style.height = outerEl.scrollHeight + 'px';
+            }
+
+            const outer = outerEl.getBoundingClientRect();
             const cols = Array.from(document.querySelectorAll('.round-col'));
             const strokeColor = 'rgba(239, 68, 68, 0.4)';
             const strokeWidth = '1.5';
@@ -2401,12 +2624,10 @@
             setTimeout(drawConnectors, 100);
             setTimeout(drawConnectors, 300);
 
-            // Auto-center to active live match or next match on load
+            // Auto-center to active live match on load
             setTimeout(() => {
                 {% if current_live_match %}
                     centerMatchCard({{ current_live_match.pk }});
-                {% elif next_up_match %}
-                    centerMatchCard({{ next_up_match.pk }});
                 {% endif %}
             }, 350);
         });
@@ -2613,9 +2834,11 @@
             addTmSlot(slotType, wasitId);
         }
 
-        function removeTmSlot(posisi) {
+        function removeTmSlot(event, posisi) {
+            if (event && event.stopPropagation) event.stopPropagation();
+            closeAllFuzzyDropdowns();
             const matchPk = getTmMatchPk();
-            if (!matchPk) return;
+            if (!matchPk || !posisi) return;
             postTmAction({
                 submit_type: 'remove_panel_slot',
                 detailbagan_pk: matchPk,
@@ -2625,30 +2848,53 @@
         }
 
         /* ==========================================================================
-           Fuzzy Searchable Standby Wasit Dropdown Controller
+           Interactive 1-Click Referee Selection & Dropdown Overlay Controller
            ========================================================================== */
-        function openFuzzyDropdown(input) {
-            closeAllFuzzyDropdowns();
-            const container = input.closest('.tm-fuzzy-container');
-            if (!container) return;
-            const dropdown = container.querySelector('.tm-fuzzy-dropdown');
-            if (dropdown) {
-                dropdown.classList.remove('d-none');
-                filterFuzzyOptions(input);
+        function positionFuzzyDropdown(cardEl, dropdown) {
+            dropdown.style.left = '';
+            dropdown.style.right = '';
+            dropdown.style.transform = '';
+
+            const modalBody = cardEl.closest('.tm-modal-body') || cardEl.closest('.tm-slots-workspace') || document.body;
+            const modalRect = modalBody.getBoundingClientRect();
+            const cardRect = cardEl.getBoundingClientRect();
+            const dropdownWidth = 480;
+
+            // If card's left edge + dropdown width exceeds modal's right edge (with 15px margin)
+            if (cardRect.left + dropdownWidth > modalRect.right - 15) {
+                dropdown.style.left = 'auto';
+                dropdown.style.right = '0';
+            } else {
+                dropdown.style.left = '0';
+                dropdown.style.right = 'auto';
             }
         }
 
-        function toggleFuzzyDropdown(btn) {
-            const container = btn.closest('.tm-fuzzy-container');
-            if (!container) return;
-            const input = container.querySelector('.tm-fuzzy-input');
-            const dropdown = container.querySelector('.tm-fuzzy-dropdown');
+        function handleSlotCardClick(event, cardEl) {
+            // Ignore click if clicking delete slot button, lepas button, or inside dropdown
+            if (event.target.closest('.btn-slot-delete') || 
+                event.target.closest('.btn-slot-remove') || 
+                event.target.closest('.tm-fuzzy-dropdown')) {
+                return;
+            }
+
+            const dropdown = cardEl.querySelector('.tm-fuzzy-dropdown');
             if (!dropdown) return;
-            if (dropdown.classList.contains('d-none')) {
-                openFuzzyDropdown(input);
-                if (input) input.focus();
-            } else {
-                dropdown.classList.add('d-none');
+
+            const isAlreadyOpen = !dropdown.classList.contains('d-none');
+            closeAllFuzzyDropdowns();
+
+            if (!isAlreadyOpen) {
+                cardEl.classList.add('is-active-card');
+                positionFuzzyDropdown(cardEl, dropdown);
+                dropdown.classList.remove('d-none');
+
+                const searchInput = dropdown.querySelector('.tm-fuzzy-search-input');
+                if (searchInput) {
+                    searchInput.value = '';
+                    filterFuzzyOptions(searchInput);
+                    setTimeout(() => searchInput.focus(), 40);
+                }
             }
         }
 
@@ -2657,15 +2903,18 @@
                 d.classList.add('d-none');
                 d.querySelectorAll('.tm-fuzzy-option.is-highlighted').forEach(opt => opt.classList.remove('is-highlighted'));
             });
+            document.querySelectorAll('.tm-slot-card.is-active-card').forEach(c => {
+                c.classList.remove('is-active-card');
+            });
         }
 
         function filterFuzzyOptions(input) {
-            const container = input.closest('.tm-fuzzy-container');
-            if (!container) return;
+            const dropdown = input.closest('.tm-fuzzy-dropdown');
+            if (!dropdown) return;
             const query = (input.value || '').toLowerCase().trim();
             const words = query.split(/\s+/).filter(Boolean);
-            const options = container.querySelectorAll('.tm-fuzzy-option');
-            const noMatch = container.querySelector('.tm-fuzzy-no-match');
+            const options = dropdown.querySelectorAll('.tm-fuzzy-option');
+            const noMatch = dropdown.querySelector('.tm-fuzzy-no-match');
 
             let visibleCount = 0;
             options.forEach(opt => {
@@ -2681,15 +2930,8 @@
         }
 
         function handleFuzzyKeydown(e, input) {
-            const container = input.closest('.tm-fuzzy-container');
-            if (!container) return;
-            const dropdown = container.querySelector('.tm-fuzzy-dropdown');
-            if (!dropdown || dropdown.classList.contains('d-none')) {
-                if (e.key === 'ArrowDown' || e.key === 'Enter') {
-                    openFuzzyDropdown(input);
-                }
-                return;
-            }
+            const dropdown = input.closest('.tm-fuzzy-dropdown');
+            if (!dropdown || dropdown.classList.contains('d-none')) return;
 
             const visibleOpts = Array.from(dropdown.querySelectorAll('.tm-fuzzy-option')).filter(o => o.style.display !== 'none');
             const currentHighlighted = dropdown.querySelector('.tm-fuzzy-option.is-highlighted');
@@ -2722,7 +2964,8 @@
             }
         }
 
-        function selectFuzzyWasit(posisi, wasitId, wasitName) {
+        function selectFuzzyWasit(event, posisi, wasitId, wasitName) {
+            if (event && event.stopPropagation) event.stopPropagation();
             closeAllFuzzyDropdowns();
             const matchPk = getTmMatchPk();
             if (!matchPk || !wasitId) return;
@@ -2737,9 +2980,30 @@
             });
         }
 
+        function handleSlotRemove(event, posisi) {
+            if (event && event.stopPropagation) event.stopPropagation();
+            closeAllFuzzyDropdowns();
+            const matchPk = getTmMatchPk();
+            if (!matchPk || !posisi) return;
+
+            postTmAction({
+                submit_type: 'remove_match_wasit',
+                detailbagan_pk: matchPk,
+                posisi: posisi,
+                active_slots: getTmActiveSlots()
+            });
+        }
+
         // Close dropdown when clicked outside
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('.tm-fuzzy-container')) {
+            if (!e.target.closest('.tm-slot-card')) {
+                closeAllFuzzyDropdowns();
+            }
+        });
+
+        // Close dropdown on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
                 closeAllFuzzyDropdowns();
             }
         });
@@ -2905,6 +3169,64 @@
             if (crown) crown.remove();
         }
 
+        /**
+         * updateHudLiveSection - Dynamically refresh the Sticky Arena HUD
+         * to reflect the current live match state without requiring a full page reload.
+         * Called from WebSocket onmessage for 'get_atlet' and 'match_finished' commands.
+         * @param {Object|null} details - WebSocket broadcast details, or null if tatami is idle.
+         */
+        function updateHudLiveSection(details) {
+            const hud = document.getElementById('tmArenaHud');
+            if (!hud) return;
+
+            const liveSection = hud.querySelector('.live-section');
+            if (!liveSection) return;
+
+            const liveContent = liveSection.querySelector('.hud-content');
+            const liveBtnGroup = liveSection.querySelector('.hud-btn-group');
+            if (!liveContent || !liveBtnGroup) return;
+
+            if (details && details.match_pk && details.is_running) {
+                // Active match — update LIVE HUD
+                const matchPk = details.match_pk;
+                const urutan = details.urutan || '-';
+                const categoryName = details.nomor_tanding || details.nama_bagan || 'Partai';
+                const akaName = details.atlet_red || 'Menunggu';
+                const aoName = details.atlet_blue || 'Menunggu';
+
+                liveContent.innerHTML = `
+                    <span class="hud-tag live"><span class="live-dot-pulse"></span> LIVE</span>
+                    <div class="hud-match-title">
+                        <span class="badge bg-secondary font-monospace" style="font-size: 11px;">#${urutan}</span>
+                        <span>${categoryName}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 small">
+                        <span class="hud-fighter aka">${akaName}</span>
+                        <span class="text-muted">vs</span>
+                        <span class="hud-fighter ao">${aoName}</span>
+                    </div>
+                `;
+
+                liveBtnGroup.innerHTML = `
+                    <button type="button" class="btn-hud-btn" onclick="centerMatchCard(${matchPk})" title="Pusatkan posisi bagan ke partai live">
+                        <i class="fas fa-crosshairs text-danger"></i>
+                    </button>
+                    <button type="button" class="btn-hud-btn" onclick="openMatchModal(${matchPk})" title="Lihat/Edit Wasit Partai Live">
+                        <i class="fas fa-user-edit text-warning"></i>
+                        <span>Wasit</span>
+                    </button>
+                `;
+            } else {
+                // Standby — no active match
+                const tatamiNum = '{{ selected_tatami.tatami_number|default:"" }}';
+                liveContent.innerHTML = `
+                    <span class="hud-tag live"><span class="live-dot-pulse"></span> LIVE</span>
+                    <span class="text-muted small">Tatami ${tatamiNum} Standby &bull; Belum ada partai berjalan</span>
+                `;
+                liveBtnGroup.innerHTML = '';
+            }
+        }
+
         /* WebSocket Live Sync & Disconnect-Proof Reconnect */
         const selectedTatamiPk = "{{ selected_tatami.pk|default:'' }}";
         const currentBaganPk = "{{ selected_bagan.pk|default:'' }}";
@@ -2944,6 +3266,8 @@
                         // Real-time Match Finish & Gold Winner Announcement
                         if (data.command === 'match_finished' && data.details) {
                             applyMatchFinished(data.details);
+                            // Update HUD: mark LIVE section as standby since match just finished
+                            updateHudLiveSection(null);
                         }
 
                         if (data.command === 'get_atlet' && data.details) {
@@ -2968,6 +3292,13 @@
                                 } else {
                                     showToast('Operator menjalankan partai di kategori lain. (Auto-Follow dijeda)', 'warning');
                                 }
+                            }
+
+                            // Update Sticky HUD Live Section in real-time
+                            if (newMatchPk && data.details.is_running) {
+                                updateHudLiveSection(data.details);
+                            } else {
+                                updateHudLiveSection(null);
                             }
 
                             // Same bagan: dynamically update active match card highlight
