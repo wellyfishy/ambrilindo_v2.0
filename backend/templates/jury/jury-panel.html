@@ -16,16 +16,16 @@
 
     <style>
         :root {
-            --bg-body: #0a0e17;
-            --bg-card: #111827;
-            --bg-card-header: #1f2937;
-            --border-color: #374151;
-            --aka-red: #ef4444;
+            --bg-body: #060911;
+            --bg-card: #0f172a;
+            --bg-card-header: #1e293b;
+            --border-color: #334155;
+            --aka-red: #ff4d4f;
             --aka-dark: #7f1d1d;
-            --aka-glow: rgba(239, 68, 68, 0.35);
-            --ao-blue: #3b82f6;
+            --aka-glow: rgba(255, 77, 79, 0.45);
+            --ao-blue: #38bdf8;
             --ao-dark: #1e3a8a;
-            --ao-glow: rgba(59, 130, 246, 0.35);
+            --ao-glow: rgba(56, 189, 248, 0.45);
             --gold: #f59e0b;
         }
 
@@ -36,64 +36,76 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html {
+            height: 100%;
+        }
+
         body {
             background-color: var(--bg-body);
-            color: #f3f4f6;
+            color: #f8fafc;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            height: 100%;
             min-height: 100vh;
-            padding-bottom: 40px;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: hidden;
         }
 
         /* Top Sticky Bar */
         .jury-topbar {
-            background: rgba(17, 24, 39, 0.95);
+            background: rgba(15, 23, 42, 0.96);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 1020;
-            padding: 10px 16px;
+            padding: 6px 14px;
+            flex-shrink: 0;
         }
 
         .topbar-brand {
-            height: 28px;
+            height: 24px;
             width: auto;
         }
 
         .jury-title-pill {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 999px;
             background: #1e293b;
             border: 1px solid #475569;
-            color: #cbd5e1;
+            color: #f1f5f9;
         }
 
         .jury-badge-active {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
             letter-spacing: 0.05em;
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #000000;
-            padding: 5px 14px;
+            padding: 4px 12px;
             border-radius: 999px;
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
         }
 
         .ws-badge {
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.04em;
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 999px;
             display: inline-flex;
             align-items: center;
             gap: 5px;
         }
-        .ws-badge.live { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
-        .ws-badge.connecting { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
-        .ws-badge.offline { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
+        .ws-badge.live { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; }
+        .ws-badge.connecting { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
+        .ws-badge.offline { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid #ef4444; }
 
         /* Admin Preview Ribbon */
         .admin-ribbon {
@@ -102,21 +114,22 @@
             color: #fde68a;
             font-size: 12px;
             font-weight: 600;
-            padding: 6px 16px;
+            padding: 5px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .admin-juri-btn {
             font-size: 11px;
             font-weight: 700;
-            padding: 2px 8px;
+            padding: 2px 7px;
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: #fef3c7;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             text-decoration: none;
         }
         .admin-juri-btn.active {
@@ -125,121 +138,189 @@
             border-color: #f59e0b;
         }
 
-        /* Match Info Header */
-        .match-info-strip {
-            background: #111827;
-            border: 1px solid var(--border-color);
+        /* Header Jury Placement Selector */
+        .btn-jury-placement {
+            background: #1e293b;
+            border: 1px solid #64748b;
+            color: #f8fafc;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-jury-placement:hover, .btn-jury-placement:focus {
+            background: #334155;
+            border-color: #f59e0b;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+        }
+        .jury-placement-dropdown {
+            position: relative;
+        }
+        .jury-placement-dropdown .dropdown-menu {
             border-radius: 12px;
-            padding: 10px 16px;
-            margin: 14px auto;
-            max-width: 720px;
+            background: #1e293b;
+            border: 1px solid #64748b;
+            min-width: 170px;
+        }
+        .jury-placement-dropdown.show .dropdown-menu {
+            display: block !important;
+        }
+        .jury-placement-dropdown .dropdown-item {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e2e8f0;
+            padding: 7px 14px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
         }
-        .match-category {
+        .jury-placement-dropdown .dropdown-item:hover {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+        .jury-placement-dropdown .dropdown-item.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            font-weight: 800;
+        }
+
+        .btn-jury-logout {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #f87171;
             font-size: 13px;
-            font-weight: 700;
-            color: #e2e8f0;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+            width: 32px;
+            height: 28px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: none;
         }
-        .match-round {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 6px;
-            background: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
+        .btn-jury-logout:hover, .btn-jury-logout:focus {
+            background: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            border-color: #ef4444;
         }
 
-        /* Container */
+        /* Responsive Full-Height Container */
         .jury-container {
-            max-width: 720px;
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(6px, 1.2vh, 12px);
+            padding: clamp(4px, 0.8vh, 8px) 10px clamp(6px, 1.2vh, 10px);
+            max-width: 820px;
+            width: 100%;
             margin: 0 auto;
-            padding: 0 12px;
+            box-sizing: border-box;
         }
 
-        /* Card Common */
+        /* Card Common: Expands dynamically to fill 50% of available viewport */
         .kata-fighter-card {
-            border-radius: 18px;
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            border-radius: 14px;
             overflow: hidden;
-            margin-bottom: 18px;
+            margin-bottom: 0;
             border-width: 2px;
             border-style: solid;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 6px 18px -3px rgba(0, 0, 0, 0.6);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
         /* AKA Card Styling (Red - Top) */
         .card-aka {
-            border-color: rgba(239, 68, 68, 0.6);
-            background: linear-gradient(180deg, rgba(127, 29, 29, 0.25) 0%, rgba(17, 24, 39, 0.95) 100%);
+            border-color: rgba(239, 68, 68, 0.7);
+            background: #0f172a;
         }
         .card-aka-head {
-            background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #991b1b 100%);
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #991b1b 0%, #dc2626 55%, #b91c1c 100%);
             color: #ffffff;
-            padding: 12px 16px;
+            padding: clamp(5px, 0.8vh, 8px) 12px;
             position: relative;
         }
 
         /* AO Card Styling (Blue - Bottom) */
         .card-ao {
-            border-color: rgba(59, 130, 246, 0.6);
-            background: linear-gradient(180deg, rgba(30, 58, 138, 0.25) 0%, rgba(17, 24, 39, 0.95) 100%);
+            border-color: rgba(59, 130, 246, 0.7);
+            background: #0f172a;
         }
         .card-ao-head {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1e40af 100%);
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #1d4ed8 100%);
             color: #ffffff;
-            padding: 12px 16px;
+            padding: clamp(5px, 0.8vh, 8px) 12px;
             position: relative;
         }
 
-        /* Fighter Info Headers */
+        /* Streamlined Horizontal Fighter Header */
         .fighter-badge-label {
             font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            background: rgba(0, 0, 0, 0.35);
-            padding: 3px 8px;
-            border-radius: 6px;
+            letter-spacing: 0.08em;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 2px 7px;
+            border-radius: 5px;
             display: inline-block;
-            margin-bottom: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
         }
         .fighter-name {
             font-family: 'Oswald', sans-serif;
-            font-size: 24px;
+            font-size: clamp(16px, 2.2vh, 19px);
             font-weight: 700;
             line-height: 1.15;
             letter-spacing: 0.02em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: #ffffff;
         }
-        .fighter-sub {
-            font-size: 12px;
-            opacity: 0.9;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 2px;
+        .fighter-details-inline {
+            font-size: clamp(11px, 1.4vh, 12px);
+            color: #f1f5f9;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .fighter-perguruan-text {
+            color: #ffffff;
+            font-weight: 800;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            text-decoration: underline dotted rgba(255,255,255,0.4);
+        }
+        .fighter-utusan-text {
+            color: #cbd5e1;
+            font-weight: 600;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
         }
         .fighter-kata-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 4px 10px;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 2px 8px;
             border-radius: 999px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: #ffffff;
-            margin-top: 6px;
         }
 
         /* Winner Ribbon */
@@ -248,9 +329,9 @@
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #000000;
             font-weight: 900;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 0.08em;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 999px;
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
             animation: pulseWinner 1.5s infinite;
@@ -260,100 +341,115 @@
             50% { transform: scale(1.05); }
         }
 
-        /* Card Body & Scoring Engine */
+        /* Card Body & Scoring Engine (Stretches vertically with space-evenly) */
         .card-body-score {
-            padding: 18px 16px;
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            padding: clamp(6px, 1.2vh, 14px) 12px;
             background: #0f172a;
         }
 
         .score-hero-display {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 64px;
+            font-size: clamp(34px, 5.2vh, 52px);
             font-weight: 800;
             line-height: 1;
             text-align: center;
-            margin: 6px 0 14px;
+            margin: 0;
             letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .score-hero-aka {
             color: var(--aka-red);
-            text-shadow: 0 0 20px var(--aka-glow);
+            text-shadow: 0 0 14px var(--aka-glow);
         }
         .score-hero-ao {
             color: var(--ao-blue);
-            text-shadow: 0 0 20px var(--ao-glow);
+            text-shadow: 0 0 14px var(--ao-glow);
         }
 
-        /* Steppers Row */
+        /* High Contrast Steppers Row */
         .stepper-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 16px;
+            gap: clamp(6px, 1.5vw, 10px);
+            margin: 0;
+            flex-shrink: 0;
         }
         .btn-stepper {
             font-family: 'JetBrains Mono', monospace;
             font-weight: 800;
-            font-size: 15px;
-            min-width: 58px;
-            height: 48px;
-            border-radius: 12px;
+            font-size: clamp(13px, 1.8vh, 16px);
+            min-width: clamp(52px, 14vw, 75px);
+            height: clamp(32px, 4.4vh, 44px);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.1s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
         }
         .btn-stepper:active {
             transform: scale(0.92);
         }
         .btn-stepper-aka {
-            background: #1f2937;
-            border: 2px solid #ef4444;
-            color: #ef4444;
+            background: #1e1e2f;
+            border: 2px solid #ff4d4f;
+            color: #ffffff;
         }
         .btn-stepper-aka:hover, .btn-stepper-aka:focus {
             background: #ef4444;
             color: #ffffff;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
         }
         .btn-stepper-ao {
-            background: #1f2937;
-            border: 2px solid #3b82f6;
-            color: #3b82f6;
+            background: #1e1e2f;
+            border: 2px solid #38bdf8;
+            color: #ffffff;
         }
         .btn-stepper-ao:hover, .btn-stepper-ao:focus {
             background: #3b82f6;
             color: #ffffff;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.7);
         }
 
-        /* Range Slider Styling */
+        /* High Contrast Range Slider */
         .slider-container {
-            padding: 0 6px;
-            margin-bottom: 16px;
+            padding: 0 4px;
+            margin: 0;
+            flex-shrink: 0;
         }
         input[type=range].custom-slider {
             -webkit-appearance: none;
             width: 100%;
-            height: 12px;
-            border-radius: 6px;
-            background: #1e293b;
+            height: 8px;
+            border-radius: 4px;
+            background: #334155;
+            border: 1px solid #64748b;
             outline: none;
             cursor: pointer;
         }
         input[type=range].slider-aka::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 34px;
-            height: 34px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #ef4444;
             border: 3px solid #ffffff;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.9);
             cursor: pointer;
         }
         input[type=range].slider-aka::-moz-range-thumb {
-            width: 34px;
-            height: 34px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #ef4444;
             border: 3px solid #ffffff;
@@ -361,78 +457,116 @@
         }
         input[type=range].slider-ao::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 34px;
-            height: 34px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #3b82f6;
             border: 3px solid #ffffff;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.9);
             cursor: pointer;
         }
         input[type=range].slider-ao::-moz-range-thumb {
-            width: 34px;
-            height: 34px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #3b82f6;
             border: 3px solid #ffffff;
             cursor: pointer;
         }
 
-        /* Presets Chips */
+        /* High Contrast Slider Numbers (Bright & Readable) */
+        .slider-ticks {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #e2e8f0;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* Presets Chips & DQ Button */
         .preset-row {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 6px;
-            margin-bottom: 18px;
+            gap: clamp(4px, 1vw, 6px);
+            margin: 0;
+            flex-shrink: 0;
         }
         .btn-preset {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
+            font-size: clamp(11px, 1.6vh, 13px);
             font-weight: 700;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: clamp(3px, 0.6vh, 6px) clamp(7px, 1.2vw, 12px);
+            border-radius: 6px;
             background: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            transition: all 0.15s ease;
+            color: #ffffff;
+            border: 1px solid #475569;
+            transition: all 0.12s ease;
         }
         .btn-preset:active {
             transform: scale(0.94);
         }
         .btn-preset:hover {
             background: #334155;
+            border-color: #cbd5e1;
             color: #ffffff;
         }
         .btn-preset.active-aka {
             background: #ef4444 !important;
             color: #ffffff !important;
             border-color: #ef4444 !important;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
         }
         .btn-preset.active-ao {
             background: #3b82f6 !important;
             color: #ffffff !important;
             border-color: #3b82f6 !important;
-            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+        }
+
+        /* Judge-Level 0.0 (DQ / Kiken) Button */
+        .btn-preset-dq {
+            background: rgba(185, 28, 28, 0.35);
+            color: #fecaca;
+            border: 1.5px solid #ef4444;
+            font-weight: 800;
+        }
+        .btn-preset-dq:hover {
+            background: #dc2626;
+            color: #ffffff;
+            border-color: #f87171;
+        }
+        .btn-preset-dq.active-dq {
+            background: #dc2626 !important;
+            color: #ffffff !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.9);
+            animation: pulseDq 1s infinite alternate;
+        }
+        @keyframes pulseDq {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
         }
 
         /* Action Buttons */
         .action-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            margin: 0;
+            width: 100%;
+            flex-shrink: 0;
         }
         .btn-submit-score {
-            height: 54px;
-            font-size: 17px;
+            height: clamp(36px, 4.8vh, 48px);
+            font-size: clamp(13px, 1.8vh, 16px);
             font-weight: 800;
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
             border: none;
             width: 100%;
         }
@@ -454,19 +588,19 @@
         }
 
         .btn-reset-score {
-            height: 54px;
-            font-size: 16px;
+            height: clamp(36px, 4.8vh, 48px);
+            font-size: clamp(13px, 1.8vh, 15px);
             font-weight: 800;
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             background: #f59e0b;
             color: #000000;
             border: none;
             width: 100%;
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
         }
         .btn-reset-score:hover {
             background: #d97706;
@@ -481,6 +615,29 @@
         .hidden {
             display: none !important;
         }
+
+        /* Fallback for ultra-short screens / landscape mode */
+        @media (max-height: 520px) {
+            html, body {
+                height: auto;
+                min-height: 100%;
+                overflow-y: auto !important;
+            }
+            .jury-container {
+                flex: none;
+                min-height: auto;
+                height: auto;
+                padding-bottom: 20px;
+            }
+            .kata-fighter-card {
+                flex: none;
+                margin-bottom: 12px;
+            }
+            .card-body-score {
+                flex: none;
+                gap: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -493,77 +650,92 @@
             <i class="fas fa-shield-alt text-warning"></i>
             <span>Mode Inspeksi Admin &bull; Pilih Simulasi Wasit:</span>
         </div>
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-1 flex-wrap">
             <a href="?juri=1" class="admin-juri-btn {% if jury_number == 1 %}active{% endif %}">W1</a>
             <a href="?juri=2" class="admin-juri-btn {% if jury_number == 2 %}active{% endif %}">W2</a>
             <a href="?juri=3" class="admin-juri-btn {% if jury_number == 3 %}active{% endif %}">W3</a>
             <a href="?juri=4" class="admin-juri-btn {% if jury_number == 4 %}active{% endif %}">W4</a>
             <a href="?juri=5" class="admin-juri-btn {% if jury_number == 5 %}active{% endif %}">W5</a>
+            <a href="?juri=6" class="admin-juri-btn {% if jury_number == 6 %}active{% endif %}">W6</a>
+            <a href="?juri=7" class="admin-juri-btn {% if jury_number == 7 %}active{% endif %}">W7</a>
         </div>
     </div>
     {% endif %}
 
     <!-- Top Sticky Bar -->
     <header class="jury-topbar">
-        <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
                 <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Logo" class="topbar-brand">
                 <span class="jury-title-pill">Tatami {{ tatami.tatami_number }}</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
+
+            <!-- Juri Placement Switcher in Header -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="dropdown jury-placement-dropdown">
+                    <button class="btn btn-jury-placement dropdown-toggle" type="button" id="juryPlacementDropdown" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" title="Pilih / Ubah Penempatan Posisi Wasit Juri">
+                        <i class="fas fa-chair text-warning me-1"></i>
+                        <span class="placement-text">Posisi:</span>
+                        <strong class="text-warning">Juri {{ jury_number }}</strong>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" aria-labelledby="juryPlacementDropdown">
+                        <li><h6 class="dropdown-header text-muted text-uppercase" style="font-size: 10px; letter-spacing: 0.05em;"><i class="fas fa-users-cog me-1"></i>Pilih Penempatan Juri</h6></li>
+                        <li><a class="dropdown-item {% if jury_number == 1 %}active{% endif %}" href="?juri=1"><i class="fas fa-user-tie me-2"></i>Juri 1 (W1)</a></li>
+                        <li><a class="dropdown-item {% if jury_number == 2 %}active{% endif %}" href="?juri=2"><i class="fas fa-user-tie me-2"></i>Juri 2 (W2)</a></li>
+                        <li><a class="dropdown-item {% if jury_number == 3 %}active{% endif %}" href="?juri=3"><i class="fas fa-user-tie me-2"></i>Juri 3 (W3)</a></li>
+                        <li><a class="dropdown-item {% if jury_number == 4 %}active{% endif %}" href="?juri=4"><i class="fas fa-user-tie me-2"></i>Juri 4 (W4)</a></li>
+                        <li><a class="dropdown-item {% if jury_number == 5 %}active{% endif %}" href="?juri=5"><i class="fas fa-user-tie me-2"></i>Juri 5 (W5)</a></li>
+                        <li><hr class="dropdown-divider my-1 border-secondary"></li>
+                        <li><a class="dropdown-item {% if jury_number == 6 %}active{% endif %}" href="?juri=6"><i class="fas fa-user-tie me-2"></i>Juri 6 (W6)</a></li>
+                        <li><a class="dropdown-item {% if jury_number == 7 %}active{% endif %}" href="?juri=7"><i class="fas fa-user-tie me-2"></i>Juri 7 (W7)</a></li>
+                        <li><hr class="dropdown-divider my-1 border-secondary"></li>
+                        <li><a class="dropdown-item text-danger fw-bold" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="fas fa-sign-out-alt me-2"></i>Keluar (Logout)</a></li>
+                    </ul>
+                </div>
+
                 <span class="ws-badge connecting" id="wsStatusBadge">
                     <span class="spinner-grow spinner-grow-sm" role="status" style="width: 8px; height: 8px;"></span> WS Hubung...
                 </span>
                 <span class="jury-badge-active">WASIT {{ jury_number }}</span>
+                <button type="button" class="btn-jury-logout" data-bs-toggle="modal" data-bs-target="#logoutModal" title="Keluar / Log Out">
+                    <i class="fas fa-power-off"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <div class="jury-container mt-3">
-
-        <!-- Match Info Header -->
-        <div class="match-info-strip">
-            <div class="match-category">
-                <i class="fas fa-trophy text-warning me-1"></i>
-                <span id="matchNomorTanding">{{ detail_bagan.bagan.nomor_tanding.nama_nomor_tanding|default:tatami.event.nama_event|default:"Pertandingan Kata" }}</span>
-            </div>
-            <div class="match-round" id="matchRound">
-                {% if detail_bagan.round %}Babak {{ detail_bagan.round }}{% else %}Kata Perorangan / Beregu{% endif %}
-            </div>
-        </div>
+    <div class="jury-container">
 
         <!-- ========================================================
-             1. AKA (MERAH) SECTION (VERTICAL PLACEMENT: TOP)
+             1. AKA (MERAH) SECTION (COMPACT 1-VIEW LAYOUT)
              ======================================================== -->
         <div class="kata-fighter-card card-aka" id="akaCardWrap">
-            <!-- Header -->
+            <!-- Header: Streamlined Single Row -->
             <div class="card-aka-head">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
                         <span class="fighter-badge-label">AKA (MERAH)</span>
-                        <div class="fighter-name" id="atlet_red_name">
-                            {{ detail_bagan.atlet1.nama_atlet|default:"Menunggu Atlet AKA" }}
-                        </div>
-                        <div class="fighter-sub">
-                            <span id="atlet_red_perguruan">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }}</span> &bull; 
-                            <span id="atlet_red_utusan">{{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</span>
-                        </div>
+                        <span class="fighter-name" id="atlet_red_name">{{ detail_bagan.atlet1.nama_atlet|default:"Menunggu Atlet AKA" }}</span>
+                        <span class="fighter-details-inline">
+                            &bull; <span class="fighter-perguruan-text" id="atlet_red_perguruan">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }}</span> &bull; 
+                            <span class="fighter-utusan-text" id="atlet_red_utusan">{{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</span>
+                        </span>
                     </div>
-                    <div class="text-end">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fighter-kata-badge">
+                            <i class="fas fa-scroll"></i> Kata: <strong id="kata-aka">{{ detail_bagan.kata1|default:"0 - Blank" }}</strong>
+                        </span>
                         <span class="winner-tag" id="aka-winner"><i class="fas fa-crown me-1"></i> WINNER</span>
                     </div>
                 </div>
-                <div>
-                    <span class="fighter-kata-badge">
-                        <i class="fas fa-scroll"></i> Kata: <strong id="kata-aka">{{ detail_bagan.kata1|default:"0 - Blank" }}</strong>
-                    </span>
-                </div>
             </div>
 
-            <!-- Body -->
+            <!-- Body: Compact & High Contrast -->
             <div class="card-body-score">
                 <!-- Large Display -->
-                <div class="score-hero-display score-hero-aka" id="scoreDisplayAka">7.5</div>
+                <div class="score-hero-display score-hero-aka" id="scoreDisplayAka">
+                    <span class="score-val-text">7.5</span>
+                </div>
 
                 <!-- Stepper Buttons -->
                 <div class="stepper-row" id="akaControlsArea">
@@ -576,12 +748,12 @@
                 <!-- Slider -->
                 <div class="slider-container">
                     <input id="aka-slider" type="range" class="custom-slider slider-aka" min="5.0" max="10.0" step="0.1" value="7.5" oninput="onSliderChange('aka', this.value)">
-                    <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                    <div class="d-flex justify-content-between slider-ticks">
                         <span>5.0</span><span>6.0</span><span>7.0</span><span>8.0</span><span>9.0</span><span>10.0</span>
                     </div>
                 </div>
 
-                <!-- Preset Chips -->
+                <!-- Preset Chips + DQ 0.0 -->
                 <div class="preset-row">
                     <button type="button" class="btn btn-preset" onclick="setPreset('aka', 6.5)">6.5</button>
                     <button type="button" class="btn btn-preset" onclick="setPreset('aka', 7.0)">7.0</button>
@@ -590,6 +762,9 @@
                     <button type="button" class="btn btn-preset" onclick="setPreset('aka', 8.2)">8.2</button>
                     <button type="button" class="btn btn-preset" onclick="setPreset('aka', 8.5)">8.5</button>
                     <button type="button" class="btn btn-preset" onclick="setPreset('aka', 9.0)">9.0</button>
+                    <button type="button" class="btn btn-preset btn-preset-dq" id="aka-dq-btn" onclick="setScoreDQ('aka')" title="Diskualifikasi / Kiken (Skor 0.0)">
+                        <i class="fas fa-ban me-1"></i>0.0 (DQ)
+                    </button>
                 </div>
 
                 <!-- Action Button -->
@@ -605,37 +780,35 @@
         </div>
 
         <!-- ========================================================
-             2. AO (BIRU) SECTION (VERTICAL PLACEMENT: BOTTOM)
+             2. AO (BIRU) SECTION (COMPACT 1-VIEW LAYOUT)
              ======================================================== -->
         <div class="kata-fighter-card card-ao" id="aoCardWrap">
-            <!-- Header -->
+            <!-- Header: Streamlined Single Row -->
             <div class="card-ao-head">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
                         <span class="fighter-badge-label">AO (BIRU)</span>
-                        <div class="fighter-name" id="atlet_blue_name">
-                            {{ detail_bagan.atlet2.nama_atlet|default:"Menunggu Atlet AO" }}
-                        </div>
-                        <div class="fighter-sub">
-                            <span id="atlet_blue_perguruan">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }}</span> &bull; 
-                            <span id="atlet_blue_utusan">{{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</span>
-                        </div>
+                        <span class="fighter-name" id="atlet_blue_name">{{ detail_bagan.atlet2.nama_atlet|default:"Menunggu Atlet AO" }}</span>
+                        <span class="fighter-details-inline">
+                            &bull; <span class="fighter-perguruan-text" id="atlet_blue_perguruan">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }}</span> &bull; 
+                            <span class="fighter-utusan-text" id="atlet_blue_utusan">{{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</span>
+                        </span>
                     </div>
-                    <div class="text-end">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fighter-kata-badge">
+                            <i class="fas fa-scroll"></i> Kata: <strong id="kata-ao">{{ detail_bagan.kata2|default:"0 - Blank" }}</strong>
+                        </span>
                         <span class="winner-tag" id="ao-winner"><i class="fas fa-crown me-1"></i> WINNER</span>
                     </div>
                 </div>
-                <div>
-                    <span class="fighter-kata-badge">
-                        <i class="fas fa-scroll"></i> Kata: <strong id="kata-ao">{{ detail_bagan.kata2|default:"0 - Blank" }}</strong>
-                    </span>
-                </div>
             </div>
 
-            <!-- Body -->
+            <!-- Body: Compact & High Contrast -->
             <div class="card-body-score">
                 <!-- Large Display -->
-                <div class="score-hero-display score-hero-ao" id="scoreDisplayAo">7.5</div>
+                <div class="score-hero-display score-hero-ao" id="scoreDisplayAo">
+                    <span class="score-val-text">7.5</span>
+                </div>
 
                 <!-- Stepper Buttons -->
                 <div class="stepper-row" id="aoControlsArea">
@@ -648,12 +821,12 @@
                 <!-- Slider -->
                 <div class="slider-container">
                     <input id="ao-slider" type="range" class="custom-slider slider-ao" min="5.0" max="10.0" step="0.1" value="7.5" oninput="onSliderChange('ao', this.value)">
-                    <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                    <div class="d-flex justify-content-between slider-ticks">
                         <span>5.0</span><span>6.0</span><span>7.0</span><span>8.0</span><span>9.0</span><span>10.0</span>
                     </div>
                 </div>
 
-                <!-- Preset Chips -->
+                <!-- Preset Chips + DQ 0.0 -->
                 <div class="preset-row">
                     <button type="button" class="btn btn-preset" onclick="setPreset('ao', 6.5)">6.5</button>
                     <button type="button" class="btn btn-preset" onclick="setPreset('ao', 7.0)">7.0</button>
@@ -662,6 +835,9 @@
                     <button type="button" class="btn btn-preset" onclick="setPreset('ao', 8.2)">8.2</button>
                     <button type="button" class="btn btn-preset" onclick="setPreset('ao', 8.5)">8.5</button>
                     <button type="button" class="btn btn-preset" onclick="setPreset('ao', 9.0)">9.0</button>
+                    <button type="button" class="btn btn-preset btn-preset-dq" id="ao-dq-btn" onclick="setScoreDQ('ao')" title="Diskualifikasi / Kiken (Skor 0.0)">
+                        <i class="fas fa-ban me-1"></i>0.0 (DQ)
+                    </button>
                 </div>
 
                 <!-- Action Button -->
@@ -767,8 +943,31 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Logout -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content bg-dark text-light border-danger shadow-lg" style="border-radius: 14px;">
+                <div class="modal-header bg-danger text-white py-2 px-3">
+                    <h6 class="modal-title fw-bold"><i class="fas fa-sign-out-alt me-2"></i>Konfirmasi Logout</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-3">
+                    <p class="mb-2">Keluar dari Panel Juri Tatami {{ tatami.tatami_number }}?</p>
+                    <div class="small text-muted">Sesi juri akan diakhiri dan kembali ke halaman login.</div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between p-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <a href="{% url 'logout' %}" class="btn btn-sm btn-danger fw-bold px-3 shadow">
+                        <i class="fas fa-power-off me-1"></i> Ya, Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Core Scripts -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/core/popper.min.js' %}"></script>
     <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
 
     <script>
@@ -786,10 +985,17 @@
             }
         }
 
-        // Format number to 1 decimal place bounded between 5.0 and 10.0
+        // Active score tracker
+        let activeScore = {
+            aka: '7.5',
+            ao: '7.5'
+        };
+
+        // Format number to 1 decimal place bounded between 5.0 and 10.0, or 0.0 for DQ / Kiken
         function clampScore(val) {
             let num = parseFloat(val);
             if (isNaN(num)) num = 7.5;
+            if (num === 0 || num < 2.5) return '0.0';
             num = Math.max(5.0, Math.min(10.0, num));
             return num.toFixed(1);
         }
@@ -797,23 +1003,44 @@
         // Update score for AKA or AO
         function setScore(side, val) {
             const formatted = clampScore(val);
+            activeScore[side] = formatted;
+            const isDq = formatted === '0.0';
+
+            const displayEl = side === 'aka' ? $('#scoreDisplayAka') : $('#scoreDisplayAo');
+            if (isDq) {
+                displayEl.html('<span class="text-danger fw-bolder">0.0</span> <span class="badge bg-danger ms-1" style="font-size: 13px; letter-spacing: 0.05em;"><i class="fas fa-ban me-1"></i>DQ / KIKEN</span>');
+            } else {
+                displayEl.html(`<span class="score-val-text">${formatted}</span>`);
+            }
+
             if (side === 'aka') {
-                $('#scoreDisplayAka').text(formatted);
-                $('#aka-slider').val(formatted);
-                $('#modalAkaConfirmVal').text(formatted);
+                $('#aka-slider').val(isDq ? 5.0 : formatted);
+                $('#modalAkaConfirmVal').html(isDq ? '<span class="text-danger">0.0 (DISKUALIFIKASI / KIKEN)</span>' : formatted);
                 updateActivePreset('aka', formatted);
             } else {
-                $('#scoreDisplayAo').text(formatted);
-                $('#ao-slider').val(formatted);
-                $('#modalAoConfirmVal').text(formatted);
+                $('#ao-slider').val(isDq ? 5.0 : formatted);
+                $('#modalAoConfirmVal').html(isDq ? '<span class="text-primary">0.0 (DISKUALIFIKASI / KIKEN)</span>' : formatted);
                 updateActivePreset('ao', formatted);
             }
         }
 
+        // Judge-Level DQ (0.0) trigger
+        function setScoreDQ(side) {
+            triggerHaptic();
+            setScore(side, 0.0);
+        }
+
         function stepScore(side, delta) {
             triggerHaptic();
-            const current = parseFloat(side === 'aka' ? $('#aka-slider').val() : $('#ao-slider').val()) || 7.5;
-            setScore(side, current + delta);
+            const current = parseFloat(activeScore[side]) || 7.5;
+            if (current === 0.0) {
+                // When stepping from DQ (0.0), jump up to 5.0 minimum score
+                setScore(side, delta > 0 ? 5.0 : 0.0);
+            } else {
+                let next = current + delta;
+                if (next < 5.0 && delta < 0) next = 5.0;
+                setScore(side, next);
+            }
         }
 
         function onSliderChange(side, val) {
@@ -827,11 +1054,13 @@
 
         function updateActivePreset(side, formattedVal) {
             const container = side === 'aka' ? $('#akaCardWrap') : $('#aoCardWrap');
-            container.find('.btn-preset').each(function() {
+            const isDq = formattedVal === '0.0';
+            container.find('.btn-preset').not('.btn-preset-dq').each(function() {
                 const btnVal = parseFloat($(this).text()).toFixed(1);
-                const isActive = btnVal === formattedVal;
+                const isActive = !isDq && btnVal === formattedVal;
                 $(this).toggleClass(side === 'aka' ? 'active-aka' : 'active-ao', isActive);
             });
+            container.find('.btn-preset-dq').toggleClass('active-dq', isDq);
         }
 
         // ==================== WEBSOCKET & DUAL DISPATCH ====================
@@ -929,8 +1158,8 @@
                 $('#atlet_blue_utusan').text(details.atlet_blue_utusan || '-');
                 $('#kata-ao').text(details.atlet_blue_kata || '0 - Blank');
 
-                if (details.nomor_tanding) $('#matchNomorTanding').text(details.nomor_tanding);
-                if (details.round_label) $('#matchRound').text(details.round_label);
+                if (details.nomor_tanding && $('#matchNomorTanding').length) $('#matchNomorTanding').text(details.nomor_tanding);
+                if (details.round_label && $('#matchRound').length) $('#matchRound').text(details.round_label);
 
                 // Reset scores and unlock inputs for new match
                 resetFighterLock('aka');
@@ -988,11 +1217,13 @@
                 $('#akaResetModalBtn').removeClass('hidden');
                 $('#akaControlsArea').addClass('submitted-locked');
                 $('.slider-aka').prop('disabled', true);
+                $('#akaCardWrap .btn-preset').addClass('submitted-locked');
             } else {
                 $('#aoKirimModalBtn').addClass('hidden');
                 $('#aoResetModalBtn').removeClass('hidden');
                 $('#aoControlsArea').addClass('submitted-locked');
                 $('.slider-ao').prop('disabled', true);
+                $('#aoCardWrap .btn-preset').addClass('submitted-locked');
             }
         }
 
@@ -1002,11 +1233,13 @@
                 $('#akaResetModalBtn').addClass('hidden');
                 $('#akaControlsArea').removeClass('submitted-locked');
                 $('.slider-aka').prop('disabled', false);
+                $('#akaCardWrap .btn-preset').removeClass('submitted-locked');
             } else {
                 $('#aoKirimModalBtn').removeClass('hidden');
                 $('#aoResetModalBtn').addClass('hidden');
                 $('#aoControlsArea').removeClass('submitted-locked');
                 $('.slider-ao').prop('disabled', false);
+                $('#aoCardWrap .btn-preset').removeClass('submitted-locked');
             }
         }
 
@@ -1017,7 +1250,7 @@
             // AKA Submit
             $('#akaKirimScore').on('click', function () {
                 triggerHaptic();
-                const score = $('#aka-slider').val();
+                const score = activeScore['aka'];
                 lockFighter('aka');
                 dispatchScoreToOperator('aka', score);
             });
@@ -1031,7 +1264,7 @@
             // AO Submit
             $('#aoKirimScore').on('click', function () {
                 triggerHaptic();
-                const score = $('#ao-slider').val();
+                const score = activeScore['ao'];
                 lockFighter('ao');
                 dispatchScoreToOperator('ao', score);
             });
@@ -1045,6 +1278,18 @@
             // Initial score preset activation
             updateActivePreset('aka', '7.5');
             updateActivePreset('ao', '7.5');
+
+            // Header Jury Placement Dropdown Fallback
+            $('#juryPlacementDropdown').on('click', function(e) {
+                const parent = $(this).closest('.jury-placement-dropdown');
+                parent.toggleClass('show');
+                parent.find('.dropdown-menu').toggleClass('show');
+            });
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.jury-placement-dropdown').length) {
+                    $('.jury-placement-dropdown, .jury-placement-dropdown .dropdown-menu').removeClass('show');
+                }
+            });
         });
     </script>
 </body>

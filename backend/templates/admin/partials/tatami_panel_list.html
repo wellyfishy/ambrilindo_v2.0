@@ -24,7 +24,7 @@
     <div class="assigned-card" data-assignment-id="{{ a.pk }}">
         <div class="assigned-info">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span class="role-pill {% if a.posisi == 'referee' or a.posisi == 'wasit_utama' %}referee{% elif a.posisi == 'wasit_2' %}wasit_2{% elif 'judge' in a.posisi or 'juri' in a.posisi %}judge{% elif a.posisi == 'tatami_manager' %}manager{% elif a.posisi == 'kansa' %}kansa{% else %}pool{% endif %}">
+                <span class="role-pill {% if a.posisi == 'referee' or a.posisi == 'wasit_utama' %}referee{% elif a.posisi == 'wasit_2' %}wasit_2{% elif 'judge' in a.posisi or 'juri' in a.posisi %}judge{% elif a.posisi == 'tatami_manager' %}manager{% elif a.posisi == 'kansa' %}kansa{% elif a.posisi == 'score_supervisor' %}supervisor{% else %}pool{% endif %}">
                     {{ a.get_posisi_display }}
                 </span>
                 <span class="assigned-name">{{ a.wasit.nama_wasit }}</span>

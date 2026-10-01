@@ -365,6 +365,8 @@ class WasitTatami(models.Model):
         ('judge_6', 'Juri 6 (Judge 6)'),
         ('judge_7', 'Juri 7 (Judge 7)'),
         ('kansa', 'Kansa (Match Supervisor)'),
+        ('score_supervisor', 'Score Supervisor'),
+        ('vr_wasit', 'Wasit Video Review (VR)'),
         ('pool', 'Anggota Pool Tatami'),
     ]
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='wasit_tatamis')

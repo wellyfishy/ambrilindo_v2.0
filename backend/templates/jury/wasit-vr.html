@@ -1,0 +1,1532 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel Wasit VR &bull; Tatami {{ tatami.tatami_number }} &bull; Ambrilindo</title>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700;800&family=Oswald:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/plugins.min.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-cockpit: #06080d;
+            --bg-card: #0c1018;
+            --bg-card-sub: #121824;
+            --border-cockpit: #1e2638;
+            --border-glow: #2e3b54;
+            --aka-red: #ef4444;
+            --aka-dark: #b91c1c;
+            --aka-glow: rgba(239, 68, 68, 0.45);
+            --ao-blue: #3b82f6;
+            --ao-dark: #1d4ed8;
+            --ao-glow: rgba(59, 130, 246, 0.45);
+            --gold: #f59e0b;
+            --gold-glow: rgba(245, 158, 11, 0.45);
+            --green: #10b981;
+            --green-glow: rgba(16, 185, 129, 0.45);
+            --text-primary: #ffffff;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-cockpit);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        @media (min-width: 992px) {
+            body {
+                height: 100vh;
+                max-height: 100vh;
+                overflow: hidden;
+            }
+        }
+
+        /* Top Sticky Bar */
+        .vr-topbar {
+            background: #090c13;
+            border-bottom: 1px solid var(--border-cockpit);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            padding: 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .topbar-brand {
+            height: 26px;
+            width: auto;
+        }
+
+        .pill-badge {
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: #141926;
+            border: 1px solid #2d374d;
+            color: #f8fafc;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .pill-badge:hover {
+            background: #1a2234;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        .pill-role {
+            font-size: 13.5px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000000;
+            padding: 5px 12px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-topbar-exit {
+            font-size: 13.5px;
+            font-weight: 700;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #fca5a5;
+            padding: 5px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+        .btn-topbar-exit:hover {
+            background: #dc2626;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+
+        .ws-badge {
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ws-badge.live { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5); }
+        .ws-badge.connecting { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+        .ws-badge.offline { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); }
+
+        .hub-timer-mini {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 17px;
+            font-weight: 800;
+            background: #05070a;
+            border: 1px solid #232d3f;
+            color: #38bdf8;
+            padding: 3px 12px;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        /* Container Layout */
+        .vr-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 10px 16px;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        /* ==================== 1. TOP FIGHTER TELEMETRY (AO LEFT, AKA RIGHT) ==================== */
+        .corner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .corner-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fighter-cockpit-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-cockpit);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .fighter-cockpit-card.ao {
+            border-left: 5px solid var(--ao-blue);
+            border-top: 1px solid rgba(59, 130, 246, 0.35);
+        }
+        .fighter-cockpit-card.aka {
+            border-left: 5px solid var(--aka-red);
+            border-top: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .corner-card-header {
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .corner-card-header.ao {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.25) 0%, rgba(12, 16, 24, 0.5) 100%);
+        }
+        .corner-card-header.aka {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(12, 16, 24, 0.5) 100%);
+        }
+
+        .badge-corner {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+        }
+        .badge-corner.ao { background: var(--ao-blue); color: #ffffff; }
+        .badge-corner.aka { background: var(--aka-red); color: #ffffff; }
+
+        .vr-status-pill {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.03em;
+        }
+        .vr-status-pill.active {
+            background: rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            border: 1px solid #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+        }
+        .vr-status-pill.lost {
+            background: rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            border: 1px solid #ef4444;
+        }
+        .vr-status-pill.reviewing {
+            background: #f59e0b;
+            color: #000000;
+            border: 1px solid #fbbf24;
+            animation: pulseReview 1s infinite alternate;
+            font-weight: 900;
+        }
+
+        @keyframes pulseReview {
+            from { transform: scale(1); box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+            to { transform: scale(1.04); box-shadow: 0 0 14px rgba(245, 158, 11, 0.8); }
+        }
+
+        .corner-card-body {
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .fighter-name-hero {
+            font-family: 'Oswald', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fighter-meta {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 3px;
+        }
+        .meta-perguruan {
+            color: #fde047;
+            font-weight: 700;
+        }
+        .meta-utusan {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .score-pill-box {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 30px;
+            font-weight: 800;
+            min-width: 52px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #06080d;
+            border: 1.5px solid #283244;
+            flex-shrink: 0;
+        }
+        .score-pill-box.ao { color: #93c5fd; border-color: rgba(59, 130, 246, 0.7); text-shadow: 0 0 12px var(--ao-glow); }
+        .score-pill-box.aka { color: #fca5a5; border-color: rgba(239, 68, 68, 0.7); text-shadow: 0 0 12px var(--aka-glow); }
+
+        /* ==================== 2. CENTRAL REVIEW COCKPIT DECK ==================== */
+        .review-cockpit {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-cockpit);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        .review-cockpit-header {
+            background: #111624;
+            border-bottom: 1px solid var(--border-cockpit);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .cockpit-title {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-timer-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 800;
+            background: #05070a;
+            color: #f59e0b;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid #d97706;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .review-content-area {
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        /* Alert banner when reviews are running */
+        .deck-status-banner {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1.5px solid #f59e0b;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fde68a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+        }
+
+        /* Dual Side-by-Side Responsive Grid (Fill All Space by Default) */
+        .cockpit-dual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            flex: 1 1 auto;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+        }
+        @media (max-width: 900px) {
+            .cockpit-dual-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cockpit-corner-column {
+            background: #080c14;
+            border-radius: 12px;
+            border: 2px solid var(--border-cockpit);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+        .cockpit-corner-column.ao {
+            border-color: rgba(59, 130, 246, 0.7);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+        .cockpit-corner-column.ao.reviewing {
+            border-color: #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.45);
+        }
+        .cockpit-corner-column.aka {
+            border-color: rgba(239, 68, 68, 0.7);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+        .cockpit-corner-column.aka.reviewing {
+            border-color: #ef4444;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.45);
+        }
+
+        .column-header {
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .column-header.ao {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.28) 0%, rgba(8, 12, 20, 0.8) 100%);
+        }
+        .column-header.aka {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.28) 0%, rgba(8, 12, 20, 0.8) 100%);
+        }
+
+        .badge-corner-lg {
+            font-size: 13.5px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 5px;
+            letter-spacing: 0.04em;
+        }
+        .badge-corner-lg.ao { background: var(--ao-blue); color: #ffffff; }
+        .badge-corner-lg.aka { background: var(--aka-red); color: #ffffff; }
+
+        .column-athlete-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Column Body: Standby View */
+        .column-body-standby {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            gap: 12px;
+            text-align: center;
+            min-height: 0;
+        }
+
+        .radar-pulse-ring {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            position: relative;
+        }
+        .radar-pulse-ring.ao {
+            background: rgba(59, 130, 246, 0.12);
+            border: 2.5px dashed #3b82f6;
+            color: #60a5fa;
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.25);
+            animation: rotateRing 14s linear infinite;
+        }
+        .radar-pulse-ring.aka {
+            background: rgba(239, 68, 68, 0.12);
+            border: 2.5px dashed #ef4444;
+            color: #f87171;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.25);
+            animation: rotateRing 14s linear infinite;
+        }
+        @keyframes rotateRing {
+            100% { transform: rotate(360deg); }
+        }
+
+        .standby-heading {
+            font-family: 'Oswald', sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .standby-subtext {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 380px;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .standby-status-pill {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #111726;
+            border: 1px solid #23304a;
+        }
+        .standby-status-pill.ao { color: #93c5fd; }
+        .standby-status-pill.aka { color: #fca5a5; }
+
+        /* Column Body: Active Appeal View */
+        .column-body-appeal {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 14px;
+            gap: 10px;
+            justify-content: space-between;
+            min-height: 0;
+        }
+
+        .appeal-point-banner {
+            border-radius: 10px;
+            padding: 12px 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .appeal-point-banner.ao {
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.2) 0%, rgba(8, 12, 20, 0.8) 100%);
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.35);
+        }
+        .appeal-point-banner.aka {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.2) 0%, rgba(8, 12, 20, 0.8) 100%);
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
+        }
+
+        .appeal-point-label {
+            font-size: 12.5px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #cbd5e1;
+            text-transform: uppercase;
+        }
+
+        .appeal-point-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(26px, 2.5vw, 36px);
+            font-weight: 800;
+            color: #fde047;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            text-shadow: 0 0 14px rgba(253, 224, 71, 0.5);
+        }
+
+        .appeal-decision-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            flex: 1 1 auto;
+            align-items: stretch;
+        }
+        @media (max-width: 640px) {
+            .appeal-decision-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-action-hero {
+            border-radius: 10px;
+            padding: 14px 10px;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            min-height: 95px;
+        }
+        .btn-action-hero:active {
+            transform: scale(0.97);
+        }
+
+        .btn-action-accept {
+            background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+            color: #ffffff;
+            border-color: #34d399;
+        }
+        .btn-action-accept:hover {
+            background: linear-gradient(135deg, #059669 0%, #34d399 100%);
+            box-shadow: 0 0 18px var(--green-glow);
+            color: #ffffff;
+        }
+
+        .btn-action-decline {
+            background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+            color: #ffffff;
+            border-color: #f87171;
+        }
+        .btn-action-decline:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
+            box-shadow: 0 0 18px var(--aka-glow);
+            color: #ffffff;
+        }
+
+        .btn-action-minai {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: #000000;
+            border-color: #fde68a;
+        }
+        .btn-action-minai:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            box-shadow: 0 0 18px var(--gold-glow);
+            color: #000000;
+        }
+
+        .action-hero-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-hero-desc {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+            opacity: 0.95;
+        }
+
+        /* Column Body: Locked / Confirmed View */
+        .column-body-locked {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            min-height: 0;
+        }
+
+        .locked-card-box {
+            border-radius: 12px;
+            padding: 20px 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+        .locked-card-box.accept {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #34d399;
+        }
+        .locked-card-box.decline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #f87171;
+        }
+        .locked-card-box.minai {
+            background: rgba(245, 158, 11, 0.2);
+            border: 2px solid #f59e0b;
+            color: #fbbf24;
+        }
+
+        .locked-title {
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .locked-subtitle {
+            font-size: 13.5px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* ==================== 3. HIGH-CONTRAST DARK HISTORY CARD ==================== */
+        .history-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-cockpit);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            max-height: 125px;
+        }
+
+        .history-card-header {
+            padding: 5px 14px;
+            background: #111624;
+            border-bottom: 1px solid var(--border-cockpit);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .history-table-wrap {
+            overflow-y: auto;
+            flex: 1;
+            background: #080c14;
+        }
+
+        .vr-table {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            background: #080c14;
+            color: var(--text-primary);
+        }
+        .vr-table thead {
+            position: sticky;
+            top: 0;
+            background: #141a29;
+            z-index: 10;
+        }
+        .vr-table th {
+            color: #cbd5e1;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11.5px;
+            letter-spacing: 0.04em;
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border-cockpit);
+            background: #141a29;
+        }
+        .vr-table td {
+            color: #f1f5f9;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            vertical-align: middle;
+            background: #080c14;
+        }
+        .vr-table tr:hover td {
+            background: #101624;
+        }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+
+    <!-- Top Sticky Bar -->
+    <header class="vr-topbar">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <!-- Brand & Tatami Indicator -->
+            <div class="d-flex align-items-center gap-2">
+                <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Logo" class="topbar-brand">
+                
+                <!-- Tatami Selector Dropdown -->
+                <div class="dropdown">
+                    <button class="btn pill-badge dropdown-toggle" type="button" id="tatamiSelectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-layer-group text-warning"></i>
+                        <span>Tatami {{ tatami.tatami_number }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark shadow-lg" aria-labelledby="tatamiSelectDropdown">
+                        <li><h6 class="dropdown-header text-muted text-uppercase" style="font-size: 11px;">Pilih Tatami</h6></li>
+                        {% for t in all_tatamis %}
+                        <li>
+                            <a class="dropdown-item {% if t.pk == tatami.pk %}active{% endif %}" href="{% url 'wasit-vr' tatami_pk=t.pk %}">
+                                Tatami {{ t.tatami_number }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Match Category Pill -->
+                <span class="pill-badge d-none d-md-inline-flex" id="categoryBadge">
+                    <i class="fas fa-trophy text-warning"></i>
+                    <span id="categoryText">{% if bagan and bagan.nomor_tanding and bagan.nomor_tanding.nama_nomor_tanding %}{{ bagan.nomor_tanding.nama_nomor_tanding }}{% elif bagan and bagan.nama_bagan %}{{ bagan.nama_bagan }}{% else %}Standby (Menunggu Partai){% endif %}</span>
+                </span>
+            </div>
+
+            <!-- Right Indicators: Timer, WS, Role, Exit -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Match Timer Display -->
+                <div class="hub-timer-mini" title="Waktu Pertandingan Berjalan">
+                    <i class="fas fa-stopwatch me-1 text-muted"></i>
+                    <span id="matchTimerMin">00</span>:<span id="matchTimerSec">00</span>
+                </div>
+
+                <span class="ws-badge connecting" id="wsStatusBadge">
+                    <span class="spinner-grow spinner-grow-sm" role="status" style="width: 8px; height: 8px;"></span> WS Hubung...
+                </span>
+
+                <span class="pill-role">
+                    <i class="fas fa-video me-1"></i> VR: {{ nama_wasit_vr }}
+                </span>
+
+                <a href="{% url 'auth' %}" class="btn-topbar-exit" title="Kembali ke Halaman Login">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Cockpit Container -->
+    <main class="vr-container">
+
+        <!-- ==================== 1. DUAL CORNER TELEMETRY (AO LEFT, AKA RIGHT) ==================== -->
+        <section class="corner-grid">
+            <!-- AO (Blue) Corner - LEFT -->
+            <div class="fighter-cockpit-card ao" id="aoCardWrap">
+                <div class="corner-card-header ao">
+                    <span class="badge-corner ao">AO (BIRU)</span>
+                    <span class="vr-status-pill {% if detail_bagan.vr2 %}active{% else %}lost{% endif %}" id="aoVrBadge">
+                        <i class="fas {% if detail_bagan.vr2 %}fa-video{% else %}fa-video-slash{% endif %}"></i>
+                        <span id="aoVrBadgeText">{% if detail_bagan.vr2 %}KARTU VR AKTIF{% else %}KARTU HANGUS{% endif %}</span>
+                    </span>
+                </div>
+
+                <div class="corner-card-body">
+                    <div class="flex-grow-1 overflow-hidden pe-2">
+                        <div class="fighter-name-hero" id="aoName">{{ detail_bagan.atlet2.nama_atlet|default:"Menunggu Atlet AO" }}</div>
+                        <div class="fighter-meta">
+                            <span class="meta-perguruan" id="aoPerguruan">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }}</span>
+                            <span class="text-muted">&bull;</span>
+                            <span class="meta-utusan" id="aoUtusan">{{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</span>
+                        </div>
+                    </div>
+                    <!-- Score Box -->
+                    <div class="score-pill-box ao" id="aoScore">{{ detail_bagan.score2|default:"0" }}</div>
+                </div>
+            </div>
+
+            <!-- AKA (Red) Corner - RIGHT -->
+            <div class="fighter-cockpit-card aka" id="akaCardWrap">
+                <div class="corner-card-header aka">
+                    <span class="badge-corner aka">AKA (MERAH)</span>
+                    <span class="vr-status-pill {% if detail_bagan.vr1 %}active{% else %}lost{% endif %}" id="akaVrBadge">
+                        <i class="fas {% if detail_bagan.vr1 %}fa-video{% else %}fa-video-slash{% endif %}"></i>
+                        <span id="akaVrBadgeText">{% if detail_bagan.vr1 %}KARTU VR AKTIF{% else %}KARTU HANGUS{% endif %}</span>
+                    </span>
+                </div>
+
+                <div class="corner-card-body">
+                    <div class="flex-grow-1 overflow-hidden pe-2">
+                        <div class="fighter-name-hero" id="akaName">{{ detail_bagan.atlet1.nama_atlet|default:"Menunggu Atlet AKA" }}</div>
+                        <div class="fighter-meta">
+                            <span class="meta-perguruan" id="akaPerguruan">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }}</span>
+                            <span class="text-muted">&bull;</span>
+                            <span class="meta-utusan" id="akaUtusan">{{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</span>
+                        </div>
+                    </div>
+                    <!-- Score Box -->
+                    <div class="score-pill-box aka" id="akaScore">{{ detail_bagan.score1|default:"0" }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 2. CENTRAL VIDEO REVIEW DECISION DECK (FILLS ALL SPACE) ==================== -->
+        <section class="review-cockpit" id="reviewCockpit">
+            <div class="review-cockpit-header">
+                <div class="cockpit-title">
+                    <i class="fas fa-tv text-warning"></i>
+                    <span>DECK KEPUTUSAN VIDEO REVIEW (WKF)</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">Durasi Review:</span>
+                    <span class="review-timer-badge" id="reviewStopwatch">00:00</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger d-none" id="btnCancelReview" onclick="cancelCurrentReview()" title="Batalkan Tinjauan Aktif">
+                        <i class="fas fa-times me-1"></i> Batal
+                    </button>
+                </div>
+            </div>
+
+            <div class="review-content-area">
+                <!-- Status Banner (Visible when appeal is running) -->
+                <div id="deckStatusBanner" class="deck-status-banner d-none">
+                    <i class="fas fa-bell me-1"></i>
+                    <span id="deckStatusBannerText">DALAM TINJAUAN WASIT VR</span>
+                </div>
+
+                <!-- 2 Permanent Responsive Columns: AO on LEFT, AKA on RIGHT (Both Standby by default) -->
+                <div class="cockpit-dual-grid" id="cockpitDualGrid">
+                    <!-- LEFT COLUMN: AO (BIRU) -->
+                    <div class="cockpit-corner-column ao" id="cockpitColAo">
+                        <!-- Header -->
+                        <div class="column-header ao">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                <span class="badge-corner-lg ao">AO (BIRU)</span>
+                                <span class="column-athlete-name" id="aoDeckAthleteName">{{ detail_bagan.atlet2.nama_atlet|default:"Menunggu Atlet AO" }}</span>
+                            </div>
+                            <span class="vr-status-pill {% if detail_bagan.vr2 %}active{% else %}lost{% endif %}" id="aoDeckVrBadge">
+                                <i class="fas {% if detail_bagan.vr2 %}fa-video{% else %}fa-video-slash{% endif %}"></i>
+                                <span id="aoDeckVrBadgeText">{% if detail_bagan.vr2 %}KARTU AKTIF{% else %}HANGUS{% endif %}</span>
+                            </span>
+                        </div>
+
+                        <!-- AO Body: Standby View (Shown on Default) -->
+                        <div class="column-body-standby" id="aoStandbyView">
+                            <div class="radar-pulse-ring ao">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <h4 class="standby-heading">STANDBY &bull; SUDUT AO (BIRU)</h4>
+                            <p class="standby-subtext">Menunggu pengajuan Video Review dari Pelatih Sudut AO.</p>
+                            <span class="standby-status-pill ao">
+                                <i class="fas fa-satellite-dish"></i> Siaga Menerima Sinyal AO
+                            </span>
+                        </div>
+
+                        <!-- AO Body: Active Appeal View (Shown when AO appeals) -->
+                        <div class="column-body-appeal d-none" id="aoAppealView">
+                            <div class="appeal-point-banner ao">
+                                <div class="appeal-point-label">PERMINTAAN PELATIH AO</div>
+                                <div class="appeal-point-val" id="aoPointHero">YUKO (+1 POIN)</div>
+                            </div>
+
+                            <div class="appeal-decision-actions">
+                                <!-- 1. ACCEPT (Single-Tap Direct Accept) -->
+                                <button type="button" class="btn-action-hero btn-action-accept" onclick="submitCornerDecision('ao', 'accept')">
+                                    <div class="action-hero-title">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span id="aoBtnAcceptText">ACCEPT (+1 YUKO)</span>
+                                    </div>
+                                    <div class="action-hero-desc">Poin Disahkan &bull; Kartu VR Tetap Aktif</div>
+                                </button>
+
+                                <!-- 2. DECLINE -->
+                                <button type="button" class="btn-action-hero btn-action-decline" onclick="submitCornerDecision('ao', 'decline')">
+                                    <div class="action-hero-title">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>DECLINE (DITOLAK)</span>
+                                    </div>
+                                    <div class="action-hero-desc">Poin Tidak Sah &bull; Kartu Hangus (0 Sisa)</div>
+                                </button>
+
+                                <!-- 3. MINAI -->
+                                <button type="button" class="btn-action-hero btn-action-minai" onclick="submitCornerDecision('ao', 'minai')">
+                                    <div class="action-hero-title">
+                                        <i class="fas fa-eye-slash"></i>
+                                        <span>MINAI (TIDAK TERLIHAT)</span>
+                                    </div>
+                                    <div class="action-hero-desc">Inconclusive &bull; Kartu VR Tetap Ada</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AO Body: Confirmed Locked View -->
+                        <div class="column-body-locked d-none" id="aoLockedView">
+                            <div class="locked-card-box" id="aoLockedInner"></div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: AKA (MERAH) -->
+                    <div class="cockpit-corner-column aka" id="cockpitColAka">
+                        <!-- Header -->
+                        <div class="column-header aka">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                <span class="badge-corner-lg aka">AKA (MERAH)</span>
+                                <span class="column-athlete-name" id="akaDeckAthleteName">{{ detail_bagan.atlet1.nama_atlet|default:"Menunggu Atlet AKA" }}</span>
+                            </div>
+                            <span class="vr-status-pill {% if detail_bagan.vr1 %}active{% else %}lost{% endif %}" id="akaDeckVrBadge">
+                                <i class="fas {% if detail_bagan.vr1 %}fa-video{% else %}fa-video-slash{% endif %}"></i>
+                                <span id="akaDeckVrBadgeText">{% if detail_bagan.vr1 %}KARTU AKTIF{% else %}HANGUS{% endif %}</span>
+                            </span>
+                        </div>
+
+                        <!-- AKA Body: Standby View (Shown on Default) -->
+                        <div class="column-body-standby" id="akaStandbyView">
+                            <div class="radar-pulse-ring aka">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <h4 class="standby-heading">STANDBY &bull; SUDUT AKA (MERAH)</h4>
+                            <p class="standby-subtext">Menunggu pengajuan Video Review dari Pelatih Sudut AKA.</p>
+                            <span class="standby-status-pill aka">
+                                <i class="fas fa-satellite-dish"></i> Siaga Menerima Sinyal AKA
+                            </span>
+                        </div>
+
+                        <!-- AKA Body: Active Appeal View (Shown when AKA appeals) -->
+                        <div class="column-body-appeal d-none" id="akaAppealView">
+                            <div class="appeal-point-banner aka">
+                                <div class="appeal-point-label">PERMINTAAN PELATIH AKA</div>
+                                <div class="appeal-point-val" id="akaPointHero">YUKO (+1 POIN)</div>
+                            </div>
+
+                            <div class="appeal-decision-actions">
+                                <!-- 1. ACCEPT (Single-Tap Direct Accept) -->
+                                <button type="button" class="btn-action-hero btn-action-accept" onclick="submitCornerDecision('aka', 'accept')">
+                                    <div class="action-hero-title">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span id="akaBtnAcceptText">ACCEPT (+1 YUKO)</span>
+                                    </div>
+                                    <div class="action-hero-desc">Poin Disahkan &bull; Kartu VR Tetap Aktif</div>
+                                </button>
+
+                                <!-- 2. DECLINE -->
+                                <button type="button" class="btn-action-hero btn-action-decline" onclick="submitCornerDecision('aka', 'decline')">
+                                    <div class="action-hero-title">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>DECLINE (DITOLAK)</span>
+                                    </div>
+                                    <div class="action-hero-desc">Poin Tidak Sah &bull; Kartu Hangus (0 Sisa)</div>
+                                </button>
+
+                                <!-- 3. MINAI -->
+                                <button type="button" class="btn-action-hero btn-action-minai" onclick="submitCornerDecision('aka', 'minai')">
+                                    <div class="action-hero-title">
+                                        <i class="fas fa-eye-slash"></i>
+                                        <span>MINAI (TIDAK TERLIHAT)</span>
+                                    </div>
+                                    <div class="action-hero-desc">Inconclusive &bull; Kartu VR Tetap Ada</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AKA Body: Confirmed Locked View -->
+                        <div class="column-body-locked d-none" id="akaLockedView">
+                            <div class="locked-card-box" id="akaLockedInner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 3. HIGH-CONTRAST APPEAL HISTORY LOG ==================== -->
+        <section class="history-card">
+            <div class="history-card-header">
+                <span class="fw-bold text-white" style="font-size: 13px;">
+                    <i class="fas fa-history me-1 text-warning"></i> LOG TINJAUAN VIDEO REVIEW PARTAI INI
+                </span>
+                <span class="badge bg-dark border border-secondary text-light" id="historyCount" style="font-size: 11px;">0 Riwayat</span>
+            </div>
+            <div class="history-table-wrap">
+                <table class="vr-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Waktu</th>
+                            <th style="width: 110px;">Sudut</th>
+                            <th>Permintaan Pelatih</th>
+                            <th>Keputusan Wasit VR</th>
+                            <th style="width: 150px;">Status Kartu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr id="emptyHistoryRow">
+                            <td colspan="5" class="text-center text-muted py-2">Belum ada riwayat Video Review pada partai ini.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    <script>
+        const tatamiPk = {{ tatami.pk }};
+        const csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+
+        // Match State
+        let pendingAppeals = { ao: null, aka: null };
+        let appealDecisions = { ao: null, aka: null };
+        let akaCardActive = {{ detail_bagan.vr1|yesno:"true,false"|default:"false" }};
+        let aoCardActive = {{ detail_bagan.vr2|yesno:"true,false"|default:"false" }};
+        let reviewStartTime = null;
+        let reviewTimerInterval = null;
+        let appealHistory = [];
+
+        // WebSocket Connection
+        let socket = null;
+
+        function initVrSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const wsUrl = protocol + window.location.host + `/ws/wasit-vr/${tatamiPk}`;
+
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = function() {
+                $('#wsStatusBadge').removeClass('connecting offline').addClass('live').html('<i class="fas fa-circle text-success" style="font-size: 8px;"></i> WS Live');
+            };
+
+            socket.onclose = function() {
+                $('#wsStatusBadge').removeClass('live connecting').addClass('offline').html('<i class="fas fa-circle text-danger" style="font-size: 8px;"></i> Terputus');
+                setTimeout(initVrSocket, 2500);
+            };
+
+            socket.onerror = function() {
+                socket.close();
+            };
+
+            socket.onmessage = function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    handleSocketMessage(data);
+                } catch(err) {
+                    console.error('Socket parse error:', err);
+                }
+            };
+        }
+
+        function handleSocketMessage(data) {
+            const cmd = data.command || data.action || data.message;
+            if (!cmd) return;
+
+            // 1. Telemetry / Match Details update
+            if (cmd === 'get_atlet') {
+                updateMatchDetails(data.details);
+            }
+            // 2. Coach Appeal Triggered from Coach Supervisor
+            else if (cmd === 'coach-supervisor' || cmd === 'coach-supervisor-pending') {
+                let arr;
+                try {
+                    arr = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+                } catch(e) { arr = data.details; }
+
+                if (Array.isArray(arr) && arr.length >= 2) {
+                    const side = String(arr[0]).toLowerCase();
+                    const val = String(arr[1]);
+                    if (side === 'ao' || side === 'aka') {
+                        pendingAppeals[side] = val;
+                        appealDecisions[side] = null;
+                        renderAppealsUi();
+                        playChimeSound();
+                    }
+                }
+            }
+            // 3. Coach Appeal Cleared / Cancelled
+            else if (cmd === 'coach-supervisor-cancel' || cmd === 'coach-supervisor-cleared') {
+                const side = typeof data.details === 'string' ? data.details.toLowerCase() : (Array.isArray(data.details) ? String(data.details[0]).toLowerCase() : null);
+                if (side === 'ao' || side === 'aka') {
+                    pendingAppeals[side] = null;
+                    appealDecisions[side] = null;
+                } else {
+                    pendingAppeals.ao = null;
+                    pendingAppeals.aka = null;
+                    appealDecisions.ao = null;
+                    appealDecisions.aka = null;
+                }
+                renderAppealsUi();
+            }
+            // 4. VR Decision finalized
+            else if (cmd === 'vr-decision' || cmd === 'vr-decision-done') {
+                const details = data.details || {};
+                const side = String(details.side || 'aka').toLowerCase();
+                const decision = String(details.decision || 'minai').toLowerCase();
+
+                if (pendingAppeals[side] !== null && appealDecisions[side] === null) {
+                    addHistoryRecord(side, pendingAppeals[side] || '1', decision);
+                }
+                pendingAppeals[side] = null;
+                appealDecisions[side] = null;
+                renderAppealsUi();
+            }
+            // 5. Card Status Sync
+            else if (cmd === 'vr_status') {
+                let arr;
+                try {
+                    arr = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+                } catch(e) { arr = data.details; }
+                if (Array.isArray(arr) && arr.length >= 2) {
+                    const side = String(arr[0]).toLowerCase();
+                    const isAvail = String(arr[1]) === '1' || arr[1] === true;
+                    setCardUi(side, isAvail);
+                }
+            }
+            // 6. Realtime Timer update from control
+            else if (cmd === 'timer') {
+                const parts = String(data.details || '').split(':');
+                if (parts.length >= 2) {
+                    $('#matchTimerMin').text(parts[0]);
+                    $('#matchTimerSec').text(parts[1].split('.')[0]);
+                }
+            }
+            // 7. Score updates
+            else if (cmd === 'score') {
+                const det = String(data.details || '');
+                if (det.startsWith('ao-')) {
+                    $('#aoScore').text(det.replace('ao-', ''));
+                } else if (det.startsWith('aka-')) {
+                    $('#akaScore').text(det.replace('aka-', ''));
+                }
+            }
+        }
+
+        // ==================== UI STATE CONTROLLERS ====================
+        function updateMatchDetails(details) {
+            if (!details) return;
+
+            const category = details.nomor_tanding || details.nama_bagan || '';
+            const roundText = details.round_label ? ` • ${details.round_label}` : '';
+            if (category) {
+                $('#categoryText').text(category + roundText);
+            }
+
+            if (details.atlet_blue && details.atlet_blue !== '-') {
+                $('#aoName').text(details.atlet_blue);
+                $('#aoDeckAthleteName').text(details.atlet_blue);
+                $('#aoPerguruan').text(details.atlet_blue_perguruan || '-');
+                $('#aoUtusan').text(details.atlet_blue_utusan || '-');
+            }
+            if (details.atlet_red && details.atlet_red !== '-') {
+                $('#akaName').text(details.atlet_red);
+                $('#akaDeckAthleteName').text(details.atlet_red);
+                $('#akaPerguruan').text(details.atlet_red_perguruan || '-');
+                $('#akaUtusan').text(details.atlet_red_utusan || '-');
+            }
+
+            if (typeof details.atlet_blue_vr !== 'undefined') {
+                setCardUi('ao', Boolean(details.atlet_blue_vr));
+            }
+            if (typeof details.atlet_red_vr !== 'undefined') {
+                setCardUi('aka', Boolean(details.atlet_red_vr));
+            }
+        }
+
+        function setCardUi(side, isActive) {
+            if (side === 'ao') aoCardActive = isActive;
+            else akaCardActive = isActive;
+
+            const badges = $(`#${side}VrBadge, #${side}DeckVrBadge`);
+            const texts = $(`#${side}VrBadgeText, #${side}DeckVrBadgeText`);
+            const icons = badges.find('i');
+
+            if (isActive) {
+                badges.removeClass('lost reviewing').addClass('active');
+                icons.removeClass('fa-video-slash').addClass('fa-video');
+                texts.text('KARTU VR AKTIF');
+            } else {
+                badges.removeClass('active reviewing').addClass('lost');
+                icons.removeClass('fa-video').addClass('fa-video-slash');
+                texts.text('KARTU HANGUS');
+            }
+        }
+
+        function getPointInfo(val) {
+            const v = String(val || '1');
+            if (v === '1') return { name: 'YUKO', pts: '1', label: 'YUKO (+1 POIN)' };
+            if (v === '2') return { name: 'WAZA-ARI', pts: '2', label: 'WAZA-ARI (+2 POIN)' };
+            if (v === '3') return { name: 'IPPON', pts: '3', label: 'IPPON (+3 POIN)' };
+            return { name: 'POIN', pts: v, label: `+${v} POIN` };
+        }
+
+        function renderAppealsUi() {
+            const hasAo = pendingAppeals.ao !== null;
+            const hasAka = pendingAppeals.aka !== null;
+
+            // Render both corner columns: AO (Left) & AKA (Right)
+            renderCornerColumn('ao', pendingAppeals.ao, appealDecisions.ao);
+            renderCornerColumn('aka', pendingAppeals.aka, appealDecisions.aka);
+
+            // Update Central Deck Status Banner & Header Controls
+            const banner = $('#deckStatusBanner');
+            const bannerText = $('#deckStatusBannerText');
+            const btnCancel = $('#btnCancelReview');
+
+            if (!hasAo && !hasAka) {
+                banner.addClass('d-none');
+                btnCancel.addClass('d-none');
+                stopReviewStopwatch();
+            } else {
+                banner.removeClass('d-none');
+                btnCancel.removeClass('d-none');
+                startReviewStopwatch();
+
+                if (hasAo && hasAka) {
+                    bannerText.html('<strong>🚨 DUA SUDUT MENGAJUKAN REVIEW SEKALIGUS:</strong> Tinjau rekaman video dan tentukan keputusan untuk sudut AO dan AKA.');
+                } else if (hasAo) {
+                    bannerText.html('<strong>📢 PENGAJUAN SUDUT AO (BIRU):</strong> Sedang dalam tinjauan Wasit VR.');
+                } else if (hasAka) {
+                    bannerText.html('<strong>📢 PENGAJUAN SUDUT AKA (MERAH):</strong> Sedang dalam tinjauan Wasit VR.');
+                }
+            }
+        }
+
+        function renderCornerColumn(side, appealVal, decisionObj) {
+            const cap = side === 'ao' ? 'Ao' : 'Aka';
+            const col = $(`#cockpitCol${cap}`);
+            const standbyView = $(`#${side}StandbyView`);
+            const appealView = $(`#${side}AppealView`);
+            const lockedView = $(`#${side}LockedView`);
+            const lockedInner = $(`#${side}LockedInner`);
+
+            // 1. Decided State (Locked)
+            if (decisionObj) {
+                col.removeClass('reviewing');
+                standbyView.addClass('d-none');
+                appealView.addClass('d-none');
+                lockedView.removeClass('d-none');
+
+                const pt = getPointInfo(decisionObj.val);
+                const dec = decisionObj.decision;
+                const cornerName = side === 'ao' ? 'AO (BIRU)' : 'AKA (MERAH)';
+
+                lockedInner.removeClass('accept decline minai');
+                if (dec.startsWith('accept')) {
+                    lockedInner.addClass('accept').html(`
+                        <div class="locked-title"><i class="fas fa-check-circle"></i> KEPUTUSAN ${cornerName}: DITERIMA</div>
+                        <div class="locked-subtitle">+${pt.pts} ${pt.name} Disahkan &bull; Kartu VR Tetap Aktif &bull; Terkirim ke Tatami</div>
+                    `);
+                } else if (dec === 'decline') {
+                    lockedInner.addClass('decline').html(`
+                        <div class="locked-title"><i class="fas fa-times-circle"></i> KEPUTUSAN ${cornerName}: DITOLAK</div>
+                        <div class="locked-subtitle">Poin Tidak Sah &bull; Kartu Hangus &bull; Terkirim ke Tatami</div>
+                    `);
+                } else if (dec === 'minai') {
+                    lockedInner.addClass('minai').html(`
+                        <div class="locked-title"><i class="fas fa-eye-slash"></i> KEPUTUSAN ${cornerName}: MINAI</div>
+                        <div class="locked-subtitle">Inconclusive &bull; Kartu VR Tetap Ada &bull; Terkirim ke Tatami</div>
+                    `);
+                }
+                return;
+            }
+
+            // 2. Active Appeal State
+            if (appealVal !== null) {
+                col.addClass('reviewing');
+                standbyView.addClass('d-none');
+                lockedView.addClass('d-none');
+                appealView.removeClass('d-none');
+
+                const pt = getPointInfo(appealVal);
+                $(`#${side}PointHero`).text(pt.label);
+                $(`#${side}BtnAcceptText`).text(`ACCEPT (+${pt.pts} ${pt.name})`);
+                return;
+            }
+
+            // 3. Standby State (Default: fills the column space)
+            col.removeClass('reviewing');
+            appealView.addClass('d-none');
+            lockedView.addClass('d-none');
+            standbyView.removeClass('d-none');
+        }
+
+        function submitCornerDecision(side, decisionType) {
+            const val = pendingAppeals[side] || '1';
+            appealDecisions[side] = { decision: decisionType, val: val };
+
+            // 1. Broadcast decision to WebSocket / HTTP immediately
+            dispatchDecision(side, decisionType, val);
+
+            // 2. Render locked UI for this side immediately
+            renderCornerColumn(side, val, appealDecisions[side]);
+
+            // 3. Check if the other side is still awaiting a decision
+            const otherSide = side === 'ao' ? 'aka' : 'ao';
+            const isOtherPending = pendingAppeals[otherSide] !== null && appealDecisions[otherSide] === null;
+
+            if (!isOtherPending) {
+                // All active appeals have been decided! Reset to Standby after brief confirmation
+                setTimeout(() => {
+                    pendingAppeals.ao = null;
+                    pendingAppeals.aka = null;
+                    appealDecisions.ao = null;
+                    appealDecisions.aka = null;
+                    renderAppealsUi();
+                }, 1200);
+            }
+        }
+
+        function dispatchDecision(side, decisionType, val) {
+            const payload = {
+                side: side,
+                decision: decisionType,
+                val: val
+            };
+
+            // Send via WebSocket if open
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    command: 'vr-decision',
+                    details: payload
+                }));
+            } else {
+                // HTTP Fallback
+                $.ajax({
+                    url: `/wasit-vr/${tatamiPk}/message-retriever`,
+                    type: 'POST',
+                    data: {
+                        action: 'vr-decision',
+                        details: JSON.stringify(payload),
+                        csrfmiddlewaretoken: csrfToken
+                    }
+                });
+            }
+
+            addHistoryRecord(side, val, decisionType);
+        }
+
+        function cancelCurrentReview() {
+            pendingAppeals.ao = null;
+            pendingAppeals.aka = null;
+            appealDecisions.ao = null;
+            appealDecisions.aka = null;
+            renderAppealsUi();
+        }
+
+        // ==================== STOPWATCH & AUDIO ====================
+        function startReviewStopwatch() {
+            if (reviewTimerInterval) return; // already ticking
+            reviewStartTime = Date.now();
+            reviewTimerInterval = setInterval(() => {
+                const diff = Math.floor((Date.now() - reviewStartTime) / 1000);
+                const min = String(Math.floor(diff / 60)).padStart(2, '0');
+                const sec = String(diff % 60).padStart(2, '0');
+                $('#reviewStopwatch').text(`${min}:${sec}`);
+            }, 1000);
+        }
+
+        function stopReviewStopwatch() {
+            if (reviewTimerInterval) {
+                clearInterval(reviewTimerInterval);
+                reviewTimerInterval = null;
+            }
+            $('#reviewStopwatch').text('00:00');
+        }
+
+        function playChimeSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
+            } catch(e) {}
+        }
+
+        function addHistoryRecord(side, val, decision) {
+            const timeStr = $('#matchTimerMin').text() + ':' + $('#matchTimerSec').text();
+            const cornerLabel = side === 'ao' ? '<span class="badge bg-primary">AO (BIRU)</span>' : '<span class="badge bg-danger">AKA (MERAH)</span>';
+            const pt = getPointInfo(val);
+            const requestText = pt.label;
+
+            let decisionBadge = '';
+            let cardOutcome = '';
+
+            if (decision.startsWith('accept')) {
+                const pts = decision.split('-')[1] || val;
+                decisionBadge = `<span class="badge bg-success text-white fw-bold"><i class="fas fa-check me-1"></i>DITERIMA (+${pts})</span>`;
+                cardOutcome = '<span class="text-success small fw-bold"><i class="fas fa-shield-alt me-1"></i>Kartu Tetap Aktif</span>';
+            } else if (decision === 'decline') {
+                decisionBadge = '<span class="badge bg-danger text-white fw-bold"><i class="fas fa-times me-1"></i>DITOLAK</span>';
+                cardOutcome = '<span class="text-danger small fw-bold"><i class="fas fa-ban me-1"></i>Kartu Hangus</span>';
+            } else if (decision === 'minai') {
+                decisionBadge = '<span class="badge bg-warning text-dark fw-bold"><i class="fas fa-eye-slash me-1"></i>MINAI</span>';
+                cardOutcome = '<span class="text-warning small fw-bold"><i class="fas fa-undo me-1"></i>Kartu Tetap Ada</span>';
+            }
+
+            $('#emptyHistoryRow').remove();
+            const rowHtml = `
+                <tr>
+                    <td><code>${timeStr}</code></td>
+                    <td>${cornerLabel}</td>
+                    <td>${requestText}</td>
+                    <td>${decisionBadge}</td>
+                    <td>${cardOutcome}</td>
+                </tr>
+            `;
+            $('#historyTableBody').prepend(rowHtml);
+            appealHistory.push({ timeStr, side, val, decision });
+            $('#historyCount').text(`${appealHistory.length} Riwayat`);
+        }
+
+        // Initialize on load
+        $(document).ready(function() {
+            initVrSocket();
+            renderAppealsUi();
+        });
+    </script>
+</body>
+</html>

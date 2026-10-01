@@ -815,7 +815,7 @@
               </li>
 
               <!-- Rekapan Group -->
-              <li class="nav-item {% if on == 'summary' or on == 'utusan' or on == 'perguruan' or on == 'rekapan' or on == 'roster-counter' or on == 'roster-maker' %}active{% endif %}">
+              <li class="nav-item {% if on == 'summary' or on == 'utusan' or on == 'perguruan' or on == 'roster-maker' %}active{% endif %}">
                 <a data-bs-toggle="collapse" href="#rekapan" class="collapsed" aria-expanded="false">
                   <i class="fas fa-chart-pie"></i>
                   <p>Rekapan & Event</p>
@@ -841,16 +841,6 @@
                     <li class="{% if on == 'perguruan' %}active{% endif %}">
                       <a href="{% url 'admin-perguruan' event_pk=event.pk %}">
                         <span class="sub-item">Perguruan</span>
-                      </a>
-                    </li>
-                    <li class="{% if on == 'rekapan' %}active{% endif %}">
-                      <a href="{% url 'admin-rekapan' event_pk=event.pk %}">
-                        <span class="sub-item">Rekapan Bagan</span>
-                      </a>
-                    </li>
-                    <li class="{% if on == 'roster-counter' %}active{% endif %}">
-                      <a href="{% url 'roster-counter' event_pk=event.pk %}">
-                        <span class="sub-item">Roster Counter</span>
                       </a>
                     </li>
                     <li class="{% if on == 'roster-maker' %}active{% endif %}">

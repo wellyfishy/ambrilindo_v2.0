@@ -290,11 +290,16 @@ def pull_athletes_from_hosted(event_pk):
         # 3. Sync Nomor Tanding
         for nt_item in data.get('nomor_tandings', []):
             nt_nama = nt_item.get('nama_nomor_tanding', '').strip()
+            nt_is_bob = bool(nt_item.get('is_bob', False))
             if nt_nama:
-                NomorTanding.objects.get_or_create(
+                nt_obj, _ = NomorTanding.objects.get_or_create(
                     event=event,
-                    nama_nomor_tanding=nt_nama
+                    nama_nomor_tanding=nt_nama,
+                    defaults={'is_bob': nt_is_bob}
                 )
+                if nt_obj.is_bob != nt_is_bob:
+                    nt_obj.is_bob = nt_is_bob
+                    nt_obj.save(update_fields=['is_bob'])
 
         # 4. Sync Atlet (Idempotent update_or_create)
         for a_item in atlets_data:
@@ -321,15 +326,19 @@ def pull_athletes_from_hosted(event_pk):
 
             kode_atlet_val = (a_item.get('kode_atlet') or '').strip() or None
 
-            # 1. Cari atlet yang sudah ada: prioritaskan kode_atlet unik, lalu fallback nama + utusan
+            # 1. Cari atlet yang sudah ada: prioritaskan kode_atlet unik + nomor_tanding, lalu fallback nama + nomor_tanding + utusan
             atlet_obj = None
             if kode_atlet_val:
-                atlet_obj = Atlet.objects.filter(event=event, kode_atlet=kode_atlet_val).first()
+                atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, kode_atlet=kode_atlet_val).first()
 
             if not atlet_obj and utusan_obj:
-                atlet_obj = Atlet.objects.filter(event=event, nama_atlet__iexact=nama, utusan=utusan_obj).first()
+                atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=nama, utusan=utusan_obj).first()
+
+            if not atlet_obj:
+                atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=nama).first()
 
             created = False
+            public_detail_id = a_item.get('public_detail_id')
             if atlet_obj:
                 atlet_obj.nama_atlet = nama
                 atlet_obj.nomor_tanding = nt_obj
@@ -341,6 +350,8 @@ def pull_athletes_from_hosted(event_pk):
                     atlet_obj.kode_atlet = kode_atlet_val
                 if 'is_priority' in a_item:
                     atlet_obj.is_priority = bool(a_item.get('is_priority', False))
+                if public_detail_id:
+                    atlet_obj.additional_code = str(public_detail_id)
                 atlet_obj.save()
             else:
                 atlet_obj = Atlet.objects.create(
@@ -351,6 +362,7 @@ def pull_athletes_from_hosted(event_pk):
                     utusan=utusan_obj,
                     nik=nik or None,
                     kode_atlet=kode_atlet_val,
+                    additional_code=str(public_detail_id) if public_detail_id else None,
                     is_priority=bool(a_item.get('is_priority', False)),
                 )
                 created = True
@@ -360,25 +372,51 @@ def pull_athletes_from_hosted(event_pk):
             else:
                 updated_count += 1
 
-    # 5. Unduh Logo Utusan / Kontingen (di luar atomic block untuk mencegah SQLite write lock)
+    # 5. Unduh Logo Utusan / Kontingen secara paralel & cepat (di luar atomic block untuk mencegah SQLite write lock)
     downloaded_logos = 0
     if utusan_logo_tasks:
-        headers = get_api_headers()
-        for u_pk, u_name, logo_url in utusan_logo_tasks:
+        from concurrent.futures import ThreadPoolExecutor
+
+        def download_single_logo(task):
+            u_pk, u_name, logo_url = task
             try:
                 u_obj = Utusan.objects.filter(pk=u_pk).first()
-                if not u_obj or u_obj.logo:
-                    continue
-                # Download logo image (WebP teroptimasi dari server hosted)
-                r = requests.get(logo_url, headers=headers, timeout=5)
+                if not u_obj:
+                    return False
+
+                # Cek jika file fisik sudah ada di disk
+                if u_obj.logo:
+                    try:
+                        if os.path.exists(u_obj.logo.path) and os.path.getsize(u_obj.logo.path) > 0:
+                            return False  # File fisik valid sudah ada
+                    except Exception:
+                        pass
+
+                # Normalisasi relative URL jika server publik lokal
+                target_url = logo_url
+                if target_url.startswith('/'):
+                    target_url = f"{base_url}{target_url}"
+
+                # PENTING: Jangan sertakan header Bearer Token ke AWS S3 / CDN media publik
+                # Gunakan User-Agent standar tanpa header Authorization API
+                img_headers = {'User-Agent': 'Ambrilindo-Sync/1.0'}
+                r = requests.get(target_url, headers=img_headers, timeout=10)
                 if r.status_code == 200 and r.content:
                     clean_slug = slugify(u_name) or f"dojo_{u_pk}"
-                    filename = f"{clean_slug}.webp"
+                    raw_ext = os.path.splitext(target_url.split('?')[0])[1].lower()
+                    if raw_ext not in ['.webp', '.png', '.jpg', '.jpeg']:
+                        raw_ext = '.webp'
+                    filename = f"{clean_slug}{raw_ext}"
                     u_obj.logo.save(filename, ContentFile(r.content), save=True)
-                    downloaded_logos += 1
                     logger.info(f"Berhasil mengunduh logo untuk utusan '{u_name}': {u_obj.logo.name}")
+                    return True
             except Exception as err:
                 logger.warning(f"Gagal mengunduh logo untuk utusan '{u_name}' ({logo_url}): {err}")
+            return False
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            results = list(executor.map(download_single_logo, utusan_logo_tasks))
+            downloaded_logos = sum(1 for res in results if res)
 
     target_label = f"'{hosted_name}' (ID {target_hosted_id})" if hosted_name else f"ID #{target_hosted_id}"
     msg = f"Berhasil menarik data dari {target_label}: {created_count} atlet baru ditambahkan, {updated_count} diperbarui (Total: {len(atlets_data)} atlet)"
@@ -463,11 +501,13 @@ def push_bagan_to_hosted(event_pk, bagan_pks=None):
                 'atlet1_kode': kode1,
                 'atlet1_perguruan': perguruan1,
                 'atlet1_utusan': utusan1,
+                'atlet1_public_detail_id': db.atlet1.additional_code if (db.atlet1 and db.atlet1.additional_code) else "",
                 'atlet1_is_priority': bool(getattr(db.atlet1, 'is_priority', False)) if db.atlet1 else False,
                 'atlet2_nama': nama2,
                 'atlet2_kode': kode2,
                 'atlet2_perguruan': perguruan2,
                 'atlet2_utusan': utusan2,
+                'atlet2_public_detail_id': db.atlet2.additional_code if (db.atlet2 and db.atlet2.additional_code) else "",
                 'atlet2_is_priority': bool(getattr(db.atlet2, 'is_priority', False)) if db.atlet2 else False,
                 'kode_realtime': get_kode_realtime(db),
                 'score1': db.score1,
@@ -491,12 +531,16 @@ def push_bagan_to_hosted(event_pk, bagan_pks=None):
             'pool': bagan.pool,
             'juara_1': bagan.juara_1.nama_atlet if bagan.juara_1 else "",
             'juara_1_kode': bagan.juara_1.kode_atlet if (bagan.juara_1 and bagan.juara_1.kode_atlet) else "",
+            'juara_1_public_detail_id': bagan.juara_1.additional_code if (bagan.juara_1 and bagan.juara_1.additional_code) else "",
             'juara_2': bagan.juara_2.nama_atlet if bagan.juara_2 else "",
             'juara_2_kode': bagan.juara_2.kode_atlet if (bagan.juara_2 and bagan.juara_2.kode_atlet) else "",
+            'juara_2_public_detail_id': bagan.juara_2.additional_code if (bagan.juara_2 and bagan.juara_2.additional_code) else "",
             'juara_3a': bagan.juara_3a.nama_atlet if bagan.juara_3a else "",
             'juara_3a_kode': bagan.juara_3a.kode_atlet if (bagan.juara_3a and bagan.juara_3a.kode_atlet) else "",
+            'juara_3a_public_detail_id': bagan.juara_3a.additional_code if (bagan.juara_3a and bagan.juara_3a.additional_code) else "",
             'juara_3b': bagan.juara_3b.nama_atlet if bagan.juara_3b else "",
             'juara_3b_kode': bagan.juara_3b.kode_atlet if (bagan.juara_3b and bagan.juara_3b.kode_atlet) else "",
+            'juara_3b_public_detail_id': bagan.juara_3b.additional_code if (bagan.juara_3b and bagan.juara_3b.additional_code) else "",
             'detail_bagans': dbs_payload,
         })
 

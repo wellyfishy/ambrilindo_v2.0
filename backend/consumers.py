@@ -804,4 +804,373 @@ class TatamiManagerConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "command": event["message"],
             "details": event["details"]
-        }))
+        }))
+
+
+@database_sync_to_async
+def update_vr_card_db(tatami_pk, side, has_vr):
+    from backend.models import Tatami
+    tatami = Tatami.objects.filter(pk=tatami_pk).select_related('detail_bagan').first()
+    if not tatami or not tatami.detail_bagan:
+        return
+    db = tatami.detail_bagan
+    if side == 'aka':
+        db.vr1 = has_vr
+        db.save(update_fields=['vr1'])
+    elif side == 'ao':
+        db.vr2 = has_vr
+        db.save(update_fields=['vr2'])
+
+
+class WasitVrConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.tatami_pk = self.scope['url_route']['kwargs']['tatami_pk']
+        self.group_name = f"wasit_vr_{self.tatami_pk}"
+
+        # Join Wasit VR dedicated group
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        # Join control group (to receive timer, scores, match changes)
+        await self.channel_layer.group_add(f"control_{self.tatami_pk}", self.channel_name)
+        # Join coach room group (to receive coach supervisor appeal requests)
+        await self.channel_layer.group_add(f"coachroom_{self.tatami_pk}", self.channel_name)
+        # Join scoring group (to receive scoring broadcasts)
+        await self.channel_layer.group_add(f"scoring_{self.tatami_pk}", self.channel_name)
+
+        await self.accept()
+
+        # Send current match details immediately
+        details = await get_current_match_details(self.tatami_pk)
+        if details:
+            await self.send(text_data=json.dumps({
+                "command": "get_atlet",
+                "details": details
+            }))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        await self.channel_layer.group_discard(f"control_{self.tatami_pk}", self.channel_name)
+        await self.channel_layer.group_discard(f"coachroom_{self.tatami_pk}", self.channel_name)
+        await self.channel_layer.group_discard(f"scoring_{self.tatami_pk}", self.channel_name)
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+        except Exception:
+            return
+
+        command = data.get('command') or data.get('action')
+        details = data.get('details')
+        if not command:
+            return
+
+        if command == 'get_current':
+            details = await get_current_match_details(self.tatami_pk)
+            if details:
+                await self.send(text_data=json.dumps({
+                    "command": "get_atlet",
+                    "details": details
+                }))
+            return
+
+        elif command in ('vr-decision', 'vr_decision'):
+            # details: {"side": "aka"|"ao", "decision": "accept-1"|"accept-2"|"accept-3"|"decline"|"minai", "val": "1"|"2"|"3"}
+            side = 'aka'
+            decision = 'minai'
+            val = '1'
+            if isinstance(details, dict):
+                side = str(details.get('side', 'aka')).lower()
+                decision = str(details.get('decision', 'minai')).lower()
+                val = str(details.get('val', '1'))
+            elif isinstance(details, (list, tuple)) and len(details) >= 2:
+                side = str(details[0]).lower()
+                decision = str(details[1]).lower()
+                val = str(details[2]) if len(details) >= 3 else '1'
+
+            if decision.startswith('accept'):
+                pts = decision.split('-')[1] if '-' in decision else val
+                # Update DB: card remains active (True)
+                await update_vr_card_db(self.tatami_pk, side, True)
+
+                # Broadcast to Control Panel operator (so points are added and VR state updated)
+                await self.channel_layer.group_send(
+                    f"control_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision",
+                        "details": {"side": side, "decision": f"accept-{pts}", "pts": pts}
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"admin_control_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision",
+                        "details": {"side": side, "decision": f"accept-{pts}", "pts": pts}
+                    }
+                )
+
+                # Broadcast to Scoring Board (displays VR +X ACCEPTED banner)
+                await self.channel_layer.group_send(
+                    f"scoring_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr",
+                        "details": f"{side}-accept-{pts}"
+                    }
+                )
+
+                # Broadcast to Coach Supervisor (retains card, clears appeal)
+                await self.channel_layer.group_send(
+                    f"coachroom_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr_status",
+                        "details": [side, "1"]
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"coachroom_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "coach-supervisor-cleared",
+                        "details": side
+                    }
+                )
+
+                # Echo to Wasit VR panel
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision-done",
+                        "details": {"side": side, "decision": f"accept-{pts}", "pts": pts}
+                    }
+                )
+
+            elif decision == 'decline':
+                # Update DB: card is lost (False)
+                await update_vr_card_db(self.tatami_pk, side, False)
+
+                # Broadcast to Control Panel
+                await self.channel_layer.group_send(
+                    f"control_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision",
+                        "details": {"side": side, "decision": "decline"}
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"admin_control_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision",
+                        "details": {"side": side, "decision": "decline"}
+                    }
+                )
+
+                # Broadcast to Scoring Board (displays DECLINED banner and removes VR badge)
+                await self.channel_layer.group_send(
+                    f"scoring_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr",
+                        "details": f"{side}-decline"
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"scoring_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr",
+                        "details": f"{side}-remove-vr"
+                    }
+                )
+
+                # Broadcast to Coach Supervisor (marks card as lost)
+                await self.channel_layer.group_send(
+                    f"coachroom_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr_status",
+                        "details": [side, "0"]
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"coachroom_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "coach-supervisor-cleared",
+                        "details": side
+                    }
+                )
+
+                # Echo to Wasit VR panel
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision-done",
+                        "details": {"side": side, "decision": "decline"}
+                    }
+                )
+
+            elif decision == 'minai':
+                # Update DB: card remains active (True) - WKF rule: coach keeps card on Minai
+                await update_vr_card_db(self.tatami_pk, side, True)
+
+                # Broadcast to Control Panel
+                await self.channel_layer.group_send(
+                    f"control_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision",
+                        "details": {"side": side, "decision": "minai"}
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"admin_control_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision",
+                        "details": {"side": side, "decision": "minai"}
+                    }
+                )
+
+                # Broadcast to Scoring Board (displays MINAI banner, keeps VR badge)
+                await self.channel_layer.group_send(
+                    f"scoring_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr",
+                        "details": f"{side}-minai"
+                    }
+                )
+
+                # Broadcast to Coach Supervisor (retains card, clears appeal)
+                await self.channel_layer.group_send(
+                    f"coachroom_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr_status",
+                        "details": [side, "1"]
+                    }
+                )
+                await self.channel_layer.group_send(
+                    f"coachroom_{self.tatami_pk}",
+                    {
+                        "type": "broadcast_command",
+                        "message": "coach-supervisor-cleared",
+                        "details": side
+                    }
+                )
+
+                # Echo to Wasit VR panel
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "broadcast_command",
+                        "message": "vr-decision-done",
+                        "details": {"side": side, "decision": "minai"}
+                    }
+                )
+
+        elif command == 'vr-card-toggle':
+            # details: {"side": "aka"|"ao", "status": true|false}
+            side = 'aka'
+            status = True
+            if isinstance(details, dict):
+                side = str(details.get('side', 'aka')).lower()
+                status = bool(details.get('status', True))
+            await update_vr_card_db(self.tatami_pk, side, status)
+            stat_str = "1" if status else "0"
+            await self.channel_layer.group_send(
+                f"coachroom_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "vr_status", "details": [side, stat_str]}
+            )
+            await self.channel_layer.group_send(
+                f"control_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "vr_status", "details": [side, stat_str]}
+            )
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "vr", "details": f"{side}-vr" if status else f"{side}-remove-vr"}
+            )
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "broadcast_command", "message": "vr_status", "details": [side, stat_str]}
+            )
+
+        elif command == 'vr-request':
+            # Wasit VR triggers appeal manually (e.g. Referee called VR)
+            # details: [side, val]
+            side = 'aka'
+            val = '1'
+            if isinstance(details, (list, tuple)) and len(details) >= 2:
+                side = str(details[0]).lower()
+                val = str(details[1])
+            elif isinstance(details, dict):
+                side = str(details.get('side', 'aka')).lower()
+                val = str(details.get('val', '1'))
+
+            await self.channel_layer.group_send(
+                f"control_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor", "details": [side, val]}
+            )
+            await self.channel_layer.group_send(
+                f"admin_control_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor", "details": [side, val]}
+            )
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor", "details": [side, val]}
+            )
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "vr", "details": f"{side}-request-{val}"}
+            )
+            await self.channel_layer.group_send(
+                f"coachroom_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-pending", "details": [side, val]}
+            )
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "broadcast_command", "message": "coach-supervisor-pending", "details": [side, val]}
+            )
+
+        elif command == 'coach-supervisor-cancel':
+            side = 'aka'
+            if isinstance(details, str):
+                side = details.lower()
+            elif isinstance(details, (list, tuple)) and len(details) > 0:
+                side = str(details[0]).lower()
+
+            await self.channel_layer.group_send(
+                f"control_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cancel", "details": side}
+            )
+            await self.channel_layer.group_send(
+                f"admin_control_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cancel", "details": side}
+            )
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cancel", "details": side}
+            )
+            await self.channel_layer.group_send(
+                f"coachroom_{self.tatami_pk}",
+                {"type": "broadcast_command", "message": "coach-supervisor-cleared", "details": side}
+            )
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "broadcast_command", "message": "coach-supervisor-cleared", "details": side}
+            )
+
+    async def broadcast_command(self, event):
+        await self.send(text_data=json.dumps({
+            "command": event["message"],
+            "details": event["details"]
+        }))
+
+    async def scoring_message(self, event):
+        await self.broadcast_command(event)

@@ -16,19 +16,26 @@
                     MANAJEMEN NOMOR TANDING
                 </h3>
                 <p class="text-muted mb-0" style="font-size: 13px;">
-                    Kelola kategori tanding, kuota atlet, dan status bagan pertandingan untuk event <strong>{{ event.nama_event }}</strong>.
+                    Kelola kategori tanding, kuota atlet, dan bagan pertandingan untuk event <strong>{{ event.nama_event }}</strong>.
                 </p>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-2">
                 {% if total_count > 0 %}
+                <button type="button" class="btn btn-outline-info d-flex align-items-center gap-2" onclick="openGabungModal()" style="font-weight: 600; padding: 9px 16px; border-radius: 8px;" title="Gabungkan kelas dengan sedikit peserta">
+                    <i class="fas fa-object-group"></i>
+                    <span>Gabung Nomor Tanding</span>
+                    {% if single_athlete_count > 0 %}
+                    <span class="badge bg-danger text-white ms-1" title="{{ single_athlete_count }} kategori berisi hanya 1 atlet">{{ single_athlete_count }}</span>
+                    {% endif %}
+                </button>
                 <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#hapusSemuaNomorTandingModal" style="font-weight: 600; padding: 9px 16px; border-radius: 8px;" title="Hapus semua nomor tanding pada event ini">
                     <i class="fas fa-trash-alt"></i>
-                    <span>Hapus Semua Nomor Tanding</span>
+                    <span>Hapus Semua Kategori</span>
                 </button>
                 {% endif %}
                 <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#tambahNomorTandingModal" style="font-weight: 600; padding: 9px 18px; border-radius: 8px;">
                     <i class="fas fa-plus"></i>
-                    <span>Tambah Nomor Tanding</span>
+                    <span>Tambah Kategori</span>
                 </button>
             </div>
         </div>
@@ -47,7 +54,7 @@
 
         <!-- Metric Stat Cards -->
         <div class="row g-3 mb-4">
-            <!-- 1. Total Nomor Tanding -->
+            <!-- 1. Total Kategori -->
             <div class="col-6 col-md-3">
                 <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
                     <div class="card-body p-3">
@@ -65,10 +72,10 @@
 
             <!-- 2. Tournament / Prestasi -->
             <div class="col-6 col-md-3">
-                <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                <div class="card card-stats mb-0 h-100 cursor-pointer" onclick="switchSectionTab('tournament')" style="background: var(--bg-surface); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; cursor: pointer;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Tournament</span>
+                            <span class="text-info fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Tournament</span>
                             <div class="p-2 rounded" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
                                 <i class="fas fa-trophy"></i>
                             </div>
@@ -81,10 +88,10 @@
 
             <!-- 3. Festival -->
             <div class="col-6 col-md-3">
-                <div class="card card-stats mb-0 h-100" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
+                <div class="card card-stats mb-0 h-100 cursor-pointer" onclick="switchSectionTab('festival')" style="background: var(--bg-surface); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; cursor: pointer;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="text-secondary fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Festival</span>
+                            <span class="text-warning fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Festival</span>
                             <div class="p-2 rounded" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
                                 <i class="fas fa-medal"></i>
                             </div>
@@ -95,227 +102,451 @@
                 </div>
             </div>
 
-            <!-- 4. Belum Ada Bagan (Tournament) -->
+            <!-- 4. Peringatan: 1 Atlet (Perlu Gabung) -->
             <div class="col-6 col-md-3">
-                <div class="card card-stats mb-0 h-100" style="background: {% if unseeded_count > 0 %}rgba(245, 158, 11, 0.08){% else %}var(--bg-surface){% endif %}; border: 1px solid {% if unseeded_count > 0 %}rgba(245, 158, 11, 0.4){% else %}var(--border-color){% endif %}; border-radius: 12px;">
+                <div class="card card-stats mb-0 h-100 cursor-pointer" onclick="filterSingleAthlete()" style="background: {% if single_athlete_count > 0 %}rgba(239, 68, 68, 0.1){% else %}var(--bg-surface){% endif %}; border: 1px solid {% if single_athlete_count > 0 %}#ef4444{% else %}var(--border-color){% endif %}; border-radius: 12px; cursor: pointer;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="{% if unseeded_count > 0 %}text-warning{% else %}text-secondary{% endif %} fw-semibold" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Belum Ada Bagan</span>
-                            <div class="p-2 rounded" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">
+                            <span class="{% if single_athlete_count > 0 %}text-danger fw-bold{% else %}text-secondary fw-semibold{% endif %}" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                ⚠️ 1 Atlet (Perlu Gabung)
+                            </span>
+                            <div class="p-2 rounded" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
                         </div>
-                        <h3 class="fw-bold mb-1 {% if unseeded_count > 0 %}text-warning{% else %}text-white{% endif %}">{{ unseeded_count }}</h3>
-                        <small class="{% if unseeded_count > 0 %}text-warning opacity-75{% else %}text-muted{% endif %}" style="font-size: 11px;">
-                            {% if unseeded_count > 0 %}Tournament belum di-drawing{% else %}Semua tournament berbagan{% endif %}
+                        <h3 class="fw-bold mb-1 {% if single_athlete_count > 0 %}text-danger{% else %}text-white{% endif %}">{{ single_athlete_count }}</h3>
+                        <small class="{% if single_athlete_count > 0 %}text-danger opacity-75{% else %}text-muted{% endif %}" style="font-size: 11px;">
+                            {% if single_athlete_count > 0 %}Klik untuk lihat kelas yang perlu digabung{% else %}Tidak ada kelas tunggal{% endif %}
                         </small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filter Tabs & Search Bar -->
+        <!-- Section Selector Tabs & Search Bar -->
         <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <!-- Filter Pills -->
-                    <div class="d-flex align-items-center flex-wrap gap-1" id="filterTabs">
-                        <button type="button" class="btn btn-sm btn-secondary fw-bold text-white active-tab" data-filter="all" style="border-radius: 8px; font-size: 13px;">
-                            Semua <span class="badge bg-dark ms-1">{{ total_count }}</span>
+                    <!-- Primary Category Tabs: TOURNAMENT vs FESTIVAL -->
+                    <div class="d-flex align-items-center flex-wrap gap-2" id="sectionTabs">
+                        <button type="button" class="btn btn-primary fw-bold px-3 active-section-btn" id="tabBtnTournament" onclick="switchSectionTab('tournament')" style="border-radius: 8px; font-size: 13.5px;">
+                            <i class="fas fa-trophy me-1"></i> TOURNAMENT (PRESTASI)
+                            <span class="badge bg-black text-white ms-2">{{ tournament_count }}</span>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="tournament" style="border-radius: 8px; font-size: 13px;">
-                            <i class="fas fa-trophy me-1 text-primary"></i> Tournament <span class="badge bg-dark text-white ms-1">{{ tournament_count }}</span>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="festival" style="border-radius: 8px; font-size: 13px;">
-                            <i class="fas fa-medal me-1 text-warning"></i> Festival <span class="badge bg-dark text-white ms-1">{{ festival_count }}</span>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="nobagan" style="border-radius: 8px; font-size: 13px;">
-                            <i class="fas fa-clock me-1 text-warning"></i> Belum Ada Bagan <span class="badge {% if unseeded_count > 0 %}bg-warning text-dark{% else %}bg-dark text-white{% endif %} ms-1">{{ unseeded_count }}</span>
+                        <button type="button" class="btn btn-outline-secondary text-muted fw-bold px-3" id="tabBtnFestival" onclick="switchSectionTab('festival')" style="border-radius: 8px; font-size: 13.5px;">
+                            <i class="fas fa-medal me-1 text-warning"></i> FESTIVAL
+                            <span class="badge bg-black text-white ms-2">{{ festival_count }}</span>
                         </button>
                         {% if bob_count > 0 %}
-                        <button type="button" class="btn btn-sm btn-outline-secondary text-muted" data-filter="bob" style="border-radius: 8px; font-size: 13px;">
-                            <i class="fas fa-crown me-1 text-danger"></i> BOB <span class="badge bg-dark text-white ms-1">{{ bob_count }}</span>
+                        <button type="button" class="btn btn-outline-secondary text-muted fw-bold px-3" id="tabBtnBob" onclick="switchSectionTab('bob')" style="border-radius: 8px; font-size: 13.5px;">
+                            <i class="fas fa-crown me-1 text-danger"></i> BEST OF THE BEST
+                            <span class="badge bg-black text-white ms-2">{{ bob_count }}</span>
                         </button>
                         {% endif %}
                     </div>
 
                     <!-- Client-Side Search -->
-                    <div class="d-flex align-items-center" style="max-width: 320px; width: 100%;">
+                    <div class="d-flex align-items-center" style="max-width: 340px; width: 100%;">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text" style="background: var(--bg-input); border-color: var(--border-color); color: var(--text-muted);">
                                 <i class="fas fa-search"></i>
                             </span>
-                            <input type="text" id="ntSearchInput" class="form-control" placeholder="Cari nama, usia, kelas, gender..." style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
+                            <input type="text" id="ntSearchInput" class="form-control" placeholder="Cari nama kelas, berat, gender..." style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
                         </div>
                     </div>
+                </div>
+
+                <!-- Sub-Filter Quick Filters for Tournament -->
+                <div class="d-flex align-items-center flex-wrap gap-1 mt-3 pt-3" id="subFiltersTournament" style="border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                    <span class="text-secondary small me-2" style="font-size: 12px;"><i class="fas fa-filter me-1"></i>Filter Kuota:</span>
+                    <button type="button" class="btn btn-xs btn-secondary fw-semibold text-white px-2 py-1 sub-filter-btn" data-subfilter="all" onclick="applySubFilter('all')" style="border-radius: 6px; font-size: 12px;">
+                        Semua ({{ tournament_count }})
+                    </button>
+                    {% if single_athlete_count > 0 %}
+                    <button type="button" class="btn btn-xs btn-outline-danger fw-bold px-2 py-1 sub-filter-btn" data-subfilter="single" onclick="applySubFilter('single')" style="border-radius: 6px; font-size: 12px;">
+                        ⚠️ 1 Atlet ({{ single_athlete_count }})
+                    </button>
+                    {% endif %}
+                    <button type="button" class="btn btn-xs btn-outline-info px-2 py-1 sub-filter-btn" data-subfilter="pair" onclick="applySubFilter('pair')" style="border-radius: 6px; font-size: 12px;">
+                        2 Atlet (Final)
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-warning px-2 py-1 sub-filter-btn" data-subfilter="nobagan" onclick="applySubFilter('nobagan')" style="border-radius: 6px; font-size: 12px;">
+                        Belum Ada Bagan ({{ unseeded_count }})
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-success px-2 py-1 sub-filter-btn" data-subfilter="hasbagan" onclick="applySubFilter('hasbagan')" style="border-radius: 6px; font-size: 12px;">
+                        Bagan Siap
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Table Card -->
-        <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
-            <div class="card-header d-flex align-items-center justify-content-between p-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
-                <div class="d-flex align-items-center gap-2">
-                    <h5 class="fw-bold mb-0 text-white" style="font-size: 15px;">
-                        <i class="fas fa-list me-1 text-danger"></i> Daftar Nomor Tanding
-                    </h5>
-                    <span class="badge bg-dark text-muted" id="tableRowCount" style="font-size: 11px;">Menampilkan {{ nomor_tandings|length }} data</span>
+        <!-- ========================================== -->
+        <!-- TAB 1: TABEL TOURNAMENT (PRESTASI)         -->
+        <!-- ========================================== -->
+        <div id="sectionTournament">
+            <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                <div class="card-header d-flex align-items-center justify-content-between p-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary text-white px-2 py-1" style="font-size: 11px;">TOURNAMENT</span>
+                        <h5 class="fw-bold mb-0 text-white" style="font-size: 15px;">
+                            Daftar Kategori Prestasi
+                        </h5>
+                        <span class="badge bg-dark text-muted" id="tournamentRowCount" style="font-size: 11px;">{{ tournament_count }} Kategori</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        <i class="fas fa-sort-amount-down me-1"></i> Pra Usia Dini &rarr; Senior (Kata &rarr; Kata Beregu &rarr; Kumite &rarr; Kumite Beregu)
+                    </div>
                 </div>
-                <div style="font-size: 12px; color: var(--text-muted);">
-                    <i class="fas fa-sort-amount-down me-1"></i> Diurutkan berdasarkan Usia, Disiplin, dan Kelas
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tableTournament">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-surface-elevated);">
+                                <th style="width: 50px; text-align: center;">No</th>
+                                <th style="min-width: 320px;">Nomor Tanding</th>
+                                <th style="width: 150px; text-align: center;">Disiplin &amp; Gender</th>
+                                <th style="width: 160px; text-align: center;">Jumlah Atlet</th>
+                                <th style="width: 140px; text-align: center;">Status Bagan</th>
+                                <th style="width: 140px; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if tournament_list %}
+                                {% for nt in tournament_list %}
+                                <tr class="nt-row nt-row-tournament" 
+                                    id="nt-row-{{ nt.pk }}" 
+                                    data-atlet-count="{{ nt.jumlah_atlet }}"
+                                    data-has-bagan="{% if nt.jumlah_bagan > 0 %}1{% else %}0{% endif %}"
+                                    data-search="{{ nt.nama_nomor_tanding }} {{ nt.disiplin }} {{ nt.gender }}">
+                                    
+                                    <!-- 1. No -->
+                                    <td class="text-center text-muted small row-num" style="font-size: 12px;">
+                                        {{ forloop.counter }}
+                                    </td>
+
+                                    <!-- 2. Nama Kategori -->
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold text-white" style="font-size: 13.5px; letter-spacing: 0.01em;">
+                                                {{ nt.nama_nomor_tanding }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- 3. Disiplin & Gender -->
+                                    <td class="text-center">
+                                        <div class="d-flex flex-column align-items-center gap-1">
+                                            <div class="d-flex align-items-center gap-1">
+                                                {% if nt.disiplin == 'KATA' %}
+                                                    <span class="badge px-2 py-1" style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.35); color: #38bdf8; font-size: 10.5px;">
+                                                        <i class="fas fa-fist-raised me-1"></i>KATA
+                                                    </span>
+                                                {% elif nt.disiplin == 'KUMITE' %}
+                                                    <span class="badge px-2 py-1" style="background: rgba(229, 37, 37, 0.15); border: 1px solid rgba(229, 37, 37, 0.35); color: #f87171; font-size: 10.5px;">
+                                                        <i class="fas fa-hand-rock me-1"></i>KUMITE
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted small">-</span>
+                                                {% endif %}
+
+                                                <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">
+                                                    {{ nt.gender }}
+                                                </span>
+                                            </div>
+
+                                            {% if nt.disiplin == 'KUMITE' %}
+                                                {% if nt.has_vr %}
+                                                    <span class="badge px-2 py-0 mt-1" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 9.5px;" title="Video Review Aktif">
+                                                        <i class="fas fa-video me-1"></i>VR ON
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge px-2 py-0 mt-1 text-muted" style="background: rgba(255, 255, 255, 0.05); font-size: 9.5px;">
+                                                        No VR
+                                                    </span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+
+                                    <!-- 4. Jumlah Atlet dengan Indikator Kuota Pintar -->
+                                    <td class="text-center">
+                                        {% if nt.jumlah_atlet == 0 %}
+                                            <span class="badge bg-black text-muted border border-secondary px-2 py-1" style="font-size: 11px;">
+                                                0 Atlet
+                                            </span>
+                                        {% elif nt.jumlah_atlet == 1 %}
+                                            <a href="{% url 'admin-atlet' event_pk=event.pk %}" class="badge px-2 py-1 text-decoration-none" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; font-size: 11.5px; font-weight: 600;" title="Hanya 1 atlet! Perlu digabung saat TM atau WO">
+                                                <i class="fas fa-exclamation-triangle me-1 text-danger"></i> 1 Atlet (Perlu Gabung)
+                                            </a>
+                                        {% elif nt.jumlah_atlet == 2 %}
+                                            <a href="{% url 'admin-atlet' event_pk=event.pk %}" class="badge px-2 py-1 text-decoration-none" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; font-size: 11.5px; font-weight: 600;" title="2 atlet langsung Final">
+                                                <i class="fas fa-user-friends me-1"></i> 2 Atlet (Final)
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'admin-atlet' event_pk=event.pk %}" class="badge bg-dark border border-secondary text-white fw-bold px-2 py-1 text-decoration-none" style="font-size: 11.5px;" title="Lihat daftar atlet">
+                                                <i class="fas fa-users me-1 text-success"></i> {{ nt.jumlah_atlet }} Atlet
+                                            </a>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- 5. Status Bagan -->
+                                    <td class="text-center">
+                                        {% if nt.jumlah_bagan > 0 %}
+                                            <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="badge px-2 py-1 text-decoration-none" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 11px;" title="Bagan sudah siap dipertandingkan">
+                                                <i class="fas fa-check-circle me-1"></i> {{ nt.jumlah_bagan }} Bagan
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'tambah-bagan' event_pk=event.pk nomor_tanding_pk=nt.pk %}" class="badge px-2 py-1 text-decoration-none" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); color: #fbbf24; font-size: 11px;" title="Klik untuk membuat bagan pertandingan">
+                                                <i class="fas fa-clock me-1"></i> Belum Ada Bagan
+                                            </a>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- 6. Aksi -->
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn {% if nt.jumlah_atlet == 1 %}btn-danger fw-bold{% else %}btn-outline-info{% endif %} btn-sm" onclick="openGabungModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }})" title="Gabungkan kelas ini dengan kelas lain">
+                                                <i class="fas fa-object-group"></i> Gabung
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="openEditModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.has_vr|yesno:'true,false' }})" title="Ubah nama nomor tanding">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="openDeleteModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }}, {{ nt.jumlah_bagan }})" title="Hapus nomor tanding">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-2 d-block opacity-50"></i>
+                                        Tidak ada kategori Tournament / Prestasi.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="ntTable">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-surface-elevated);">
-                            <th style="width: 60px; text-align: center;">No</th>
-                            <th style="min-width: 280px;">Nama Nomor Tanding &amp; Klasifikasi</th>
-                            <th style="width: 140px; text-align: center;">Disiplin &amp; Gender</th>
-                            <th style="width: 130px; text-align: center;">Jumlah Atlet</th>
-                            <th style="width: 150px; text-align: center;">Status Bagan</th>
-                            <th style="width: 160px; text-align: center;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if nomor_tandings %}
-                            {% for nt in nomor_tandings %}
-                            <tr class="nt-row" 
-                                id="nt-row-{{ nt.pk }}" 
-                                data-tipe="{{ nt.kategori_tipe }}"
-                                data-bagan="{% if nt.jumlah_bagan > 0 %}hasbagan{% else %}nobagan{% endif %}"
-                                data-search="{{ nt.nama_nomor_tanding }} {{ nt.disiplin }} {{ nt.gender }} {{ nt.kategori_tipe }}">
-                                
-                                <!-- 1. No -->
-                                <td class="text-center text-muted small row-num" style="font-size: 12px;">
-                                    {{ forloop.counter }}
-                                </td>
+        <!-- ========================================== -->
+        <!-- TAB 2: TABEL FESTIVAL                      -->
+        <!-- ========================================== -->
+        <div id="sectionFestival" style="display: none;">
+            <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                <div class="card-header d-flex align-items-center justify-content-between p-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning text-dark px-2 py-1 fw-bold" style="font-size: 11px;">FESTIVAL</span>
+                        <h5 class="fw-bold mb-0 text-white" style="font-size: 15px;">
+                            Daftar Kategori Festival
+                        </h5>
+                        <span class="badge bg-dark text-muted" id="festivalRowCount" style="font-size: 11px;">{{ festival_count }} Kategori</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        <i class="fas fa-sort-amount-down me-1"></i> Pra Usia Dini &rarr; Senior (Kata &rarr; Kata Beregu &rarr; Kumite &rarr; Kumite Beregu)
+                    </div>
+                </div>
 
-                                <!-- 2. Nama & Klasifikasi -->
-                                <td>
-                                    <div class="d-flex flex-column gap-1">
-                                        <div class="fw-bold text-white" style="font-size: 13.5px;">
-                                            {{ nt.nama_nomor_tanding }}
-                                        </div>
-                                        <div class="d-flex align-items-center flex-wrap gap-1 mt-1">
-                                            {% if nt.kategori_tipe == 'tournament' %}
-                                                <span class="badge px-2 py-1" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); color: #60a5fa; font-size: 10px;">
-                                                    <i class="fas fa-trophy me-1"></i>TOURNAMENT
-                                                </span>
-                                            {% elif nt.kategori_tipe == 'festival' %}
-                                                <span class="badge px-2 py-1" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #fbbf24; font-size: 10px;">
-                                                    <i class="fas fa-medal me-1"></i>FESTIVAL
-                                                </span>
-                                            {% elif nt.kategori_tipe == 'bob' %}
-                                                <span class="badge px-2 py-1" style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #f87171; font-size: 10px;">
-                                                    <i class="fas fa-crown me-1"></i>BOB
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </td>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tableFestival">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-surface-elevated);">
+                                <th style="width: 50px; text-align: center;">No</th>
+                                <th style="min-width: 320px;">Nomor Tanding</th>
+                                <th style="width: 150px; text-align: center;">Disiplin &amp; Gender</th>
+                                <th style="width: 160px; text-align: center;">Jumlah Atlet</th>
+                                <th style="width: 140px; text-align: center;">Status</th>
+                                <th style="width: 140px; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if festival_list %}
+                                {% for nt in festival_list %}
+                                <tr class="nt-row nt-row-festival" 
+                                    id="nt-row-{{ nt.pk }}" 
+                                    data-atlet-count="{{ nt.jumlah_atlet }}"
+                                    data-has-bagan="{% if nt.jumlah_bagan > 0 %}1{% else %}0{% endif %}"
+                                    data-search="{{ nt.nama_nomor_tanding }} {{ nt.disiplin }} {{ nt.gender }}">
+                                    
+                                    <!-- 1. No -->
+                                    <td class="text-center text-muted small row-num" style="font-size: 12px;">
+                                        {{ forloop.counter }}
+                                    </td>
 
-                                <!-- 3. Disiplin & Gender -->
-                                <td class="text-center">
-                                    <div class="d-flex flex-column align-items-center gap-1">
-                                        {% if nt.disiplin == 'KATA' %}
-                                            <span class="badge px-2 py-1" style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.35); color: #38bdf8; font-size: 10.5px;">
-                                                <i class="fas fa-fist-raised me-1"></i>KATA
+                                    <!-- 2. Nama Kategori -->
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold text-white" style="font-size: 13.5px; letter-spacing: 0.01em;">
+                                                {{ nt.nama_nomor_tanding }}
                                             </span>
-                                        {% elif nt.disiplin == 'KUMITE' %}
-                                            <span class="badge px-2 py-1" style="background: rgba(229, 37, 37, 0.15); border: 1px solid rgba(229, 37, 37, 0.35); color: #f87171; font-size: 10.5px;">
-                                                <i class="fas fa-hand-rock me-1"></i>KUMITE
-                                            </span>
-                                        {% else %}
-                                            <span class="text-muted small">-</span>
-                                        {% endif %}
+                                        </div>
+                                    </td>
 
-                                        <span class="text-secondary" style="font-size: 11px; font-weight: 500;">
-                                            {{ nt.gender }}
-                                        </span>
-
-                                        {% if nt.disiplin == 'KUMITE' %}
-                                            {% if nt.has_vr %}
-                                                <span class="badge px-2 py-0 mt-1" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 9.5px;" title="Video Review Aktif">
-                                                    <i class="fas fa-video me-1"></i>VR ON
+                                    <!-- 3. Disiplin & Gender -->
+                                    <td class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                            {% if nt.disiplin == 'KATA' %}
+                                                <span class="badge px-2 py-1" style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.35); color: #38bdf8; font-size: 10.5px;">
+                                                    <i class="fas fa-fist-raised me-1"></i>KATA
+                                                </span>
+                                            {% elif nt.disiplin == 'KUMITE' %}
+                                                <span class="badge px-2 py-1" style="background: rgba(229, 37, 37, 0.15); border: 1px solid rgba(229, 37, 37, 0.35); color: #f87171; font-size: 10.5px;">
+                                                    <i class="fas fa-hand-rock me-1"></i>KUMITE
                                                 </span>
                                             {% else %}
-                                                <span class="badge px-2 py-0 mt-1 text-muted" style="background: rgba(255, 255, 255, 0.05); font-size: 9.5px;" title="Tanpa Video Review">
-                                                    No VR
-                                                </span>
+                                                <span class="text-muted small">-</span>
                                             {% endif %}
+
+                                            <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">
+                                                {{ nt.gender }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- 4. Jumlah Atlet -->
+                                    <td class="text-center">
+                                        {% if nt.jumlah_atlet == 0 %}
+                                            <span class="badge bg-black text-muted border border-secondary px-2 py-1" style="font-size: 11px;">
+                                                0 Atlet
+                                            </span>
+                                        {% else %}
+                                            <a href="{% url 'admin-atlet' event_pk=event.pk %}" class="badge bg-dark border border-secondary text-white fw-bold px-2 py-1 text-decoration-none" style="font-size: 11.5px;" title="Lihat atlet festival">
+                                                <i class="fas fa-medal me-1 text-warning"></i> {{ nt.jumlah_atlet }} Atlet
+                                            </a>
                                         {% endif %}
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <!-- 4. Jumlah Atlet -->
-                                <td class="text-center">
-                                    {% if nt.jumlah_atlet > 0 %}
-                                        <a href="{% url 'admin-atlet' event_pk=event.pk %}" class="badge bg-dark border border-secondary text-white fw-bold px-2 py-1 text-decoration-none" style="font-size: 12px;" title="Lihat atlet terdaftar">
-                                            <i class="fas fa-user-friends me-1 text-info"></i> {{ nt.jumlah_atlet }} Atlet
-                                        </a>
-                                    {% else %}
-                                        <span class="badge bg-black text-muted px-2 py-1" style="font-size: 11px;">
-                                            0 Atlet
-                                        </span>
-                                    {% endif %}
-                                </td>
-
-                                <!-- 5. Status Bagan -->
-                                <td class="text-center">
-                                    {% if nt.jumlah_bagan > 0 %}
-                                        <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="badge px-2 py-1 text-decoration-none" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 11px;" title="Bagan sudah dibuat">
-                                            <i class="fas fa-check-circle me-1"></i> {{ nt.jumlah_bagan }} Bagan
-                                        </a>
-                                    {% else %}
-                                        {% if nt.kategori_tipe == 'tournament' %}
-                                            <span class="badge px-2 py-1" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 11px;" title="Belum dilakukan drawing bagan">
-                                                <i class="fas fa-clock me-1"></i> Belum Ada Bagan
+                                    <!-- 5. Status -->
+                                    <td class="text-center">
+                                        {% if nt.jumlah_bagan > 0 %}
+                                            <span class="badge px-2 py-1 text-success" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); font-size: 11px;">
+                                                <i class="fas fa-check-circle me-1"></i> {{ nt.jumlah_bagan }} Bagan
                                             </span>
                                         {% else %}
                                             <span class="badge px-2 py-1 text-muted" style="background: rgba(255, 255, 255, 0.05); font-size: 11px;">
                                                 Arena Standby
                                             </span>
                                         {% endif %}
+                                    </td>
+
+                                    <!-- 6. Aksi -->
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-info btn-sm" onclick="openGabungModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }})" title="Gabungkan kelas ini">
+                                                <i class="fas fa-object-group"></i> Gabung
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="openEditModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', false)" title="Ubah nama nomor tanding">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="openDeleteModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }}, {{ nt.jumlah_bagan }})" title="Hapus nomor tanding">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-2 d-block opacity-50"></i>
+                                        Tidak ada kategori Festival.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: TABEL BEST OF THE BEST (BOB)        -->
+        <!-- ========================================== -->
+        {% if bob_count > 0 %}
+        <div id="sectionBob" style="display: none;">
+            <div class="card mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                <div class="card-header d-flex align-items-center justify-content-between p-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger text-white px-2 py-1 fw-bold" style="font-size: 11px;">BOB</span>
+                        <h5 class="fw-bold mb-0 text-white" style="font-size: 15px;">
+                            Best of the Best (BOB)
+                        </h5>
+                        <span class="badge bg-dark text-muted" id="bobRowCount" style="font-size: 11px;">{{ bob_count }} Kategori</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tableBob">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color); background: var(--bg-surface-elevated);">
+                                <th style="width: 50px; text-align: center;">No</th>
+                                <th style="min-width: 320px;">Nomor Tanding</th>
+                                <th style="width: 150px; text-align: center;">Disiplin &amp; Gender</th>
+                                <th style="width: 160px; text-align: center;">Jumlah Atlet</th>
+                                <th style="width: 140px; text-align: center;">Status Bagan</th>
+                                <th style="width: 140px; text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for nt in bob_list %}
+                            <tr class="nt-row nt-row-bob" 
+                                id="nt-row-{{ nt.pk }}" 
+                                data-atlet-count="{{ nt.jumlah_atlet }}"
+                                data-has-bagan="{% if nt.jumlah_bagan > 0 %}1{% else %}0{% endif %}"
+                                data-search="{{ nt.nama_nomor_tanding }} {{ nt.disiplin }} {{ nt.gender }}">
+                                
+                                <td class="text-center text-muted small row-num" style="font-size: 12px;">
+                                    {{ forloop.counter }}
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-white" style="font-size: 13.5px;">
+                                        {{ nt.nama_nomor_tanding }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger-subtle text-danger" style="font-size: 10.5px;">BOB</span>
+                                    <span class="badge bg-dark border border-secondary text-secondary ms-1" style="font-size: 10px;">{{ nt.gender }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-dark border border-secondary text-white fw-bold px-2 py-1" style="font-size: 11.5px;">
+                                        {{ nt.jumlah_atlet }} Atlet
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    {% if nt.jumlah_bagan > 0 %}
+                                        <span class="badge bg-success-subtle text-success px-2 py-1" style="font-size: 11px;">
+                                            <i class="fas fa-check-circle me-1"></i> {{ nt.jumlah_bagan }} Bagan
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning-subtle text-warning px-2 py-1" style="font-size: 11px;">
+                                            Belum Ada Bagan
+                                        </span>
                                     {% endif %}
                                 </td>
-
-                                <!-- 6. Aksi -->
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <!-- Edit Button -->
-                                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="openEditModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.has_vr|yesno:'true,false' }})" title="Ubah nama nomor tanding">
+                                        <button type="button" class="btn btn-outline-info btn-sm" onclick="openGabungModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }})" title="Gabungkan kelas ini">
+                                            <i class="fas fa-object-group"></i> Gabung
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="openEditModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.has_vr|yesno:'true,false' }})">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
-
-                                        <!-- Safe Delete Button -->
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="openDeleteModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }}, {{ nt.jumlah_bagan }})" title="Hapus nomor tanding">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="openDeleteModal('{{ nt.pk }}', '{{ nt.nama_nomor_tanding|escapejs }}', {{ nt.jumlah_atlet }}, {{ nt.jumlah_bagan }})">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
-                        {% else %}
-                            <tr id="emptyTableRow">
-                                <td colspan="6" class="text-center py-5">
-                                    <div class="py-4">
-                                        <div class="mb-3">
-                                            <i class="fas fa-folder-open fa-3x text-secondary opacity-50"></i>
-                                        </div>
-                                        <h5 class="fw-bold text-white mb-1">Belum Ada Nomor Tanding</h5>
-                                        <p class="text-muted mb-0" style="font-size: 13px;">
-                                            Silakan tambahkan nomor tanding manual atau tarik data atlet dari Web Server melalui Dashboard.
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -325,7 +556,7 @@
         <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary);">
             <div class="modal-header" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
                 <h5 class="modal-title fw-bold text-white" id="tambahNomorTandingModalLabel" style="font-size: 15px;">
-                    <i class="fas fa-plus text-primary me-2"></i>Tambah Nomor Tanding Baru
+                    <i class="fas fa-plus text-primary me-2"></i>Tambah Kategori Baru
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -336,7 +567,7 @@
                         <label for="nomor_tanding" class="form-label text-secondary fw-semibold" style="font-size: 13px;">Nama Nomor Tanding:</label>
                         <input type="text" class="form-control" id="nomor_tanding" name="nomor_tanding" placeholder="Contoh: TOURNAMENT KADET - KATA PERORANGAN PUTRA" required style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
                         <small class="form-text text-muted" style="font-size: 11px;">
-                            Otomatis diubah ke huruf besar (UPPERCASE). Gunakan kata <code>TOURNAMENT</code> atau <code>FESTIVAL</code> untuk identifikasi otomatis.
+                            Otomatis diubah ke UPPERCASE. Gunakan kata <code>TOURNAMENT</code> atau <code>FESTIVAL</code> untuk identifikasi otomatis.
                         </small>
                     </div>
                     <div class="form-check form-switch mb-2">
@@ -378,7 +609,7 @@
                         <label for="edit_nt_nama" class="form-label text-secondary fw-semibold" style="font-size: 13px;">Nama Nomor Tanding:</label>
                         <input type="text" class="form-control" id="edit_nt_nama" name="nomor_tanding_nama" required style="background: var(--bg-input); border-color: var(--border-color); color: #fff;">
                         <small class="form-text text-muted" style="font-size: 11px;">
-                            Perubahan nama akan otomatis tersimpan untuk seluruh atlet dan bagan terkait.
+                            Gunakan ini untuk mengganti nama kelas hasil penggabungan (misal: <code>KUMITE PEMULA -40 KG &amp; -45 KG PUTRA</code>).
                         </small>
                     </div>
                     <div class="form-check form-switch mb-2">
@@ -420,7 +651,6 @@
                         Apakah Anda yakin ingin menghapus nomor tanding berikut?
                     </p>
                     <div class="p-2 px-3 rounded mb-3 fw-bold text-white font-monospace" id="delete_nt_name_display" style="background: #0f1016; border: 1px solid var(--border-color); font-size: 13px;">
-                        <!-- Name inserted via JS -->
                     </div>
 
                     <div id="delete_warning_box" class="alert alert-warning py-2 mb-0 text-dark" style="font-size: 12.5px; display: none;">
@@ -445,7 +675,7 @@
         <div class="modal-content" style="background: var(--bg-surface); border: 1px solid #ef4444; border-radius: 12px; color: var(--text-primary); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title fw-bold" id="hapusSemuaNomorTandingModalLabel" style="font-size: 15px;">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Semua Nomor Tanding
+                    <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus Semua Kategori
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -464,7 +694,7 @@
                 <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-danger btn-sm fw-bold px-3">
-                        <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Semua Nomor Tanding
+                        <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Semua Kategori
                     </button>
                 </div>
             </form>
@@ -473,38 +703,104 @@
 </div>
 
 <script>
-    // Live Client-Side Search & Tab Filtering
-    let currentFilter = 'all';
+    let activeSection = 'tournament';
+    let currentSubFilter = 'all';
+
+    function switchSectionTab(section) {
+        activeSection = section;
+
+        // Update button states
+        const btnT = document.getElementById('tabBtnTournament');
+        const btnF = document.getElementById('tabBtnFestival');
+        const btnB = document.getElementById('tabBtnBob');
+
+        const secT = document.getElementById('sectionTournament');
+        const secF = document.getElementById('sectionFestival');
+        const secB = document.getElementById('sectionBob');
+        const subFiltersT = document.getElementById('subFiltersTournament');
+
+        if (btnT) btnT.className = 'btn btn-outline-secondary text-muted fw-bold px-3';
+        if (btnF) btnF.className = 'btn btn-outline-secondary text-muted fw-bold px-3';
+        if (btnB) btnB.className = 'btn btn-outline-secondary text-muted fw-bold px-3';
+
+        if (secT) secT.style.display = 'none';
+        if (secF) secF.style.display = 'none';
+        if (secB) secB.style.display = 'none';
+
+        if (section === 'tournament') {
+            if (btnT) btnT.className = 'btn btn-primary fw-bold px-3';
+            if (secT) secT.style.display = '';
+            if (subFiltersT) subFiltersT.style.display = '';
+        } else if (section === 'festival') {
+            if (btnF) btnF.className = 'btn btn-warning text-dark fw-bold px-3';
+            if (secF) secF.style.display = '';
+            if (subFiltersT) subFiltersT.style.display = 'none';
+        } else if (section === 'bob') {
+            if (btnB) btnB.className = 'btn btn-danger text-white fw-bold px-3';
+            if (secB) secB.style.display = '';
+            if (subFiltersT) subFiltersT.style.display = 'none';
+        }
+
+        applyFilterAndSearch();
+    }
+
+    function applySubFilter(filterType) {
+        currentSubFilter = filterType;
+        document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+            if (btn.getAttribute('data-subfilter') === filterType) {
+                btn.className = 'btn btn-xs btn-secondary fw-bold text-white px-2 py-1 sub-filter-btn';
+            } else {
+                btn.className = 'btn btn-xs btn-outline-secondary text-muted px-2 py-1 sub-filter-btn';
+            }
+        });
+        applyFilterAndSearch();
+    }
+
+    function filterSingleAthlete() {
+        switchSectionTab('tournament');
+        applySubFilter('single');
+    }
 
     function applyFilterAndSearch() {
         const query = document.getElementById('ntSearchInput').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('.nt-row');
+
+        // Target rows according to active section
+        let rowSelector = '.nt-row-tournament';
+        let countElId = 'tournamentRowCount';
+        if (activeSection === 'festival') {
+            rowSelector = '.nt-row-festival';
+            countElId = 'festivalRowCount';
+        } else if (activeSection === 'bob') {
+            rowSelector = '.nt-row-bob';
+            countElId = 'bobRowCount';
+        }
+
+        const rows = document.querySelectorAll(rowSelector);
         let visibleCount = 0;
 
         rows.forEach(row => {
             const rowSearch = (row.getAttribute('data-search') || '').toLowerCase();
-            const rowTipe = row.getAttribute('data-tipe');
-            const rowBagan = row.getAttribute('data-bagan');
+            const atletCount = parseInt(row.getAttribute('data-atlet-count') || '0', 10);
+            const hasBagan = row.getAttribute('data-has-bagan') === '1';
 
-            let matchesFilter = false;
-            if (currentFilter === 'all') {
-                matchesFilter = true;
-            } else if (currentFilter === 'tournament') {
-                matchesFilter = (rowTipe === 'tournament');
-            } else if (currentFilter === 'festival') {
-                matchesFilter = (rowTipe === 'festival');
-            } else if (currentFilter === 'bob') {
-                matchesFilter = (rowTipe === 'bob');
-            } else if (currentFilter === 'nobagan') {
-                matchesFilter = (rowBagan === 'nobagan' && rowTipe === 'tournament');
+            let matchesSub = true;
+            if (activeSection === 'tournament') {
+                if (currentSubFilter === 'single') {
+                    matchesSub = (atletCount === 1);
+                } else if (currentSubFilter === 'pair') {
+                    matchesSub = (atletCount === 2);
+                } else if (currentSubFilter === 'nobagan') {
+                    matchesSub = !hasBagan;
+                } else if (currentSubFilter === 'hasbagan') {
+                    matchesSub = hasBagan;
+                }
             }
 
             const matchesSearch = query === '' || rowSearch.includes(query);
 
-            if (matchesFilter && matchesSearch) {
+            if (matchesSub && matchesSearch) {
                 row.style.display = '';
                 visibleCount++;
-                // update row number visually
                 const numEl = row.querySelector('.row-num');
                 if (numEl) numEl.innerText = visibleCount;
             } else {
@@ -512,23 +808,11 @@
             }
         });
 
-        document.getElementById('tableRowCount').innerText = `Menampilkan ${visibleCount} data`;
+        const countEl = document.getElementById(countElId);
+        if (countEl) {
+            countEl.innerText = `${visibleCount} Kategori`;
+        }
     }
-
-    // Filter Tabs clicks
-    document.querySelectorAll('#filterTabs button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('#filterTabs button').forEach(b => {
-                b.classList.remove('btn-secondary', 'fw-bold', 'text-white');
-                b.classList.add('btn-outline-secondary', 'text-muted');
-            });
-            this.classList.remove('btn-outline-secondary', 'text-muted');
-            this.classList.add('btn-secondary', 'fw-bold', 'text-white');
-
-            currentFilter = this.getAttribute('data-filter');
-            applyFilterAndSearch();
-        });
-    });
 
     document.getElementById('ntSearchInput').addEventListener('input', applyFilterAndSearch);
 
@@ -562,5 +846,355 @@
         const modal = new bootstrap.Modal(document.getElementById('deleteNomorTandingModal'));
         modal.show();
     }
+
+    // ========================================================
+    // MODAL GABUNG NOMOR TANDING LOGIC (Select2 Powered)
+    // ========================================================
+    function initGabungSelect2() {
+        if ($('#source_pks_select').hasClass('select2-hidden-accessible')) {
+            $('#source_pks_select').select2('destroy');
+        }
+        if ($('#target_pk_select').hasClass('select2-hidden-accessible')) {
+            $('#target_pk_select').select2('destroy');
+        }
+
+        $('#source_pks_select').select2({
+            dropdownParent: $('#modalGabungNomorTanding'),
+            width: '100%',
+            placeholder: 'Ketik untuk mencari kategori asal (misal: -40 kg, -45 kg)...'
+        });
+
+        $('#target_pk_select').select2({
+            dropdownParent: $('#modalGabungNomorTanding'),
+            width: '100%',
+            placeholder: 'Pilih atau cari kategori tujuan...'
+        });
+    }
+
+    $('#modalGabungNomorTanding').on('shown.bs.modal', function () {
+        initGabungSelect2();
+    });
+
+    $(document).on('change', '#source_pks_select', function() {
+        updateGabungSummary();
+    });
+
+    $(document).on('change', '#target_pk_select', function() {
+        onTargetSelectChange();
+    });
+
+    function openGabungModal(preselectedPk, preselectedName, atletCount) {
+        initGabungSelect2();
+
+        if (preselectedPk) {
+            $('#source_pks_select').val([String(preselectedPk)]).trigger('change');
+        } else {
+            $('#source_pks_select').val([]).trigger('change');
+        }
+
+        $('#target_pk_select').val('').trigger('change');
+        document.getElementById('inputNamaBaru').value = '';
+        document.getElementById('targetModeExisting').checked = true;
+        toggleTargetModeUI();
+
+        const modalEl = document.getElementById('modalGabungNomorTanding');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+
+    function toggleTargetModeUI() {
+        const isExisting = document.getElementById('targetModeExisting').checked;
+        const existContainer = document.getElementById('targetExistingContainer');
+        const labelNamaBaru = document.getElementById('labelNamaBaru');
+
+        if (isExisting) {
+            existContainer.style.display = 'block';
+            labelNamaBaru.innerHTML = 'Nama Baru (Opsional, ubah nama kelas tujuan jika ingin digabung):';
+        } else {
+            existContainer.style.display = 'none';
+            labelNamaBaru.innerHTML = 'Nama Kategori Gabungan Baru <span class="text-danger">*</span>:';
+        }
+        updateGabungSummary();
+    }
+
+    function onTargetSelectChange() {
+        const targetVal = $('#target_pk_select').val();
+        if (targetVal) {
+            if (!document.getElementById('inputNamaBaru').value.trim()) {
+                autoSuggestCombinedName();
+            }
+        }
+        updateGabungSummary();
+    }
+
+    function getSelectedSources() {
+        const selected = [];
+        $('#source_pks_select option:selected').each(function() {
+            selected.push({
+                pk: $(this).val(),
+                name: $(this).data('name') || $(this).text(),
+                atlet: parseInt($(this).data('atlet') || '0', 10)
+            });
+        });
+        return selected;
+    }
+
+    function updateGabungSummary() {
+        const sources = getSelectedSources();
+        const badge = document.getElementById('sourceSelectedBadge');
+        if (badge) {
+            badge.innerText = `${sources.length} Kategori Asal Dipilih`;
+            badge.className = sources.length > 0 ? 'badge bg-info text-dark fw-bold' : 'badge bg-secondary text-white';
+        }
+
+        const totalAtlet = sources.reduce((acc, c) => acc + c.atlet, 0);
+        const summaryAlert = document.getElementById('gabungSummaryAlert');
+        const summaryText = document.getElementById('gabungSummaryText');
+        const isExisting = document.getElementById('targetModeExisting').checked;
+        const targetPk = $('#target_pk_select').val();
+        const targetName = $('#target_pk_select option:selected').data('name') || '';
+        const inputNama = document.getElementById('inputNamaBaru').value.trim();
+
+        if (sources.length === 0) {
+            summaryAlert.style.display = 'none';
+            return;
+        }
+
+        summaryAlert.style.display = 'block';
+        let targetDesc = '';
+        if (isExisting) {
+            targetDesc = targetPk ? `ke kategori <strong>${targetName}</strong>` : 'ke kategori tujuan yang dipilih';
+            if (inputNama && inputNama !== targetName) {
+                targetDesc += ` (nama diubah menjadi: <em>${inputNama}</em>)`;
+            }
+        } else {
+            targetDesc = inputNama ? `ke kategori baru <strong>${inputNama}</strong>` : 'ke kategori baru';
+        }
+
+        summaryText.innerHTML = `Menggabungkan <strong>${sources.length} kategori asal</strong> (total <strong>${totalAtlet} atlet</strong>) ${targetDesc}. Histori pendaftaran & tagihan kontingen 100% aman dan tidak berubah.`;
+    }
+
+    function autoSuggestCombinedName() {
+        const sources = getSelectedSources();
+        const isExisting = document.getElementById('targetModeExisting').checked;
+        const targetOption = $('#target_pk_select option:selected');
+        const targetName = (isExisting && targetOption.val()) ? (targetOption.data('name') || '') : '';
+
+        const allNames = [];
+        sources.forEach(s => {
+            if (s.name) allNames.push(s.name.trim().toUpperCase());
+        });
+        if (targetName && !allNames.includes(targetName.trim().toUpperCase())) {
+            allNames.push(targetName.trim().toUpperCase());
+        }
+
+        if (allNames.length === 0) {
+            return;
+        }
+
+        const weightRegex = /([+-]?\d+\s*KG)/gi;
+        const weights = [];
+        allNames.forEach(n => {
+            const matches = n.match(weightRegex);
+            if (matches) {
+                matches.forEach(m => {
+                    const cleanW = m.replace(/\s+/g, ' ').trim();
+                    if (!weights.includes(cleanW)) weights.push(cleanW);
+                });
+            }
+        });
+
+        let suggested = "";
+        if (weights.length >= 2) {
+            weights.sort((a, b) => {
+                const numA = parseInt(a.replace(/[^\d]/g, ''), 10) || 0;
+                const numB = parseInt(b.replace(/[^\d]/g, ''), 10) || 0;
+                return numA - numB;
+            });
+
+            let baseName = allNames[0];
+            weights.forEach(w => {
+                baseName = baseName.replace(w, '').replace(/\s+/g, ' ').trim();
+            });
+
+            let gender = "";
+            if (baseName.includes("PUTRA")) {
+                gender = "PUTRA";
+                baseName = baseName.replace("PUTRA", "").trim();
+            } else if (baseName.includes("PUTRI")) {
+                gender = "PUTRI";
+                baseName = baseName.replace("PUTRI", "").trim();
+            }
+
+            baseName = baseName.replace(/\s*-\s*$/, '').trim();
+            const lastWeight = weights.pop();
+            const combinedWeightsStr = weights.length > 0 ? (weights.join(", ") + " & " + lastWeight) : lastWeight;
+            suggested = `${baseName} ${combinedWeightsStr} ${gender}`.replace(/\s+/g, ' ').trim();
+        } else if (allNames.length === 1) {
+            suggested = allNames[0];
+        } else {
+            suggested = allNames.join(" & ");
+        }
+
+        document.getElementById('inputNamaBaru').value = suggested;
+        updateGabungSummary();
+    }
+
+    // Client-side validation before submit
+    document.getElementById('formGabungNomorTanding').addEventListener('submit', function(e) {
+        const sources = getSelectedSources();
+        if (sources.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal 1 nomor tanding asal pada kolom Select2!');
+            return;
+        }
+
+        const isExisting = document.getElementById('targetModeExisting').checked;
+        const targetPk = $('#target_pk_select').val();
+        const namaBaru = document.getElementById('inputNamaBaru').value.trim();
+
+        if (isExisting && !targetPk && !namaBaru) {
+            e.preventDefault();
+            alert('Pilih kategori tujuan dari dropdown Select2 atau isi nama kategori baru!');
+            return;
+        }
+
+        if (!isExisting && !namaBaru) {
+            e.preventDefault();
+            alert('Masukkan nama kategori gabungan baru yang diinginkan!');
+            return;
+        }
+
+        const confirmMsg = `Konfirmasi: Apakah Anda yakin ingin menggabungkan ${sources.length} kategori asal? Seluruh atlet akan dipindahkan dan histori pendaftaran kontingen akan otomatis disesuaikan secara aman.`;
+        if (!confirm(confirmMsg)) {
+            e.preventDefault();
+        }
+    });
 </script>
+
+<!-- ======================================================== -->
+<!-- MODAL: GABUNG NOMOR TANDING (MERGE KELAS - SELECT2)      -->
+<!-- ======================================================== -->
+<div class="modal fade" id="modalGabungNomorTanding" tabindex="-1" aria-labelledby="modalGabungLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div class="modal-header" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title fw-bold text-white" id="modalGabungLabel" style="font-size: 16px;">
+                    <i class="fas fa-object-group text-info me-2"></i>Gabung Nomor Tanding (Merge Kelas)
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" id="formGabungNomorTanding">
+                {% csrf_token %}
+                <input type="hidden" name="submit_type" value="gabung_nomor_tanding">
+                <div class="modal-body p-4">
+                    <!-- Penjelasan / Info Keamanan -->
+                    <div class="alert mb-3 py-2 px-3 d-flex align-items-start gap-2" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; font-size: 12px; color: #bae6fd;">
+                        <i class="fas fa-shield-alt text-info mt-1" style="font-size: 15px;"></i>
+                        <div>
+                            <strong>Jaminan Keamanan Finansial &amp; Kontingen:</strong><br>
+                            Penggabungan kelas di sini akan memindahkan atlet ke kelas tujuan dan membersihkan kategori kosong di lokal. Saat bagan disinkronkan ke server web publik, data pendaftaran kontingen otomatis diperbarui ke nama kelas baru dengan <strong>biaya pendaftaran (harga) tetap utuh 100%</strong> tanpa merusak invoice/kwitansi kontingen.
+                        </div>
+                    </div>
+
+                    <!-- Langkah 1: Pilih Kategori Sumber (Select2 Multiple) -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <label for="source_pks_select" class="form-label text-white fw-bold mb-0" style="font-size: 13.5px;">
+                                1. Pilih Nomor Tanding Asal yang Ingin Digabung (Ketik untuk mencari):
+                            </label>
+                            <span class="badge bg-secondary text-white" id="sourceSelectedBadge">0 Kategori Dipilih</span>
+                        </div>
+                        
+                        <select class="form-select select2" id="source_pks_select" name="source_pks" multiple="multiple" style="width: 100%;" data-placeholder="Ketik untuk mencari kategori asal (misal: -40 kg, -45 kg)...">
+                            {% for nt in all_nomor_tandings %}
+                            <option value="{{ nt.pk }}" data-pk="{{ nt.pk }}" data-name="{{ nt.nama_nomor_tanding }}" data-atlet="{{ nt.jumlah_atlet }}">
+                                {{ nt.nama_nomor_tanding }} ({{ nt.jumlah_atlet }} Atlet{% if nt.jumlah_atlet == 1 %} - ⚠️ PERLU GABUNG{% endif %})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted" style="font-size: 11px;">
+                            Bisa pilih 1 kelas asal (untuk gabung bertahap) atau beberapa kelas asal sekaligus (misal: -40 kg dan -45 kg).
+                        </small>
+                    </div>
+
+                    <!-- Langkah 2: Tentukan Kategori Tujuan -->
+                    <div class="mb-4">
+                        <label class="form-label text-white fw-bold mb-2" style="font-size: 13.5px;">
+                            2. Tentukan Nomor Tanding Tujuan (Hasil Penggabungan):
+                        </label>
+                        
+                        <!-- Pilihan Mode Tujuan -->
+                        <div class="d-flex align-items-center gap-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="target_mode" id="targetModeExisting" value="existing" checked onchange="toggleTargetModeUI()">
+                                <label class="form-check-label text-white" for="targetModeExisting" style="cursor: pointer; font-size: 13px;">
+                                    Gabungkan ke Kategori yang Sudah Ada (misal: -50 kg)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="target_mode" id="targetModeNew" value="new" onchange="toggleTargetModeUI()">
+                                <label class="form-check-label text-white" for="targetModeNew" style="cursor: pointer; font-size: 13px;">
+                                    Buat Kategori Baru (Belum ada di daftar)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown Select2 Kategori Tujuan -->
+                        <div id="targetExistingContainer" class="mb-3">
+                            <label for="target_pk_select" class="form-label text-secondary small mb-1">Pilih Kategori Tujuan:</label>
+                            <select class="form-select select2" name="target_pk" id="target_pk_select" style="width: 100%;" data-placeholder="Ketik untuk mencari kategori tujuan (misal: -50 kg)...">
+                                <option value="">-- Pilih salah satu kategori tujuan --</option>
+                                {% for nt in all_nomor_tandings %}
+                                <option value="{{ nt.pk }}" data-pk="{{ nt.pk }}" data-name="{{ nt.nama_nomor_tanding }}" data-atlet="{{ nt.jumlah_atlet }}">
+                                    {{ nt.nama_nomor_tanding }} ({{ nt.jumlah_atlet }} Atlet)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Input Nama Kategori Baru atau Nama Update -->
+                        <div id="targetNameContainer" class="mb-2">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label class="form-label text-secondary small mb-0" id="labelNamaBaru">Nama Kategori Hasil Gabungan:</label>
+                                <button type="button" class="btn btn-link p-0 text-info text-decoration-none" style="font-size: 11.5px;" onclick="autoSuggestCombinedName()">
+                                    <i class="fas fa-magic me-1"></i> Buat Nama Otomatis (Auto-Suggest)
+                                </button>
+                            </div>
+                            <input type="text" class="form-control" name="nama_baru" id="inputNamaBaru" placeholder="Contoh: KUMITE PEMULA -40 KG, -45 KG & -50 KG PUTRA" style="background: var(--bg-input); border-color: var(--border-color); color: #fff; font-size: 13px;">
+                            <small class="form-text text-muted" style="font-size: 11px;">
+                                Jika dikosongkan saat memilih kategori yang sudah ada, nama kategori tujuan tidak akan berubah.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Langkah 3: Opsi Pembersihan -->
+                    <div class="p-3 rounded mb-2" style="background: var(--bg-surface-alt); border: 1px solid var(--border-color);">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="checkHapusSumber" name="hapus_sumber" checked>
+                            <label class="form-check-label text-white fw-semibold" for="checkHapusSumber" style="font-size: 12.5px; cursor: pointer;">
+                                Hapus nomor tanding asal yang sudah kosong di lokal
+                            </label>
+                            <small class="form-text text-muted d-block" style="font-size: 11px;">
+                                Kategori asal yang sudah tidak memiliki atlet akan dihapus dari aplikasi lokal agar bagan tetap rapi.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Summary Preview -->
+                    <div id="gabungSummaryAlert" class="alert alert-secondary py-2 px-3 mb-0" style="display: none; font-size: 12px;">
+                        <i class="fas fa-info-circle me-1 text-info"></i>
+                        <span id="gabungSummaryText"></span>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-info btn-sm fw-bold px-3 text-dark" id="btnSubmitGabung">
+                        <i class="fas fa-object-group me-1"></i> Gabungkan Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock content %}

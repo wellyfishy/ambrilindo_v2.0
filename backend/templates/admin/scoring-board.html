@@ -3153,6 +3153,8 @@
           triggerVrResolution('aka', det.replace('aka-', ''));
         } else if (det === 'aka-decline') {
           triggerVrResolution('aka', 'decline');
+        } else if (det === 'aka-minai') {
+          triggerVrResolution('aka', 'minai');
         } else if (det.startsWith('ao-request')) {
           const parts = det.split('-');
           const pt = parts.length >= 3 ? parts[2] : null;
@@ -3161,6 +3163,8 @@
           triggerVrResolution('ao', det.replace('ao-', ''));
         } else if (det === 'ao-decline') {
           triggerVrResolution('ao', 'decline');
+        } else if (det === 'ao-minai') {
+          triggerVrResolution('ao', 'minai');
         }
       } else if (data.command === 'aka-kata-kirim') {
         $('#kata-aka').text(data.details);
@@ -3201,8 +3205,8 @@
             const valAka = parseFloat(rawAka);
             const valAo = parseFloat(rawAo);
 
-            // Highlight highest score only; mute the other side
-            if (!isNaN(valAka) && !isNaN(valAo) && valAka > 0 && valAo > 0) {
+            // Highlight highest score only; mute the other side (handles 0.0 for DQ / Kiken)
+            if (!isNaN(valAka) && !isNaN(valAo) && (valAka > 0 || valAo > 0)) {
               if (valAka > valAo) {
                 elAka.addClass('highlight-aka');
                 elAo.addClass('muted-score');
@@ -3542,6 +3546,16 @@
             akaVrTimer = null;
             syncVrBanners();
           }, 2000);
+        } else if (actionType === 'minai') {
+          akaVrTitle = 'VIDEO REVIEW';
+          akaVrSubtitle = 'MINAI (INCONCLUSIVE)';
+          akaVrActive = true;
+          syncVrBanners();
+          akaVrTimer = setTimeout(() => {
+            akaVrActive = false;
+            akaVrTimer = null;
+            syncVrBanners();
+          }, 2500);
         } else if (actionType === 'remove-vr') {
           if (!akaVrTimer) {
             akaVrActive = false;
@@ -3575,6 +3589,16 @@
             aoVrTimer = null;
             syncVrBanners();
           }, 2000);
+        } else if (actionType === 'minai') {
+          aoVrTitle = 'VIDEO REVIEW';
+          aoVrSubtitle = 'MINAI (INCONCLUSIVE)';
+          aoVrActive = true;
+          syncVrBanners();
+          aoVrTimer = setTimeout(() => {
+            aoVrActive = false;
+            aoVrTimer = null;
+            syncVrBanners();
+          }, 2500);
         } else if (actionType === 'remove-vr') {
           if (!aoVrTimer) {
             aoVrActive = false;

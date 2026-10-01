@@ -79,9 +79,67 @@ def auth(request):
         logout(request)
         return redirect('auth')
     
-    events = Event.objects.all().order_by('-pk')
+    events = Event.objects.all().order_by('-pk').prefetch_related('tatami_set')
+    events_tatamis_map = {}
+    for ev in events:
+        events_tatamis_map[str(ev.pk)] = [
+            {'pk': t.pk, 'tatami_number': t.tatami_number}
+            for t in ev.tatami_set.all().order_by('tatami_number')
+        ]
+    tatamis_map_json = json.dumps(events_tatamis_map)
 
     if request.method == 'POST':
+        action_type = request.POST.get('action_type')
+
+        # --- 1-Click Fast Access for Arena Devices ---
+        if action_type == 'fast_access':
+            event_pk = request.POST.get('event_pk')
+            tatami_pk = request.POST.get('tatami_pk')
+            fast_role = request.POST.get('fast_role')
+
+            if not event_pk:
+                messages.error(request, "Silakan pilih event pertandingan terlebih dahulu.")
+                return redirect('auth')
+
+            tatami = None
+            if tatami_pk and str(tatami_pk).isdigit():
+                tatami = Tatami.objects.filter(pk=int(tatami_pk), event_id=event_pk).first()
+
+            if not tatami and fast_role != 'tatami_manager':
+                messages.error(request, "Tatami tidak valid atau belum dipilih.")
+                return redirect('auth')
+
+            if fast_role == 'wasit_vr':
+                request.session['view_only_role'] = 'wasit_vr'
+                request.session['view_only_tatami_pk'] = tatami.pk
+                return redirect('wasit-vr', tatami_pk=tatami.pk)
+
+            elif fast_role == 'lo_kata':
+                request.session['view_only_role'] = 'lo_kata'
+                request.session['view_only_tatami_pk'] = tatami.pk
+                return redirect('lo-kata', tatami_pk=tatami.pk)
+
+            elif fast_role == 'coach_sup':
+                request.session['view_only_role'] = 'coach_sup'
+                request.session['view_only_tatami_pk'] = tatami.pk
+                return redirect('coach-supervisor', tatami_pk=tatami.pk)
+
+            elif fast_role == 'admin_control':
+                request.session['view_only_role'] = 'admin_control'
+                request.session['view_only_tatami_pk'] = tatami.pk
+                return redirect('admin-control', tatami_pk=tatami.pk)
+
+            elif fast_role == 'tatami_manager':
+                request.session['view_only_role'] = 'tatami_manager'
+                request.session['view_only_event_pk'] = int(event_pk)
+                if tatami:
+                    request.session['view_only_tatami_pk'] = tatami.pk
+                    return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={tatami.pk}")
+                return redirect('tatami-manager', event_pk=event_pk)
+
+            messages.error(request, "Peran akses cepat tidak dikenali.")
+            return redirect('auth')
+
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
         event_pk = request.POST.get('event_pk')
@@ -119,13 +177,31 @@ def auth(request):
                 return redirect('auth')
 
         # --- Shared view-only access, no User account ---
-        if username.startswith('c') and len(username) > 1 and username[1:].isdigit():
+        if username.lower().startswith('vr') or username.lower().startswith('wvr'):
+            cleaned = username.lower()
+            if cleaned.startswith('wvr'):
+                cleaned = cleaned[3:]
+            elif cleaned.startswith('vr'):
+                cleaned = cleaned[2:]
+            if cleaned.startswith('-') or cleaned.startswith('_'):
+                cleaned = cleaned[1:]
+            target_event_pk = cleaned if (cleaned and cleaned.isdigit()) else event_pk
+            if target_event_pk and str(target_event_pk).isdigit() and password:
+                tatami = Tatami.objects.filter(event__pk=target_event_pk, tatami_number=password).first()
+                if tatami:
+                    request.session['view_only_role'] = 'wasit_vr'
+                    request.session['view_only_tatami_pk'] = tatami.pk
+                    return redirect('wasit-vr', tatami_pk=tatami.pk)
+        elif username.startswith('c'):
             new_username = username[1:]
-            tatami = Tatami.objects.filter(event__pk=new_username, tatami_number=password).first()
-            if tatami:
-                request.session['view_only_role'] = 'coach_sup'
-                request.session['view_only_tatami_pk'] = tatami.pk
-                return redirect('coach-supervisor', tatami_pk=tatami.pk)
+            if not new_username and event_pk:
+                new_username = event_pk
+            if new_username and str(new_username).isdigit() and password:
+                tatami = Tatami.objects.filter(event__pk=new_username, tatami_number=password).first()
+                if tatami:
+                    request.session['view_only_role'] = 'coach_sup'
+                    request.session['view_only_tatami_pk'] = tatami.pk
+                    return redirect('coach-supervisor', tatami_pk=tatami.pk)
         elif username.startswith('lo'):
             new_username = username[2:]
             if new_username.startswith('-') or new_username.startswith('_'):
@@ -173,7 +249,10 @@ def auth(request):
         messages.error(request, "Username atau password salah!")
         return redirect('auth')
 
-    context = {'events': events}
+    context = {
+        'events': events,
+        'tatamis_map_json': tatamis_map_json,
+    }
     return render(request, 'auth/auth.html', context)
 
 def admin_control(request, tatami_pk):
@@ -208,18 +287,22 @@ def jury_panel(request, tatami_pk):
     jury_number = 1
     is_admin_preview = False
 
+    raw_juri = request.GET.get('juri')
+    target_juri = None
+    if raw_juri:
+        try:
+            target_juri = max(1, min(7, int(raw_juri)))
+        except (ValueError, TypeError):
+            target_juri = None
+
     if role and role.role_type == 'jury':
         if role.tatami_id and role.tatami_id != tatami.pk:
             return redirect('jury-panel', tatami_pk=role.tatami_id)
         jury_obj = role
-        jury_number = role.jury_number or 1
+        jury_number = target_juri if target_juri is not None else (role.jury_number or 1)
     elif (role and role.role_type in ('admin', 'admin_tatami')) or request.user.is_staff or request.user.is_superuser:
         is_admin_preview = True
-        raw_juri = request.GET.get('juri', '1')
-        try:
-            jury_number = max(1, min(7, int(raw_juri)))
-        except (ValueError, TypeError):
-            jury_number = 1
+        jury_number = target_juri if target_juri is not None else 1
 
         class AdminJuryProxy:
             def __init__(self, tatami_inst, num):
@@ -231,7 +314,7 @@ def jury_panel(request, tatami_pk):
         legacy_jury = Jury.objects.filter(user=request.user).first()
         if legacy_jury:
             jury_obj = legacy_jury
-            jury_number = legacy_jury.jury_number or 1
+            jury_number = target_juri if target_juri is not None else (legacy_jury.jury_number or 1)
         else:
             messages.error(request, "Anda tidak memiliki akses ke panel juri.")
             return redirect('auth')
@@ -267,6 +350,163 @@ def coach_supervisor(request, tatami_pk):
         'bagan': bagan,
     }
     return render(request, 'jury/coach-supervisor.html', context)
+
+
+def wasit_vr(request, tatami_pk):
+    tatami = get_object_or_404(
+        Tatami.objects.select_related(
+            'event',
+            'detail_bagan__bagan__nomor_tanding',
+            'detail_bagan__atlet1__perguruan',
+            'detail_bagan__atlet1__utusan',
+            'detail_bagan__atlet2__perguruan',
+            'detail_bagan__atlet2__utusan',
+        ),
+        pk=tatami_pk
+    )
+    detail_bagan = tatami.detail_bagan
+    bagan = detail_bagan.bagan if detail_bagan else None
+
+    # Establish session for view-only arena access
+    request.session['view_only_role'] = 'wasit_vr'
+    request.session['view_only_tatami_pk'] = tatami.pk
+
+    # Retrieve assigned Wasit VR for this Tatami if any
+    assigned_vr_wasit = tatami.wasit_assignments.filter(posisi='vr_wasit').select_related('wasit').first()
+    nama_wasit_vr = assigned_vr_wasit.wasit.nama_wasit if (assigned_vr_wasit and assigned_vr_wasit.wasit) else "Wasit VR"
+
+    all_tatamis = Tatami.objects.filter(event=tatami.event).order_by('tatami_number') if tatami.event else []
+
+    context = {
+        'tatami': tatami,
+        'detail_bagan': detail_bagan,
+        'bagan': bagan,
+        'event': tatami.event,
+        'nama_wasit_vr': nama_wasit_vr,
+        'all_tatamis': all_tatamis,
+    }
+    return render(request, 'jury/wasit-vr.html', context)
+
+
+@csrf_exempt
+def message_retriever_wasit_vr(request, tatami_pk):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        details = request.POST.get('details')
+
+        channel_layer = get_channel_layer()
+
+        if action in ('vr-decision', 'vr_decision'):
+            side = 'aka'
+            decision = 'minai'
+            val = '1'
+            try:
+                parsed = json.loads(details) if isinstance(details, str) else details
+                if isinstance(parsed, dict):
+                    side = str(parsed.get('side', 'aka')).lower()
+                    decision = str(parsed.get('decision', 'minai')).lower()
+                    val = str(parsed.get('val', '1'))
+            except Exception:
+                pass
+
+            tatami = Tatami.objects.filter(pk=tatami_pk).select_related('detail_bagan').first()
+            if tatami and tatami.detail_bagan:
+                db = tatami.detail_bagan
+                if decision.startswith('accept') or decision == 'minai':
+                    if side == 'aka':
+                        db.vr1 = True
+                    else:
+                        db.vr2 = True
+                elif decision == 'decline':
+                    if side == 'aka':
+                        db.vr1 = False
+                    else:
+                        db.vr2 = False
+                db.save(update_fields=['vr1', 'vr2'])
+
+            if decision.startswith('accept'):
+                pts = decision.split('-')[1] if '-' in decision else val
+                async_to_sync(channel_layer.group_send)(
+                    f"control_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision", "details": {"side": side, "decision": f"accept-{pts}", "pts": pts}}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"admin_control_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision", "details": {"side": side, "decision": f"accept-{pts}", "pts": pts}}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"scoring_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr", "details": f"{side}-accept-{pts}"}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"coachroom_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr_status", "details": [side, "1"]}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"coachroom_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "coach-supervisor-cleared", "details": side}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"wasit_vr_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision-done", "details": {"side": side, "decision": f"accept-{pts}", "pts": pts}}
+                )
+            elif decision == 'decline':
+                async_to_sync(channel_layer.group_send)(
+                    f"control_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision", "details": {"side": side, "decision": "decline"}}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"admin_control_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision", "details": {"side": side, "decision": "decline"}}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"scoring_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr", "details": f"{side}-decline"}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"scoring_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr", "details": f"{side}-remove-vr"}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"coachroom_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr_status", "details": [side, "0"]}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"coachroom_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "coach-supervisor-cleared", "details": side}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"wasit_vr_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision-done", "details": {"side": side, "decision": "decline"}}
+                )
+            elif decision == 'minai':
+                async_to_sync(channel_layer.group_send)(
+                    f"control_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision", "details": {"side": side, "decision": "minai"}}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"admin_control_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision", "details": {"side": side, "decision": "minai"}}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"scoring_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr", "details": f"{side}-minai"}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"coachroom_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr_status", "details": [side, "1"]}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"coachroom_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "coach-supervisor-cleared", "details": side}
+                )
+                async_to_sync(channel_layer.group_send)(
+                    f"wasit_vr_{tatami_pk}",
+                    {"type": "broadcast_command", "message": "vr-decision-done", "details": {"side": side, "decision": "minai"}}
+                )
+
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @csrf_exempt
 def message_retriever_jury(request, tatami_pk):
@@ -1424,27 +1664,7 @@ def admin_bagan_detail_round_robin(request, event_pk, bagan_pk):
     return render(request, 'admin/round-robin.html', context)
 
 def roster_counter(request, event_pk):
-    event = Event.objects.get(pk=event_pk)
-    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
-    bagans = Bagan.objects.filter(event=event).order_by('nama_bagan')
-
-    for bagan in bagans:
-        dbs = DetailBagan.objects.filter(bagan=bagan)
-        bagan.count = 0
-        for db in dbs:
-            if db.atlet1:
-                bagan.count += 1
-            if db.atlet2:
-                bagan.count += 1
-
-    context = {
-        'on': 'roster-counter',
-        'event': event,
-        'admin_tatami': admin_tatami,
-        'bagans': bagans,
-    }
-
-    return render(request, 'admin/roster-counter.html', context)
+    return redirect('admin-nomor-tanding', event_pk=event_pk)
 def summary(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
@@ -3252,6 +3472,56 @@ def admin_nomor_tanding(request, event_pk):
                 NomorTanding.objects.filter(event=event).delete()
             messages.success(request, f"Semua nomor tanding ({count} kategori) berhasil dihapus dari event ini.")
 
+        elif submit_type == 'gabung_nomor_tanding':
+            source_pks = [int(p) for p in request.POST.getlist('source_pks') if p and str(p).isdigit()]
+            target_pk = request.POST.get('target_pk')
+            target_mode = request.POST.get('target_mode', 'existing')
+            nama_baru = request.POST.get('nama_baru', '').strip().upper()
+            hapus_sumber = request.POST.get('hapus_sumber') in ['on', 'true', '1', True]
+
+            if not source_pks:
+                messages.error(request, "Pilih minimal 1 nomor tanding asal yang ingin digabungkan.")
+                return redirect('admin-nomor-tanding', event_pk=event_pk)
+
+            with transaction.atomic():
+                target_nt = None
+                if target_mode == 'existing' and target_pk and str(target_pk).isdigit() and int(target_pk) > 0:
+                    target_nt = NomorTanding.objects.filter(pk=int(target_pk), event=event).first()
+
+                if not target_nt and nama_baru:
+                    target_nt = NomorTanding.objects.create(event=event, nama_nomor_tanding=nama_baru)
+                elif target_nt and nama_baru and nama_baru != target_nt.nama_nomor_tanding:
+                    target_nt.nama_nomor_tanding = nama_baru
+                    target_nt.save(update_fields=['nama_nomor_tanding'])
+
+                if not target_nt:
+                    messages.error(request, "Nomor tanding tujuan tidak valid atau nama kelas baru belum ditentukan.")
+                    return redirect('admin-nomor-tanding', event_pk=event_pk)
+
+                # Ambil kategori sumber (kecualikan jika target ada di source_pks)
+                source_qs = NomorTanding.objects.filter(event=event, pk__in=source_pks).exclude(pk=target_nt.pk)
+                source_names = list(source_qs.values_list('nama_nomor_tanding', flat=True))
+
+                # Pindahkan atlet ke target_nt (100% aman: kode_atlet & additional_code pendaftaran tetap utuh)
+                athletes_to_move = Atlet.objects.filter(event=event, nomor_tanding__in=source_qs)
+                moved_count = athletes_to_move.count()
+                athletes_to_move.update(nomor_tanding=target_nt)
+
+                deleted_count = 0
+                if hapus_sumber and source_qs.exists():
+                    # Bersihkan bagan kosong lama dari kategori sumber jika ada
+                    Bagan.objects.filter(event=event, nomor_tanding__in=source_qs).delete()
+                    deleted_count = source_qs.count()
+                    source_qs.delete()
+
+                info_sumber = ", ".join(source_names) if len(source_names) <= 3 else f"{len(source_names)} kategori asal"
+                messages.success(
+                    request,
+                    f"Berhasil menggabungkan kategori! Sebanyak {moved_count} atlet dari ({info_sumber}) "
+                    f"dipindahkan ke '{target_nt.nama_nomor_tanding}'"
+                    + (f", dan {deleted_count} kategori asal yang kosong telah dibersihkan." if deleted_count > 0 else ".")
+                )
+
         return redirect('admin-nomor-tanding', event_pk=event_pk)
 
     # Query dengan anotasi jumlah atlet dan bagan terkait
@@ -3264,25 +3534,26 @@ def admin_nomor_tanding(request, event_pk):
     )
 
     total_count = 0
-    tournament_count = 0
-    festival_count = 0
-    bob_count = 0
     unseeded_count = 0
+    single_athlete_count = 0
 
-    nomor_tandings = []
+    tournament_list = []
+    festival_list = []
+    bob_list = []
+
     for nt in nomor_tandings_qs:
         name_upper = (nt.nama_nomor_tanding or '').upper()
 
         # Klasifikasi kategori
         if nt.is_bob or 'BOB' in name_upper or 'BEST OF THE BEST' in name_upper:
             nt.kategori_tipe = 'bob'
-            bob_count += 1
+            bob_list.append(nt)
         elif 'FESTIVAL' in name_upper:
             nt.kategori_tipe = 'festival'
-            festival_count += 1
+            festival_list.append(nt)
         else:
             nt.kategori_tipe = 'tournament'
-            tournament_count += 1
+            tournament_list.append(nt)
 
         # Disiplin
         if 'KATA' in name_upper:
@@ -3305,23 +3576,31 @@ def admin_nomor_tanding(request, event_pk):
         if nt.jumlah_bagan == 0 and nt.kategori_tipe == 'tournament':
             unseeded_count += 1
 
-        total_count += 1
-        nomor_tandings.append(nt)
+        if nt.jumlah_atlet == 1 and nt.kategori_tipe == 'tournament':
+            single_athlete_count += 1
 
-    # Urutkan berdasarkan hierarki usia, disiplin, dan kelas berat (sort_key)
-    nomor_tandings.sort(key=sort_key)
+        total_count += 1
+
+    # Urutkan masing-masing daftar berdasarkan usia, disiplin, dan kelas berat (sort_key)
+    tournament_list.sort(key=sort_key)
+    festival_list.sort(key=sort_key)
+    bob_list.sort(key=sort_key)
 
     context = {
         'on': 'nomor-tanding',
         'event': event,
         'role': role,
         'admin_tatami': admin_tatami,
-        'nomor_tandings': nomor_tandings,
+        'tournament_list': tournament_list,
+        'festival_list': festival_list,
+        'bob_list': bob_list,
+        'all_nomor_tandings': list(tournament_list) + list(festival_list) + list(bob_list),
         'total_count': total_count,
-        'tournament_count': tournament_count,
-        'festival_count': festival_count,
-        'bob_count': bob_count,
+        'tournament_count': len(tournament_list),
+        'festival_count': len(festival_list),
+        'bob_count': len(bob_list),
         'unseeded_count': unseeded_count,
+        'single_athlete_count': single_athlete_count,
     }
     return render(request, 'admin/nomor-tanding.html', context)
 
@@ -3788,92 +4067,7 @@ def _handle_export_rekapan_excel(event, bagans):
     return response
 
 def admin_rekapan(request, event_pk):
-    event = get_object_or_404(Event, pk=event_pk)
-    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
-    days = TimetableDay.objects.filter(event=event).order_by('order')
-
-    days_for_filter = [{'pk': d.pk, 'label': format_day_label(d)} for d in days]
-
-    selected_day_ids = request.GET.getlist('day')
-    if not selected_day_ids:
-        # no filter applied yet (first visit) -> default to showing everything
-        selected_day_ids = [str(d.pk) for d in days]
-    selected_set = set(selected_day_ids)
-
-    # map: nomor_tanding_id -> set of day_ids it's scheduled on, via the timetable
-    nt_day_map = {}
-    cells = (
-        TimetableCell.objects
-        .filter(row__day__event=event, nomor_tanding__isnull=False)
-        .select_related('row__day')
-    )
-    for cell in cells:
-        nt_day_map.setdefault(cell.nomor_tanding_id, set()).add(str(cell.row.day_id))
-
-    all_bagans = (
-        Bagan.objects.filter(event=event)
-        .select_related(
-            'nomor_tanding',
-            'juara_1__perguruan', 'juara_1__utusan',
-            'juara_2__perguruan', 'juara_2__utusan',
-            'juara_3a__perguruan', 'juara_3a__utusan',
-            'juara_3b__perguruan', 'juara_3b__utusan',
-            'peringkat_5__perguruan', 'peringkat_5__utusan',
-            'peringkat_6__perguruan', 'peringkat_6__utusan',
-            'peringkat_7__perguruan', 'peringkat_7__utusan',
-            'peringkat_8__perguruan', 'peringkat_8__utusan',
-        ).order_by('kode')
-    )
-
-    clean_bagans = []
-    finished_count = 0
-    for b in all_bagans:
-        # Do not count or list preliminary Pool A / Pool B bagans
-        if is_prelim_pool_bagan(b):
-            continue
-
-        # Auto-compute Top 1-8 if not yet present
-        top8 = get_or_compute_top8(b, event)
-        if top8:
-            b.juara_1 = top8['juara_1']
-            b.juara_2 = top8['juara_2']
-            b.juara_3a = top8['juara_3a']
-            b.juara_3b = top8['juara_3b']
-            b.peringkat_5 = top8['peringkat_5']
-            b.peringkat_6 = top8['peringkat_6']
-            b.peringkat_7 = top8['peringkat_7']
-            b.peringkat_8 = top8['peringkat_8']
-
-        b.is_finished = bool(b.juara_1)
-        if b.is_finished:
-            finished_count += 1
-            
-        scheduled_days = nt_day_map.get(b.nomor_tanding_id)
-        if not scheduled_days:
-            # category isn't placed on the timetable at all yet -> always show
-            clean_bagans.append(b)
-        elif scheduled_days & selected_set:
-            clean_bagans.append(b)
-
-    # Check if Excel export was requested
-    if request.GET.get('export') == 'excel':
-        return _handle_export_rekapan_excel(event, clean_bagans)
-
-    total_count = len(clean_bagans)
-    pending_count = max(0, total_count - finished_count)
-
-    context = {
-        'on': 'rekapan',
-        'event': event,
-        'bagans': clean_bagans,
-        'days_for_filter': days_for_filter,
-        'selected_day_ids': selected_set,
-        'admin_tatami': admin_tatami,
-        'total_count': total_count,
-        'finished_count': finished_count,
-        'pending_count': pending_count,
-    }
-    return render(request, 'admin/rekapan.html', context)
+    return redirect('summary', event_pk=event_pk)
 
 def admin_tatami(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
@@ -4267,58 +4461,51 @@ def find_best_match_for_tatami(tatami, event, exclude_current=False):
 
 
 PANEL_PRESETS = {
-    'kumite_3': {
-        'label': 'Kumite 3 Org',
-        'desc': '1 Wasit, 2 Juri',
-        'positions': ['referee', 'judge_1', 'judge_2'],
+    'kumite_2j': {
+        'label': '2 Juri Kumite',
+        'desc': '1 Wasit + 2 Juri + 1 Score Supervisor + 1 Kansa (2 Juri Kumite)',
+        'positions': ['referee', 'judge_1', 'judge_2', 'score_supervisor', 'kansa'],
     },
-    'kumite_5': {
-        'label': 'Kumite 5 Org',
-        'desc': '1 Wasit, 4 Juri (Tanpa Kansa)',
-        'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4'],
+    'kumite_4j': {
+        'label': '4 Juri Kumite',
+        'desc': '1 Wasit + 4 Juri + 1 Score Supervisor + 1 Kansa (4 Juri Kumite)',
+        'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'score_supervisor', 'kansa'],
     },
-    'kumite_6': {
-        'label': 'Kumite 6 Org (WKF)',
-        'desc': '1 Wasit, 4 Juri, 1 Kansa',
-        'positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'kansa'],
-    },
-    'kata_3': {
-        'label': 'Kata 3 Juri',
-        'desc': 'Juri 1, 2, 3',
-        'positions': ['judge_1', 'judge_2', 'judge_3'],
-    },
-    'kata_5': {
-        'label': 'Kata 5 Juri',
-        'desc': 'Juri 1 s/d 5',
+    'kata_5j': {
+        'label': '5 Juri Kata',
+        'desc': '5 Juri (5 Juri Kata)',
         'positions': ['judge_1', 'judge_2', 'judge_3', 'judge_4', 'judge_5'],
     },
-    'minimal_2': {
-        'label': '2 Juri',
-        'desc': 'Juri 1, 2 (Darurat / Ringkas)',
-        'positions': ['judge_1', 'judge_2'],
+    'kata_7j': {
+        'label': '7 Juri Kata',
+        'desc': '7 Juri (7 Juri Kata)',
+        'positions': ['judge_1', 'judge_2', 'judge_3', 'judge_4', 'judge_5', 'judge_6', 'judge_7'],
     },
-    'solo_1': {
-        'label': '1 Wasit',
-        'desc': 'Wasit Saja',
-        'positions': ['referee'],
-    },
+}
+
+PRESET_ALIASES = {
+    'kumite_3': 'kumite_2j',
+    'kumite_5': 'kumite_4j',
+    'kumite_6': 'kumite_4j',
+    'kata_3': 'kata_5j',
+    'kata_5': 'kata_5j',
 }
 
 
 def get_dynamic_panel_rule(active_match):
     """
     Dynamic panel requirements:
-    - Kata and < Junior: 3 Juri
-    - Kata and >= Junior: 5 Juri
-    - Kumite and < Junior: 2 Wasit, 1 Juri, 1 Kansa (4 total)
-    - Kumite and >= Junior: 6 wasit/juri (1 referee, 4 judges, 1 kansa)
+    1. 1 Wasit + 2 Juri + 1 Score Supervisor + 1 Kansa (2 Juri Kumite)
+    2. 1 Wasit + 4 Juri + 1 Score Supervisor + 1 Kansa (4 Juri Kumite)
+    3. 5 Juri (5 Juri Kata)
+    4. 7 Juri (7 Juri Kata)
     """
     if not active_match or not active_match.bagan or not active_match.bagan.nomor_tanding:
         return {
             'type': 'kumite',
             'is_junior_plus': True,
-            'format_name': 'KUMITE (≥ Junior) - Standar 6 Wasit & Juri',
-            'required_positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'kansa'],
+            'format_name': 'KUMITE - 1 Wasit + 4 Juri + 1 Score Supervisor + 1 Kansa (4 Juri Kumite)',
+            'required_positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'score_supervisor', 'kansa'],
         }
 
     cat_name = (active_match.bagan.nomor_tanding.nama_nomor_tanding or '').upper()
@@ -4332,30 +4519,30 @@ def get_dynamic_panel_rule(active_match):
             return {
                 'type': 'kata',
                 'is_junior_plus': False,
-                'format_name': 'KATA (< Junior) - Standar 3 Juri',
-                'required_positions': ['judge_1', 'judge_2', 'judge_3'],
+                'format_name': 'KATA - 5 Juri (5 Juri Kata)',
+                'required_positions': ['judge_1', 'judge_2', 'judge_3', 'judge_4', 'judge_5'],
             }
         else:
             return {
                 'type': 'kata',
                 'is_junior_plus': True,
-                'format_name': 'KATA (≥ Junior) - Standar 5 Juri',
-                'required_positions': ['judge_1', 'judge_2', 'judge_3', 'judge_4', 'judge_5'],
+                'format_name': 'KATA - 7 Juri (7 Juri Kata)',
+                'required_positions': ['judge_1', 'judge_2', 'judge_3', 'judge_4', 'judge_5', 'judge_6', 'judge_7'],
             }
     else:
         if is_pre_junior:
             return {
                 'type': 'kumite',
                 'is_junior_plus': False,
-                'format_name': 'KUMITE (< Junior) - Standar 2 Wasit, 1 Juri, 1 Kansa',
-                'required_positions': ['referee', 'wasit_2', 'judge_1', 'kansa'],
+                'format_name': 'KUMITE - 1 Wasit + 2 Juri + 1 Score Supervisor + 1 Kansa (2 Juri Kumite)',
+                'required_positions': ['referee', 'judge_1', 'judge_2', 'score_supervisor', 'kansa'],
             }
         else:
             return {
                 'type': 'kumite',
                 'is_junior_plus': True,
-                'format_name': 'KUMITE (≥ Junior) - Standar 6 Wasit & Juri',
-                'required_positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'kansa'],
+                'format_name': 'KUMITE - 1 Wasit + 4 Juri + 1 Score Supervisor + 1 Kansa (4 Juri Kumite)',
+                'required_positions': ['referee', 'judge_1', 'judge_2', 'judge_3', 'judge_4', 'score_supervisor', 'kansa'],
             }
 
 
@@ -4687,6 +4874,9 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None, active_sl
     assigned_pos_list = [a.posisi for a in assignments if a.posisi != 'pool']
     assigned_pos_set = set(assigned_pos_list)
 
+    if active_preset:
+        active_preset = PRESET_ALIASES.get(active_preset, active_preset)
+
     # Determine slots to display
     if active_preset and active_preset in PANEL_PRESETS:
         req_positions = list(PANEL_PRESETS[active_preset]['positions'])
@@ -4748,6 +4938,7 @@ def get_match_tatami_modal_context(match, event, selected_tatami=None, active_sl
         'judge_6': 'Juri 6',
         'judge_7': 'Juri 7',
         'kansa': 'Kansa',
+        'score_supervisor': 'Score Supervisor',
         'tatami_manager': 'Manager',
     }
 
@@ -5075,6 +5266,7 @@ def admin_tatami_manager(request, event_pk):
         elif submit_type == 'apply_panel_preset':
             detailbagan_pk = request.POST.get('detailbagan_pk')
             preset_code = request.POST.get('preset')
+            preset_code = PRESET_ALIASES.get(preset_code, preset_code)
             match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
             if not match_obj or preset_code not in PANEL_PRESETS:
                 return JsonResponse({'status': 'error', 'message': 'Preset format tidak valid.'}, status=400)
@@ -5120,6 +5312,12 @@ def admin_tatami_manager(request, event_pk):
             if slot_type == 'kansa':
                 if 'kansa' not in active_slots:
                     new_pos = 'kansa'
+                else:
+                    slot_type = 'judge'
+
+            if slot_type in ('score_supervisor', 'supervisor', 'ss'):
+                if 'score_supervisor' not in active_slots:
+                    new_pos = 'score_supervisor'
                 else:
                     slot_type = 'judge'
 
@@ -6028,14 +6226,22 @@ AGE_ORDER = [
     'usia dini',
     'pra pemula',
     'pemula',
+    'pra kadet',
     'kadet',
     'junior',
+    'under 21',
+    'under-21',
+    'u-21',
+    'u21',
     'senior',
+    'veteran',
+    'master',
 ]
 AGE_LABELS = {
     'pra usia dini': 'Pra Usia Dini', 'usia dini': 'Usia Dini',
     'pra pemula': 'Pra Pemula', 'pemula': 'Pemula',
-    'kadet': 'Kadet', 'junior': 'Junior', 'senior': 'Senior',
+    'pra kadet': 'Pra Kadet', 'kadet': 'Kadet', 'junior': 'Junior',
+    'u-21': 'U-21', 'senior': 'Senior', 'veteran': 'Veteran', 'master': 'Master',
 }
 
 def get_age_index(name):

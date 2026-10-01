@@ -28,5 +28,15 @@
     "hosted_event_id": 45,
     "hosted_event_name": "SELEKPROV INKANAS KALTIM 2026",
     "target_mode": "local"
+  },
+  "local_9_production": {
+    "hosted_event_id": 24,
+    "hosted_event_name": "KEJUARAAN KARATE BUSHIDO I",
+    "target_mode": "production"
+  },
+  "local_10_local": {
+    "hosted_event_id": 47,
+    "hosted_event_name": "KEJUARAAN NASIONAL KARATE AMBRILINDO OPEN 2026",
+    "target_mode": "local"
   }
 }
