@@ -1,0 +1,493 @@
+{% extends "admin/base-dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" style="background: #0f172a; min-height: 100vh; color: #f8fafc;">
+    
+    <!-- Breadcrumbs & Top Header -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8;">
+                <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: #cbd5e1; text-decoration: none;">Dashboard</a></li>
+                <li><span style="opacity: 0.5;">/</span></li>
+                <li style="color: #38bdf8; font-weight: 600;">Roster Maker (Festival)</li>
+            </ul>
+            <h2 class="fw-bold mb-1 text-white" style="font-family: 'Oswald', sans-serif; letter-spacing: 0.03em;">
+                <i class="fas fa-flag text-warning me-2"></i>ROSTER MAKER FESTIVAL
+            </h2>
+            <p class="text-secondary mb-0" style="font-size: 13.5px;">
+                Manajemen bagan 1-lawan-1 festival, auto-pairing anti-bentrok kontingen (M &amp; B), mix kelas, dan cetak roster resmi untuk <strong>{{ event.nama_event }}</strong>.
+            </p>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <!-- Dropdown Cetak Roster -->
+            <div class="dropdown">
+                <button class="btn btn-warning dropdown-toggle d-flex align-items-center gap-2 fw-bold text-dark px-3 py-2" type="button" id="dropdownPrintMenu" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak Roster Festival</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="dropdownPrintMenu" style="background: #1e293b; border: 1px solid #334155; border-radius: 8px;">
+                    <li>
+                        <a class="dropdown-item text-white d-flex align-items-center gap-2 py-2" href="{% url 'roster-festival-print' event_pk=event.pk %}" target="_blank">
+                            <i class="fas fa-layer-group text-warning"></i>
+                            <span>Cetak Semua Tatami (Lengkap)</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider" style="border-color: #334155;"></li>
+                    {% for t in tatamis %}
+                    <li>
+                        <a class="dropdown-item text-white-50 d-flex align-items-center gap-2 py-2" href="{% url 'roster-festival-print' event_pk=event.pk %}?tatami={{ t.pk }}" target="_blank">
+                            <i class="fas fa-tv text-info"></i>
+                            <span>Cetak Tatami {{ t.tatami_number }} Saja</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Modal Trigger: Mix / Gabung Kelas -->
+            <button type="button" class="btn btn-outline-info d-flex align-items-center gap-2 fw-semibold px-3 py-2" onclick="openFestivalMixModal()" style="border-radius: 8px;" title="Gabungkan beberapa kelas festival menjadi satu">
+                <i class="fas fa-object-group"></i>
+                <span>Mix / Gabung Kelas</span>
+            </button>
+
+            <!-- Auto-Pairing All -->
+            <form method="POST" action="{% url 'roster-festival-auto-pair' event_pk=event.pk %}" onsubmit="return confirm('Jalankan ulang auto-pairing pada seluruh kelas festival? Susunan M & B akan dioptimalkan agar tidak satu kontingen.');" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light d-flex align-items-center gap-2 fw-semibold px-3 py-2" style="border-radius: 8px; background: rgba(255,255,255,0.05);" title="Acak & pasangkan atlet agar tidak satu kontingen">
+                    <i class="fas fa-random text-primary"></i>
+                    <span>Auto-Pairing Anti-Bentrok</span>
+                </button>
+            </form>
+
+            <!-- Simpan Perubahan -->
+            <button type="button" class="btn btn-success d-flex align-items-center gap-2 fw-bold px-3 py-2" id="saveRosterBtn" onclick="saveFestivalRosterState()" style="border-radius: 8px;">
+                <i class="fas fa-save"></i>
+                <span>Simpan Perubahan</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 8px;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Stat Metric Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border-0 p-3" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.07);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56, 189, 248, 0.15); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-th-list text-info fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small fw-medium">Total Kategori</div>
+                        <div class="h4 mb-0 fw-bold text-white">{{ total_fest_categories }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border-0 p-3" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.07);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(34, 197, 94, 0.15); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-users text-success fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small fw-medium">Total Atlet Festival</div>
+                        <div class="h4 mb-0 fw-bold text-white">{{ total_fest_athletes }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border-0 p-3" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.07);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-fist-raised text-warning fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small fw-medium">Total Pertandingan</div>
+                        <div class="h4 mb-0 fw-bold text-white">{{ total_fest_matches }} Match</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card h-100 border-0 p-3" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; border: 1px solid rgba(255,255,255,0.07);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-tv text-purple fa-lg" style="color: #c084fc;"></i>
+                    </div>
+                    <div>
+                        <div class="text-secondary small fw-medium">Jumlah Tatami</div>
+                        <div class="h4 mb-0 fw-bold text-white">{{ tatamis|length }} Tatami</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rule Note Banner -->
+    <div class="alert alert-dark d-flex align-items-center justify-content-between p-3 mb-4" style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;">
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-primary px-2 py-1"><i class="fas fa-info-circle me-1"></i> Aturan Roster</span>
+            <span style="font-size: 13px; color: #cbd5e1;">
+                Sesuai regulasi: <strong>Disiplin KATA selalu dijadwalkan bermain terlebih dahulu</strong>, kemudian dilanjutkan kategori <strong>KUMITE</strong>. Pasangan sudut Merah (M) dan Biru (B) otomatis dipisahkan agar berasal dari kontingen yang berbeda sebisa mungkin.
+            </span>
+        </div>
+        <span class="badge bg-secondary" style="font-size: 11px;">KATA &rarr; KUMITE</span>
+    </div>
+
+    <!-- Tatami Filter Tabs -->
+    <ul class="nav nav-pills mb-4 gap-2" id="tatamiFilterNav">
+        <li class="nav-item">
+            <button class="nav-link active fw-bold px-3 py-2 tatami-filter-btn" type="button" data-tatami-filter="all" onclick="filterTatamiSections('all', this)" style="border-radius: 8px;">
+                <i class="fas fa-globe me-1"></i> Semua Tatami
+            </button>
+        </li>
+        {% for sec in tatami_sections %}
+        <li class="nav-item">
+            <button class="nav-link fw-bold px-3 py-2 tatami-filter-btn" type="button" data-tatami-filter="{{ sec.tatami.pk }}" onclick="filterTatamiSections('{{ sec.tatami.pk }}', this)" style="border-radius: 8px;">
+                <i class="fas fa-tv me-1 text-info"></i> Tatami {{ sec.tatami.tatami_number }}
+                <span class="badge bg-dark ms-2 text-warning" style="font-size: 10.5px;">{{ sec.categories|length }} Kategori &bull; {{ sec.total_athletes }} Atlet</span>
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Single Source of Truth Tatami Sections (No DOM Duplication) -->
+    <div id="tatamiSectionsWrapper">
+        {% for sec in tatami_sections %}
+        <div class="tatami-section-block mb-5" data-tatami-id="{{ sec.tatami.pk }}">
+            <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3" style="border-color: #334155 !important;">
+                <h4 class="fw-bold mb-0 text-white" style="font-family: 'Oswald', sans-serif; letter-spacing: 0.05em;">
+                    <span class="badge bg-warning text-dark me-2">TATAMI {{ sec.tatami.tatami_number }}</span>
+                    <span class="text-muted" style="font-size: 14px; font-weight: normal;">({{ sec.categories|length }} Kategori, {{ sec.total_athletes }} Atlet, {{ sec.total_matches }} Match)</span>
+                </h4>
+                <a href="{% url 'roster-festival-print' event_pk=event.pk %}?tatami={{ sec.tatami.pk }}" target="_blank" class="btn btn-sm btn-outline-warning">
+                    <i class="fas fa-print me-1"></i> Cetak Tatami {{ sec.tatami.tatami_number }}
+                </a>
+            </div>
+
+            <div class="tatami-categories-container" data-tatami-id="{{ sec.tatami.pk }}">
+                {% for cat in sec.categories %}
+                {% include "admin/partials/festival_category_card.html" with cat=cat tatamis=tatamis current_tatami=sec.tatami %}
+                {% empty %}
+                <div class="p-4 text-center text-muted" style="background: rgba(30, 41, 59, 0.4); border: 1px dashed #334155; border-radius: 10px;">
+                    <i class="fas fa-inbox fa-2x mb-2 d-block opacity-50"></i>
+                    Belum ada kategori festival yang dijadwalkan pada Tatami {{ sec.tatami.tatami_number }}.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- ============================================================================== -->
+<!-- MODAL: MIX / GABUNG KELAS FESTIVAL (POWERED BY SELECT2)                       -->
+<!-- ============================================================================== -->
+<div class="modal fade" id="modalFestivalMix" tabindex="-1" aria-labelledby="modalFestivalMixLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: #1e293b; color: #fff; border: 1px solid #334155; border-radius: 14px;">
+            <div class="modal-header border-bottom" style="border-color: #334155;">
+                <h5 class="modal-title fw-bold" id="modalFestivalMixLabel">
+                    <i class="fas fa-object-group text-info me-2"></i>Mix / Gabung Kategori Festival
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'roster-festival-mix' event_pk=event.pk %}" id="formFestivalMix">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">
+                        Pilih 2 atau lebih kategori festival yang ingin digabung menggunakan Select2. Seluruh atlet akan dipindahkan ke kategori tujuan, dan sistem otomatis melakukan anti-bentrok kontingen.
+                    </p>
+
+                    <!-- 1. Pilih Kategori Asal (Select2) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-light" for="source_pks_select">
+                            1. Pilih Kategori Asal yang Ingin Digabung (Ketik untuk mencari):
+                        </label>
+                        <select name="source_pks" id="source_pks_select" class="form-select" multiple="multiple" style="width: 100%;" required>
+                            {% for nt in all_festival_nts %}
+                            <option value="{{ nt.pk }}" data-nama="{{ nt.nama_nomor_tanding }}">
+                                {{ nt.nama_nomor_tanding }} ({{ nt.atlet_count }} Atlet)
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text text-secondary" style="font-size: 11px;">
+                            Bisa pilih 2 atau lebih kategori asal sekaligus (misal: Pra Usia Dini dan Usia Dini).
+                        </div>
+                    </div>
+
+                    <!-- 2. Nama Kelas Gabungan Baru -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-light" for="mix_nama_baru">
+                            2. Nama Kategori Gabungan Baru:
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-warning fw-bold">FESTIVAL</span>
+                            <input type="text" class="form-control bg-dark border-secondary text-white" id="mix_nama_baru" name="nama_baru" placeholder="Contoh: PRA USIA DINI (MIX USIA DINI) - KATA PERORANGAN PUTRI" required>
+                        </div>
+                        <div class="form-text text-secondary" style="font-size: 11px;">
+                            Bisa gunakan format <code>PRA USIA DINI (MIX USIA DINI) - KATA PERORANGAN PUTRI</code> sesuai contoh buku pertandingan.
+                        </div>
+                    </div>
+
+                    <!-- 3. Hapus Kategori Asal Kosong -->
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="hapus_sumber" id="mix_hapus_sumber" checked>
+                        <label class="form-check-label small" for="mix_hapus_sumber">
+                            Hapus kategori asal yang kosong setelah penggabungan selesai
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-top" style="border-color: #334155;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-info fw-bold px-4">
+                        <i class="fas fa-check me-1"></i> Gabungkan Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Helper to extract CSRF token reliably
+function getCsrfToken() {
+    const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (input && input.value) return input.value;
+    const cookie = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith('csrftoken='));
+    if (cookie) return decodeURIComponent(cookie.split('=')[1]);
+    return "{{ csrf_token }}";
+}
+
+// Select2 Initialization for Mix Modal
+function initFestivalMixSelect2() {
+    if (window.jQuery && $('#source_pks_select').length) {
+        if ($('#source_pks_select').hasClass('select2-hidden-accessible')) {
+            $('#source_pks_select').select2('destroy');
+        }
+        $('#source_pks_select').select2({
+            dropdownParent: $('#modalFestivalMix'),
+            width: '100%',
+            placeholder: 'Ketik untuk mencari kategori festival...'
+        });
+    }
+}
+
+function openFestivalMixModal() {
+    const modalEl = document.getElementById('modalFestivalMix');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('modalFestivalMix');
+    if (modalEl) {
+        modalEl.addEventListener('shown.bs.modal', function () {
+            initFestivalMixSelect2();
+        });
+    }
+
+    if (window.jQuery) {
+        $(document).on('change', '#source_pks_select', function() {
+            updateMixSuggestions();
+        });
+    }
+});
+
+function updateMixSuggestions() {
+    if (!window.jQuery) return;
+    const selected = $('#source_pks_select').find(':selected');
+    const input = document.getElementById('mix_nama_baru');
+    if (selected.length >= 2 && !input.value) {
+        const names = [];
+        selected.each(function() {
+            const raw = $(this).data('nama') || $(this).text().trim();
+            names.push(raw.replace(/^FESTIVAL\s*[-–:]*\s*/i, '').trim());
+        });
+        if (names.length > 0) {
+            input.value = names[0] + ' (MIX)';
+        }
+    }
+}
+
+// Tab Filter function without DOM duplication
+function filterTatamiSections(tatamiId, btnEl) {
+    document.querySelectorAll('.tatami-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+
+    document.querySelectorAll('.tatami-section-block').forEach(el => {
+        if (tatamiId === 'all' || el.dataset.tatamiId === String(tatamiId)) {
+            el.style.display = '';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+
+// Move category to a different tatami
+function moveCategoryToTatami(selectEl, catPk) {
+    const newTatamiId = selectEl.value;
+    const cardEl = selectEl.closest('.festival-category-card');
+    const targetContainer = document.querySelector(`.tatami-categories-container[data-tatami-id="${newTatamiId}"]`);
+    if (targetContainer && cardEl) {
+        targetContainer.appendChild(cardEl);
+        cardEl.style.transition = 'all 0.4s';
+        cardEl.style.boxShadow = '0 0 15px rgba(56, 189, 248, 0.5)';
+        setTimeout(() => {
+            cardEl.style.boxShadow = '';
+        }, 1200);
+    }
+}
+
+// Move category card up or down in container
+function moveCategoryCard(btn, direction) {
+    const card = btn.closest('.festival-category-card');
+    const parent = card.parentElement;
+    if (direction === 'up' && card.previousElementSibling) {
+        parent.insertBefore(card, card.previousElementSibling);
+    } else if (direction === 'down' && card.nextElementSibling) {
+        parent.insertBefore(card.nextElementSibling, card);
+    }
+}
+
+// Save Festival Roster State via AJAX
+function saveFestivalRosterState() {
+    const saveBtn = document.getElementById('saveRosterBtn');
+    const origHtml = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
+    saveBtn.disabled = true;
+
+    const tatamiAssignments = {};
+    document.querySelectorAll('.tatami-categories-container').forEach(container => {
+        const tatamiId = container.dataset.tatamiId;
+        const catPks = [];
+        container.querySelectorAll('.festival-category-card').forEach(card => {
+            const pk = parseInt(card.dataset.catPk);
+            if (pk) catPks.push(pk);
+        });
+        tatamiAssignments[tatamiId] = catPks;
+    });
+
+    const csrfToken = getCsrfToken();
+
+    fetch("{% url 'roster-festival-save' event_pk=event.pk %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({
+            tatami_assignments: tatamiAssignments
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.text().then(text => {
+                throw new Error(`HTTP ${res.status}: ${text.substring(0, 100)}`);
+            });
+        }
+        return res.json();
+    })
+    .then(data => {
+        saveBtn.innerHTML = origHtml;
+        saveBtn.disabled = false;
+        if (data.success) {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <div class="alert alert-success d-flex align-items-center gap-2 shadow-lg mb-0 text-white" style="background: #15803d; border-radius: 8px;">
+                    <i class="fas fa-check-circle fa-lg"></i>
+                    <span>${data.message || 'Roster festival berhasil disimpan!'}</span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        } else {
+            alert('Gagal menyimpan: ' + (data.message || 'Terjadi kesalahan'));
+        }
+    })
+    .catch(err => {
+        saveBtn.innerHTML = origHtml;
+        saveBtn.disabled = false;
+        alert('Gagal menyimpan: ' + err.message);
+    });
+}
+</script>
+
+<style>
+.nav-pills .nav-link {
+    color: #94a3b8;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.nav-pills .nav-link.active {
+    color: #fff;
+    background: #0284c7;
+    border-color: #38bdf8;
+}
+.festival-category-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.festival-category-header {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.match-pair-table {
+    width: 100%;
+    margin-bottom: 0;
+    font-size: 13px;
+}
+.match-pair-table td {
+    padding: 9px 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.corner-aka {
+    color: #f87171;
+    font-weight: 700;
+}
+.corner-ao {
+    color: #60a5fa;
+    font-weight: 700;
+}
+.dojo-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #cbd5e1;
+    margin-left: 6px;
+}
+</style>
+{% endblock %}

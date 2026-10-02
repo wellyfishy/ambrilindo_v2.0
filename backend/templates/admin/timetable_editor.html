@@ -3345,7 +3345,6 @@
                     <div class="simple-roster-day-section">
                         <div class="simple-roster-day-bar">
                             <span class="day-bar-title"><i class="fas fa-calendar-day"></i> ${escapeHtml(day.dayLabel)}</span>
-                            ${day.dayDateFormatted ? `<span class="day-bar-date">${escapeHtml(day.dayDateFormatted)}</span>` : ''}
                         </div>
                         <table class="simple-roster-table">
                             <thead>
@@ -3422,10 +3421,6 @@
                                 ${metaStr ? `<p class="simple-roster-org-meta">${metaStr}</p>` : ''}
                                 <div class="simple-roster-doc-title">ROSTER PERTANDINGAN / RUN SHEET</div>
                             </div>
-                        </div>
-                        <div class="simple-roster-day-badge-box">
-                            <div class="simple-roster-day-label">${daysData.length > 1 ? `${daysData.length} HARI PERTANDINGAN` : (daysData[0]?.dayLabel || 'JADWAL')}</div>
-                            ${daysData.length === 1 && daysData[0]?.dayDateFormatted ? `<div class="simple-roster-day-date">${escapeHtml(daysData[0].dayDateFormatted)}</div>` : ''}
                         </div>
                     </div>
 

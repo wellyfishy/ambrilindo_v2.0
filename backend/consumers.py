@@ -12,7 +12,7 @@ def get_current_match_details(tatami_pk):
         'detail_bagan__atlet2__perguruan',
         'detail_bagan__atlet2__utusan',
     ).first()
-    if not tatami or not tatami.detail_bagan or tatami.detail_bagan.selesai:
+    if not tatami or not tatami.detail_bagan:
         return None
     detail_bagan = tatami.detail_bagan
     bagan = detail_bagan.bagan
@@ -197,6 +197,12 @@ class ControlPanelConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        # Ensure match details are synced to scoring board on control panel connect
+        try:
+            await ws_set_tatami_match(self.tatami_pk, self.detailbagan_pk)
+        except Exception:
+            pass
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.group_name,
@@ -217,6 +223,13 @@ class ControlPanelConsumer(AsyncWebsocketConsumer):
         details = data.get('details')
         target = data.get('target', 'all')
         if not action:
+            return
+
+        if action in ('sync-board', 'sync-match', 'get_atlet'):
+            try:
+                await ws_set_tatami_match(self.tatami_pk, self.detailbagan_pk)
+            except Exception:
+                pass
             return
 
         # Broadcast directly to scoring board in <2ms
@@ -659,9 +672,6 @@ def get_tatami_manager_details(tatami_pk):
         return None
 
     db = tatami.detail_bagan
-    # If the match is finished, it is not currently running on tatami!
-    if db and db.selesai:
-        db = None
     bagan = db.bagan if db else None
 
     from backend.utils import get_utusan_logo_url, get_round_label, get_round_of_slots, get_marquee_title
@@ -700,6 +710,9 @@ def ws_set_tatami_match(tatami_pk, detailbagan_pk):
         return None
     db = DetailBagan.objects.filter(pk=detailbagan_pk).first()
     if db:
+        if db.selesai:
+            db.selesai = False
+            db.save(update_fields=['selesai'])
         tatami.detail_bagan = db
         tatami.save(update_fields=['detail_bagan'])
         tatami = Tatami.objects.filter(pk=tatami_pk).select_related(

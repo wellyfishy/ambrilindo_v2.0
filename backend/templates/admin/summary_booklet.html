@@ -330,6 +330,25 @@
             user-select: text;
         }
 
+        .sampul-logo-container {
+            position: absolute;
+            top: 16.5%;
+            right: 3.5%;
+            width: 24%;
+            height: 27%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .sampul-event-logo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+        }
+
         .sampul-org-bar {
             position: absolute;
             top: 3.4%;
@@ -1748,6 +1767,15 @@
             {% endif %}
 
             <div class="sampul-page-container">
+                <!-- Event Logo / WKF Fallback -->
+                <div class="sampul-logo-container">
+                    {% if kop_surat.logo %}
+                    <img src="{{ kop_surat.logo.url }}" class="sampul-event-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/wkf_logo.png" %}'">
+                    {% else %}
+                    <img src="{% static 'img/cover/wkf_logo.png' %}" class="sampul-event-logo" alt="Logo Event">
+                    {% endif %}
+                </div>
+
                 <!-- Top Ribbon Org Text (Editable) -->
                 <div class="sampul-org-bar" contenteditable="true" spellcheck="false" title="Klik untuk mengedit teks organisasi">
                     {{ org_text|linebreaksbr }}
@@ -1793,9 +1821,9 @@
                 <div class="portrait-header-banner">
                     <div class="portrait-header-left">
                         {% if kop_surat.logo %}
-                        <img src="{{ kop_surat.logo.url }}" class="portrait-header-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                        <img src="{{ kop_surat.logo.url }}" class="portrait-header-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/wkf_logo.png" %}'">
                         {% else %}
-                        <img src="{% static 'img/cover/X10.png' %}" class="portrait-header-logo" alt="Logo Event">
+                        <img src="{% static 'img/cover/wkf_logo.png' %}" class="portrait-header-logo" alt="Logo Event">
                         {% endif %}
                         <div>
                             <h2 class="portrait-header-org-text">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h2>
@@ -1905,9 +1933,9 @@
                 <div class="portrait-header-banner">
                     <div class="portrait-header-left">
                         {% if kop_surat.logo %}
-                        <img src="{{ kop_surat.logo.url }}" class="portrait-header-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                        <img src="{{ kop_surat.logo.url }}" class="portrait-header-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/wkf_logo.png" %}'">
                         {% else %}
-                        <img src="{% static 'img/cover/X10.png' %}" class="portrait-header-logo" alt="Logo Event">
+                        <img src="{% static 'img/cover/wkf_logo.png' %}" class="portrait-header-logo" alt="Logo Event">
                         {% endif %}
                         <div>
                             <h2 class="portrait-header-org-text">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h2>
@@ -2186,9 +2214,9 @@
                     <div class="simple-roster-header">
                         <div class="simple-roster-kop-left">
                             {% if kop_surat.logo %}
-                            <img src="{{ kop_surat.logo.url }}" class="simple-roster-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/X10.png" %}'">
+                            <img src="{{ kop_surat.logo.url }}" class="simple-roster-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/wkf_logo.png" %}'">
                             {% else %}
-                            <img src="{% static 'img/cover/X10.png' %}" class="simple-roster-logo" alt="Logo Event">
+                            <img src="{% static 'img/cover/wkf_logo.png' %}" class="simple-roster-logo" alt="Logo Event">
                             {% endif %}
                             <div class="simple-roster-org-info">
                                 <h3 class="simple-roster-org-name">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
@@ -2200,15 +2228,6 @@
                                 <div class="simple-roster-doc-title">ROSTER PERTANDINGAN / RUN SHEET</div>
                             </div>
                         </div>
-
-                        <div class="simple-roster-day-badge-box">
-                            <div class="simple-roster-day-label">
-                                {% if days_count > 1 %}{{ days_count }} HARI PERTANDINGAN{% else %}{{ days_roster_data.0.day_label }}{% endif %}
-                            </div>
-                            {% if days_count == 1 and days_roster_data.0.day_date_formatted %}
-                            <div class="simple-roster-day-date">{{ days_roster_data.0.day_date_formatted }}</div>
-                            {% endif %}
-                        </div>
                     </div>
 
                     <!-- Day Sections -->
@@ -2216,9 +2235,6 @@
                     <div class="simple-roster-day-section">
                         <div class="simple-roster-day-bar">
                             <span class="day-bar-title"><i class="fas fa-calendar-day"></i> {{ day_item.day_label }}</span>
-                            {% if day_item.day_date_formatted %}
-                            <span class="day-bar-date">{{ day_item.day_date_formatted }}</span>
-                            {% endif %}
                         </div>
 
                         <table class="simple-roster-table">

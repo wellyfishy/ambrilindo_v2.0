@@ -69,6 +69,13 @@ urlpatterns = [
     path('event/<int:event_pk>/timetable/booklet/<int:day_pk>/<int:tatami_pk>/', timetable_tatami_booklet, name='timetable-tatami-booklet'),
     path('event/<int:event_pk>/summary-booklet/', summary_booklet, name='summary-booklet'),
 
+    # Roster Maker Festival
+    path('event/<int:event_pk>/roster-festival/', roster_festival, name='roster-festival'),
+    path('event/<int:event_pk>/roster-festival/print/', roster_festival_print, name='roster-festival-print'),
+    path('event/<int:event_pk>/roster-festival/mix/', roster_festival_mix, name='roster-festival-mix'),
+    path('event/<int:event_pk>/roster-festival/save/', roster_festival_save, name='roster-festival-save'),
+    path('event/<int:event_pk>/roster-festival/auto-pair/', roster_festival_auto_pair, name='roster-festival-auto-pair'),
+
     # API
     path('api/notify-running/<int:detailbagan_pk>/', notify_bagan_running, name='notify-bagan-running'),
     path('api/send-result/<int:detailbagan_pk>/', send_bagan_result, name='send-bagan-result'),

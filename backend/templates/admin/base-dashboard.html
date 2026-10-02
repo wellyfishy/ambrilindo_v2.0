@@ -848,6 +848,11 @@
                         <span class="sub-item">Roster Maker (Jadwal)</span>
                       </a>
                     </li>
+                    <li class="{% if on == 'roster-festival' %}active{% endif %}">
+                      <a href="{% url 'roster-festival' event_pk=event.pk %}">
+                        <span class="sub-item">Roster Maker (Festival)</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>

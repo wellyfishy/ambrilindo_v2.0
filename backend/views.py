@@ -23,7 +23,7 @@ from openpyxl import Workbook # type: ignore
 from openpyxl.styles import Font # type: ignore
 from collections import Counter
 import re
-
+import os
 import io
 from django.conf import settings # type: ignore
 from django.utils import timezone # type: ignore
@@ -1384,6 +1384,8 @@ def _handle_drawing_bagan(request, event):
                     nomor_tanding.has_vr = should_have_vr
                     nomor_tanding.save(update_fields=['has_vr'])
                 atlets_temp_all = list(Atlet.objects.filter(nomor_tanding=nomor_tanding))
+                if nomor_tanding and 'beregu' in (nomor_tanding.nama_nomor_tanding or '').lower():
+                    atlets_temp_all = [a for a in atlets_temp_all if not (a.additional_code and str(a.additional_code).startswith('MEMBER_'))]
                 if not atlets_temp_all:
                     continue
 
@@ -1605,6 +1607,8 @@ def admin_bagan_detail_round_robin(request, event_pk, bagan_pk):
     bagan = Bagan.objects.get(pk=bagan_pk)
 
     all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding).order_by('pk')
+    if bagan.nomor_tanding and 'beregu' in (bagan.nomor_tanding.nama_nomor_tanding or '').lower():
+        all_atlets = all_atlets.exclude(additional_code__startswith='MEMBER_')
     details = DetailBagan.objects.filter(bagan=bagan)
 
     match_lookup = {}
@@ -1687,25 +1691,52 @@ def summary(request, event_pk):
         .order_by('kode', 'nama_bagan')
     )
 
+    # Pre-map athlete counts per bagan to detect single participant / no opponent
+    bagan_athlete_counts = defaultdict(set)
+    for b_id, a1, a2 in DetailBagan.objects.filter(bagan__event=event).values_list('bagan_id', 'atlet1_id', 'atlet2_id'):
+        if a1: bagan_athlete_counts[b_id].add(a1)
+        if a2: bagan_athlete_counts[b_id].add(a2)
+
     all_utusans = list(Utusan.objects.filter(event=event).order_by('nama_utusan'))
-    utusan_medals = {u.pk: {'gold': 0, 'silver': 0, 'bronze': 0, 'total': 0, 'winners': []} for u in all_utusans}
+    utusan_medals = {
+        u.pk: {
+            'gold': 0, 'silver': 0, 'bronze': 0, 'total': 0,
+            'winners': [], 'uncontested_winners': []
+        }
+        for u in all_utusans
+    }
 
     all_perguruans = list(Perguruan.objects.filter(event=event).order_by('nama_perguruan'))
-    perguruan_medals = {p.pk: {'gold': 0, 'silver': 0, 'bronze': 0, 'total': 0, 'winners': []} for p in all_perguruans}
+    perguruan_medals = {
+        p.pk: {
+            'gold': 0, 'silver': 0, 'bronze': 0, 'total': 0,
+            'winners': [], 'uncontested_winners': []
+        }
+        for p in all_perguruans
+    }
 
     total_gold = 0
     total_silver = 0
     total_bronze = 0
     total_bagan = len(bagans)
     finished_bagan = 0
+    uncontested_bagan_count = 0
     all_winners = []
 
     for bagan in bagans:
         is_finished = False
 
+        # Bagan dianggap memiliki lawan jika terdapat >= 2 peserta atau memiliki juara 2/3.
+        # Kategori dengan hanya 1 orang (tanpa lawan) tidak dimasukkan ke dalam klasemen Juara Umum.
+        athletes_in_b = bagan_athlete_counts.get(bagan.pk, set())
+        has_opponents = (len(athletes_in_b) > 1) or bool(bagan.juara_2 or bagan.juara_3a or bagan.juara_3b)
+        is_uncontested = bool(bagan.juara_1 and not has_opponents)
+
+        if is_uncontested:
+            uncontested_bagan_count += 1
+
         if bagan.juara_1:
             is_finished = True
-            total_gold += 1
             u = bagan.juara_1.utusan
             p = bagan.juara_1.perguruan
             winner_info = {
@@ -1719,16 +1750,27 @@ def summary(request, event_pk):
                 'bagan_nama': bagan.nama_bagan,
                 'bagan_kode': bagan.kode or '',
                 'bagan_pk': bagan.pk,
+                'counted_for_juara_umum': has_opponents,
+                'tanpa_lawan': not has_opponents,
             }
             all_winners.append(winner_info)
-            if u and u.pk in utusan_medals:
-                utusan_medals[u.pk]['gold'] += 1
-                utusan_medals[u.pk]['total'] += 1
-                utusan_medals[u.pk]['winners'].append(winner_info)
-            if p and p.pk in perguruan_medals:
-                perguruan_medals[p.pk]['gold'] += 1
-                perguruan_medals[p.pk]['total'] += 1
-                perguruan_medals[p.pk]['winners'].append(winner_info)
+
+            # Hanya medali pada bagan yang memiliki lawan yang dihitung ke Juara Umum
+            if has_opponents:
+                total_gold += 1
+                if u and u.pk in utusan_medals:
+                    utusan_medals[u.pk]['gold'] += 1
+                    utusan_medals[u.pk]['total'] += 1
+                    utusan_medals[u.pk]['winners'].append(winner_info)
+                if p and p.pk in perguruan_medals:
+                    perguruan_medals[p.pk]['gold'] += 1
+                    perguruan_medals[p.pk]['total'] += 1
+                    perguruan_medals[p.pk]['winners'].append(winner_info)
+            else:
+                if u and u.pk in utusan_medals:
+                    utusan_medals[u.pk]['uncontested_winners'].append(winner_info)
+                if p and p.pk in perguruan_medals:
+                    perguruan_medals[p.pk]['uncontested_winners'].append(winner_info)
 
         if bagan.juara_2:
             total_silver += 1
@@ -1745,6 +1787,8 @@ def summary(request, event_pk):
                 'bagan_nama': bagan.nama_bagan,
                 'bagan_kode': bagan.kode or '',
                 'bagan_pk': bagan.pk,
+                'counted_for_juara_umum': True,
+                'tanpa_lawan': False,
             }
             all_winners.append(winner_info)
             if u and u.pk in utusan_medals:
@@ -1771,6 +1815,8 @@ def summary(request, event_pk):
                 'bagan_nama': bagan.nama_bagan,
                 'bagan_kode': bagan.kode or '',
                 'bagan_pk': bagan.pk,
+                'counted_for_juara_umum': True,
+                'tanpa_lawan': False,
             }
             all_winners.append(winner_info)
             if u and u.pk in utusan_medals:
@@ -1797,6 +1843,8 @@ def summary(request, event_pk):
                 'bagan_nama': bagan.nama_bagan,
                 'bagan_kode': bagan.kode or '',
                 'bagan_pk': bagan.pk,
+                'counted_for_juara_umum': True,
+                'tanpa_lawan': False,
             }
             all_winners.append(winner_info)
             if u and u.pk in utusan_medals:
@@ -1830,6 +1878,8 @@ def summary(request, event_pk):
                     'bagan_nama': bagan.nama_bagan,
                     'bagan_kode': bagan.kode or '',
                     'bagan_pk': bagan.pk,
+                    'counted_for_juara_umum': False,
+                    'tanpa_lawan': False,
                 }
                 all_winners.append(winner_info)
 
@@ -1847,6 +1897,7 @@ def summary(request, event_pk):
             'bronze': m['bronze'],
             'total': m['total'],
             'winners': m['winners'],
+            'uncontested_winners': m['uncontested_winners'],
         })
 
     utusan_standings.sort(key=lambda x: (-x['gold'], -x['silver'], -x['bronze'], x['nama'].lower()))
@@ -1864,6 +1915,7 @@ def summary(request, event_pk):
             'bronze': m['bronze'],
             'total': m['total'],
             'winners': m['winners'],
+            'uncontested_winners': m['uncontested_winners'],
         })
 
     perguruan_standings.sort(key=lambda x: (-x['gold'], -x['silver'], -x['bronze'], x['nama'].lower()))
@@ -1886,6 +1938,7 @@ def summary(request, event_pk):
         'total_bagan': total_bagan,
         'finished_bagan': finished_bagan,
         'pending_bagan': max(0, total_bagan - finished_bagan),
+        'uncontested_bagan_count': uncontested_bagan_count,
         'total_gold': total_gold,
         'total_silver': total_silver,
         'total_bronze': total_bronze,
@@ -1914,6 +1967,8 @@ def admin_bagan_detail(request, event_pk, bagan_pk):
     if bagan.round_robin:
         return redirect('admin-bagan-detail-round-robin', event_pk=event_pk, bagan_pk=bagan_pk)
     all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding).order_by('nama_atlet')
+    if bagan.nomor_tanding and 'beregu' in (bagan.nomor_tanding.nama_nomor_tanding or '').lower():
+        all_atlets = all_atlets.exclude(additional_code__startswith='MEMBER_')
     detail_bagans_round_1 = list(DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan'))
     detail_bagans_round_2 = list(DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan'))
     detail_bagans_round_3 = list(DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan'))
@@ -2226,6 +2281,8 @@ def tambah_bagan(request, event_pk, nomor_tanding_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
     all_atlets = Atlet.objects.filter(nomor_tanding=nomor_tanding)
+    if nomor_tanding and 'beregu' in (nomor_tanding.nama_nomor_tanding or '').lower():
+        all_atlets = all_atlets.exclude(additional_code__startswith='MEMBER_')
 
     round_1 = [1, 2, 3, 4, 5, 6, 7, 8]
     round_2 = [1, 2, 3, 4]
@@ -2288,6 +2345,8 @@ def tambah_bagan_referchange(request, event_pk, nomor_tanding_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     nomor_tanding = NomorTanding.objects.filter(pk=nomor_tanding_pk).first()
     all_atlets = Atlet.objects.filter(nomor_tanding=nomor_tanding)
+    if nomor_tanding and 'beregu' in (nomor_tanding.nama_nomor_tanding or '').lower():
+        all_atlets = all_atlets.exclude(additional_code__startswith='MEMBER_')
 
     round_1 = [1]
     round_2 = [1]
@@ -2347,6 +2406,8 @@ def tambah_bagan_round_robin(request, event_pk, nomor_tanding_pk):
     all_atlets = list(
         Atlet.objects.filter(nomor_tanding=nomor_tanding).order_by('pk')
     )
+    if nomor_tanding and 'beregu' in (nomor_tanding.nama_nomor_tanding or '').lower():
+        all_atlets = [a for a in all_atlets if not (a.additional_code and str(a.additional_code).startswith('MEMBER_'))]
 
     if 'KATA' in nomor_tanding.nama_nomor_tanding:
         tipe_tanding = '1'
@@ -2375,6 +2436,8 @@ def edit_admin_bagan_detail(request, event_pk, bagan_pk):
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
     bagan = Bagan.objects.get(pk=bagan_pk)
     all_atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
+    if bagan.nomor_tanding and 'beregu' in (bagan.nomor_tanding.nama_nomor_tanding or '').lower():
+        all_atlets = all_atlets.exclude(additional_code__startswith='MEMBER_')
     detail_bagans_round_1 = DetailBagan.objects.filter(bagan=bagan, round=1).order_by('urutan')
     detail_bagans_round_2 = DetailBagan.objects.filter(bagan=bagan, round=2).order_by('urutan')
     detail_bagans_round_3 = DetailBagan.objects.filter(bagan=bagan, round=3).order_by('urutan')
@@ -2432,6 +2495,8 @@ def admin_edit_detail_bagan(request, event_pk, bagan_pk, detailbagan_pk):
     bagan = Bagan.objects.get(pk=bagan_pk)
     detail_bagan = DetailBagan.objects.get(pk=detailbagan_pk)
     atlets = Atlet.objects.filter(nomor_tanding=bagan.nomor_tanding)
+    if bagan.nomor_tanding and 'beregu' in (bagan.nomor_tanding.nama_nomor_tanding or '').lower():
+        atlets = atlets.exclude(additional_code__startswith='MEMBER_')
 
     if request.method == 'POST':
         if request.POST.get('submit_type') == 'atlet-simpan':
@@ -2529,11 +2594,32 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         if target_mu and target_mu.db:
             return redirect('control-panel', event_pk=event_pk, bagan_pk=bagan_pk, detailbagan_pk=target_mu.db.pk, tatami_pk=tatami_pk)
 
+    match_reopened = False
+    if detail_bagan.selesai:
+        detail_bagan.selesai = False
+        detail_bagan.save(update_fields=['selesai'])
+        match_reopened = True
+
+        # If winner had been promoted to next round and next round hasn't been played, safely clear slot
+        if not bagan.round_robin and not detail_bagan.team:
+            next_round_number = detail_bagan.round + 1
+            next_round_urutan = (detail_bagan.urutan + 1) // 2
+            next_db = DetailBagan.objects.filter(bagan=bagan, round=next_round_number, urutan=next_round_urutan).first()
+            if next_db and not next_db.selesai:
+                target_slot = 'atlet1' if detail_bagan.urutan % 2 == 1 else 'atlet2'
+                current_val = getattr(next_db, target_slot, None)
+                if current_val and current_val in (detail_bagan.atlet1, detail_bagan.atlet2):
+                    setattr(next_db, target_slot, None)
+                    next_db.save(update_fields=[target_slot])
+
     match_changed = (tatami.detail_bagan_id != detail_bagan.pk)
-    if match_changed:
+    if match_changed or match_reopened or tatami.detail_bagan is None:
         tatami.detail_bagan = detail_bagan
         tatami.save(update_fields=['detail_bagan'])
         broadcast_tatami_match_update(tatami)
+    else:
+        broadcast_tatami_match_update(tatami)
+
 
     mu = Matchup.objects.filter(db=detail_bagan).select_related('detail_bagan', 'detail_bagan__atlet1', 'detail_bagan__atlet2').first()
     parent_match = mu.detail_bagan if mu else None
@@ -3002,6 +3088,7 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
         'team_ao_lil_score': team_ao_lil_score,
         'candidate_atlets_aka': candidate_atlets_aka,
         'candidate_atlets_ao': candidate_atlets_ao,
+        'match_reopened': match_reopened,
     }
 
     return render(request, 'admin/control-panel.html', context)
@@ -3084,6 +3171,10 @@ def message_retriever(request, tatami_pk):
         tatami = Tatami.objects.filter(pk=tatami_pk).first()
         if not tatami:
             return JsonResponse({'error': 'Tatami tidak ditemukan'}, status=404)
+
+        if action in ('sync-board', 'sync-match', 'get_atlet'):
+            broadcast_tatami_match_update(tatami)
+            return JsonResponse({'status': 'ok'})
 
         group_name = f"scoring_{tatami.pk}"
         channel_layer = get_channel_layer()
@@ -3614,11 +3705,22 @@ def admin_utusan(request, event_pk):
 
     bagans = Bagan.objects.filter(event=event).exclude(is_bob=True).exclude(nomor_tanding__is_bob=True)
 
+    bagan_athlete_counts = defaultdict(set)
+    for b_id, a1, a2 in DetailBagan.objects.filter(bagan__event=event).values_list('bagan_id', 'atlet1_id', 'atlet2_id'):
+        if a1: bagan_athlete_counts[b_id].add(a1)
+        if a2: bagan_athlete_counts[b_id].add(a2)
+
     for bagan in bagans:
+        athletes_in_b = bagan_athlete_counts.get(bagan.pk, set())
+        has_opponents = (len(athletes_in_b) > 1) or bool(bagan.juara_2 or bagan.juara_3a or bagan.juara_3b)
+
         if bagan.juara_1 and bagan.juara_1.utusan:
             p_nama = bagan.juara_1.perguruan.nama_perguruan if bagan.juara_1.perguruan else '-'
-            utusan_medals[bagan.juara_1.utusan.pk]["gold"] += 1
-            utusan_winners.append(({"pk": bagan.juara_1.utusan.pk, "nama_atlet": bagan.juara_1.nama_atlet, "perguruan": p_nama, "juara": "1", "nama_bagan": bagan.nama_bagan}))
+            if has_opponents:
+                utusan_medals[bagan.juara_1.utusan.pk]["gold"] += 1
+                utusan_winners.append(({"pk": bagan.juara_1.utusan.pk, "nama_atlet": bagan.juara_1.nama_atlet, "perguruan": p_nama, "juara": "1", "nama_bagan": bagan.nama_bagan}))
+            else:
+                utusan_winners.append(({"pk": bagan.juara_1.utusan.pk, "nama_atlet": f"{bagan.juara_1.nama_atlet} (Tanpa Lawan)", "perguruan": p_nama, "juara": "1", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_2 and bagan.juara_2.utusan:
             p_nama = bagan.juara_2.perguruan.nama_perguruan if bagan.juara_2.perguruan else '-'
             utusan_medals[bagan.juara_2.utusan.pk]["silver"] += 1
@@ -3667,11 +3769,22 @@ def admin_perguruan(request, event_pk):
 
     bagans = Bagan.objects.filter(event=event).exclude(is_bob=True).exclude(nomor_tanding__is_bob=True)
 
+    bagan_athlete_counts = defaultdict(set)
+    for b_id, a1, a2 in DetailBagan.objects.filter(bagan__event=event).values_list('bagan_id', 'atlet1_id', 'atlet2_id'):
+        if a1: bagan_athlete_counts[b_id].add(a1)
+        if a2: bagan_athlete_counts[b_id].add(a2)
+
     for bagan in bagans:
+        athletes_in_b = bagan_athlete_counts.get(bagan.pk, set())
+        has_opponents = (len(athletes_in_b) > 1) or bool(bagan.juara_2 or bagan.juara_3a or bagan.juara_3b)
+
         if bagan.juara_1 and bagan.juara_1.perguruan:
             u_nama = bagan.juara_1.utusan.nama_utusan if bagan.juara_1.utusan else '-'
-            perguruan_medals[bagan.juara_1.perguruan.pk]["gold"] += 1
-            perguruan_winners.append(({"pk": bagan.juara_1.perguruan.pk, "nama_atlet": bagan.juara_1.nama_atlet, "utusan": u_nama, "juara": "1", "nama_bagan": bagan.nama_bagan}))
+            if has_opponents:
+                perguruan_medals[bagan.juara_1.perguruan.pk]["gold"] += 1
+                perguruan_winners.append(({"pk": bagan.juara_1.perguruan.pk, "nama_atlet": bagan.juara_1.nama_atlet, "utusan": u_nama, "juara": "1", "nama_bagan": bagan.nama_bagan}))
+            else:
+                perguruan_winners.append(({"pk": bagan.juara_1.perguruan.pk, "nama_atlet": f"{bagan.juara_1.nama_atlet} (Tanpa Lawan)", "utusan": u_nama, "juara": "1", "nama_bagan": bagan.nama_bagan}))
         if bagan.juara_2 and bagan.juara_2.perguruan:
             u_nama = bagan.juara_2.utusan.nama_utusan if bagan.juara_2.utusan else '-'
             perguruan_medals[bagan.juara_2.perguruan.pk]["silver"] += 1
@@ -4161,6 +4274,7 @@ def admin_tatami(request, event_pk):
             if tatami:
                 tatami.detail_bagan = None
                 tatami.save(update_fields=['detail_bagan'])
+                broadcast_tatami_match_update(tatami)
                 messages.success(request, f"Pertandingan pada Tatami {tatami.tatami_number} berhasil dikosongkan.")
             return redirect('admin-tatami', event_pk=event_pk)
 
@@ -4210,7 +4324,7 @@ def broadcast_tatami_match_update(tatami):
     db = tatami.detail_bagan
     # Match is only running if present and not finished
     is_running = bool(db and not db.selesai)
-    active_db = db if is_running else None
+    active_db = db
     bagan = active_db.bagan if active_db else None
     event = tatami.event
 
@@ -5629,6 +5743,9 @@ def admin_tatami_manager(request, event_pk):
             match_obj = DetailBagan.objects.filter(pk=detailbagan_pk, bagan__event=event).first()
 
             if target_tatami and match_obj:
+                if match_obj.selesai:
+                    match_obj.selesai = False
+                    match_obj.save(update_fields=['selesai'])
                 target_tatami.detail_bagan = match_obj
                 target_tatami.save(update_fields=['detail_bagan'])
                 sync_match_wasits_to_tatami(match_obj, target_tatami)
@@ -6801,6 +6918,8 @@ def build_full_bracket(
         atlets_temp = []
 
     name = (nomor_tanding.nama_nomor_tanding or '') if nomor_tanding else ''
+    if nomor_tanding and 'beregu' in name.lower():
+        atlets_temp = [a for a in atlets_temp if not (getattr(a, 'additional_code', None) and str(a.additional_code).startswith('MEMBER_'))]
     if 'KATA' in name.upper():
         tipe_tanding = '1'
     elif 'KUMITE' in name.upper():
@@ -8261,15 +8380,23 @@ def summary_booklet(request, event_pk):
         for u in all_utusans
     }
 
+    bagan_athlete_counts = defaultdict(set)
+    for b_id, a1, a2 in DetailBagan.objects.filter(bagan__event=event).values_list('bagan_id', 'atlet1_id', 'atlet2_id'):
+        if a1: bagan_athlete_counts[b_id].add(a1)
+        if a2: bagan_athlete_counts[b_id].add(a2)
+
     total_gold = 0
     total_silver = 0
     total_bronze = 0
 
     for b in finished_bagans:
-        # Juara 1 (Gold)
+        athletes_in_b = bagan_athlete_counts.get(b.pk, set())
+        has_opponents = (len(athletes_in_b) > 1) or bool(b.juara_2 or b.juara_3a or b.juara_3b)
+
+        # Juara 1 (Gold) - hanya dihitung jika terdapat lawan
         if b.juara_1 and b.juara_1.utusan:
             u = b.juara_1.utusan
-            if u.pk in utusan_standings:
+            if has_opponents and u.pk in utusan_standings:
                 utusan_standings[u.pk]['gold'] += 1
                 utusan_standings[u.pk]['total'] += 1
                 total_gold += 1
@@ -8991,3 +9118,597 @@ def sync_queue_action_api(request, event_pk):
         })
 
     return JsonResponse({'success': False, 'message': f'Aksi "{action}" tidak dikenali.'}, status=400)
+
+
+# ==============================================================================
+# ROSTER MAKER FESTIVAL
+# ==============================================================================
+
+def clean_festival_display_name(name):
+    """
+    Menghapus prefix 'FESTIVAL' agar rapi saat dicetak/ditampilkan sesuai format PDF.
+    Contoh: 'FESTIVAL PRA USIA DINI - KATA PERORANGAN PUTRA' -> 'PRA USIA DINI - KATA PERORANGAN PUTRA'
+    """
+    clean = re.sub(r'^\s*FESTIVAL\s*[-–:]*\s*', '', name or '', flags=re.IGNORECASE).strip()
+    return clean or name
+
+def get_festival_age_order(name):
+    ag = get_age_group(name)
+    age_rank = {
+        'Pra Usia Dini': 1,
+        'Usia Dini': 2,
+        'Pra Pemula': 3,
+        'Pemula': 4,
+        'Kadet': 5,
+        'Junior': 6,
+        'Under-21': 7,
+        'Senior': 8,
+        'Veteran': 9,
+        'Lainnya': 10,
+    }
+    return age_rank.get(ag, 99)
+
+def festival_category_sort_key(nt):
+    """
+    User Rule: KATA terlebih dahulu, lalu KUMITE!
+    Urutan:
+    1. Disiplin: KATA (0), KUMITE (1), Lainnya (2)
+    2. Kelompok Umur: Pra Usia Dini -> Usia Dini -> Pra Pemula -> Pemula -> Kadet -> Junior -> Under-21 -> Senior -> Veteran
+    3. Gender: Putra (0), Putri (1), Lainnya (2)
+    4. Nama lengkap
+    """
+    name = (nt.nama_nomor_tanding or '').lower()
+    discipline = 0 if 'kata' in name else (1 if 'kumite' in name else 2)
+    age = get_festival_age_order(name)
+    gender = 0 if any(w in name for w in ['putra', 'pa', 'male', 'laki']) else (1 if any(w in name for w in ['putri', 'pi', 'female', 'wanita']) else 2)
+    return (discipline, age, gender, name)
+
+def pair_festival_athletes_anti_collision(athletes):
+    """
+    Memasangkan atlet dalam 1 kategori (M vs B) dengan meminimalkan bentrok satu kontingen sebisa mungkin.
+    """
+    if len(athletes) <= 1:
+        return list(athletes)
+
+    import random
+    from collections import defaultdict
+
+    groups = defaultdict(list)
+    for a in athletes:
+        u_name = a.utusan.nama_utusan.strip().upper() if (a.utusan and a.utusan.nama_utusan) else "UNKNOWN_UTUSAN"
+        groups[u_name].append(a)
+
+    # Sort groups descending by length
+    sorted_groups = sorted(groups.values(), key=len, reverse=True)
+
+    # Flatten by round-robin / interleaved
+    all_sorted = []
+    for g in sorted_groups:
+        all_sorted.extend(g)
+
+    # Distribute first half to M (red), second half to B (blue)
+    n = len(all_sorted)
+    half = (n + 1) // 2
+    m_list = all_sorted[:half]
+    b_list = all_sorted[half:]
+
+    # Initial interleaved order
+    res = []
+    for i in range(len(b_list)):
+        res.append(m_list[i])
+        res.append(b_list[i])
+    if len(m_list) > len(b_list):
+        res.append(m_list[-1])
+
+    def count_clashes(arr):
+        clashes = 0
+        for i in range(0, len(arr) - 1, 2):
+            u1 = arr[i].utusan.nama_utusan.strip().upper() if (arr[i].utusan and arr[i].utusan.nama_utusan) else ''
+            u2 = arr[i+1].utusan.nama_utusan.strip().upper() if (arr[i+1].utusan and arr[i+1].utusan.nama_utusan) else ''
+            if u1 and u2 and u1 == u2:
+                clashes += 1
+        return clashes
+
+    best = list(res)
+    best_c = count_clashes(best)
+
+    # Hill-climbing swap optimizer:
+    for _ in range(500):
+        if best_c == 0:
+            break
+        i1 = random.randrange(n)
+        i2 = random.randrange(n)
+        if i1 == i2:
+            continue
+        test = list(best)
+        test[i1], test[i2] = test[i2], test[i1]
+        c = count_clashes(test)
+        if c < best_c:
+            best = test
+            best_c = c
+
+    return best
+
+def get_festival_roster_file_path(event):
+    import os
+    folder = os.path.join(settings.MEDIA_ROOT, 'festival_rosters')
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, f'event_{event.pk}.json')
+
+def load_festival_roster_state(event):
+    """
+    Memuat state tatami assignment dan susunan atlet festival dari file JSON lokal.
+    Jika belum ada file, secara otomatis menyusun dan menyimpannya.
+    """
+    import os
+    import json
+    file_path = get_festival_roster_file_path(event)
+    tatamis = list(Tatami.objects.filter(event=event).order_by('tatami_number'))
+    if not tatamis:
+        t1, _ = Tatami.objects.get_or_create(event=event, tatami_number=1)
+        tatamis = [t1]
+
+    tatami_id_list = [t.pk for t in tatamis]
+    default_tatami_id = tatami_id_list[0]
+
+    all_festival_nts = list(
+        NomorTanding.objects.filter(event=event, nama_nomor_tanding__icontains='festival')
+    )
+    all_festival_nts.sort(key=festival_category_sort_key)
+    all_nt_dict = {nt.pk: nt for nt in all_festival_nts}
+
+    data = None
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception:
+            data = None
+
+    if not data or not isinstance(data, dict):
+        data = {
+            'tatami_assignments': {},
+            'athlete_pairings': {}
+        }
+
+    tatami_assignments = data.get('tatami_assignments', {})
+    athlete_pairings = data.get('athlete_pairings', {})
+
+    assigned_nt_ids = set()
+    cleaned_assignments = {}
+    for t_id_str, nt_pks in tatami_assignments.items():
+        if not str(t_id_str).isdigit():
+            continue
+        t_id = int(t_id_str)
+        if t_id not in tatami_id_list:
+            continue
+        valid_pks = []
+        for p in nt_pks:
+            if p in all_nt_dict and p not in assigned_nt_ids:
+                valid_pks.append(p)
+                assigned_nt_ids.add(p)
+        cleaned_assignments[str(t_id)] = valid_pks
+
+    for t in tatamis:
+        if str(t.pk) not in cleaned_assignments:
+            cleaned_assignments[str(t.pk)] = []
+
+    unassigned_nts = [nt for nt in all_festival_nts if nt.pk not in assigned_nt_ids]
+    if unassigned_nts:
+        timetable_tatami_map = {}
+        t_cells = TimetableCell.objects.filter(
+            nomor_tanding__in=unassigned_nts
+        ).select_related('tatami')
+        for c in t_cells:
+            if c.tatami_id in tatami_id_list:
+                timetable_tatami_map[c.nomor_tanding_id] = c.tatami_id
+
+        # Bagi unassigned_nts ke tatami (utamakan timetable tatami jika ada, jika tidak bagi rata atau ke tatami 1)
+        # Jika ada beberapa tatami, distribusikan unassigned agar seimbang
+        if len(tatamis) > 1 and not timetable_tatami_map:
+            for idx, nt in enumerate(unassigned_nts):
+                t_target = tatamis[idx % len(tatamis)]
+                cleaned_assignments[str(t_target.pk)].append(nt.pk)
+        else:
+            for nt in unassigned_nts:
+                target_t_id = timetable_tatami_map.get(nt.pk, default_tatami_id)
+                cleaned_assignments[str(target_t_id)].append(nt.pk)
+
+    # Sort categories in each tatami with rule: KATA first, then KUMITE!
+    for t_id_str in cleaned_assignments:
+        cleaned_assignments[t_id_str].sort(key=lambda pk: festival_category_sort_key(all_nt_dict[pk]))
+
+    # Pastikan atlet di setiap kategori terpasang (athlete_pairings)
+    for nt in all_festival_nts:
+        nt_pk_str = str(nt.pk)
+        current_atlets = list(
+            Atlet.objects.filter(event=event, nomor_tanding=nt)
+            .select_related('utusan', 'perguruan')
+        )
+        saved_order = athlete_pairings.get(nt_pk_str, [])
+        saved_id_set = set(saved_order)
+        curr_id_dict = {a.pk: a for a in current_atlets}
+
+        if set(curr_id_dict.keys()) != saved_id_set:
+            paired = pair_festival_athletes_anti_collision(current_atlets)
+            athlete_pairings[nt_pk_str] = [a.pk for a in paired]
+
+    data = {
+        'tatami_assignments': cleaned_assignments,
+        'athlete_pairings': athlete_pairings
+    }
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+
+    return data, tatamis, all_nt_dict
+
+
+def roster_festival(request, event_pk):
+    """
+    Halaman Editor Roster Maker Festival:
+    - Pengorganisasian kategori ke tatami
+    - Tampilan pasangan atlet (M & B) anti-bentrok
+    - Fitur Mix/Gabung kategori festival
+    - Cetak PDF sesuai template resmi
+    """
+    if not request.user.is_authenticated:
+        return redirect('auth')
+    event = get_object_or_404(Event, pk=event_pk)
+    user_role = Role.objects.filter(user=request.user).first()
+
+    state, tatamis, all_nt_dict = load_festival_roster_state(event)
+    kop_surat = KopSurat.objects.filter(event=event).first()
+
+    athletes_qs = Atlet.objects.filter(
+        event=event,
+        nomor_tanding__in=all_nt_dict.values()
+    ).select_related('utusan', 'perguruan')
+    athletes_by_id = {a.pk: a for a in athletes_qs}
+
+    tatami_sections = []
+    total_fest_athletes = 0
+    total_fest_matches = 0
+
+    for tatami in tatamis:
+        cat_pks = state['tatami_assignments'].get(str(tatami.pk), [])
+        categories_data = []
+        tatami_athlete_count = 0
+        tatami_match_count = 0
+
+        for cat_pk in cat_pks:
+            nt = all_nt_dict.get(cat_pk)
+            if not nt:
+                continue
+            paired_ids = state['athlete_pairings'].get(str(cat_pk), [])
+            cat_athletes = [athletes_by_id[aid] for aid in paired_ids if aid in athletes_by_id]
+            
+            # Buat match pairs
+            matches = []
+            for i in range(0, len(cat_athletes), 2):
+                aka = cat_athletes[i]
+                ao = cat_athletes[i+1] if i+1 < len(cat_athletes) else None
+                u1 = aka.utusan.nama_utusan.strip().upper() if (aka.utusan and aka.utusan.nama_utusan) else ''
+                u2 = ao.utusan.nama_utusan.strip().upper() if (ao and ao.utusan and ao.utusan.nama_utusan) else ''
+                is_clash = bool(u1 and u2 and u1 == u2)
+                matches.append({
+                    'match_num': (i // 2) + 1,
+                    'aka': aka,
+                    'ao': ao,
+                    'is_clash': is_clash,
+                })
+
+            discipline = 'KATA' if 'kata' in nt.nama_nomor_tanding.lower() else 'KUMITE'
+            display_name = clean_festival_display_name(nt.nama_nomor_tanding)
+            tatami_athlete_count += len(cat_athletes)
+            tatami_match_count += len(matches)
+
+            categories_data.append({
+                'nt': nt,
+                'display_name': display_name,
+                'discipline': discipline,
+                'athletes': cat_athletes,
+                'matches': matches,
+                'atlet_count': len(cat_athletes),
+                'match_count': len(matches),
+            })
+
+        total_fest_athletes += tatami_athlete_count
+        total_fest_matches += tatami_match_count
+        tatami_sections.append({
+            'tatami': tatami,
+            'categories': categories_data,
+            'total_athletes': tatami_athlete_count,
+            'total_matches': tatami_match_count,
+        })
+
+    active_tatami_id = request.GET.get('tatami')
+    if active_tatami_id and active_tatami_id.isdigit():
+        active_tatami_id = int(active_tatami_id)
+    else:
+        active_tatami_id = None
+
+    nt_counts = dict(
+        Atlet.objects.filter(event=event, nomor_tanding__in=all_nt_dict.values())
+        .values('nomor_tanding')
+        .annotate(cnt=Count('id'))
+        .values_list('nomor_tanding', 'cnt')
+    )
+    for nt in all_nt_dict.values():
+        nt.atlet_count = nt_counts.get(nt.pk, 0)
+
+    context = {
+        'event': event,
+        'role': user_role,
+        'on': 'roster-festival',
+        'tatamis': tatamis,
+        'tatami_sections': tatami_sections,
+        'all_festival_nts': list(all_nt_dict.values()),
+        'total_fest_categories': len(all_nt_dict),
+        'total_fest_athletes': total_fest_athletes,
+        'total_fest_matches': total_fest_matches,
+        'kop_surat': kop_surat,
+        'active_tatami_id': active_tatami_id,
+    }
+    return render(request, 'admin/roster_festival.html', context)
+
+
+def roster_festival_print(request, event_pk):
+    """
+    Tampilan cetak Roster Maker Festival:
+    - Menggunakan Kop Surat Global Roster Maker
+    - Header TATAMI dan Kategori bergaya tan/gold
+    - Tabel No berlanjut, Nama, Perguruan, Utusan, Sabuk (M/B), Checklist
+    - Sesuai dengan template PDF resmi
+    """
+    if not request.user.is_authenticated:
+        return redirect('auth')
+    event = get_object_or_404(Event, pk=event_pk)
+    state, tatamis, all_nt_dict = load_festival_roster_state(event)
+    kop_surat = KopSurat.objects.filter(event=event).first()
+
+    athletes_qs = Atlet.objects.filter(
+        event=event,
+        nomor_tanding__in=all_nt_dict.values()
+    ).select_related('utusan', 'perguruan')
+    athletes_by_id = {a.pk: a for a in athletes_qs}
+
+    filter_tatami_pk = request.GET.get('tatami')
+    if filter_tatami_pk and filter_tatami_pk.isdigit():
+        target_tatamis = [t for t in tatamis if t.pk == int(filter_tatami_pk)]
+    else:
+        target_tatamis = tatamis
+
+    tatami_print_data = []
+    for tatami in target_tatamis:
+        cat_pks = state['tatami_assignments'].get(str(tatami.pk), [])
+        seq_no = 1
+        categories_print = []
+
+        for cat_pk in cat_pks:
+            nt = all_nt_dict.get(cat_pk)
+            if not nt:
+                continue
+            paired_ids = state['athlete_pairings'].get(str(cat_pk), [])
+            cat_athletes = [athletes_by_id[aid] for aid in paired_ids if aid in athletes_by_id]
+            if not cat_athletes:
+                continue
+
+            rows = []
+            for i in range(0, len(cat_athletes), 2):
+                aka = cat_athletes[i]
+                ao = cat_athletes[i+1] if i+1 < len(cat_athletes) else None
+
+                rows.append({
+                    'no': seq_no,
+                    'nama': aka.nama_atlet.upper() if aka.nama_atlet else '-',
+                    'perguruan': aka.perguruan.nama_perguruan.upper() if (aka.perguruan and aka.perguruan.nama_perguruan) else '-',
+                    'utusan': aka.utusan.nama_utusan.upper() if (aka.utusan and aka.utusan.nama_utusan) else '-',
+                    'sabuk': 'M',
+                })
+                seq_no += 1
+
+                if ao:
+                    rows.append({
+                        'no': seq_no,
+                        'nama': ao.nama_atlet.upper() if ao.nama_atlet else '-',
+                        'perguruan': ao.perguruan.nama_perguruan.upper() if (ao.perguruan and ao.perguruan.nama_perguruan) else '-',
+                        'utusan': ao.utusan.nama_utusan.upper() if (ao.utusan and ao.utusan.nama_utusan) else '-',
+                        'sabuk': 'B',
+                    })
+                    seq_no += 1
+
+            categories_print.append({
+                'display_name': clean_festival_display_name(nt.nama_nomor_tanding),
+                'rows': rows,
+            })
+
+        if categories_print:
+            tatami_print_data.append({
+                'tatami': tatami,
+                'categories': categories_print,
+            })
+
+    context = {
+        'event': event,
+        'kop_surat': kop_surat,
+        'tatami_print_data': tatami_print_data,
+        'date_range': get_event_date_range(event),
+    }
+    return render(request, 'admin/roster_festival_print.html', context)
+
+
+@require_POST
+def roster_festival_mix(request, event_pk):
+    """
+    Menggabungkan (mix) beberapa kategori festival menjadi 1 kategori baru/tujuan.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    event = get_object_or_404(Event, pk=event_pk)
+
+    source_pks = [int(p) for p in request.POST.getlist('source_pks') if p and str(p).isdigit()]
+    target_pk = request.POST.get('target_pk')
+    nama_baru = request.POST.get('nama_baru', '').strip().upper()
+    hapus_sumber = request.POST.get('hapus_sumber') in ['on', 'true', '1', True]
+
+    if not source_pks:
+        messages.error(request, "Pilih minimal 1 nomor tanding festival yang ingin digabung.")
+        return redirect('roster-festival', event_pk=event_pk)
+
+    # Pastikan prefix FESTIVAL tetap ada agar tetap tergolong festival
+    if nama_baru and not nama_baru.startswith('FESTIVAL'):
+        nama_baru = f"FESTIVAL {nama_baru}"
+
+    with transaction.atomic():
+        target_nt = None
+        if target_pk and str(target_pk).isdigit() and int(target_pk) > 0:
+            target_nt = NomorTanding.objects.filter(pk=int(target_pk), event=event).first()
+
+        if not target_nt and nama_baru:
+            target_nt = NomorTanding.objects.create(event=event, nama_nomor_tanding=nama_baru)
+        elif target_nt and nama_baru and nama_baru != target_nt.nama_nomor_tanding:
+            target_nt.nama_nomor_tanding = nama_baru
+            target_nt.save(update_fields=['nama_nomor_tanding'])
+
+        if not target_nt:
+            messages.error(request, "Tujuan penggabungan tidak valid atau nama kelas baru belum diisi.")
+            return redirect('roster-festival', event_pk=event_pk)
+
+        source_qs = NomorTanding.objects.filter(event=event, pk__in=source_pks).exclude(pk=target_nt.pk)
+        source_names = list(source_qs.values_list('nama_nomor_tanding', flat=True))
+
+        athletes_to_move = Atlet.objects.filter(event=event, nomor_tanding__in=source_qs)
+        moved_count = athletes_to_move.count()
+        athletes_to_move.update(nomor_tanding=target_nt)
+
+        deleted_count = 0
+        if hapus_sumber and source_qs.exists():
+            deleted_count = source_qs.count()
+            source_qs.delete()
+
+        # Update JSON State
+        file_path = get_festival_roster_file_path(event)
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Hapus source_pks dari tatami assignments
+                tatami_assignments = data.get('tatami_assignments', {})
+                athlete_pairings = data.get('athlete_pairings', {})
+                
+                target_tatami_id = None
+                for t_id, pks in tatami_assignments.items():
+                    if target_nt.pk in pks:
+                        target_tatami_id = t_id
+                    # buang source pks
+                    tatami_assignments[t_id] = [p for p in pks if p not in source_pks or p == target_nt.pk]
+
+                # Jika target_nt belum terdaftar di tatami, tempatkan di tatami pertama sumber
+                if not target_tatami_id:
+                    first_t = list(tatami_assignments.keys())[0] if tatami_assignments else '1'
+                    if target_nt.pk not in tatami_assignments.get(first_t, []):
+                        tatami_assignments.setdefault(first_t, []).append(target_nt.pk)
+
+                # Re-pair atlet untuk target_nt
+                all_target_athletes = list(Atlet.objects.filter(event=event, nomor_tanding=target_nt).select_related('utusan', 'perguruan'))
+                paired = pair_festival_athletes_anti_collision(all_target_athletes)
+                athlete_pairings[str(target_nt.pk)] = [a.pk for a in paired]
+
+                # Hapus pairing lama sumber
+                for spk in source_pks:
+                    if spk != target_nt.pk:
+                        athlete_pairings.pop(str(spk), None)
+
+                data['tatami_assignments'] = tatami_assignments
+                data['athlete_pairings'] = athlete_pairings
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2)
+            except Exception:
+                pass
+
+        info_sumber = ", ".join(source_names) if len(source_names) <= 2 else f"{len(source_names)} kategori asal"
+        messages.success(
+            request,
+            f"Berhasil menggabungkan kategori festival! {moved_count} atlet dari ({info_sumber}) "
+            f"dipindahkan ke '{clean_festival_display_name(target_nt.nama_nomor_tanding)}'"
+            + (f", dan {deleted_count} kategori asal telah dibersihkan." if deleted_count > 0 else ".")
+        )
+
+    return redirect('roster-festival', event_pk=event_pk)
+
+
+@require_POST
+def roster_festival_save(request, event_pk):
+    """
+    Menyimpan perubahan urutan kategori, pembagian tatami, atau swap atlet secara AJAX.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    event = get_object_or_404(Event, pk=event_pk)
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
+
+    file_path = get_festival_roster_file_path(event)
+    data = {}
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception:
+            data = {}
+
+    if 'tatami_assignments' in body:
+        data['tatami_assignments'] = body['tatami_assignments']
+    if 'athlete_pairings' in body:
+        data.setdefault('athlete_pairings', {})
+        data['athlete_pairings'].update(body['athlete_pairings'])
+
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    return JsonResponse({'success': True, 'message': 'Roster festival berhasil disimpan.'})
+
+
+@require_POST
+def roster_festival_auto_pair(request, event_pk):
+    """
+    Menjalankan ulang algoritma anti-kontingen pada seluruh kategori atau kategori tertentu.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
+    event = get_object_or_404(Event, pk=event_pk)
+
+    cat_pk = request.POST.get('cat_pk')
+    state, tatamis, all_nt_dict = load_festival_roster_state(event)
+    athlete_pairings = state.get('athlete_pairings', {})
+
+    if cat_pk and str(cat_pk).isdigit() and int(cat_pk) in all_nt_dict:
+        target_nts = [all_nt_dict[int(cat_pk)]]
+    else:
+        target_nts = list(all_nt_dict.values())
+
+    for nt in target_nts:
+        atlets = list(Atlet.objects.filter(event=event, nomor_tanding=nt).select_related('utusan', 'perguruan'))
+        paired = pair_festival_athletes_anti_collision(atlets)
+        athlete_pairings[str(nt.pk)] = [a.pk for a in paired]
+
+    state['athlete_pairings'] = athlete_pairings
+    file_path = get_festival_roster_file_path(event)
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(state, f, indent=2)
+    except Exception:
+        pass
+
+    messages.success(request, f"Auto-pairing anti satu kontingen berhasil dijalankan untuk {len(target_nts)} kategori.")
+    return redirect('roster-festival', event_pk=event_pk)

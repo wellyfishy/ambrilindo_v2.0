@@ -927,6 +927,9 @@
 
             <div class="d-flex align-items-center gap-2">
                 <span id="ws-status-badge" class="badge bg-secondary py-2 px-3"><i class="fas fa-network-wired me-1"></i> WS Connect...</span>
+                <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-2 shadow-sm" id="btn-sync-board-kata" title="Sinkronkan ulang data partai & atlet ke Scoring Board">
+                    <i class="fas fa-sync-alt me-1"></i> Sync Board
+                </button>
                 <button type="button" class="btn btn-sm btn-info fw-bold px-3 py-2 shadow-sm" id="tampilkan-poin" title="Kirim hanya poin total ke scoreboard (tanpa tabel skor juri)">
                     <i class="fas fa-tv me-1"></i> Tampilkan Poin di Board
                 </button>
@@ -936,6 +939,16 @@
                 <span id="status-success" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Online</span>
             </div>
         </div>
+
+        {% if match_reopened %}
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 mb-3 shadow-sm mx-1 mt-2" role="alert" style="border-radius: 10px; background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; color: #fbbf24;">
+            <i class="fas fa-exclamation-triangle fs-4 text-warning"></i>
+            <div>
+                <strong>Partai Dibuka Kembali:</strong> Partai ini sebelumnya berstatus "Selesai", kini telah dibuka kembali menjadi aktif bertanding dan otomatis disinkronkan ke Tatami & Scoring Board.
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
 
         <!-- Kata 5-Judge Scoring Table Card -->
         <div class="card bg-dark border-secondary mb-3 shadow-lg">
@@ -1437,6 +1450,9 @@
 
             <div class="d-flex align-items-center gap-2">
                 <span id="ws-status-badge" class="badge bg-secondary py-2 px-3"><i class="fas fa-network-wired me-1"></i> WS Connect...</span>
+                <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-2 shadow-sm" id="btn-sync-board-kumite" title="Sinkronkan ulang data partai & atlet ke Scoring Board">
+                    <i class="fas fa-sync-alt me-1"></i> Sync Board
+                </button>
                 <div id="status-indicator">
                     <span id="status-loading" class="badge bg-warning text-dark py-2 px-3"><i class="fas fa-spinner fa-spin me-1"></i> Sync...</span>
                     <span id="status-success" style="display:none;" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Tatami Online</span>
@@ -1447,6 +1463,16 @@
                 </div>
             </div>
         </div>
+
+        {% if match_reopened %}
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center gap-2 mb-3 shadow-sm mx-1 mt-2" role="alert" style="border-radius: 10px; background: rgba(245, 158, 11, 0.15); border: 1.5px solid #f59e0b; color: #fbbf24;">
+            <i class="fas fa-exclamation-triangle fs-4 text-warning"></i>
+            <div>
+                <strong>Partai Dibuka Kembali:</strong> Partai ini sebelumnya berstatus "Selesai", kini telah dibuka kembali menjadi aktif bertanding dan otomatis disinkronkan ke Tatami & Scoring Board.
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
 
         <!-- 3-Column Cockpit Grid (Left: AO, Center: Timer Hub, Right: AKA) -->
         <div class="cockpit-grid">
@@ -2048,6 +2074,7 @@
                 socketReconnectTimer = null;
             }
             updateWsBadge('connected');
+            sendControlAction('sync-board', '', 'all');
         };
 
         socket.onmessage = handleSocketMessage;
@@ -2101,6 +2128,19 @@
     }
     window.sendControlAction = sendControlAction;
     initControlSocket();
+
+    // Sync Board Button Handler
+    $('#btn-sync-board-kata, #btn-sync-board-kumite').on('click', function(e) {
+        e.preventDefault();
+        const btn = $(this);
+        const origHtml = btn.html();
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Syncing...');
+        sendControlAction('sync-board', '', 'all');
+        setTimeout(() => {
+            btn.prop('disabled', false).html('<i class="fas fa-check me-1 text-success"></i> Synced!');
+            setTimeout(() => btn.html(origHtml), 2000);
+        }, 400);
+    });
 
     // ==================== 1-CLICK SCORE FUNCTIONS ====================
     function addScorePoint(side, points, command) {

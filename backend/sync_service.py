@@ -308,8 +308,16 @@ def pull_athletes_from_hosted(event_pk):
             utusan_name = (a_item.get('utusan') or '').strip().upper()
             nt_name = (a_item.get('nomor_tanding') or '').strip()
             nik = (a_item.get('nik') or '').strip()
+            kode_atlet_val = (a_item.get('kode_atlet') or '').strip() or None
+            public_detail_id = a_item.get('public_detail_id')
+            is_beregu_member = bool(a_item.get('is_beregu_member', False))
+            beregu_id = a_item.get('beregu_id')
 
-            if not nama or not nt_name:
+            # Jika nama kosong atau hanya '-', tetap masukkan data karena atlet sudah bayar
+            if not nama:
+                nama = f"ATLET {kode_atlet_val}" if kode_atlet_val else "-"
+
+            if not nt_name:
                 continue
 
             perguruan_obj = None
@@ -324,21 +332,30 @@ def pull_athletes_from_hosted(event_pk):
             if not nt_obj:
                 nt_obj, _ = NomorTanding.objects.get_or_create(event=event, nama_nomor_tanding=nt_name)
 
-            kode_atlet_val = (a_item.get('kode_atlet') or '').strip() or None
+            # Tentukan additional_code: untuk anggota beregu format 'MEMBER_<beregu_id>_<detail_id>'
+            if is_beregu_member:
+                additional_code_val = f"MEMBER_{beregu_id}_{public_detail_id}" if beregu_id else f"MEMBER_{public_detail_id}"
+            else:
+                additional_code_val = str(public_detail_id) if public_detail_id else None
 
-            # 1. Cari atlet yang sudah ada: prioritaskan kode_atlet unik + nomor_tanding, lalu fallback nama + nomor_tanding + utusan
+            # 1. Cari atlet yang sudah ada secara akurat:
+            # a. Jika ada additional_code unik (misal: '123' atau 'B_1' atau 'MEMBER_1_456')
             atlet_obj = None
-            if kode_atlet_val:
+            if additional_code_val:
+                atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, additional_code=additional_code_val).first()
+
+            # b. Cari via kode_atlet unik + nomor_tanding
+            if not atlet_obj and kode_atlet_val:
                 atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, kode_atlet=kode_atlet_val).first()
 
-            if not atlet_obj and utusan_obj:
-                atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=nama, utusan=utusan_obj).first()
-
-            if not atlet_obj:
-                atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=nama).first()
+            # c. Fallback nama + nomor_tanding + utusan (hanya untuk nama valid, bukan '-' atau placeholder)
+            if not atlet_obj and nama not in ['-', '', 'None'] and not nama.startswith('ATLET '):
+                if utusan_obj:
+                    atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=nama, utusan=utusan_obj).first()
+                if not atlet_obj:
+                    atlet_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=nama).first()
 
             created = False
-            public_detail_id = a_item.get('public_detail_id')
             if atlet_obj:
                 atlet_obj.nama_atlet = nama
                 atlet_obj.nomor_tanding = nt_obj
@@ -350,8 +367,8 @@ def pull_athletes_from_hosted(event_pk):
                     atlet_obj.kode_atlet = kode_atlet_val
                 if 'is_priority' in a_item:
                     atlet_obj.is_priority = bool(a_item.get('is_priority', False))
-                if public_detail_id:
-                    atlet_obj.additional_code = str(public_detail_id)
+                if additional_code_val:
+                    atlet_obj.additional_code = additional_code_val
                 atlet_obj.save()
             else:
                 atlet_obj = Atlet.objects.create(
@@ -362,7 +379,7 @@ def pull_athletes_from_hosted(event_pk):
                     utusan=utusan_obj,
                     nik=nik or None,
                     kode_atlet=kode_atlet_val,
-                    additional_code=str(public_detail_id) if public_detail_id else None,
+                    additional_code=additional_code_val,
                     is_priority=bool(a_item.get('is_priority', False)),
                 )
                 created = True
@@ -371,6 +388,143 @@ def pull_athletes_from_hosted(event_pk):
                 created_count += 1
             else:
                 updated_count += 1
+
+            # Jika item ini adalah Tim Beregu, sinkronkan juga setiap anggotanya ke tabel Atlet lokal
+            if a_item.get('is_beregu') or (kode_atlet_val and str(kode_atlet_val).startswith('B_')):
+                public_team_id = public_detail_id or kode_atlet_val
+                members_detail = a_item.get('members_detail', [])
+                members_simple = a_item.get('members', [])
+
+                if members_detail:
+                    for md in members_detail:
+                        m_nama = (md.get('nama_atlet') or md.get('nama') or '').strip().upper()
+                        if not m_nama:
+                            continue
+                        m_kode = (md.get('kode_atlet') or '').strip() or None
+                        m_nik = (md.get('nik') or '').strip() or None
+                        m_perg_name = (md.get('perguruan') or perguruan_name or '').strip().upper()
+                        m_uts_name = (md.get('utusan') or utusan_name or '').strip().upper()
+                        m_det_id = md.get('public_detail_id')
+                        m_add_code = f"MEMBER_{public_team_id}_{m_det_id}" if m_det_id else f"MEMBER_{public_team_id}_{m_nama}"
+
+                        m_perg_obj = None
+                        if m_perg_name:
+                            m_perg_obj, _ = Perguruan.objects.get_or_create(event=event, nama_perguruan=m_perg_name)
+                        m_uts_obj = None
+                        if m_uts_name:
+                            m_uts_obj, _ = Utusan.objects.get_or_create(event=event, nama_utusan=m_uts_name)
+
+                        m_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, additional_code=m_add_code).first()
+                        if not m_obj and m_kode:
+                            m_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, kode_atlet=m_kode).first()
+                        if not m_obj:
+                            m_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=m_nama).first()
+
+                        if m_obj:
+                            m_obj.nama_atlet = m_nama
+                            m_obj.nomor_tanding = nt_obj
+                            if m_perg_obj:
+                                m_obj.perguruan = m_perg_obj
+                            if m_uts_obj:
+                                m_obj.utusan = m_uts_obj
+                            if m_nik:
+                                m_obj.nik = m_nik
+                            if m_kode:
+                                m_obj.kode_atlet = m_kode
+                            m_obj.additional_code = m_add_code
+                            m_obj.save()
+                            updated_count += 1
+                        else:
+                            Atlet.objects.create(
+                                event=event,
+                                nama_atlet=m_nama,
+                                nomor_tanding=nt_obj,
+                                perguruan=m_perg_obj or perguruan_obj,
+                                utusan=m_uts_obj or utusan_obj,
+                                nik=m_nik,
+                                kode_atlet=m_kode,
+                                additional_code=m_add_code,
+                            )
+                            created_count += 1
+
+                elif members_simple:
+                    for idx, m in enumerate(members_simple, start=1):
+                        if isinstance(m, dict):
+                            m_nama = (m.get('nama_atlet') or m.get('nama') or '').strip().upper()
+                            m_kode = (m.get('kode_atlet') or '').strip() or None
+                            m_nik = (m.get('nik') or '').strip() or None
+                            m_perg_name = (m.get('perguruan') or perguruan_name or '').strip().upper()
+                            m_uts_name = (m.get('utusan') or utusan_name or '').strip().upper()
+                            m_det_id = m.get('public_detail_id', idx)
+                        else:
+                            m_nama = str(m).strip().upper()
+                            m_kode = None
+                            m_nik = None
+                            m_perg_name = perguruan_name
+                            m_uts_name = utusan_name
+                            m_det_id = idx
+
+                        if not m_nama:
+                            continue
+
+                        # Coba temukan profil atlet dari nomor tanding lain dalam event yang sama untuk melengkapi kode_atlet/nik/perguruan
+                        matched_ind = (
+                            Atlet.objects.filter(event=event, nama_atlet__iexact=m_nama)
+                            .exclude(kode_atlet__startswith='B_')
+                            .exclude(additional_code__startswith='MEMBER_')
+                            .first()
+                        )
+                        if matched_ind:
+                            if not m_kode and matched_ind.kode_atlet:
+                                m_kode = matched_ind.kode_atlet
+                            if not m_nik and matched_ind.nik:
+                                m_nik = matched_ind.nik
+                            if not m_perg_name and matched_ind.perguruan:
+                                m_perg_name = matched_ind.perguruan.nama_perguruan
+                            if not m_uts_name and matched_ind.utusan:
+                                m_uts_name = matched_ind.utusan.nama_utusan
+
+                        m_add_code = f"MEMBER_{public_team_id}_{m_det_id}"
+
+                        m_perg_obj = None
+                        if m_perg_name:
+                            m_perg_obj, _ = Perguruan.objects.get_or_create(event=event, nama_perguruan=m_perg_name)
+                        m_uts_obj = None
+                        if m_uts_name:
+                            m_uts_obj, _ = Utusan.objects.get_or_create(event=event, nama_utusan=m_uts_name)
+
+                        m_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, additional_code=m_add_code).first()
+                        if not m_obj and m_kode:
+                            m_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, kode_atlet=m_kode).first()
+                        if not m_obj:
+                            m_obj = Atlet.objects.filter(event=event, nomor_tanding=nt_obj, nama_atlet__iexact=m_nama).first()
+
+                        if m_obj:
+                            m_obj.nama_atlet = m_nama
+                            m_obj.nomor_tanding = nt_obj
+                            if m_perg_obj:
+                                m_obj.perguruan = m_perg_obj
+                            if m_uts_obj:
+                                m_obj.utusan = m_uts_obj
+                            if m_nik:
+                                m_obj.nik = m_nik
+                            if m_kode:
+                                m_obj.kode_atlet = m_kode
+                            m_obj.additional_code = m_add_code
+                            m_obj.save()
+                            updated_count += 1
+                        else:
+                            Atlet.objects.create(
+                                event=event,
+                                nama_atlet=m_nama,
+                                nomor_tanding=nt_obj,
+                                perguruan=m_perg_obj or perguruan_obj,
+                                utusan=m_uts_obj or utusan_obj,
+                                nik=m_nik,
+                                kode_atlet=m_kode,
+                                additional_code=m_add_code,
+                            )
+                            created_count += 1
 
     # 5. Unduh Logo Utusan / Kontingen secara paralel & cepat (di luar atomic block untuk mencegah SQLite write lock)
     downloaded_logos = 0
@@ -419,7 +573,7 @@ def pull_athletes_from_hosted(event_pk):
             downloaded_logos = sum(1 for res in results if res)
 
     target_label = f"'{hosted_name}' (ID {target_hosted_id})" if hosted_name else f"ID #{target_hosted_id}"
-    msg = f"Berhasil menarik data dari {target_label}: {created_count} atlet baru ditambahkan, {updated_count} diperbarui (Total: {len(atlets_data)} atlet)"
+    msg = f"Berhasil menarik data dari {target_label}: {created_count} atlet baru ditambahkan, {updated_count} diperbarui (Total: {created_count + updated_count} atlet)"
     if downloaded_logos:
         msg += f", {downloaded_logos} logo kontingen diunduh"
     msg += "."

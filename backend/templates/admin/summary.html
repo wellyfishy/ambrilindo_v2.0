@@ -444,6 +444,21 @@
     </div>
   </div>
 
+  {% if uncontested_bagan_count > 0 %}
+  <!-- Info Banner: Bagan Tanpa Lawan -->
+  <div class="alert alert-dark d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 py-2 px-3 btn-print-hide" style="border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); border-radius: var(--radius-md); font-size: 13px; color: #fde68a;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fas fa-info-circle text-warning fs-5"></i>
+      <span>
+        Terdapat <strong>{{ uncontested_bagan_count }} kategori bagan tanpa lawan</strong> (hanya 1 peserta). Medali emas pada bagan tersebut tidak dimasukkan ke dalam perhitungan klasemen <strong>Juara Umum</strong>.
+      </span>
+    </div>
+    <span class="badge" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 11px;">
+      {{ uncontested_bagan_count }} Kategori Tunggal
+    </span>
+  </div>
+  {% endif %}
+
   <!-- Podium & KPI Grid -->
   <div class="podium-grid">
     <!-- Juara Umum 1 -->
@@ -586,6 +601,9 @@
                   {% if u.total > 0 %}
                   <small class="text-secondary">{{ u.winners|length }} Atlet Juara</small>
                   {% endif %}
+                  {% if u.uncontested_winners %}
+                  <small class="text-warning ms-1" style="font-size: 11px;" title="Kategori tanpa lawan tidak dihitung ke Juara Umum">({{ u.uncontested_winners|length }} Tanpa Lawan)</small>
+                  {% endif %}
                 </td>
                 <td class="medal-count gold">{{ u.gold }}</td>
                 <td class="medal-count silver">{{ u.silver }}</td>
@@ -594,9 +612,9 @@
                   <span class="badge" style="background: rgba(255,255,255,0.08); font-size: 13px; font-weight: 700;">{{ u.total }}</span>
                 </td>
                 <td class="btn-print-hide" style="text-align: center;">
-                  {% if u.winners %}
+                  {% if u.winners or u.uncontested_winners %}
                   <button type="button" class="btn-detail-athletes" onclick="toggleDetail('detail-u-{{ u.pk }}', this)">
-                    <i class="fas fa-chevron-down"></i> Lihat Atlet ({{ u.winners|length }})
+                    <i class="fas fa-chevron-down"></i> Lihat Atlet ({{ u.winners|length|add:u.uncontested_winners|length }})
                   </button>
                   {% else %}
                   <span class="text-muted" style="font-size: 12px;">-</span>
@@ -604,12 +622,13 @@
                 </td>
               </tr>
               <!-- Expandable Winner List Row -->
-              {% if u.winners %}
+              {% if u.winners or u.uncontested_winners %}
               <tr id="detail-u-{{ u.pk }}" class="detail-row">
                 <td colspan="7">
                   <div class="detail-box">
+                    {% if u.winners %}
                     <div class="fw-bold mb-2 text-secondary" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                      <i class="fas fa-trophy text-warning"></i> Daftar Atlet Peraih Medali — {{ u.nama }}
+                      <i class="fas fa-trophy text-warning"></i> Daftar Atlet Peraih Medali Juara Umum — {{ u.nama }}
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                       {% for w in u.winners %}
@@ -623,6 +642,26 @@
                       </div>
                       {% endfor %}
                     </div>
+                    {% endif %}
+
+                    {% if u.uncontested_winners %}
+                    <div class="fw-bold {% if u.winners %}mt-3{% endif %} mb-2 text-warning" style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;">
+                      <i class="fas fa-shield-alt text-warning me-1"></i> Atlet Juara Kategori Tanpa Lawan (Tidak Dihitung Juara Umum)
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                      {% for w in u.uncontested_winners %}
+                      <div class="winner-mini-chip" style="opacity: 0.9; border-color: rgba(245, 158, 11, 0.35);">
+                        <span>🥇</span>
+                        <strong>{{ w.atlet_nama }}</strong>
+                        <span class="badge bg-warning text-dark ms-1" style="font-size: 10px;">Tanpa Lawan</span>
+                        <span class="text-muted">• {{ w.perguruan_nama }}</span>
+                        <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-dark text-info ms-1" style="border: 1px solid var(--border-color);" title="Buka Bagan">
+                          {{ w.bagan_nama }}
+                        </a>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
                   </div>
                 </td>
               </tr>
@@ -688,6 +727,9 @@
                   {% if p.total > 0 %}
                   <small class="text-secondary">{{ p.winners|length }} Atlet Juara</small>
                   {% endif %}
+                  {% if p.uncontested_winners %}
+                  <small class="text-warning ms-1" style="font-size: 11px;" title="Kategori tanpa lawan tidak dihitung ke Juara Umum">({{ p.uncontested_winners|length }} Tanpa Lawan)</small>
+                  {% endif %}
                 </td>
                 <td class="medal-count gold">{{ p.gold }}</td>
                 <td class="medal-count silver">{{ p.silver }}</td>
@@ -696,9 +738,9 @@
                   <span class="badge" style="background: rgba(255,255,255,0.08); font-size: 13px; font-weight: 700;">{{ p.total }}</span>
                 </td>
                 <td class="btn-print-hide" style="text-align: center;">
-                  {% if p.winners %}
+                  {% if p.winners or p.uncontested_winners %}
                   <button type="button" class="btn-detail-athletes" onclick="toggleDetail('detail-p-{{ p.pk }}', this)">
-                    <i class="fas fa-chevron-down"></i> Lihat Atlet ({{ p.winners|length }})
+                    <i class="fas fa-chevron-down"></i> Lihat Atlet ({{ p.winners|length|add:p.uncontested_winners|length }})
                   </button>
                   {% else %}
                   <span class="text-muted" style="font-size: 12px;">-</span>
@@ -706,12 +748,13 @@
                 </td>
               </tr>
               <!-- Expandable Winner List Row -->
-              {% if p.winners %}
+              {% if p.winners or p.uncontested_winners %}
               <tr id="detail-p-{{ p.pk }}" class="detail-row">
                 <td colspan="7">
                   <div class="detail-box">
+                    {% if p.winners %}
                     <div class="fw-bold mb-2 text-secondary" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                      <i class="fas fa-trophy text-warning"></i> Daftar Atlet Peraih Medali — {{ p.nama }}
+                      <i class="fas fa-trophy text-warning"></i> Daftar Atlet Peraih Medali Juara Umum — {{ p.nama }}
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                       {% for w in p.winners %}
@@ -725,6 +768,26 @@
                       </div>
                       {% endfor %}
                     </div>
+                    {% endif %}
+
+                    {% if p.uncontested_winners %}
+                    <div class="fw-bold {% if p.winners %}mt-3{% endif %} mb-2 text-warning" style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;">
+                      <i class="fas fa-shield-alt text-warning me-1"></i> Atlet Juara Kategori Tanpa Lawan (Tidak Dihitung Juara Umum)
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                      {% for w in p.uncontested_winners %}
+                      <div class="winner-mini-chip" style="opacity: 0.9; border-color: rgba(245, 158, 11, 0.35);">
+                        <span>🥇</span>
+                        <strong>{{ w.atlet_nama }}</strong>
+                        <span class="badge bg-warning text-dark ms-1" style="font-size: 10px;">Tanpa Lawan</span>
+                        <span class="text-muted">• Kontingen: {{ w.utusan_nama }}</span>
+                        <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-dark text-info ms-1" style="border: 1px solid var(--border-color);" title="Buka Bagan">
+                          {{ w.bagan_nama }}
+                        </a>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
                   </div>
                 </td>
               </tr>
@@ -777,10 +840,17 @@
                 <td style="text-align: center;">
                   {% if w.juara == '1' %}
                   <span class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); font-size: 12px;">🥇 Juara 1</span>
+                  {% if w.tanpa_lawan %}
+                  <div class="mt-1">
+                    <span class="badge bg-secondary" style="font-size: 10px; font-weight: normal;" title="Kategori tanpa lawan, tidak dihitung Juara Umum">Tanpa Lawan</span>
+                  </div>
+                  {% endif %}
                   {% elif w.juara == '2' %}
                   <span class="badge" style="background: rgba(156,163,175,0.2); color: #e5e7eb; border: 1px solid rgba(156,163,175,0.4); font-size: 12px;">🥈 Juara 2</span>
-                  {% else %}
+                  {% elif w.juara == '3a' or w.juara == '3b' %}
                   <span class="badge" style="background: rgba(217,119,6,0.2); color: #f59e0b; border: 1px solid rgba(217,119,6,0.4); font-size: 12px;">🥉 Juara 3</span>
+                  {% else %}
+                  <span class="badge bg-secondary" style="font-size: 11px;">🎖️ {{ w.juara_label }}</span>
                   {% endif %}
                 </td>
                 <td>

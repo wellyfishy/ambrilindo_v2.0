@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roster Festival - {{ event.nama_event }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f1f5f9;
+            color: #000;
+        }
+
+        /* Top Action Bar (Non-Printable) */
+        .no-print-bar {
+            background: #1e293b;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .no-print-bar .title {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .no-print-bar .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn-outline {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.25);
+            color: #f8fafc;
+        }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.18);
+        }
+
+        /* Paper Preview Layout */
+        .paper-container {
+            max-width: 210mm;
+            margin: 15px auto;
+            background: #fff;
+            padding: 8mm 10mm 10mm 10mm;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            min-height: 297mm;
+        }
+
+        /* Kop Surat Styling */
+        .print-kop-surat {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+        .kop-logo {
+            height: 52px;
+            width: auto;
+            max-width: 80px;
+            object-fit: contain;
+        }
+        .kop-text-wrap {
+            flex: 1;
+        }
+        .kop-title {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+            color: #111827;
+        }
+        .kop-subtitle {
+            margin: 2px 0 0 0;
+            font-size: 10px;
+            color: #374151;
+            line-height: 1.25;
+        }
+        .kop-divider {
+            height: 1.8px;
+            background: #000;
+            margin-bottom: 8px;
+        }
+
+        /* Tatami Banner */
+        .tatami-banner {
+            background-color: #E4DAC4 !important;
+            border: 1.5px solid #000;
+            font-size: 13.5px;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            letter-spacing: 1px;
+            margin-top: 4px;
+            color: #000;
+        }
+
+        /* Category Banner */
+        .category-banner {
+            background-color: #EFE8D8 !important;
+            border: 1.5px solid #000;
+            border-bottom: none;
+            font-size: 11px;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+            padding: 3px 6px;
+            letter-spacing: 0.5px;
+            margin-top: 6px;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Roster Table - Fixed Layout & Compact */
+        .roster-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            border: 1.5px solid #000;
+            margin-bottom: 0;
+            font-size: 9.5px;
+        }
+        .roster-table th {
+            background-color: #E4DAC4 !important;
+            border: 1px solid #000;
+            padding: 3px 4px;
+            font-size: 9.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #000;
+            line-height: 1.2;
+        }
+        .roster-table td {
+            border: 1px solid #000;
+            padding: 2.2px 4px;
+            color: #000;
+            vertical-align: middle;
+            line-height: 1.15;
+            height: 18px;
+        }
+
+        /* Column Widths & Alignments */
+        .col-no {
+            width: 32px;
+            text-align: center;
+        }
+        .col-nama {
+            width: 35%;
+            text-align: left;
+        }
+        .col-perguruan {
+            width: 22%;
+            text-align: left;
+        }
+        .col-utusan {
+            width: 29%;
+            text-align: left;
+        }
+        .col-sabuk {
+            width: 48px;
+            text-align: center;
+        }
+        .col-check {
+            width: 60px;
+            text-align: center;
+        }
+
+        /* Ellipsis Truncation on Table Cells */
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+        .font-bold {
+            font-weight: 700;
+        }
+        .check-box {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 1px solid #000;
+            border-radius: 1.5px;
+            background: #fff;
+            vertical-align: middle;
+        }
+
+        .tatami-section {
+            margin-bottom: 20px;
+        }
+
+        /* Print Settings */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: #fff;
+                margin: 0;
+                padding: 0;
+            }
+            .paper-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                min-height: auto;
+            }
+            .tatami-section {
+                page-break-after: always;
+                margin-bottom: 0;
+            }
+            .tatami-section:last-child {
+                page-break-after: auto;
+            }
+            .category-block {
+                page-break-inside: auto;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 8mm 10mm 8mm 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Non-printable top action bar -->
+    <div class="no-print-bar no-print">
+        <div class="title">
+            <i class="fas fa-file-pdf text-warning"></i>
+            <span>Cetak Roster Festival &bull; {{ event.nama_event }}</span>
+        </div>
+        <div class="actions">
+            <a href="{% url 'roster-festival' event_pk=event.pk %}" class="btn-action btn-outline">
+                <i class="fas fa-arrow-left"></i> Kembali ke Editor
+            </a>
+            <button onclick="window.print()" class="btn-action btn-primary">
+                <i class="fas fa-print"></i> Cetak / Print Sekarang (Ctrl+P)
+            </button>
+        </div>
+    </div>
+
+    <!-- Paper Container -->
+    <div class="paper-container">
+        {% for t_data in tatami_print_data %}
+        <div class="tatami-section">
+            
+            <!-- 1. Kop Surat Global -->
+            <div class="print-kop-surat">
+                <div class="kop-logo-wrap">
+                    {% if kop_surat.logo %}
+                    <img src="{{ kop_surat.logo.url }}" class="kop-logo" alt="Logo Event" onerror="this.src='{% static "img/cover/wkf_logo.png" %}'">
+                    {% else %}
+                    <img src="{% static "img/cover/wkf_logo.png" %}" class="kop-logo" alt="Logo WKF">
+                    {% endif %}
+                </div>
+                <div class="kop-text-wrap">
+                    <h2 class="kop-title">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h2>
+                    {% if kop_surat.alamat or kop_surat.kontak %}
+                    <p class="kop-subtitle">
+                        {{ kop_surat.alamat }}{% if kop_surat.alamat and kop_surat.kontak %} &bull; {% endif %}{{ kop_surat.kontak }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="kop-divider"></div>
+
+            <!-- 2. Tatami Header Banner -->
+            <div class="tatami-banner">
+                TATAMI {{ t_data.tatami.tatami_number }}
+            </div>
+
+            <!-- 3. Categories List on this Tatami -->
+            {% for cat in t_data.categories %}
+            <div class="category-block">
+                <div class="category-banner" title="{{ cat.display_name }}">
+                    {{ cat.display_name }}
+                </div>
+                <table class="roster-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">No</th>
+                            <th class="col-nama">Nama</th>
+                            <th class="col-perguruan">Perguruan</th>
+                            <th class="col-utusan">Utusan</th>
+                            <th class="col-sabuk">Sabuk</th>
+                            <th class="col-check">Checklist</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in cat.rows %}
+                        <tr>
+                            <td class="col-no font-bold">{{ r.no }}</td>
+                            <td class="col-nama font-bold text-truncate" title="{{ r.nama }}">{{ r.nama }}</td>
+                            <td class="col-perguruan text-truncate" title="{{ r.perguruan }}">{{ r.perguruan }}</td>
+                            <td class="col-utusan text-truncate" title="{{ r.utusan }}">{{ r.utusan }}</td>
+                            <td class="col-sabuk font-bold">{{ r.sabuk }}</td>
+                            <td class="col-check"><span class="check-box"></span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 25px; font-style: italic; color: #64748b; font-size: 11px;">
+                Tidak ada kategori festival yang dijadwalkan pada Tatami {{ t_data.tatami.tatami_number }}.
+            </div>
+            {% endfor %}
+
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 40px;">
+            <p style="font-size: 14px; color: #64748b;">Belum ada data kategori festival yang tersedia untuk event ini.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
