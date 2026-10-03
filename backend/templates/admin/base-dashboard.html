@@ -853,6 +853,11 @@
                         <span class="sub-item">Roster Maker (Festival)</span>
                       </a>
                     </li>
+                    <li class="{% if on == 'fest' %}active{% endif %}">
+                      <a href="{% url 'control-panel-fest-entry' event_pk=event.pk %}">
+                        <span class="sub-item text-warning fw-bold"><i class="fas fa-crown me-1 text-warning"></i>Control Panel (Festival)</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -873,6 +878,12 @@
                 <a href="#" onclick="openFullscreenWindow('{% url 'scoring-board' tatami_pk=active_role.tatami.pk %}'); return false;">
                   <i class="fas fa-tv text-danger"></i>
                   <p class="text-danger fw-bold">Scoring Board (T{{ active_role.tatami.tatami_number }})</p>
+                </a>
+              </li>
+              <li class="nav-item {% if on == 'fest' %}active{% endif %}">
+                <a href="{% url 'control-panel-fest' event_pk=event.pk tatami_pk=active_role.tatami.pk %}">
+                  <i class="fas fa-crown text-warning"></i>
+                  <p class="text-warning fw-bold">Panel Festival (T{{ active_role.tatami.tatami_number }})</p>
                 </a>
               </li>
               {% endif %}
@@ -908,6 +919,16 @@
                 <span class="event-id-tag">e{{ event.pk }}</span>
                 <span class="event-name-text">{{ event.nama_event }}</span>
               </div>
+
+              <!-- Quick Links in Navbar -->
+              {% if event.pk %}
+              <div class="d-flex align-items-center gap-2 ms-auto me-3">
+                <a href="{% url 'control-panel-fest-entry' event_pk=event.pk %}" class="btn btn-sm btn-outline-warning fw-bold d-flex align-items-center gap-1 shadow-sm px-3 py-1" style="border-radius: 8px; font-size: 13px;" title="Buka Control Panel Khusus Pertandingan Festival (Infinite Match)">
+                  <i class="fas fa-crown text-warning"></i>
+                  <span>Panel Festival</span>
+                </a>
+              </div>
+              {% endif %}
 
               <!-- Right User Menu -->
               <ul class="navbar-nav topbar-nav align-items-center">

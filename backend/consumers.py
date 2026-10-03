@@ -13,6 +13,43 @@ def get_current_match_details(tatami_pk):
         'detail_bagan__atlet2__utusan',
     ).first()
     if not tatami or not tatami.detail_bagan:
+        from django.core.cache import cache
+        if tatami and cache.get(f"tatami_{tatami_pk}_festival"):
+            return {
+                "match_pk": None,
+                "bagan_pk": None,
+                "atlet_red": "Aka",
+                "atlet_red_perguruan": "-",
+                "atlet_red_utusan": "AMBRILINDO",
+                "atlet_red_logo": None,
+                "atlet_red_kata": "-",
+                "atlet_red_vr": None,
+                "atlet_blue": "Ao",
+                "atlet_blue_perguruan": "-",
+                "atlet_blue_utusan": "AMBRILINDO",
+                "atlet_blue_logo": None,
+                "atlet_blue_kata": "-",
+                "atlet_blue_vr": None,
+                "tipe_tanding": "2",
+                "team": None,
+                "total_aka_score": 0,
+                "total_ao_score": 0,
+                "nomor_tanding": "FESTIVAL",
+                "nama_bagan": "FESTIVAL",
+                "round_label": "FESTIVAL",
+                "round_of": "",
+                "marquee_text": "FESTIVAL KUMITE",
+                "round": 1,
+                "urutan": 1,
+                "tatami_number": tatami.tatami_number,
+                "nama_event": tatami.event.nama_event if tatami.event else '',
+                "kata_history_aka": {},
+                "kata_history_ao": {},
+                "is_final": False,
+                "has_vr": False,
+                "selesai": False,
+                "is_running": True,
+            }
         return None
     detail_bagan = tatami.detail_bagan
     bagan = detail_bagan.bagan
@@ -230,6 +267,172 @@ class ControlPanelConsumer(AsyncWebsocketConsumer):
                 await ws_set_tatami_match(self.tatami_pk, self.detailbagan_pk)
             except Exception:
                 pass
+            return
+
+        # Broadcast directly to scoring board in <2ms
+        if target in ('all', 'scoring'):
+            await self.channel_layer.group_send(
+                f"scoring_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": action,
+                    "details": details,
+                }
+            )
+
+        # Broadcast to admin control and control panel
+        if target in ('all', 'control'):
+            await self.channel_layer.group_send(
+                f"admin_control_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": action,
+                    "details": details,
+                }
+            )
+            await self.channel_layer.group_send(
+                f"control_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": action,
+                    "details": details,
+                }
+            )
+
+        # Broadcast to jury room if targeted
+        if target in ('all', 'jury'):
+            await self.channel_layer.group_send(
+                f"juryroom_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": action,
+                    "details": details,
+                }
+            )
+
+        # Broadcast to coach room if targeted
+        if target in ('all', 'coach'):
+            await self.channel_layer.group_send(
+                f"coachroom_{self.tatami_pk}",
+                {
+                    "type": "broadcast_command",
+                    "message": action,
+                    "details": details,
+                }
+            )
+
+    async def broadcast_command(self, event):
+        await self.send(text_data=json.dumps({
+            "command": event["message"],
+            "details": event["details"]
+        }))
+
+    async def scoring_message(self, event):
+        await self.broadcast_command(event)
+
+class ControlPanelFestConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.event_pk = self.scope['url_route']['kwargs']['event_pk']
+        self.tatami_pk = self.scope['url_route']['kwargs']['tatami_pk']
+        self.group_name = f"control_{self.tatami_pk}"
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.channel_layer.group_add(
+            f"admin_control_{self.tatami_pk}",
+            self.channel_name
+        )
+        await self.accept()
+
+        await self.send_festival_match()
+
+    async def send_festival_match(self):
+        from django.core.cache import cache
+        cache.set(f"tatami_{self.tatami_pk}_festival", True, 86400)
+
+        detail_data = {
+            "tatami_pk": int(self.tatami_pk),
+            "match_pk": None,
+            "bagan_pk": None,
+            "is_running": True,
+            "selesai": False,
+            "atlet_red": "Aka",
+            "atlet_red_perguruan": "-",
+            "atlet_red_utusan": "AMBRILINDO",
+            "atlet_red_logo": None,
+            "atlet_red_kata": "-",
+            "atlet_red_vr": None,
+            "atlet_blue": "Ao",
+            "atlet_blue_perguruan": "-",
+            "atlet_blue_utusan": "AMBRILINDO",
+            "atlet_blue_logo": None,
+            "atlet_blue_kata": "-",
+            "atlet_blue_vr": None,
+            "tipe_tanding": "2",
+            "team": None,
+            "total_aka_score": 0,
+            "total_ao_score": 0,
+            "nomor_tanding": "FESTIVAL",
+            "nama_bagan": "FESTIVAL",
+            "round_label": "FESTIVAL",
+            "round_of": "",
+            "marquee_text": "FESTIVAL KUMITE",
+            "round": 1,
+            "urutan": 1,
+            "has_vr": False,
+        }
+
+        # Send to scoring board
+        await self.channel_layer.group_send(
+            f"scoring_{self.tatami_pk}",
+            {
+                "type": "broadcast_command",
+                "message": "get_atlet",
+                "details": detail_data,
+            }
+        )
+
+        # Broadcast to tatami manager and lo kata as well
+        await self.channel_layer.group_send(
+            f"tatamimanager_{self.tatami_pk}",
+            {
+                "type": "broadcast_command",
+                "message": "get_atlet",
+                "details": detail_data,
+            }
+        )
+
+        await self.send(text_data=json.dumps({
+            "command": "get_atlet",
+            "details": detail_data
+        }))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+        await self.channel_layer.group_discard(
+            f"admin_control_{self.tatami_pk}",
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+        except Exception:
+            return
+
+        action = data.get('action') or data.get('command')
+        details = data.get('details')
+        target = data.get('target', 'all')
+        if not action:
+            return
+
+        if action in ('sync-board', 'sync-match', 'get_atlet'):
+            await self.send_festival_match()
             return
 
         # Broadcast directly to scoring board in <2ms
@@ -705,6 +908,8 @@ def get_tatami_manager_details(tatami_pk):
 def ws_set_tatami_match(tatami_pk, detailbagan_pk):
     from backend.models import Tatami, DetailBagan
     from backend.views import broadcast_tatami_match_update
+    from django.core.cache import cache
+    cache.delete(f"tatami_{tatami_pk}_festival")
     tatami = Tatami.objects.filter(pk=tatami_pk).first()
     if not tatami:
         return None

@@ -2,1024 +2,1592 @@
 
 {% block style %}
 <style>
-.dropdown:hover .dropdown-menu {
-    display: block;
-    margin-top: 0;
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap');
+
+/* ========================================================
+   AMBRILINDO COCKPIT CONTROL PANEL - HIGH-EFFICIENCY UI
+   ======================================================== */
+:root {
+  --aka-color: #ef4444;
+  --aka-dark: #b91c1c;
+  --aka-glow: rgba(239, 68, 68, 0.45);
+  
+  --ao-color: #3b82f6;
+  --ao-dark: #1d4ed8;
+  --ao-glow: rgba(59, 130, 246, 0.45);
+
+  --gold-color: #fbbf24;
+  --gold-glow: rgba(251, 191, 36, 0.5);
+
+  --panel-bg: #090d16;
+  --card-bg: #111827;
+  --card-border: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(0, 0, 0, 0.4);
 }
-.dropdown-submenu {
+
+/* Page Header & Save Bar */
+.cockpit-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.match-identity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.match-identity-pill .badge-tag {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: #fbbf24;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* 3-Column Cockpit Command Grid */
+.cockpit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(280px, 25vw, 340px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 992px) {
+  .cockpit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Competitor Pods (AKA & AO) */
+.competitor-pod {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.competitor-pod.aka {
+  border-top: 4px solid var(--aka-color);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(17, 24, 39, 0.98) 45%);
+}
+
+.competitor-pod.ao {
+  border-top: 4px solid var(--ao-color);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.12) 0%, rgba(17, 24, 39, 0.98) 45%);
+}
+
+/* Athlete Header Inside Pod */
+.pod-athlete-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 10px;
+}
+
+.pod-side-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.competitor-pod.aka .pod-side-tag { background: var(--aka-color); color: #fff; }
+.competitor-pod.ao .pod-side-tag { background: var(--ao-color); color: #fff; }
+
+.pod-athlete-name {
+  font-size: clamp(17px, 1.7vw, 22px);
+  font-weight: 850;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+.competitor-pod.aka .pod-athlete-name { color: #fecaca; }
+.competitor-pod.ao .pod-athlete-name { color: #bfdbfe; }
+
+.pod-athlete-sub {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* Winner Selector Button Inside Pod Header */
+.btn-winner-select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn-winner-select:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+.btn-winner-select.selected-aka {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+  color: #ffffff !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.7);
+}
+.btn-winner-select.selected-ao {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.7);
+}
+
+/* Score Core Row (Big Digit + Senshu Ribbon) */
+.score-core-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.score-huge-box {
+  background: #06090e;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  flex: 1;
+  height: clamp(80px, 8.5vh, 105px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
   position: relative;
 }
-.dropdown-submenu .dropdown-menu {
-  top: 0;
-  left: 100%;
+.competitor-pod.aka .score-huge-box { border-color: rgba(239, 68, 68, 0.5); }
+.competitor-pod.ao .score-huge-box { border-color: rgba(59, 130, 246, 0.5); }
+
+.score-huge-digit {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(60px, 6vw, 84px);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.02em;
 }
-.dropdown-menu .dropdown-item {
+
+/* Senshu Ribbon Badge */
+.btn-senshu-ribbon {
+  width: clamp(75px, 8vw, 95px);
+  height: clamp(80px, 8.5vh, 105px);
+  background: rgba(251, 191, 36, 0.08);
+  border: 2px dashed rgba(251, 191, 36, 0.35);
+  border-radius: 12px;
+  color: #fbbf24;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.btn-senshu-ribbon:hover {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: #fbbf24;
+}
+.btn-senshu-ribbon i {
   font-size: 24px;
+  transition: transform 0.2s ease;
+}
+.btn-senshu-ribbon.active {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+.btn-senshu-ribbon.active i {
+  color: #000000 !important;
+  transform: scale(1.15);
+}
+
+/* 1-Click Fast Scoring Buttons */
+.fast-score-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 48px;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.fast-score-deck.mirrored {
+  grid-template-columns: 48px 1fr 1fr 1fr;
+}
+
+.btn-point-act {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 10px 6px;
+  border-radius: 8px;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.btn-point-act:active {
+  transform: scale(0.95);
+}
+
+/* AKA Point Buttons */
+.btn-point-act.aka-1 { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+.btn-point-act.aka-2 { background: linear-gradient(135deg, #f97316 0%, #c2410c 100%); }
+.btn-point-act.aka-3 { background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%); }
+
+/* AO Point Buttons */
+.btn-point-act.ao-1 { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+.btn-point-act.ao-2 { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
+.btn-point-act.ao-3 { background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%); }
+
+.btn-point-act.btn-dec {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: #cbd5e1;
+  padding: 0;
+  font-size: 18px;
+}
+.btn-point-act.btn-dec:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Criteria / Penalty Strip */
+.criteria-strip {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.criteria-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.criteria-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pill-crit {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: #94a3b8;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 10px;
+  height: 34px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.pill-crit:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+.pill-crit.active-red {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+  color: #ffffff !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+}
+.pill-crit.active-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
+}
+
+.btn-crit-step {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 30px;
+  height: 34px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+.btn-crit-step:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* VR Dropdown Bar */
+.vr-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.vr-badge-btn {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+/* ==================== CENTER COLUMN: MASTER MATCH HUB ==================== */
+.cockpit-hub {
+  background: #0a0f1d;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  border-top: 4px solid var(--gold-color);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  gap: 10px;
+}
+
+.hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.hub-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+/* Digital Timer Box */
+.hub-timer-box {
+  background: #05070c;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 10px;
+  text-align: center;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
+}
+
+.hub-timer-digits {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(48px, 4.5vw, 68px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  -moz-font-feature-settings: "tnum";
+  -webkit-font-feature-settings: "tnum";
+  font-feature-settings: "tnum";
+  color: #ffffff;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.hub-timer-digits.running {
+  color: #fbbf24;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+}
+.hub-timer-digits .ms-part {
+  font-size: 60%;
+  opacity: 0.9;
+}
+
+/* Primary Start/Pause Button */
+.btn-master-start {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  color: #ffffff;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+.btn-master-start.start-state {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+.btn-master-start.start-state:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.btn-master-start.pause-state {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+}
+.btn-master-start.pause-state:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Time Micro-adjust & Presets */
+.time-adjust-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.btn-time-step {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 850;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-time-step:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.hub-presets-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.btn-preset-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.btn-preset-chip:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+.btn-preset-chip.text-danger {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.btn-preset-chip.text-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5 !important;
+}
+
+/* Tutup Banner Score Button */
+.btn-tutup-banner {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: none;
+  color: #000000;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  transition: all 0.15s ease;
+}
+.btn-tutup-banner:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Secondary Switches */
+.hub-tools-strip {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+}
+
+/* ==================== BOTTOM REAL-TIME JUDGE STICK MONITOR ==================== */
+.stick-monitor-strip {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.stick-strip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stick-status-deck {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.stick-live-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.stick-live-card.vote-aka {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.22);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+}
+.stick-live-card.vote-ao {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.22);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
+}
+
+.stick-live-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.stick-live-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  margin-top: 2px;
+  color: #cbd5e1;
+}
+
+/* History Log Collapsible Drawer */
+.history-drawer {
+  max-height: 180px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+  margin-top: 10px;
+}
+
+/* ==================== KATA MATCH 5-JUDGE PANEL STYLING ==================== */
+.kata-card-header {
+  background: linear-gradient(180deg, #111827 0%, #0b0f19 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px 20px;
+}
+
+.kata-scoring-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.kata-scoring-table th {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.juri-th {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 110px;
+}
+
+.juri-th:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.juri-th-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #f1f5f9;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.juri-decision-wrap {
+  margin-top: 6px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decision-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+}
+
+.decision-aka {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
+}
+
+.decision-ao {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
+}
+
+.decision-seri {
+  background: #475569;
+  color: #f8fafc;
+}
+
+.decision-empty {
+  background: rgba(255, 255, 255, 0.06);
+  color: #64748b;
+  font-size: 14px;
+}
+
+.kata-scoring-table td {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.kata-atlet-name {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.kata-atlet-sub {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.kata-score-input {
+  width: 92px;
+  height: 54px;
+  font-family: 'JetBrains Mono', 'Barlow Condensed', monospace, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.kata-score-input.ao {
+  background: rgba(30, 58, 138, 0.25);
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+}
+
+.kata-score-input.ao:focus {
+  background: rgba(30, 58, 138, 0.45);
+  border-color: #3b82f6;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
+  color: #ffffff;
+}
+
+.kata-score-input.aka {
+  background: rgba(127, 29, 29, 0.25);
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.kata-score-input.aka:focus {
+  background: rgba(127, 29, 29, 0.45);
+  border-color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+  color: #ffffff;
+}
+
+.kata-bendera-val,
+.kata-bendera-val:read-only,
+.kata-bendera-val[readonly] {
+  width: 85px;
+  height: 54px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  border-radius: 10px;
+  background: rgba(30, 58, 138, 0.45) !important;
+  border: 2.5px solid #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+  opacity: 1 !important;
+}
+
+.kata-bendera-select {
+  width: 85px;
+  height: 54px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  text-align: center;
+  border-radius: 10px;
+  background-color: rgba(127, 29, 29, 0.45) !important;
+  border: 2.5px solid #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+  cursor: pointer;
+}
+
+.kata-bendera-select option {
+  background-color: #1e1e2d;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.kata-total-point {
+  width: 100px;
+  height: 60px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 38px;
+  font-weight: 900;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.kata-total-point.ao {
+  background: rgba(37, 99, 235, 0.2);
+  border: 2.5px solid #3b82f6;
+  color: #60a5fa;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+}
+
+.kata-total-point.aka {
+  background: rgba(220, 38, 38, 0.2);
+  border: 2.5px solid #ef4444;
+  color: #f87171;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+}
+
+.btn-wasit-tab {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+}
+
+.btn-wasit-tab.active {
+  background: #f59e0b !important;
+  color: #000000 !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-glow-pulse {
+  animation: btnGlowPulse 1.2s infinite alternate;
+}
+@keyframes btnGlowPulse {
+  0% { box-shadow: 0 0 5px rgba(255,255,255,0.4); transform: scale(1); }
+  100% { box-shadow: 0 0 18px rgba(255,255,255,0.9); transform: scale(1.03); }
+}
+
+.btn-ao-blue {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border: 1px solid #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+}
+.btn-ao-blue:hover, .btn-ao-blue:focus {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5) !important;
+}
+
+.btn-aka-red {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  border: 1px solid #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
+}
+.btn-aka-red:hover, .btn-aka-red:focus {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5) !important;
+}
+
+.badge-ao-blue {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.badge-aka-red {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* Festival Custom Enhancements */
+.festival-pill {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.6);
+    color: #fef3c7;
+    font-weight: 800;
 }
 </style>
 {% endblock style %}
 
 {% block content %}
-<div class="container">
-
-    <form method="POST">
-    {% csrf_token %}
-    <div class="page-inner">
-        <div class="page-header">
-            <h3 class="fw-bold mb-3"></h3>
+<div class="container-fluid px-3 py-2">
+    <!-- Top Operations Bar -->
+    <div class="cockpit-page-header">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn btn-outline-danger">
+                <i class="fas fa-arrow-left me-1"></i> <b>Kembali</b>
+            </a>
+            <button type="button" class="btn btn-warning fw-bold px-3 py-2 shadow" id="btn-reset-match" onclick="resetFestivalMatch()" title="Reset pertandingan festival ke 0-0 (Bisa juga tekan Ctrl + R)">
+                <i class="fas fa-undo me-1"></i> <b>Reset Match (Baru)</b>
+            </button>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;"><b style="color: red;">Aka</b> vs <b style="color: blue">Ao</b></div>
-                        <div></div>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-striped mt-3">
-                            <thead>
-                                <tr>
-                                <th scope="col" style="text-align: center;">Nama Atlet</th>
-                                <th scope="col" style="text-align: center;">Score</th>
-                                <th scope="col" style="text-align: center;">Senshu</th>
-                                <th scope="col" style="text-align: center;">Criteria</th>
-                                <th scope="col" style="text-align: center;">VR</th>
-                                <th scope="col" style="text-align: center;">Pemenang</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <b><span style="color: red">Aka</span></b>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <button type="button" class="btn btn-warning" id="aka-score-dec">-</button>
-                                        <input type="number" style="text-align: center; width: 20%" id="aka-score" name="akaScore" value="0">
-                                        <div class="dropdown" style="display: inline-block; position: relative;">
-                                            <button type="button" class="btn btn-success dropdown-toggle" id="aka-score-inc">
-                                                +
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="aka-score-inc">
-                                                <li><button type="button" style="font-size: 30px;" id="aka-yuko" class="dropdown-item" href="#">Yuko +1</button></li>
-                                                <li><button type="button" style="font-size: 30px;" id="aka-wazaari" class="dropdown-item" href="#">Waza-ari +2</button></li>
-                                                <li><button type="button" style="font-size: 30px;" id="aka-ippon" class="dropdown-item" href="#">Ippon +3</button></li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <input class="form-check-input" type="checkbox" name="aka-senshu" id="aka-senshu" style="transform: scale(2);">
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <button type="button" class="btn btn-warning" id="aka-criteria-dec">-</button>
-                                        <input type="number" style="text-align: center; width: 20%" id="aka-criteria" name="akaCriteria" value="0">
-                                        <button type="button" class="btn btn-success" id="aka-criteria-inc">+</button>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <input class="form-check-input" type="checkbox" name="aka-vr" id="aka-vr" style="transform: scale(2);" {% if detail_bagan.vr1 %}checked{% endif %}>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <input class="form-check-input" type="radio" name="pemenang" value="aka" style="transform: scale(2);">
-                                    </td>
-                                </tr>
 
-                                <tr>
-                                    <td>
-                                        <b><span style="color: blue">Ao</span></b>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <button type="button" class="btn btn-warning" id="ao-score-dec">-</button>
-                                        <input type="number" style="text-align: center; width: 20%" id="ao-score" name="aoScore" value="0">
-                                        <div class="dropdown" style="display: inline-block; position: relative;">
-                                            <button type="button" class="btn btn-success dropdown-toggle" id="ao-score-inc">
-                                                +
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="ao-score-inc">
-                                                <li><button type="button" style="font-size: 30px;" id="ao-yuko" class="dropdown-item" href="#">Yuko +1</button></li>
-                                                <li><button type="button" style="font-size: 30px;" id="ao-wazaari" class="dropdown-item" href="#">Waza-ari +2</button></li>
-                                                <li><button type="button" style="font-size: 30px;" id="ao-ippon" class="dropdown-item" href="#">Ippon +3</button></li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <input class="form-check-input" type="checkbox" name="ao-senshu" id="ao-senshu" style="transform: scale(2);">
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <button type="button" class="btn btn-warning" id="ao-criteria-dec">-</button>
-                                        <input type="number" style="text-align: center; width: 20%" id="ao-criteria" name="aoCriteria" value="0">
-                                        <button type="button" class="btn btn-success" id="ao-criteria-inc">+</button>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <input class="form-check-input" type="checkbox" name="ao-vr" id="ao-vr" style="transform: scale(2);" {% if detail_bagan.vr2 %}checked{% endif %}>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <input class="form-check-input" type="radio" name="pemenang" value="ao" style="transform: scale(2);">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+        <div class="match-identity-pill festival-pill">
+            <span class="badge-tag" style="background: rgba(245, 158, 11, 0.3); border-color: #f59e0b; color: #fbbf24;">
+                <i class="fas fa-crown me-1"></i>FESTIVAL KUMITE
+            </span>
+            <span>AKA vs AO &bull; Kontingen AMBRILINDO &bull; Tatami {{ tatami.tatami_number }}</span>
+            <span class="badge bg-success ms-1" style="font-size: 10px; letter-spacing: 0.05em;">INFINITE MATCH</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            {% if tatamis|length > 1 %}
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-light dropdown-toggle fw-bold px-3 py-2" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-layer-group me-1 text-warning"></i> Tatami {{ tatami.tatami_number }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow">
+                    <li><h6 class="dropdown-header">Pilih Tatami Festival:</h6></li>
+                    {% for t in tatamis %}
+                    <li>
+                        <a class="dropdown-item {% if t.pk == tatami.pk %}active fw-bold{% endif %}" href="{% url 'control-panel-fest' event_pk=event.pk tatami_pk=t.pk %}">
+                            Tatami {{ t.tatami_number }} {% if t.pk == tatami.pk %}(Aktif){% endif %}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <span id="ws-status-badge" class="badge bg-secondary py-2 px-3">
+                <i class="fas fa-network-wired me-1"></i> WS Connect...
+            </span>
+            <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-2 shadow-sm" id="btn-sync-board-kumite" onclick="syncFestivalBoard()" title="Sinkronkan ulang status festival ke Scoring Board">
+                <i class="fas fa-sync-alt me-1"></i> Sync Board
+            </button>
+            <div id="status-indicator">
+                <span id="status-loading" class="badge bg-warning text-dark py-2 px-3"><i class="fas fa-spinner fa-spin me-1"></i> Sync...</span>
+                <span id="status-success" style="display:none;" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Tatami Online</span>
+                <span id="status-error" style="display:none;" class="badge bg-danger py-2 px-3">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Offline
+                    <button id="retry-status-btn" class="btn btn-sm btn-light py-0 px-1 ms-1" type="button" onclick="syncFestivalBoard()">Retry</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3-Column Cockpit Grid (Left: AO, Center: Timer Hub, Right: AKA) -->
+    <div class="cockpit-grid">
+        <!-- ==================== LEFT: AO (BIRU) POD ==================== -->
+        <div class="competitor-pod ao">
+            <div>
+                <!-- Athlete Info & Winner Button -->
+                <div class="pod-athlete-head">
+                    <div>
+                        <span class="pod-side-tag">AO &bull; BIRU</span>
+                        <div class="pod-athlete-name">Ao</div>
+                        <div class="pod-athlete-sub">- &bull; AMBRILINDO</div>
+                    </div>
+                    <button type="button" class="btn-winner-select" id="btn-win-ao" onclick="selectWinner('ao')">
+                        <i class="fas fa-trophy"></i> Menang
+                    </button>
+                </div>
+
+                <!-- Big Score + Senshu -->
+                <div class="score-core-row">
+                    <div class="score-huge-box">
+                        <span class="score-huge-digit text-primary" id="disp-ao-score">0</span>
+                    </div>
+                    <button type="button" class="btn-senshu-ribbon" id="btn-ao-senshu" onclick="toggleSenshu('ao')" title="Senshu AO (Poin Keunggulan Pertama)">
+                        <i class="fas fa-crown"></i>
+                        <span>SENSHU</span>
+                    </button>
+                </div>
+
+                <!-- 1-Click Fast Scoring Deck (Mirrored on Ao) -->
+                <div class="fast-score-deck mirrored">
+                    <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin AO">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn-point-act ao-3" onclick="addScorePoint('ao', 3, 'ao-ippon')" title="+3 IPPON AO">
+                        +3 IPPON
+                    </button>
+                    <button type="button" class="btn-point-act ao-2" onclick="addScorePoint('ao', 2, 'ao-wazaari')" title="+2 WAZA AO">
+                        +2 WAZA
+                    </button>
+                    <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')" title="+1 YUKO AO">
+                        +1 YUKO
+                    </button>
+                </div>
+
+                <!-- Progressive Criteria / Penalty Strip -->
+                <div class="criteria-strip">
+                    <span class="criteria-title"><i class="fas fa-exclamation-triangle text-warning me-1"></i>Pelanggaran</span>
+                    <div class="criteria-group">
+                        <button type="button" class="btn-crit-step" onclick="stepCriteria('ao', -1)" title="Kurangi Pelanggaran"><i class="fas fa-minus"></i></button>
+                        <span class="pill-crit" id="aoc-1" onclick="setCriteriaLevel('ao', 1)" title="Chui 1">C1</span>
+                        <span class="pill-crit" id="aoc-2" onclick="setCriteriaLevel('ao', 2)" title="Chui 2">C2</span>
+                        <span class="pill-crit" id="aoc-3" onclick="setCriteriaLevel('ao', 3)" title="Chui 3">C3</span>
+                        <span class="pill-crit" id="aoc-4" onclick="setCriteriaLevel('ao', 4)" title="Hansoku Chui">HC</span>
+                        <span class="pill-crit" id="aoc-5" onclick="setCriteriaLevel('ao', 5)" title="Hansoku">H</span>
+                        <button type="button" class="btn-crit-step" onclick="stepCriteria('ao', 1)" title="Tambah Pelanggaran"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">
-                            Control Panel
-                            {% if bagan.tipe_tanding == '1' %}
-                            <button type="button" class="btn btn-secondary" id="tampilkan-score" style="font-size: inherit; padding: 5px 10px; {% if bagan.tipe_tanding == '2' %}visibility: hidden{% endif %}">Tampilkan Score</button>
-                            {% else %}
-                            | Check Mouse
-                            <input class="form-check-input" type="checkbox" name="ms-check" id="ms-check" style="transform: scale(2); margin-left: 10px;">
-                            | HANTEI?
-                            <input class="form-check-input" type="checkbox" name="hantei" id="hantei" style="transform: scale(2); margin-left: 10px;">
-                            <span class="text-muted">|</span>
-                            <span class="fw-semibold">Countdown</span>
+        </div>
 
-                            <!-- Dropdown -->
-                            <div class="dropdown">
-                                <button class="btn btn-success btn-sm dropdown-toggle"
-                                        type="button"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                    +
-                                </button>
+        <!-- ==================== CENTER: MATCH COCKPIT HUB ==================== -->
+        <div class="cockpit-hub">
+            <div class="hub-header">
+                <span class="hub-title"><i class="fas fa-stopwatch me-1 text-warning"></i>Match Timer (Festival)</span>
+                <span class="badge bg-secondary" id="timer-live-badge" style="font-size: 11px;">PAUSED</span>
+            </div>
 
-                                <ul class="dropdown-menu p-3" aria-labelledby="aka-score-inc" style="min-width: 200px;">
-                                    <li class="form-check mb-3" style="font-size: 1.2rem; font-weight: 800;">
-                                        <label class="form-check-label ms-2" for="countdown">1 Aka</label>
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="countdown-1-aka"
-                                            name="countdown"
-                                            style="transform: scale(2);">
-                                    </li>
-                                    <li class="form-check mb-3" style="font-size: 1.2rem; font-weight: 800;">
-                                        <label class="form-check-label ms-2" for="countdown">2 Aka</label>
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="countdown-2-aka"
-                                            name="countdown"
-                                            style="transform: scale(2);">
-                                    </li>
-                                    <li class="form-check mb-3" style="font-size: 1.2rem; font-weight: 800;">
-                                        <label class="form-check-label ms-2" for="countdown">3 Aka</label>
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="countdown-3-aka"
-                                            name="countdown"
-                                            style="transform: scale(2);">
-                                    </li>
-                                    <li class="form-check mb-3" style="font-size: 1.2rem; font-weight: 800;">
-                                        <label class="form-check-label ms-2" for="countdown">1 Ao</label>
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="countdown-1-ao"
-                                            name="countdown"
-                                            style="transform: scale(2);">
-                                    </li>
-                                    <li class="form-check mb-3" style="font-size: 1.2rem; font-weight: 800;">
-                                        <label class="form-check-label ms-2" for="countdown">2 Ao</label>
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="countdown-2-ao"
-                                            name="countdown"
-                                            style="transform: scale(2);">
-                                    </li>
-                                    <li class="form-check mb-3" style="font-size: 1.2rem; font-weight: 800;">
-                                        <label class="form-check-label ms-2" for="countdown">3 Ao</label>
-                                        <input class="form-check-input"
-                                            type="checkbox"
-                                            id="countdown-3-ao"
-                                            name="countdown"
-                                            style="transform: scale(2);">
-                                    </li>
-                                </ul>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <select class="form-control" id="timer-choice">
-                                <option value="0" selected>00:00</option>
-                                <option value="30">00:30</option>
-                                <option value="60">01:00</option>
-                                <option value="90">01:30</option>
-                                <option value="120">02:00</option>
-                                <option value="150">02:30</option>
-                                <option value="180">03:00</option>
-                                <option value="210">03:30</option>
-                                <option value="240">04:00</option>
-                                <option value="270">04:30</option>
-                                <option value="300">05:00</option>
-                            </select>
-                            <button type="button" class="btn btn-primary" id="start-timer" style="font-size: 25px;">Start</button>
-                        </div>
+            <!-- Digital Tabular Timer Box -->
+            <div class="hub-timer-box">
+                <div class="hub-timer-digits" id="timer-display">
+                    <span id="minutes">01</span>:<span id="seconds">30</span>.<span class="ms-part" id="milliseconds">00</span>
+                </div>
+            </div>
+
+            <!-- Master Start / Pause Button -->
+            <button type="button" class="btn-master-start start-state" id="start-timer" title="Mulai / Jeda Timer">
+                <i class="fas fa-play" id="start-timer-icon"></i>
+                <span id="start-timer-text">START</span>
+            </button>
+
+            <!-- Time Micro Adjust & Duration Choice -->
+            <div class="time-adjust-row">
+                <button type="button" class="btn-time-step flex-fill" id="timer-decrement" title="Kurangi 1 Detik">
+                    <i class="fas fa-minus me-1"></i> 1s
+                </button>
+                <select class="form-select form-select-sm bg-dark text-light border-secondary text-center" id="timer-choice" style="width: 105px;">
+                    <option value="0">00:00</option>
+                    <option value="30">00:30</option>
+                    <option value="60">01:00</option>
+                    <option value="90" selected>01:30</option>
+                    <option value="120">02:00</option>
+                    <option value="150">02:30</option>
+                    <option value="180">03:00</option>
+                    <option value="210">03:30</option>
+                    <option value="240">04:00</option>
+                    <option value="300">05:00</option>
+                </select>
+                <button type="button" class="btn-time-step flex-fill" id="timer-increment" title="Tambah 1 Detik">
+                    <i class="fas fa-plus me-1"></i> 1s
+                </button>
+            </div>
+
+            <!-- Match Timer Presets -->
+            <div class="hub-presets-row">
+                <button type="button" class="btn-preset-chip" onclick="setTimerPreset(60)">1:00</button>
+                <button type="button" class="btn-preset-chip" onclick="setTimerPreset(90)">1:30</button>
+                <button type="button" class="btn-preset-chip" onclick="setTimerPreset(120)">2:00</button>
+                <button type="button" class="btn-preset-chip" onclick="setTimerPreset(180)">3:00</button>
+                <button type="button" class="btn-preset-chip text-danger" onclick="setTimerPreset(0)" title="Reset Timer ke 0:00">
+                    <i class="fas fa-undo me-1"></i>Reset
+                </button>
+            </div>
+
+            <!-- Prominent Tutup Banner Button -->
+            <button type="button" class="btn-tutup-banner" id="ms-reset" title="Tutup Banner Score di Scoreboard">
+                <i class="fas fa-times-circle me-1"></i>
+                <span>TUTUP BANNER SCORE</span>
+            </button>
+
+            <!-- Tactical Switches -->
+            <div class="hub-tools-strip">
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="ms-check" style="cursor: pointer;">
+                    <label class="form-check-label small fw-bold text-light" for="ms-check" style="cursor: pointer;">Stick Juri</label>
+                </div>
+
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="hantei" style="cursor: pointer;">
+                    <label class="form-check-label small fw-bold text-warning" for="hantei" style="cursor: pointer;">Hantei</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== RIGHT: AKA (MERAH) POD ==================== -->
+        <div class="competitor-pod aka">
+            <div>
+                <!-- Athlete Info & Winner Button -->
+                <div class="pod-athlete-head">
+                    <div>
+                        <span class="pod-side-tag">AKA &bull; MERAH</span>
+                        <div class="pod-athlete-name">Aka</div>
+                        <div class="pod-athlete-sub">- &bull; AMBRILINDO</div>
                     </div>
-                    <div class="card-body" style="text-align: center;">
-                        <p style="font-weight: bold; font-size: 50px;">
-                            <button type="button" id="timer-decrement" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">-</button>
-                            <span id="minutes">00</span>:
-                            <span id="seconds">00</span>:
-                            <span id="milliseconds">00</span>
-                            <button type="button" id="timer-increment" class="btn btn-primary" style="padding: 5px 10px; font-size: 20px;">+</button>
-                        </p>
+                    <button type="button" class="btn-winner-select" id="btn-win-aka" onclick="selectWinner('aka')">
+                        <i class="fas fa-trophy"></i> Menang
+                    </button>
+                </div>
+
+                <!-- Big Score + Senshu -->
+                <div class="score-core-row">
+                    <div class="score-huge-box">
+                        <span class="score-huge-digit text-danger" id="disp-aka-score">0</span>
+                    </div>
+                    <button type="button" class="btn-senshu-ribbon" id="btn-aka-senshu" onclick="toggleSenshu('aka')" title="Senshu AKA (Poin Keunggulan Pertama)">
+                        <i class="fas fa-crown"></i>
+                        <span>SENSHU</span>
+                    </button>
+                </div>
+
+                <!-- 1-Click Fast Scoring Deck -->
+                <div class="fast-score-deck">
+                    <button type="button" class="btn-point-act aka-1" onclick="addScorePoint('aka', 1, 'aka-yuko')" title="+1 YUKO AKA">
+                        +1 YUKO
+                    </button>
+                    <button type="button" class="btn-point-act aka-2" onclick="addScorePoint('aka', 2, 'aka-wazaari')" title="+2 WAZA AKA">
+                        +2 WAZA
+                    </button>
+                    <button type="button" class="btn-point-act aka-3" onclick="addScorePoint('aka', 3, 'aka-ippon')" title="+3 IPPON AKA">
+                        +3 IPPON
+                    </button>
+                    <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('aka', 'aka-score-dec')" title="Kurangi 1 Poin AKA">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+
+                <!-- Progressive Criteria / Penalty Strip -->
+                <div class="criteria-strip">
+                    <span class="criteria-title"><i class="fas fa-exclamation-triangle text-warning me-1"></i>Pelanggaran</span>
+                    <div class="criteria-group">
+                        <button type="button" class="btn-crit-step" onclick="stepCriteria('aka', -1)" title="Kurangi Pelanggaran"><i class="fas fa-minus"></i></button>
+                        <span class="pill-crit" id="akac-1" onclick="setCriteriaLevel('aka', 1)" title="Chui 1">C1</span>
+                        <span class="pill-crit" id="akac-2" onclick="setCriteriaLevel('aka', 2)" title="Chui 2">C2</span>
+                        <span class="pill-crit" id="akac-3" onclick="setCriteriaLevel('aka', 3)" title="Chui 3">C3</span>
+                        <span class="pill-crit" id="akac-4" onclick="setCriteriaLevel('aka', 4)" title="Hansoku Chui">HC</span>
+                        <span class="pill-crit" id="akac-5" onclick="setCriteriaLevel('aka', 5)" title="Hansoku">H</span>
+                        <button type="button" class="btn-crit-step" onclick="stepCriteria('aka', 1)" title="Tambah Pelanggaran"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </form>
 </div>
-<input type="hidden" id="tipe-tanding" value="{{ bagan.tipe_tanding }}">
 {% endblock content %}
 
 {% block script %}
 <script>
+    const eventPk = "{{ event.pk }}";
     const tatamiPk = "{{ tatami.pk }}";
+
+    let aka_score = 0;
+    let ao_score = 0;
+    let aka_criteria = 0;
+    let ao_criteria = 0;
+    let senshuHolder = null;
+    let winner = null;
+
+    // Timer state variables
+    let totalSeconds = 90; // Default preset 1:30
     let milliseconds = 0;
-    let totalSeconds = 0;
-</script>
-<script src="{% static 'mouse.js' %}"></script>
-<script>
-    // Base ___________________________________________________________
-    $('.select2').select2({
-        width: '100%'
-    });
-    $(document).on('click', '.dropdown-submenu > .dropdown-toggle', function(e){
-        $(this).next('.dropdown-menu').toggle();
-        e.stopPropagation();
-        e.preventDefault();
-    });
-
-    let interval = null;
+    let timerInterval = null;
     let isRunning = false;
-    let tampilkan = false;
+    let targetEndTime = 0;
 
-    const tipeTanding = $('#tipe-tanding').val()
+    // Status Indicator Helper
+    function setState(state) {
+        const elLoad = document.getElementById('status-loading');
+        const elSucc = document.getElementById('status-success');
+        const elErr = document.getElementById('status-error');
+        if (!elLoad || !elSucc || !elErr) return;
 
-    let aka_score = 0 
-    let ao_score = 0 
+        elLoad.style.display = state === 'loading' ? 'inline-block' : 'none';
+        elSucc.style.display = state === 'success' ? 'inline-block' : 'none';
+        elErr.style.display = state === 'error' ? 'inline-block' : 'none';
+    }
 
-    let aka_criteria = 0
-    let ao_criteria = 0
+    // ==================== WEBSOCKET ENGINE (<2ms) ====================
+    let socket = null;
+    let socketReconnectTimer = null;
 
+    function initControlSocket() {
+        if (socket) {
+            try {
+                socket.onopen = null;
+                socket.onclose = null;
+                socket.onerror = null;
+                socket.onmessage = null;
+                socket.close();
+            } catch(e) {}
+            socket = null;
+        }
+
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsUrl = protocol + window.location.host + `/ws/admin-dashboard/${eventPk}/control-panel/tatami/${tatamiPk}`;
+
+        try {
+            socket = new WebSocket(wsUrl);
+        } catch (err) {
+            scheduleReconnect();
+            return;
+        }
+
+        function updateWsBadge(status) {
+            const badge = $('#ws-status-badge');
+            if (!badge.length) return;
+            if (status === 'connected') {
+                badge.removeClass('bg-secondary bg-danger bg-warning text-dark').addClass('bg-success text-white');
+                badge.html('<i class="fas fa-bolt me-1"></i> WS Live');
+            } else if (status === 'reconnecting') {
+                badge.removeClass('bg-secondary bg-success bg-danger text-white').addClass('bg-warning text-dark');
+                badge.html('<i class="fas fa-sync fa-spin me-1"></i> WS Reconnect...');
+            } else if (status === 'offline') {
+                badge.removeClass('bg-secondary bg-success bg-warning text-dark').addClass('bg-danger text-white');
+                badge.html('<i class="fas fa-exclamation-triangle me-1"></i> WS Offline');
+            }
+        }
+
+        socket.onopen = function() {
+            if (socketReconnectTimer) {
+                clearTimeout(socketReconnectTimer);
+                socketReconnectTimer = null;
+            }
+            updateWsBadge('connected');
+            setState('success');
+            // Sync festival state to scoring board immediately
+            sendControlAction('sync-board', '', 'all');
+        };
+
+        socket.onclose = function() {
+            updateWsBadge('reconnecting');
+            setState('loading');
+            scheduleReconnect();
+        };
+
+        socket.onerror = function() {
+            updateWsBadge('offline');
+            setState('error');
+            try { socket.close(); } catch(e) {}
+        };
+    }
+
+    function scheduleReconnect() {
+        if (!socketReconnectTimer) {
+            socketReconnectTimer = setTimeout(() => {
+                socketReconnectTimer = null;
+                initControlSocket();
+            }, 2500);
+        }
+    }
+
+    function sendControlAction(action, details, target) {
+        target = target || 'all';
+        details = details !== undefined ? details : '';
+
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                action: action,
+                command: action,
+                details: details,
+                target: target
+            }));
+            return;
+        }
+
+        // HTTP Fallback
+        const targetUrl = `/scoring-board/${tatamiPk}/message-retriever`;
+        $.ajax({
+            url: targetUrl,
+            method: 'POST',
+            data: {
+                action: action,
+                details: typeof details === 'object' ? JSON.stringify(details) : details,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function() { setState('success'); },
+            error: function() { setState('error'); }
+        });
+    }
+
+    function syncFestivalBoard() {
+        sendControlAction('sync-board', '', 'all');
+    }
+
+    // ==================== FAST SCORING ENGINE ====================
+    function addScorePoint(side, points, command) {
+        if (side === 'aka') {
+            aka_score += points;
+            $('#disp-aka-score').text(aka_score);
+        } else {
+            ao_score += points;
+            $('#disp-ao-score').text(ao_score);
+        }
+        sendControlAction(command, '', 'all');
+    }
+
+    function decScorePoint(side, command) {
+        if (side === 'aka') {
+            if (aka_score > 0) aka_score--;
+            $('#disp-aka-score').text(aka_score);
+        } else {
+            if (ao_score > 0) ao_score--;
+            $('#disp-ao-score').text(ao_score);
+        }
+        sendControlAction(command, '', 'all');
+    }
+
+    // ==================== CRITERIA / PELANGGARAN ENGINE ====================
+    function setCriteriaLevel(side, level) {
+        const current = side === 'aka' ? aka_criteria : ao_criteria;
+        const target = (current === level) ? level - 1 : level;
+
+        if (side === 'aka') {
+            const diff = target - aka_criteria;
+            aka_criteria = Math.max(0, Math.min(5, target));
+            updateCriteriaUI('aka', aka_criteria);
+            if (diff > 0) {
+                for (let i = 0; i < diff; i++) sendControlAction('aka-criteria-inc', '', 'all');
+            } else if (diff < 0) {
+                for (let i = 0; i < -diff; i++) sendControlAction('aka-criteria-dec', '', 'all');
+            }
+        } else {
+            const diff = target - ao_criteria;
+            ao_criteria = Math.max(0, Math.min(5, target));
+            updateCriteriaUI('ao', ao_criteria);
+            if (diff > 0) {
+                for (let i = 0; i < diff; i++) sendControlAction('ao-criteria-inc', '', 'all');
+            } else if (diff < 0) {
+                for (let i = 0; i < -diff; i++) sendControlAction('ao-criteria-dec', '', 'all');
+            }
+        }
+    }
+
+    function stepCriteria(side, step) {
+        const current = side === 'aka' ? aka_criteria : ao_criteria;
+        setCriteriaLevel(side, current + step);
+    }
+
+    function updateCriteriaUI(side, level) {
+        const prefix = side === 'aka' ? 'akac-' : 'aoc-';
+        const activeClass = side === 'aka' ? 'active-red' : 'active-blue';
+        for (let i = 1; i <= 5; i++) {
+            const el = $(`#${prefix}${i}`);
+            if (i <= level) el.addClass(activeClass);
+            else el.removeClass(activeClass);
+        }
+    }
+
+    // ==================== SENSHU ENGINE ====================
+    function toggleSenshu(side) {
+        if (senshuHolder === side) {
+            senshuHolder = null;
+            $(`#btn-${side}-senshu`).removeClass('active');
+            sendControlAction('senshu', `${side}-remove-senshu`, 'all');
+        } else {
+            if (senshuHolder) {
+                $(`#btn-${senshuHolder}-senshu`).removeClass('active');
+                sendControlAction('senshu', `${senshuHolder}-remove-senshu`, 'all');
+            }
+            senshuHolder = side;
+            $(`#btn-${side}-senshu`).addClass('active');
+            sendControlAction('senshu', `${side}-senshu`, 'all');
+        }
+    }
+
+    // ==================== WINNER SELECTION ====================
+    function selectWinner(side) {
+        if (winner === side) {
+            winner = null;
+            $('#btn-win-aka').removeClass('selected-aka');
+            $('#btn-win-ao').removeClass('selected-ao');
+            sendControlAction('pemenang', 'seri', 'all');
+        } else {
+            winner = side;
+            if (side === 'aka') {
+                $('#btn-win-aka').addClass('selected-aka');
+                $('#btn-win-ao').removeClass('selected-ao');
+                sendControlAction('pemenang', 'aka', 'all');
+            } else {
+                $('#btn-win-ao').addClass('selected-ao');
+                $('#btn-win-aka').removeClass('selected-aka');
+                sendControlAction('pemenang', 'ao', 'all');
+            }
+        }
+    }
+
+    // ==================== HIGH-PRECISION TIMER ENGINE ====================
     function updateDisplay(seconds, ms) {
-        if (seconds >= 0) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = ((seconds % 60) + 60) % 60;
-            $('#minutes').text(String(minutes).padStart(2, '0'));
-            $('#seconds').text(String(secs).padStart(2, '0'));
-            $('#milliseconds').text(String(ms).padStart(2, '0'));
-        } 
+        seconds = Math.max(0, seconds);
+        const minutes = Math.floor(seconds / 60);
+        const secs = ((seconds % 60) + 60) % 60;
+        const sMin = String(minutes).padStart(2, '0');
+        const sSec = String(secs).padStart(2, '0');
+        const sMs = String(ms).padStart(2, '0');
+
+        $('#minutes').text(sMin);
+        $('#seconds').text(sSec);
+        $('#milliseconds').text(sMs);
     }
 
-    $('input[name="pemenang"]').on('change', function() {
-        const selectedValue = $(this).val();
-        let scoreAka = $('#totalAka').val();
-        let scoreAo = $('#totalAo').val();
-        $.ajax({
-            url: '/jury-panel/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'pemenang',
-                details: selectedValue,
-                // details: JSON.stringify([selectedValue, scoreAka, scoreAo]),
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    });
+    function startControlTimer() {
+        if (isRunning) return;
+        if (totalSeconds === 0 && milliseconds === 0) return;
 
-    $('#aka-bendera').on('change', function() {
-        $('#totalAka').val($(this).val())
-        if ($(this).val() == '0') {
-            $('#ao-bendera').val('5')
-            $('#totalAo').val('5')
-        } else if ($(this).val() == '1') {
-            $('#ao-bendera').val('4')
-            $('#totalAo').val('4')
-        } else if ($(this).val() == '2') {
-            $('#ao-bendera').val('3')
-            $('#totalAo').val('3')
-        } else if ($(this).val() == '3') {
-            $('#ao-bendera').val('2')
-            $('#totalAo').val('2')
-        } else if ($(this).val() == '4') {
-            $('#ao-bendera').val('1')
-            $('#totalAo').val('1')
-        } else if ($(this).val() == '5') {
-            $('#ao-bendera').val('0')
-            $('#totalAo').val('0')
-        } else if ($(this).val() == '-') {
-            $('#ao-bendera').val('0')
-            $('#totalAo').val('0.0')
-            $('#totalAka').val('0.0')
-        }
-        var aka_bendera = $(this).val()
-        var ao_bendera = $('#ao-bendera').val()
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'bendera',
-                details: JSON.stringify([aka_bendera, ao_bendera]),
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
+        isRunning = true;
+        $('#start-timer').removeClass('start-state').addClass('pause-state');
+        $('#start-timer-text').text('PAUSE');
+        $('#start-timer-icon').removeClass('fa-play').addClass('fa-pause');
+        $('#timer-display').addClass('running');
+        $('#timer-live-badge').removeClass('bg-secondary bg-warning text-dark').addClass('bg-danger text-white').text('RUNNING');
 
-    $('#ms-check').on('click', function() {
-        let ms_check = 0
-        if ($(this).is(':checked')) {
-            ms_check = 1
-        } else {
-            ms_check = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'ms-check',
-                details: ms_check,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
+        const remainingMs = (totalSeconds * 1000) + (milliseconds * 10);
+        targetEndTime = performance.now() + remainingMs;
 
-    $('#countdown').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-aka',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-
-    $('#countdown1').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-ao',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-
-    $('#countdown-1-aka').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-1-aka',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-    $('#countdown-2-aka').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-2-aka',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-    $('#countdown-3-aka').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-3-aka',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-    $('#countdown-1-ao').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-1-ao',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-    $('#countdown-2-ao').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-2-ao',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-    $('#countdown-3-ao').on('click', function() {
-        let countdown_val = 0
-        if ($(this).is(':checked')) {
-            countdown_val = 1
-        } else {
-            countdown_val = 0
-        }
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'countdown-3-ao',
-                details: countdown_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-
-    $('#hantei').on('click', function() {
-        let hantei = 0
-        if ($(this).is(':checked')) {
-            hantei = 1
-        } else {
-            hantei = 0
-        }
-        console.log(hantei)
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'hantei',
-                details: hantei,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-
-    $('#ms-reset').on('click', function() {
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'reset-banner',
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-    $('#aka-request').on('click', function() {
-        kirim_vr('aka-request')
-        $('#aka-requested').text('-')
-        kirim_status_vr('aka', '1')
-    })
-    $('#aka-accept-1').on('click', function() {
-        kirim_vr('aka-accept-1')
-        $('#aka-requested').text('-')
-        kirim_status_vr('aka', '1')
-    })
-    $('#aka-accept-2').on('click', function() {
-        kirim_vr('aka-accept-2')
-        $('#aka-requested').text('-')
-        kirim_status_vr('aka', '1')
-    })
-    $('#aka-accept-3').on('click', function() {
-        kirim_vr('aka-accept-3')
-        $('#aka-requested').text('-')
-        kirim_status_vr('aka', '1')
-    })
-    $('#aka-decline').on('click', function() {
-        kirim_vr('aka-decline')
-        $('#aka-vr').prop('checked', false)
-        kirim_vr('aka-remove-vr')
-        $('#aka-requested').text('-')
-        kirim_status_vr('aka', '0')
-    })
-    $('#ao-request').on('click', function() {
-        kirim_vr('ao-request')
-        $('#ao-requested').text('-')
-        kirim_status_vr('ao', '1')
-    })
-    $('#ao-accept-1').on('click', function() {
-        kirim_vr('ao-accept-1')
-        $('#ao-requested').text('-')
-        kirim_status_vr('ao', '1')
-    })
-    $('#ao-accept-2').on('click', function() {
-        kirim_vr('ao-accept-2')
-        $('#ao-requested').text('-')
-        kirim_status_vr('ao', '1')
-    })
-    $('#ao-accept-3').on('click', function() {
-        kirim_vr('ao-accept-3')
-        $('#ao-requested').text('-')
-        kirim_status_vr('ao', '1')
-    })
-    $('#ao-decline').on('click', function() {
-        kirim_vr('ao-decline')
-        $('#ao-vr').prop('checked', false)
-        kirim_vr('ao-remove-vr')
-        $('#ao-requested').text('-')
-        kirim_status_vr('ao', '0')
-    })
-    $('#aka-vr').on('change', function() {
-        if ($(this).is(':checked')) {
-            kirim_vr('aka-vr')
-        } else {
-            kirim_vr('aka-remove-vr')
-        }
-    })
-    $('#ao-vr').on('change', function() {
-        if ($(this).is(':checked')) {
-            kirim_vr('ao-vr')
-        } else {
-            kirim_vr('ao-remove-vr')
-        }
-    })
-
-    function kirim_status_vr(value1, value2) {
-        $.ajax({
-            url: '/coach-supervisor/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'vr_status',
-                details: JSON.stringify([value1, value2]),
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        timerInterval = setInterval(() => {
+            const diff = targetEndTime - performance.now();
+            if (diff <= 0) {
+                totalSeconds = 0;
+                milliseconds = 0;
+                updateDisplay(0, 0);
+                pauseControlTimer();
+                sendControlAction('timer-sync', JSON.stringify([0, 0]), 'scoring');
+                sendControlAction('timer-status', 'pause', 'scoring');
+                return;
+            }
+            totalSeconds = Math.floor(diff / 1000);
+            milliseconds = Math.floor((diff % 1000) / 10);
+            updateDisplay(totalSeconds, milliseconds);
+        }, 25);
     }
 
-    function kirim_vr(vr_value) {
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'vr',
-                details: vr_value,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+    function pauseControlTimer() {
+        if (!isRunning) return;
+        isRunning = false;
+        clearInterval(timerInterval);
+        timerInterval = null;
+
+        $('#start-timer').removeClass('pause-state').addClass('start-state');
+        $('#start-timer-text').text('START');
+        $('#start-timer-icon').removeClass('fa-pause').addClass('fa-play');
+        $('#timer-display').removeClass('running');
+        $('#timer-live-badge').removeClass('bg-danger text-white').addClass('bg-secondary').text('PAUSED');
     }
 
-    $('#aka-senshu').on('change', function() {
-        if ($(this).is(':checked')) {
-            kirim_senshu('aka-senshu')
+    function toggleTimer() {
+        const status = isRunning ? 'pause' : 'start';
+        if (isRunning) {
+            pauseControlTimer();
         } else {
-            kirim_senshu('aka-remove-senshu')
+            startControlTimer();
         }
-    })
-
-    $('#ao-senshu').on('change', function() {
-        if ($(this).is(':checked')) {
-            kirim_senshu('ao-senshu')
-        } else {
-            kirim_senshu('ao-remove-senshu')
-        }
-    })
-
-    function kirim_senshu(senshu_value) {
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'senshu',
-                details: senshu_value,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
+        sendControlAction('timer-status', status, 'scoring');
+        sendControlAction('timer-sync', JSON.stringify([totalSeconds, milliseconds]), 'scoring');
     }
 
-    $('#aka-score-dec').on('click', function() {
-        if (aka_score != 0) {
-            aka_score--;
-            score('aka-score-dec')
-        }
-        $('#aka-score').val(aka_score)
-    })
-    $('#aka-yuko').on('click', function() {
-        aka_score += 1;
-        score('aka-yuko')
-        $('#aka-score').val(aka_score)
-    })
-    $('#aka-wazaari').on('click', function() {
-        aka_score += 2;
-        score('aka-wazaari')
-        $('#aka-score').val(aka_score)
-    })
-    $('#aka-ippon').on('click', function() {
-        aka_score += 3;
-        score('aka-ippon')
-        $('#aka-score').val(aka_score)
-    })
-    $('#aka-criteria-dec').on('click', function() {
-        if (aka_criteria != 0) {
-            aka_criteria--;
-            score('aka-criteria-dec')
-        }
-        $('#aka-criteria').val(aka_criteria)
-    })
-    $('#aka-criteria-inc').on('click', function() {
-        aka_criteria++;
-        score('aka-criteria-inc')
-        $('#aka-criteria').val(aka_criteria)
-    })
-    $('#ao-score-dec').on('click', function() {
-        if (ao_score != 0) {
-            ao_score--;
-            score('ao-score-dec')
-        }
-        $('#ao-score').val(ao_score)
-    })
-    $('#ao-yuko').on('click', function() {
-        ao_score += 1;
-        score('ao-yuko')
-        $('#ao-score').val(ao_score)
-    })
-    $('#ao-wazaari').on('click', function() {
-        ao_score += 2;
-        score('ao-wazaari')
-        $('#ao-score').val(ao_score)
-    })
-    $('#ao-ippon').on('click', function() {
-        ao_score += 3;
-        score('ao-ippon')
-        $('#ao-score').val(ao_score)
-    })
-    $('#ao-criteria-dec').on('click', function() {
-        if (ao_criteria != 0) {
-            ao_criteria--;
-            score('ao-criteria-dec')
-        }
-        $('#ao-criteria').val(ao_criteria)
-    })
-    $('#ao-criteria-inc').on('click', function() {
-        ao_criteria++;
-        score('ao-criteria-inc')
-        $('#ao-criteria').val(ao_criteria)
-    })
+    function setTimerPreset(sec) {
+        pauseControlTimer();
+        totalSeconds = sec;
+        milliseconds = 0;
+        updateDisplay(totalSeconds, milliseconds);
+        $('#timer-choice').val(sec);
+        sendControlAction('timer-change', totalSeconds, 'scoring');
+        sendControlAction('timer-sync', JSON.stringify([totalSeconds, milliseconds]), 'scoring');
+        sendControlAction('timer-status', 'pause', 'scoring');
+    }
 
-    function score(value) {
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: value,
-                details: '',
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    } 
-
-    $('#kata-aka').on('change', function() {
-        kata_val = $('#kata-aka').val()
-        $.ajax({
-            url: '/jury-panel/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'aka-kata-kirim',
-                details: kata_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-         });
-         $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'aka-kata-kirim',
-                details: kata_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-         });
-    })
-
-    $('#kata-ao').on('change', function() {
-        kata_val = $('#kata-ao').val()
-        $.ajax({
-            url: '/jury-panel/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'ao-kata-kirim',
-                details: kata_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-         });
-         $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'ao-kata-kirim',
-                details: kata_val,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-         });
-    })
-
-    $('#tampilkan-score').on('click', function() {
-        if (tampilkan == false) {
-            $('#tampilkan-score').html('<i class="fas fa-eye-slash"></i>')
-            tampilkan = true
-        } else {
-            $('#tampilkan-score').html('<i class="fas fa-eye"></i>')
-            tampilkan = false
-        }
-        let scoreAka = $('#totalAka').val();
-        let scoreAo = $('#totalAo').val();
-
-        let scoresAka = []
-        let scoresAo = []
-
-        for (let i=1; i <= 5; i++) {
-            scoresAka.push($(`#akaj${i}`).val())
-            scoresAo.push($(`#aoj${i}`).val())
-        }
-
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'tampilkan-score',
-                details: JSON.stringify([scoreAka, scoreAo, scoresAka, scoresAo]),
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
-
-    $('#tampilkan-score-simple').on('click', function() {
-        if (tampilkan == false) {
-            $('#tampilkan-score-simple').html('<i class="fas fa-eye-slash"></i>')
-            tampilkan = true
-        } else {
-            tampilkan = false
-            $('#tampilkan-score-simple').html('<i class="fas fa-eye"></i>')
-        }
-        let scoreAka = $('#totalAka').val();
-        let scoreAo = $('#totalAo').val();
-
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'tampilkan-score-simple',
-                details: JSON.stringify([scoreAka, scoreAo]),
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    })
+    $('#start-timer').on('click', toggleTimer);
 
     $('#timer-increment').on('click', function() {
         totalSeconds++;
         updateDisplay(totalSeconds, milliseconds);
-        timer_func('timer-increment', '')
-    })
+        if (isRunning) targetEndTime += 1000;
+        sendControlAction('timer-increment', '', 'scoring');
+    });
+
     $('#timer-decrement').on('click', function() {
-        totalSeconds--;
-        updateDisplay(totalSeconds, milliseconds);
-        timer_func('timer-decrement', '')
-    })
+        if (totalSeconds > 0) {
+            totalSeconds--;
+            updateDisplay(totalSeconds, milliseconds);
+            if (isRunning) targetEndTime -= 1000;
+            sendControlAction('timer-decrement', '', 'scoring');
+        }
+    });
+
     $('#timer-choice').on('change', function () {
         if (!isRunning) {
-            totalSeconds = parseInt($(this).val());
-            milliseconds = 0;
-            updateDisplay(totalSeconds, milliseconds);
-            timer_func('timer-change', totalSeconds)
+            setTimerPreset(parseInt($(this).val(), 10) || 0);
         }
     });
 
-    function timer_func(value1, value2) {
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: value1,
-                details: value2,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-    }
-
-    $('#start-timer').on('click', function () {
-        const status = isRunning ? 'pause' : 'start';
-
-        $.ajax({
-            url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-            type: 'POST',
-            data: {
-                action: 'timer-status',
-                details: status,
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-            },
-        });
-
-        if (status == 'pause') {
-            $.ajax({
-                url: '/scoring-board/{{ tatami.pk }}/message-retriever',
-                type: 'POST',
-                data: {
-                    action: 'timer-sync',
-                    details: JSON.stringify([totalSeconds, milliseconds]),
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-                },
-            });
-        }
-
-        if (!isRunning) {
-            isRunning = true;
-            $(this).text('Pause').removeClass('btn-primary').addClass('btn-danger');
-
-            interval = setInterval(() => {
-                if (milliseconds === 0) {
-                    if (totalSeconds === 0) {
-                        clearInterval(interval);
-                        isRunning = false;
-                        $('#start-timer').text('Start').removeClass('btn-danger').addClass('btn-primary');
-                        return;
-                    }
-                    totalSeconds--;
-                    milliseconds = 99;
-                } else {
-                    milliseconds--;
-                }
-                updateDisplay(totalSeconds, milliseconds);
-            }, 10);
-        } else {
-            isRunning = false;
-            clearInterval(interval);
-            $(this).text('Start').removeClass('btn-danger').addClass('btn-primary');
-        }
+    // Extra Toggles
+    $('#ms-check').on('change', function() {
+        sendControlAction('ms-check', $(this).is(':checked') ? 1 : 0, 'all');
     });
 
-    const kataList = [
-        "Blank",
-        "Anan",
-        "Anan Dai",
-        "Ananko",
-        "Aoyagi",
-        "Bassai",
-        "Bassai Dai",
-        "Bassai Sho",
-        "Chatanyara Kusanku",
-        "Chibana No Kushanku",
-        "Chinte",
-        "Chinto",
-        "Enpi",
-        "Fukyugata Ichi",
-        "Fukvugata Ni",
-        "Gankaku",
-        "Garyu",
-        "Gekisai (Geksai) 1",
-        "Gekisai (Geksai) 2",
-        "Gojushiho",
-        "Gojushiho Dai",
-        "Gojushiho Sho",
-        "Hakucho",
-        "Hangetsu",
-        "Haufa (Haffa)",
-        "Heian Shodan",
-        "Heian Nidan",
-        "Heian Sandan",
-        "Heian Yondan",
-        "Heian Godan",
-        "Heiku",
-        "Ishimine Bassai",
-        "Itosu Rohai Shodan",
-        "Itosu Rohai Nidan",
-        "Itosu Rohai Sandan",
-        "Jiin",
-        "Jion",
-        "Jitte",
-        "Juroku",
-        "Kanchin",
-        "Kanku Dai",
-        "Kanku Sho",
-        "Kanshu",
-        "Kishimoto No Kushanku",
-        "Kousoukun",
-        "Kousoukun Dai",
-        "Kousoukun Sho",
-        "Kururunfa",
-        "Kusanku",
-        "Kyan No Chinto",
-        "Kyan No Wanshu",
-        "Matsukaze",
-        "Matsumura Bassai",
-        "Matsumura Rohai",
-        "Meikyo",
-        "Myojo",
-        "Naifanchin Shodan",
-        "Naifanchin Nidan",
-        "Naifanchin Sandan",
-        "Naihanchi",
-        "Nijushiho",
-        "Nipaipo",
-        "Niseishi",
-        "Ohan",
-        "Ohan Dai",
-        "Oyadomari No Passai",
-        "Pachu",
-        "Paiku",
-        "Papuren",
-        "Passai",
-        "Pinan Shodan",
-        "Pinan Nidan",
-        "Pinan Sandan",
-        "Pinan Yondan",
-        "Pinan Godan",
-        "Rohai",
-        "Saifa",
-        "Sanchin",
-        "Sansai",
-        "Sanseiru",
-        "Sanseni",
-        "Seichin",
-        "Seienchin (Seiyunchin)",
-        "Seipai",
-        "Seiryu",
-        "Seishan",
-        "Seisan (Sesan)",
-        "Shiho Kousoukun",
-        "Shinpa",
-        "Shinsei",
-        "Shisochin",
-        "Sochin",
-        "Suparinpei",
-        "Tekki Shodan",
-        "Tekki Nidan",
-        "Tekki Sandan",
-        "Tensho",
-        "Tomari Bassai",
-        "Unshu",
-        "Unsu",
-        "Useishi",
-        "Wankan",
-        "Wanshu"
-    ];
+    $('#hantei').on('change', function() {
+        sendControlAction('hantei', $(this).is(':checked') ? 1 : 0, 'all');
+    });
 
-    var kata_aka = '{{ detail_bagan.kata1 }}';
-    var kata_ao = '{{ detail_bagan.kata2 }}';
-    
-    if (tipeTanding == '1') {
-        function populateSelect(selectElement, selectedValue) {
-            kataList.forEach((kata, index) => {
-                const option = document.createElement('option');
-                option.value = `${index} - ${kata}`;
-                option.textContent = `${index} - ${kata}`;
+    $('#ms-reset').on('click', function() {
+        sendControlAction('reset-banner', '', 'all');
+    });
 
-                // Set selected if this option matches the value from the DB
-                if (option.value === selectedValue) {
-                    option.selected = true;
-                }
+    // ==================== RESET MATCH (INFINITE MATCH) ====================
+    function resetFestivalMatch() {
+        pauseControlTimer();
+        totalSeconds = 90;
+        milliseconds = 0;
+        updateDisplay(totalSeconds, milliseconds);
+        $('#timer-choice').val(90);
 
-                selectElement.appendChild(option);
-            });
-        }
+        aka_score = 0;
+        ao_score = 0;
+        $('#disp-aka-score').text('0');
+        $('#disp-ao-score').text('0');
 
-        populateSelect(kataAka, kata_aka);
-        populateSelect(kataAo, kata_ao);
+        aka_criteria = 0;
+        ao_criteria = 0;
+        updateCriteriaUI('aka', 0);
+        updateCriteriaUI('ao', 0);
+
+        senshuHolder = null;
+        winner = null;
+        $('#btn-aka-senshu').removeClass('active');
+        $('#btn-ao-senshu').removeClass('active');
+        $('#btn-win-aka').removeClass('selected-aka');
+        $('#btn-win-ao').removeClass('selected-ao');
+        $('#ms-check').prop('checked', false);
+        $('#hantei').prop('checked', false);
+
+        // Broadcast reset to scoring board
+        sendControlAction('sync-board', '', 'all');
+        sendControlAction('timer-change', totalSeconds, 'scoring');
+        sendControlAction('timer-sync', JSON.stringify([totalSeconds, milliseconds]), 'scoring');
+        sendControlAction('timer-status', 'pause', 'scoring');
+        sendControlAction('reset-banner', '', 'all');
     }
+
+    // Initialize
+    $(document).ready(function() {
+        updateDisplay(totalSeconds, milliseconds);
+        initControlSocket();
+    });
 </script>
 {% endblock script %}

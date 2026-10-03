@@ -3093,6 +3093,95 @@ def control_panel(request, event_pk, bagan_pk, detailbagan_pk, tatami_pk):
 
     return render(request, 'admin/control-panel.html', context)
 
+def broadcast_festival_match(tatami):
+    if not tatami:
+        return
+    channel_layer = get_channel_layer()
+    if not channel_layer:
+        return
+
+    from django.core.cache import cache
+    cache.set(f"tatami_{tatami.pk}_festival", True, 86400)
+
+    detail_data = {
+        "tatami_pk": tatami.pk,
+        "tatami_number": tatami.tatami_number,
+        "match_pk": None,
+        "bagan_pk": None,
+        "is_running": True,
+        "selesai": False,
+        "atlet_red": "Aka",
+        "atlet_red_perguruan": "-",
+        "atlet_red_utusan": "AMBRILINDO",
+        "atlet_red_logo": None,
+        "atlet_red_kata": "-",
+        "atlet_red_vr": None,
+        "atlet_blue": "Ao",
+        "atlet_blue_perguruan": "-",
+        "atlet_blue_utusan": "AMBRILINDO",
+        "atlet_blue_logo": None,
+        "atlet_blue_kata": "-",
+        "atlet_blue_vr": None,
+        "tipe_tanding": "2",
+        "team": None,
+        "total_aka_score": 0,
+        "total_ao_score": 0,
+        "nomor_tanding": "FESTIVAL",
+        "nama_bagan": "FESTIVAL",
+        "round_label": "FESTIVAL",
+        "round_of": "",
+        "marquee_text": "FESTIVAL KUMITE",
+        "round": 1,
+        "urutan": 1,
+        "nama_event": tatami.event.nama_event if tatami.event else "",
+        "kata_history_aka": {},
+        "kata_history_ao": {},
+        "is_final": False,
+        "has_vr": False,
+    }
+
+    groups = [
+        f"scoring_{tatami.pk}",
+        f"control_{tatami.pk}",
+        f"admin_control_{tatami.pk}",
+        f"lokata_{tatami.pk}",
+        f"tatamimanager_{tatami.pk}",
+    ]
+
+    for grp in groups:
+        try:
+            async_to_sync(channel_layer.group_send)(
+                grp,
+                {
+                    "type": "broadcast_command",
+                    "message": "get_atlet",
+                    "details": detail_data,
+                }
+            )
+        except Exception:
+            pass
+
+def control_panel_fest_entry(request, event_pk):
+    if not request.user.is_authenticated:
+        return redirect('auth')
+    event = get_object_or_404(Event, pk=event_pk)
+    user_role = Role.objects.filter(user=request.user).select_related('tatami').first()
+    if user_role and user_role.tatami and user_role.tatami.event_id == event.pk:
+        return redirect('control-panel-fest', event_pk=event.pk, tatami_pk=user_role.tatami.pk)
+    admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).select_related('tatami').first()
+    if admin_tatami and admin_tatami.tatami:
+        return redirect('control-panel-fest', event_pk=event.pk, tatami_pk=admin_tatami.tatami.pk)
+    tatami_query = request.GET.get('tatami')
+    if tatami_query:
+        tatami = Tatami.objects.filter(event=event, tatami_number=tatami_query).first() or Tatami.objects.filter(event=event, pk=tatami_query).first()
+        if tatami:
+            return redirect('control-panel-fest', event_pk=event.pk, tatami_pk=tatami.pk)
+    first_tatami = Tatami.objects.filter(event=event).order_by('tatami_number').first()
+    if first_tatami:
+        return redirect('control-panel-fest', event_pk=event.pk, tatami_pk=first_tatami.pk)
+    messages.error(request, "Belum ada tatami yang terdaftar di event ini.")
+    return redirect('admin-tatami', event_pk=event.pk)
+
 def control_panel_fest(request, event_pk, tatami_pk):
     if not request.user.is_authenticated:
         return redirect('auth')
@@ -3100,62 +3189,23 @@ def control_panel_fest(request, event_pk, tatami_pk):
     tatami = get_object_or_404(Tatami, pk=tatami_pk)
     admin_tatami = AdminTatami.objects.filter(user=request.user, event=event).first()
 
-    total_aka_score = 0
-    total_ao_score = 0
+    # Clear tournament active match on this tatami for festival mode
+    if tatami.detail_bagan_id is not None:
+        tatami.detail_bagan = None
+        tatami.save(update_fields=['detail_bagan'])
 
-    detail_data = {
-        "atlet_red": "Aka",
-        "atlet_red_perguruan": "-",
-        "atlet_red_utusan": "-",
-        "atlet_red_kata": "-",
-        "atlet_red_vr": None,
-        "atlet_blue": "Ao",
-        "atlet_blue_perguruan": "-",
-        "atlet_blue_utusan": "-",
-        "atlet_blue_kata": "-",
-        "atlet_blue_vr": None,
-        "tipe_tanding": "2",
-        "team": None,
-        "total_aka_score": total_aka_score,
-        "total_ao_score": total_ao_score,
-        "nomor_tanding": "Festival",
-    } 
+    # Broadcast festival match (Aka vs Ao, perguruan '-', utusan 'AMBRILINDO')
+    broadcast_festival_match(tatami)
 
-    group_name = f"scoring_{tatami.pk}"
-    channel_layer = get_channel_layer()
-
-    async_to_sync(channel_layer.group_send)(
-        group_name,
-        {
-            "type": "broadcast_command",
-            "message": "get_atlet",
-            "details": detail_data,
-        }
-    )
-
-    async_to_sync(channel_layer.group_send)(
-        f"lokata_{tatami.pk}",
-        {
-            "type": "broadcast_command",
-            "message": "get_atlet",
-            "details": detail_data,
-        }
-    )
-
-    async_to_sync(channel_layer.group_send)(
-        f"tatamimanager_{tatami.pk}",
-        {
-            "type": "broadcast_command",
-            "message": "get_atlet",
-            "details": detail_data,
-        }
-    )
+    all_tatamis = Tatami.objects.filter(event=event).order_by('tatami_number')
 
     context = {
         'on': 'fest',
         'event': event,
         'admin_tatami': admin_tatami,
         'tatami': tatami,
+        'tatamis': all_tatamis,
+        'is_festival': True,
     }
 
     return render(request, 'admin/control-panel-fest.html', context)
@@ -3173,7 +3223,11 @@ def message_retriever(request, tatami_pk):
             return JsonResponse({'error': 'Tatami tidak ditemukan'}, status=404)
 
         if action in ('sync-board', 'sync-match', 'get_atlet'):
-            broadcast_tatami_match_update(tatami)
+            from django.core.cache import cache
+            if cache.get(f"tatami_{tatami.pk}_festival"):
+                broadcast_festival_match(tatami)
+            else:
+                broadcast_tatami_match_update(tatami)
             return JsonResponse({'status': 'ok'})
 
         group_name = f"scoring_{tatami.pk}"
@@ -8390,6 +8444,15 @@ def summary_booklet(request, event_pk):
     total_bronze = 0
 
     for b in finished_bagans:
+        # Best of The Best (BOB) bukan nomor tanding reguler -> tidak dihitung ke Juara Umum
+        if b.is_bob or (b.nomor_tanding and b.nomor_tanding.is_bob):
+            continue
+
+        # Bagan pool perantara (bukan Final) tidak dihitung agar medali tidak terhitung ganda
+        name_upper = (b.nama_bagan or '').upper().strip()
+        if 'POOL ' in name_upper and not name_upper.endswith('FINAL'):
+            continue
+
         athletes_in_b = bagan_athlete_counts.get(b.pk, set())
         has_opponents = (len(athletes_in_b) > 1) or bool(b.juara_2 or b.juara_3a or b.juara_3b)
 

@@ -49,6 +49,7 @@ urlpatterns = [
     path('lo-kata/<int:tatami_pk>', lo_kata_view, name="lo-kata"),
     path('lo-kata/<int:tatami_pk>/message-retriever', message_retriever_lo, name="message-retriever-lo"),
 
+    path('admin-dashboard/<int:event_pk>/control-panel-fest/', control_panel_fest_entry, name="control-panel-fest-entry"),
     path('admin-dashboard/<int:event_pk>/control-panel/tatami/<int:tatami_pk>/', control_panel_fest, name="control-panel-fest"),
 
     # Roster Maker

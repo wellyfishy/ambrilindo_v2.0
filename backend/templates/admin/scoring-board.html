@@ -1777,10 +1777,11 @@
         </div>
       </div>
       <div class="criteria-bar" name="criteria">
-        <div class="criteria-pill" id="akac1">Chui 1</div>
-        <div class="criteria-pill" id="akac2">Chui 2</div>
-        <div class="criteria-pill" id="akac3">Hansoku Chui</div>
-        <div class="criteria-pill" id="akac4">Hansoku</div>
+        <div class="criteria-pill" id="akac1">C1</div>
+        <div class="criteria-pill" id="akac2">C2</div>
+        <div class="criteria-pill" id="akac3">C3</div>
+        <div class="criteria-pill" id="akac4">HC</div>
+        <div class="criteria-pill" id="akac5">H</div>
       </div>
     </div>
 
@@ -1809,10 +1810,11 @@
         </div>
       </div>
       <div class="criteria-bar" name="criteria">
-        <div class="criteria-pill" id="aoc1">Chui 1</div>
-        <div class="criteria-pill" id="aoc2">Chui 2</div>
-        <div class="criteria-pill" id="aoc3">Hansoku Chui</div>
-        <div class="criteria-pill" id="aoc4">Hansoku</div>
+        <div class="criteria-pill" id="aoc1">C1</div>
+        <div class="criteria-pill" id="aoc2">C2</div>
+        <div class="criteria-pill" id="aoc3">C3</div>
+        <div class="criteria-pill" id="aoc4">HC</div>
+        <div class="criteria-pill" id="aoc5">H</div>
       </div>
     </div>
 
@@ -2981,7 +2983,7 @@
         document.getElementById('ao-score').innerText = '0';
         $('#aka-senshu-wrapper').removeClass('senshu-active');
         $('#ao-senshu-wrapper').removeClass('senshu-active');
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 5; i++) {
           $(`#akac${i}`).removeClass('active-red');
           $(`#aoc${i}`).removeClass('active-blue');
         }
@@ -3080,31 +3082,33 @@
         reset_banners();
       } else if (data.command === 'aka-criteria-inc') {
         aka_criteria++;
-        if (aka_criteria >= 1 && aka_criteria <= 4) {
+        if (aka_criteria >= 1 && aka_criteria <= 5) {
           $(`#akac${aka_criteria}`).addClass('active-red');
         }
-        let critTitle = 'CHUI 1';
-        if (aka_criteria === 2) critTitle = 'CHUI 2';
-        else if (aka_criteria === 3) critTitle = 'HANSOKU CHUI';
-        else if (aka_criteria >= 4) critTitle = 'HANSOKU';
+        let critTitle = 'C1';
+        if (aka_criteria === 2) critTitle = 'C2';
+        else if (aka_criteria === 3) critTitle = 'C3';
+        else if (aka_criteria === 4) critTitle = 'HC';
+        else if (aka_criteria >= 5) critTitle = 'HANSOKU';
         showScoreBanner('aka', 'PELANGGARAN', critTitle, 1400);
       } else if (data.command === 'aka-criteria-dec') {
-        if (aka_criteria >= 1 && aka_criteria <= 4) {
+        if (aka_criteria >= 1 && aka_criteria <= 5) {
           $(`#akac${aka_criteria}`).removeClass('active-red');
         }
         if (aka_criteria > 0) aka_criteria--;
       } else if (data.command === 'ao-criteria-inc') {
         ao_criteria++;
-        if (ao_criteria >= 1 && ao_criteria <= 4) {
+        if (ao_criteria >= 1 && ao_criteria <= 5) {
           $(`#aoc${ao_criteria}`).addClass('active-blue');
         }
-        let critTitle = 'CHUI 1';
-        if (ao_criteria === 2) critTitle = 'CHUI 2';
-        else if (ao_criteria === 3) critTitle = 'HANSOKU CHUI';
-        else if (ao_criteria >= 4) critTitle = 'HANSOKU';
+        let critTitle = 'C1';
+        if (ao_criteria === 2) critTitle = 'C2';
+        else if (ao_criteria === 3) critTitle = 'C3';
+        else if (ao_criteria === 4) critTitle = 'HC';
+        else if (ao_criteria >= 5) critTitle = 'HANSOKU';
         showScoreBanner('ao', 'PELANGGARAN', critTitle, 1400);
       } else if (data.command === 'ao-criteria-dec') {
-        if (ao_criteria >= 1 && ao_criteria <= 4) {
+        if (ao_criteria >= 1 && ao_criteria <= 5) {
           $(`#aoc${ao_criteria}`).removeClass('active-blue');
         }
         if (ao_criteria > 0) ao_criteria--;
