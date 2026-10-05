@@ -13,24 +13,24 @@
     
     <style>
         :root {
-            --bg-body: #090a0f;
-            --bg-surface: #12141c;
-            --bg-surface-alt: #171a24;
-            --bg-surface-elevated: #1e2230;
-            --bg-input: #0c0e14;
-            --border-color: #242938;
-            --border-hover: #373e54;
-            --border-subtle: #1a1e2b;
-            --red-core: #e52525;
-            --red-hover: #ff3838;
-            --red-glow: rgba(229, 37, 37, 0.25);
-            --red-tint: rgba(229, 37, 37, 0.08);
-            --blue-core: #3b82f6;
-            --emerald-core: #10b981;
-            --amber-core: #f59e0b;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-alt: #f8fafc;
+            --bg-surface-elevated: #ffffff;
+            --bg-input: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(0, 0, 0, 0.16);
+            --border-subtle: rgba(0, 0, 0, 0.04);
+            --red-core: #09090b;
+            --red-hover: #27272a;
+            --red-glow: rgba(9, 9, 11, 0.15);
+            --red-tint: rgba(9, 9, 11, 0.04);
+            --blue-core: #2563eb;
+            --emerald-core: #059669;
+            --amber-core: #d97706;
+            --text-primary: #09090b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 14px;
@@ -45,8 +45,8 @@
             margin: 0;
             min-height: 100vh;
             background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
             background-size: 36px 36px;
         }
 
@@ -58,7 +58,7 @@
             height: 100vh;
             width: 330px;
             background: var(--bg-surface);
-            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6);
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.06);
             overflow-y: auto;
             padding: 20px 18px;
             z-index: 1000;
@@ -122,7 +122,7 @@
         /* Chips in pool */
         .nt-chip {
             padding: 10px 12px;
-            background: var(--bg-surface-alt);
+            background: var(--bg-surface);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             cursor: grab;
@@ -135,11 +135,12 @@
             gap: 5px;
             user-select: none;
             position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         }
         .nt-chip:hover {
             border-color: var(--border-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
         }
         .nt-chip:active { cursor: grabbing; }
 
@@ -159,7 +160,7 @@
         .nt-chip-title {
             font-weight: 600;
             font-size: 13px;
-            color: #fff;
+            color: var(--text-primary);
             white-space: normal;
             word-break: break-word;
         }
@@ -175,12 +176,12 @@
             font-weight: 600;
             padding: 2px 6px;
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(0, 0, 0, 0.05);
             color: var(--text-secondary);
         }
         .nt-badge-mini.dur {
             background: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
+            color: #b45309;
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
@@ -251,7 +252,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             position: relative;
             overflow: hidden;
         }
@@ -274,6 +275,7 @@
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
             margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         .toolbar label {
             font-size: 12px;
@@ -289,7 +291,7 @@
             border-radius: var(--radius-sm);
             border: 1px solid var(--border-color);
             background: var(--bg-input);
-            color: #fff;
+            color: var(--text-primary);
             font-size: 13px;
             outline: none;
         }
@@ -311,7 +313,7 @@
         button.btn-tool:hover {
             border-color: var(--border-hover);
             background: var(--bg-surface-elevated);
-            color: #fff;
+            color: var(--text-primary);
         }
         button.btn-tool.primary {
             background: var(--red-core);
@@ -330,33 +332,33 @@
         button.btn-tool.success:hover { background: #10b981; }
 
         button.btn-tool.magic {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border: none;
+            background: #09090b;
+            border: 1px solid #27272a;
             color: #fff;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
         }
         button.btn-tool.magic:hover {
-            filter: brightness(1.1);
+            background: #27272a;
             transform: translateY(-1px);
         }
 
         /* Conflict Alert Banner */
         .conflict-alert-bar {
-            background: rgba(229, 37, 37, 0.15);
-            border: 1px solid rgba(229, 37, 37, 0.4);
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
             border-radius: var(--radius-md);
             padding: 12px 18px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #fca5a5;
+            color: #b91c1c;
             font-size: 13.5px;
             animation: pulseBanner 2s infinite;
         }
         @keyframes pulseBanner {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(229, 37, 37, 0.4); }
-            50% { box-shadow: 0 0 12px 2px rgba(229, 37, 37, 0.25); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.2); }
+            50% { box-shadow: 0 0 12px 2px rgba(220, 38, 38, 0.15); }
         }
 
         /* Day Blocks */
@@ -366,7 +368,7 @@
             border: 1px solid var(--border-color);
             overflow: hidden;
             margin-bottom: 28px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
         }
         .day-header {
             display: flex;
@@ -381,7 +383,7 @@
             font-size: 17px;
             font-weight: 700;
             letter-spacing: 0.03em;
-            color: #fff;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -391,7 +393,7 @@
             border-radius: var(--radius-sm);
             border: 1px solid var(--border-color);
             background: var(--bg-input);
-            color: #fff;
+            color: var(--text-primary);
             font-size: 13px;
             outline: none;
         }
@@ -412,7 +414,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
         }
 
         .tatami-col-header {
@@ -429,7 +431,7 @@
             font-family: 'Oswald', sans-serif;
             font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             letter-spacing: 0.03em;
         }
 
@@ -450,20 +452,19 @@
         }
 
         .tatami-card-list.drag-over {
-            background: rgba(59, 130, 246, 0.08);
+            background: rgba(37, 99, 235, 0.06);
         }
 
         /* =========================================================
            📊 ROSTER PROGRESS DASHBOARD STYLES
            ========================================================= */
         .roster-progress-dashboard {
-            background: linear-gradient(135deg, rgba(18, 20, 28, 0.95) 0%, rgba(23, 26, 36, 0.95) 100%);
+            background: var(--bg-surface);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 16px 20px;
             margin-bottom: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
         .progress-dash-header {
             display: flex;
@@ -495,7 +496,7 @@
             font-family: 'Oswald', sans-serif;
             font-size: 16px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             letter-spacing: 0.04em;
             margin: 0;
             display: flex;
@@ -519,7 +520,7 @@
             .dash-metric-cards { grid-template-columns: repeat(2, 1fr); }
         }
         .dash-metric-card {
-            background: var(--bg-surface-elevated);
+            background: var(--bg-surface-alt);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 12px 14px;
@@ -542,16 +543,16 @@
             font-size: 16px;
             flex-shrink: 0;
         }
-        .metric-icon.blue { background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .metric-icon.emerald { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .metric-icon.amber { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .metric-icon.purple { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .metric-icon.blue { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
+        .metric-icon.emerald { background: rgba(5, 150, 105, 0.1); color: #059669; border: 1px solid rgba(5, 150, 105, 0.2); }
+        .metric-icon.amber { background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2); }
+        .metric-icon.purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.2); }
         .metric-body { flex: 1; min-width: 0; }
         .metric-val {
             font-family: 'Oswald', sans-serif;
             font-size: 22px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             line-height: 1.1;
         }
         .metric-label {
@@ -570,17 +571,17 @@
         }
         .dash-progress-track {
             height: 8px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.06);
             border-radius: 999px;
             overflow: hidden;
             position: relative;
         }
         .dash-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+            background: linear-gradient(90deg, #2563eb 0%, #059669 100%);
             border-radius: 999px;
             transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 10px rgba(5, 150, 105, 0.3);
         }
         .dash-progress-stats {
             display: flex;
@@ -611,15 +612,15 @@
             transition: all 0.2s ease;
         }
         .tatami-live-pill.is-live {
-            background: rgba(59, 130, 246, 0.12);
-            border-color: rgba(59, 130, 246, 0.45);
+            background: rgba(37, 99, 235, 0.08);
+            border-color: rgba(37, 99, 235, 0.3);
         }
         .tatami-live-pill.is-live .t-pill-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: #3b82f6;
-            box-shadow: 0 0 6px #3b82f6;
+            background-color: #2563eb;
+            box-shadow: 0 0 6px #2563eb;
             animation: pulseLiveDot 1.5s infinite;
         }
         @keyframes pulseLiveDot {
@@ -631,11 +632,11 @@
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: #64748b;
+            background-color: #94a3b8;
         }
         .t-pill-name {
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: 0.02em;
@@ -644,7 +645,7 @@
             color: var(--text-primary);
         }
         .t-cat-name {
-            color: #93c5fd;
+            color: #2563eb;
         }
 
         /* =========================================================
@@ -668,7 +669,7 @@
         .tt-card:hover {
             border-color: var(--border-hover);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         .tt-card:active {
             cursor: grabbing;
@@ -680,26 +681,26 @@
 
         /* Status Colors */
         .tt-card.status-running {
-            border-left: 4px solid #3b82f6 !important;
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.14) 0%, var(--bg-surface-elevated) 100%) !important;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.22) !important;
+            border-left: 4px solid #2563eb !important;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, var(--bg-surface-elevated) 100%) !important;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.12) !important;
         }
         .tt-card.status-selesai {
-            border-left: 4px solid #10b981 !important;
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-surface-elevated) 100%) !important;
+            border-left: 4px solid #059669 !important;
+            background: linear-gradient(90deg, rgba(5, 150, 105, 0.08) 0%, var(--bg-surface-elevated) 100%) !important;
         }
         .tt-card.status-belum_disentuh,
         .tt-card.status-unstarted {
-            border-left: 4px solid #64748b !important;
+            border-left: 4px solid #cbd5e1 !important;
             background: var(--bg-surface-elevated) !important;
         }
         .tt-card.is-festival-card {
-            border-left: 4px solid #f59e0b !important;
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, var(--bg-surface-elevated) 100%) !important;
+            border-left: 4px solid #d97706 !important;
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.08) 0%, var(--bg-surface-elevated) 100%) !important;
         }
         .tt-card.is-break-card {
             border: 1.5px dashed #0284c7 !important;
-            background: rgba(2, 132, 199, 0.1) !important;
+            background: rgba(2, 132, 199, 0.06) !important;
             padding: 8px 10px;
             align-items: center;
             text-align: center;
@@ -709,14 +710,14 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            color: #38bdf8;
+            color: #0284c7;
             font-weight: 700;
             font-size: 11.5px;
             width: 100%;
         }
         .card-break-title {
             outline: none;
-            color: #38bdf8;
+            color: #0284c7;
             font-weight: 700;
         }
         .card-main-content {
@@ -740,8 +741,8 @@
             height: 17px;
             font-weight: 800;
             font-size: 10.5px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #cbd5e1;
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-secondary);
             border-radius: 3px;
             padding: 0 4px;
             flex-shrink: 0;
@@ -753,14 +754,14 @@
         .card-content.card-title-bold {
             font-weight: 700;
             font-size: 12px;
-            color: #f8fafc;
+            color: var(--text-primary);
             line-height: 1.25;
             outline: none;
         }
         .card-atlet-count {
             font-weight: 700;
             font-size: 11px;
-            color: #38bdf8;
+            color: #0284c7;
             white-space: nowrap;
         }
         .card-status-badge {
@@ -775,36 +776,36 @@
             text-transform: uppercase;
         }
         .card-status-badge.status-running {
-            background: rgba(59, 130, 246, 0.25);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.45);
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+            border: 1px solid rgba(37, 99, 235, 0.25);
         }
         .card-status-badge.status-selesai {
-            background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.4);
+            background: rgba(5, 150, 105, 0.1);
+            color: #059669;
+            border: 1px solid rgba(5, 150, 105, 0.25);
         }
         .card-status-badge.status-unstarted,
         .card-status-badge.status-belum_disentuh {
-            background: rgba(100, 116, 139, 0.2);
-            color: #94a3b8;
-            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+            border: 1px solid rgba(100, 116, 139, 0.2);
         }
         .card-status-badge.status-festival {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            background: rgba(217, 119, 6, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(217, 119, 6, 0.25);
         }
 
         /* Tool badges in Tatami Header */
-        .badge-tool-blue { background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #93c5fd; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
-        .badge-tool-green { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
-        .badge-tool-amber { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.4); color: #fde047; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+        .badge-tool-blue { background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.25); color: #2563eb; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+        .badge-tool-green { background: rgba(5, 150, 105, 0.1); border: 1px solid rgba(5, 150, 105, 0.25); color: #059669; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
+        .badge-tool-amber { background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.25); color: #d97706; font-size: 11px; padding: 3px 7px; border-radius: 4px; text-decoration: none; }
 
         .tt-card.conflict-card {
-            border-color: var(--red-core) !important;
-            background: rgba(229, 37, 37, 0.25) !important;
-            box-shadow: 0 0 10px rgba(229, 37, 37, 0.6) !important;
+            border-color: #dc2626 !important;
+            background: rgba(220, 38, 38, 0.1) !important;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.25) !important;
         }
 
         .tt-card.conflict-card::before {
@@ -813,23 +814,25 @@
             top: 2px; right: 24px;
             font-size: 8.5px;
             font-weight: 700;
-            color: #f87171;
-            background: rgba(0,0,0,0.85);
+            color: #dc2626;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(220, 38, 38, 0.3);
             padding: 1px 4px;
             border-radius: 3px;
             pointer-events: none;
             z-index: 2;
         }
         .auto-schedule-result-bar {
-            background: linear-gradient(90deg, #092014 0%, #0d1b2a 100%);
-            border: 1px solid #10b981;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
             border-radius: var(--radius-md);
             padding: 12px 18px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.1);
+            color: #166534;
             animation: fadeIn 0.25s ease-out;
         }
         @keyframes fadeIn {
@@ -845,7 +848,7 @@
             padding: 5px 12px;
             border-radius: 6px;
             font-size: 12px;
-            color: #fff;
+            color: var(--text-primary);
             cursor: pointer;
             transition: all 0.15s ease;
         }
@@ -859,7 +862,7 @@
             font-size: 11px;
             font-weight: 600;
             line-height: 1.25;
-            color: #fff;
+            color: var(--text-primary);
             word-break: break-word;
             padding-right: 16px;
             overflow: hidden;
@@ -883,8 +886,8 @@
         }
 
         .remove-card-btn:hover {
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.1);
         }
 
         /* Dropzone placeholder at bottom of tatami */
@@ -900,9 +903,9 @@
         }
 
         .tatami-dropzone.drag-over {
-            border-color: #60a5fa;
-            color: #60a5fa;
-            background: rgba(59, 130, 246, 0.12);
+            border-color: #2563eb;
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.08);
         }
 
         .remove-day-btn, .remove-tatami-btn {
@@ -916,15 +919,15 @@
             border-radius: 4px;
         }
         .remove-day-btn:hover, .remove-tatami-btn:hover {
-            color: #f87171;
-            background: rgba(229, 37, 37, 0.15);
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.08);
         }
 
         /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             display: none;
             align-items: center;
@@ -940,7 +943,7 @@
             max-height: 88vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
         .modal-box-header {
@@ -956,7 +959,7 @@
             font-family: 'Oswald', sans-serif;
             font-size: 17px;
             font-weight: 700;
-            color: #fff;
+            color: var(--text-primary);
             margin: 0;
         }
         .modal-box-body {
@@ -990,7 +993,7 @@
             border: 1px solid var(--border-color);
             border-radius: var(--radius-sm);
             padding: 8px 12px;
-            color: #fff;
+            color: var(--text-primary);
             font-size: 13.5px;
             outline: none;
         }
@@ -1040,31 +1043,31 @@
             height: 16px;
             border-radius: 50%;
             font-size: 8.5px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.05);
             color: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.15);
             transition: all 0.15s ease;
         }
         .age-pill.active {
-            background: rgba(56, 189, 248, 0.15) !important;
-            border-color: #38bdf8 !important;
-            color: #f0f9ff !important;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+            background: rgba(2, 132, 199, 0.1) !important;
+            border-color: #0284c7 !important;
+            color: #0369a1 !important;
+            box-shadow: 0 0 10px rgba(2, 132, 199, 0.15);
         }
         .age-pill.active .age-pill-check {
-            background: #38bdf8;
-            border-color: #38bdf8;
-            color: #0c1524;
+            background: #0284c7;
+            border-color: #0284c7;
+            color: #ffffff;
         }
         .age-pill:not(.active) {
-            opacity: 0.55;
-            background: rgba(255, 255, 255, 0.02) !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
+            opacity: 0.7;
+            background: var(--bg-surface) !important;
+            border-color: var(--border-color) !important;
             color: var(--text-muted) !important;
         }
         .age-pill:not(.active) .age-pill-check {
             background: transparent;
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--border-color);
             color: transparent;
         }
         .age-pill:hover {
@@ -1076,12 +1079,12 @@
             opacity: 0.85;
             padding: 1px 6px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.06);
             font-weight: 700;
         }
         .age-pill.active .age-pill-count {
-            background: rgba(56, 189, 248, 0.25);
-            color: #7dd3fc;
+            background: rgba(2, 132, 199, 0.18);
+            color: #0284c7;
         }
         .btn-tool-mini {
             background: transparent;
@@ -1098,7 +1101,7 @@
         }
         .btn-tool-mini:hover {
             background: var(--bg-surface-elevated);
-            color: #fff;
+            color: var(--text-primary);
             border-color: var(--text-muted);
         }
 

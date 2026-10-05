@@ -137,6 +137,27 @@ def auth(request):
                     return redirect(f"{reverse('tatami-manager', args=[event_pk])}?tatami={tatami.pk}")
                 return redirect('tatami-manager', event_pk=event_pk)
 
+            elif fast_role == 'admtatami':
+                adm_username = f'admtatami{tatami.tatami_number}e{event_pk}'
+                adm_user = User.objects.filter(username=adm_username).first()
+                if not adm_user:
+                    adm_user = User.objects.create_user(username=adm_username, password=adm_username)
+                Role.objects.update_or_create(
+                    user=adm_user,
+                    defaults={
+                        'event': tatami.event,
+                        'tatami': tatami,
+                        'role_type': 'admin_tatami',
+                    }
+                )
+                AdminTatami.objects.update_or_create(
+                    event=tatami.event,
+                    tatami=tatami,
+                    defaults={'user': adm_user}
+                )
+                login(request, adm_user)
+                return redirect('admin-dashboard', event_pk=int(event_pk))
+
             messages.error(request, "Peran akses cepat tidak dikenali.")
             return redirect('auth')
 

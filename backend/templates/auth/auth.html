@@ -10,25 +10,26 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-body: #08080a;
-            --bg-card: #111217;
-            --bg-card-alt: #16181f;
-            --bg-input: #0c0d11;
-            --border-color: #22242c;
-            --border-hover: #343743;
-            --red-core: #e52525;
-            --red-hover: #ff3838;
-            --red-active: #c51b1b;
-            --red-glow: rgba(229, 37, 37, 0.28);
-            --red-tint: rgba(229, 37, 37, 0.08);
-            --red-tint-border: rgba(229, 37, 37, 0.25);
-            --text-primary: #f8fafc;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
+            --bg-body: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.94);
+            --bg-card-alt: rgba(248, 250, 252, 0.95);
+            --bg-input: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.09);
+            --border-hover: rgba(0, 0, 0, 0.24);
+            --red-core: #09090b;
+            --red-hover: #27272a;
+            --red-active: #000000;
+            --red-glow: rgba(0, 0, 0, 0.08);
+            --red-tint: rgba(0, 0, 0, 0.04);
+            --red-tint-border: rgba(0, 0, 0, 0.12);
+            --text-primary: #09090b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 16px;
             --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -48,58 +49,62 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px 16px;
+            padding: 16px 12px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Subtle radial ambient red glow */
+        /* Subtle radial ambient monochrome glow */
         body::before {
             content: "";
             position: absolute;
-            top: -100px;
+            top: -80px;
             left: 50%;
             transform: translateX(-50%);
-            width: 700px;
-            height: 450px;
-            background: radial-gradient(circle, rgba(229, 37, 37, 0.12) 0%, rgba(8, 8, 10, 0) 70%);
+            width: 600px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(0, 0, 0, 0.035) 0%, rgba(248, 250, 252, 0) 70%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Subtle grid background */
+        /* Subtle light grid background */
         body::after {
             content: "";
             position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
             pointer-events: none;
             z-index: 0;
         }
 
+        /* Compact Unified Card Container */
         .auth-container {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 900px;
+            max-width: 530px;
             background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8),
-                        0 0 40px -15px var(--red-glow);
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08),
+                        0 0 35px -15px var(--red-glow);
             overflow: hidden;
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            animation: fadeIn 0.4s ease-out;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.35s ease-out;
+            margin: auto;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(12px) scale(0.99);
+                transform: translateY(10px) scale(0.99);
             }
             to {
                 opacity: 1;
@@ -107,179 +112,236 @@
             }
         }
 
-        /* Red top accent indicator */
+        /* Top accent indicator */
         .auth-header-strip {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, transparent 0%, var(--red-core) 35%, var(--red-hover) 65%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, #09090b 35%, #71717a 65%, transparent 100%);
         }
 
         /* Form section */
         .auth-main {
-            padding: 44px 40px;
+            padding: 28px 28px 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
         }
 
         .brand-header {
-            margin-bottom: 28px;
-        }
-
-        .brand-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--red-tint);
-            border: 1px solid var(--red-tint-border);
-            color: var(--red-hover);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border-radius: 999px;
-            margin-bottom: 12px;
-        }
-
-        .brand-badge .indicator-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--red-core);
-            box-shadow: 0 0 8px var(--red-core);
+            margin-bottom: 18px;
+            text-align: center;
         }
 
         .brand-title {
             font-family: 'Oswald', sans-serif;
-            font-size: 32px;
+            font-size: 27px;
             font-weight: 700;
             letter-spacing: 0.04em;
             text-transform: uppercase;
             color: var(--text-primary);
             line-height: 1.1;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 4px;
         }
 
         .brand-title span {
-            color: var(--red-core);
+            color: #09090b;
         }
 
         .brand-subtitle {
-            font-size: 13.5px;
+            font-size: 12.5px;
             color: var(--text-secondary);
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         /* Alert Messages */
         .messages-wrap {
-            margin-bottom: 22px;
+            margin-bottom: 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .alert-box {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(229, 37, 37, 0.12);
-            border: 1px solid rgba(229, 37, 37, 0.35);
-            color: #fca5a5;
-            padding: 11px 14px;
+            gap: 8px;
+            background: rgba(185, 28, 28, 0.08);
+            border: 1px solid rgba(185, 28, 28, 0.22);
+            color: #b91c1c;
+            padding: 9px 12px;
             border-radius: var(--radius-md);
-            font-size: 13px;
-            line-height: 1.4;
+            font-size: 12.5px;
+            line-height: 1.35;
         }
 
         .alert-box svg {
             flex-shrink: 0;
-            width: 18px;
-            height: 18px;
-            color: var(--red-core);
+            width: 16px;
+            height: 16px;
+            color: #b91c1c;
         }
 
-        /* Form elements */
+        /* Mode Switcher Tabs */
+        .auth-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 3px;
+            margin-bottom: 16px;
+            gap: 4px;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .auth-tab-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .auth-tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .auth-tab-btn.active {
+            background: #09090b;
+            color: #ffffff;
+            border: 1px solid #09090b;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .auth-tab-btn.active svg {
+            color: #ffffff;
+        }
+
+        /* Dual Row Form Controls */
+        .form-row-dual {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         .form-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-secondary);
-            margin-bottom: 7px;
+            margin-bottom: 5px;
         }
 
-        .input-wrap {
+        .select-wrap, .input-wrap {
             position: relative;
             display: flex;
             align-items: center;
         }
 
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 17px;
-            height: 17px;
-            color: var(--text-muted);
-            pointer-events: none;
-            transition: var(--transition);
-        }
-
-        .form-input {
+        .form-select, .form-input {
             width: 100%;
             background: var(--bg-input);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            font-size: 14px;
-            padding: 12px 14px 12px 42px;
-            border-radius: var(--radius-md);
+            font-size: 13px;
+            padding: 9px 12px;
+            border-radius: 8px;
             transition: var(--transition);
             outline: none;
             font-family: inherit;
         }
 
-        .form-input::placeholder {
-            color: var(--text-muted);
+        .form-select {
+            padding-right: 32px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
         }
 
-        .form-input:hover {
+        .form-input {
+            padding-left: 36px;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            font-size: 12.5px;
+        }
+
+        .form-select:hover, .form-input:hover {
             border-color: var(--border-hover);
         }
 
-        .form-input:focus {
-            border-color: var(--red-core);
-            box-shadow: 0 0 0 3px var(--red-glow);
-            background-color: #0f1015;
+        .form-select:focus, .form-input:focus {
+            border-color: #09090b;
+            box-shadow: 0 0 0 2.5px rgba(0, 0, 0, 0.08);
+            background-color: #ffffff;
         }
 
-        .form-input:focus + .input-icon,
+        .select-arrow {
+            position: absolute;
+            right: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus ~ .input-icon,
         .input-wrap:focus-within .input-icon {
-            color: var(--red-core);
+            color: #09090b;
         }
 
-        /* Toggle password button */
         .btn-toggle-pwd {
             position: absolute;
-            right: 12px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: transparent;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            padding: 4px;
+            padding: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -292,285 +354,117 @@
         }
 
         .btn-toggle-pwd svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Select custom arrow */
-        .select-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-select {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 14px;
-            padding: 12px 38px 12px 14px;
-            border-radius: var(--radius-md);
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            outline: none;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        .form-select:hover {
-            border-color: var(--border-hover);
-        }
-
-        .form-select:focus {
-            border-color: var(--red-core);
-            box-shadow: 0 0 0 3px var(--red-glow);
-            background-color: #0f1015;
-        }
-
-        .select-arrow {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            color: var(--text-muted);
-            pointer-events: none;
-            transition: var(--transition);
-        }
-
-        .form-select:focus ~ .select-arrow,
-        .select-wrap:hover .select-arrow {
-            color: var(--text-primary);
-        }
-
-        /* Submit Button */
-        .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, var(--red-core) 0%, var(--red-active) 100%);
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            padding: 13px;
-            border-radius: var(--radius-md);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: var(--transition);
-            box-shadow: 0 4px 14px rgba(229, 37, 37, 0.35);
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            background: linear-gradient(135deg, var(--red-hover) 0%, var(--red-core) 100%);
-            box-shadow: 0 6px 20px rgba(229, 37, 37, 0.45);
-            transform: translateY(-1px);
-        }
-
-        .btn-submit:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(229, 37, 37, 0.3);
-        }
-
-        .btn-submit svg {
-            width: 18px;
-            height: 18px;
-            transition: transform 0.2s ease;
-        }
-
-        .btn-submit:hover svg {
-            transform: translateX(2px);
-        }
-
-        /* Mode Switcher Tabs */
-        .auth-tabs {
-            display: flex;
-            background: #0d0e12;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 4px;
-            margin-bottom: 22px;
-            gap: 4px;
-        }
-
-        .auth-tab-btn {
-            flex: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            padding: 9px 12px;
-            border-radius: 8px;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .auth-tab-btn svg {
             width: 16px;
             height: 16px;
         }
 
-        .auth-tab-btn:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .auth-tab-btn.active {
-            background: var(--bg-card);
-            color: #ffffff;
-            border: 1px solid rgba(229, 37, 37, 0.4);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 12px var(--red-glow);
-        }
-
-        .auth-tab-btn.active svg {
-            color: var(--red-core);
-        }
-
-        /* Fast Access Role Grid */
+        /* Fast Access Role Grid (Clean 6-Card Layout without Subtitles) */
         .fast-role-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 480px) {
-            .fast-role-grid {
-                grid-template-columns: 1fr;
-            }
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+            margin-bottom: 14px;
         }
 
         .fast-role-card {
-            background: var(--bg-input);
+            background: #ffffff;
             border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 11px 12px;
+            border-radius: 8px;
+            padding: 8px 10px;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
             position: relative;
             text-align: left;
+            min-height: 42px;
+            user-select: none;
         }
 
         .fast-role-card:hover {
             border-color: var(--border-hover);
-            background: #13151c;
+            background: #f8fafc;
             transform: translateY(-1px);
         }
 
         .fast-role-card.selected {
-            border-color: var(--red-core);
-            background: rgba(229, 37, 37, 0.08);
-            box-shadow: 0 0 16px rgba(229, 37, 37, 0.25);
+            border-color: #09090b;
+            background: rgba(0, 0, 0, 0.035);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
         }
 
         .fast-role-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 27px;
+            height: 27px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.05);
             color: var(--text-secondary);
             transition: var(--transition);
         }
 
         .fast-role-icon svg {
-            width: 17px;
-            height: 17px;
+            width: 14px;
+            height: 14px;
         }
 
         .fast-role-card.selected .fast-role-icon {
-            background: var(--red-core);
+            background: #09090b;
             color: #ffffff;
-            box-shadow: 0 0 10px var(--red-core);
-        }
-
-        .fast-role-card.is-vr.selected .fast-role-icon {
-            background: #8b5cf6;
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
-        }
-
-        .fast-role-card.is-vr.selected {
-            border-color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.1);
-            box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
         }
 
         .fast-role-content {
             flex: 1;
             min-width: 0;
+            display: flex;
+            align-items: center;
         }
 
         .fast-role-title {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-primary);
             line-height: 1.2;
-            margin-bottom: 3px;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        .fast-role-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.3;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .fast-role-pill {
-            font-size: 9.5px;
+            font-size: 8.5px;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 2px 6px;
+            padding: 1.5px 5px;
             border-radius: 4px;
-            background: rgba(139, 92, 246, 0.2);
-            color: #c4b5fd;
-            border: 1px solid rgba(139, 92, 246, 0.4);
+            background: #09090b;
+            color: #ffffff;
             letter-spacing: 0.04em;
         }
 
         .role-check-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 14px;
-            height: 14px;
+            width: 13px;
+            height: 13px;
             border-radius: 50%;
             border: 1.5px solid var(--border-hover);
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            margin-left: auto;
             transition: var(--transition);
         }
 
         .fast-role-card.selected .role-check-indicator {
-            border-color: var(--red-core);
-            background: var(--red-core);
-        }
-
-        .fast-role-card.is-vr.selected .role-check-indicator {
-            border-color: #8b5cf6;
-            background: #8b5cf6;
+            border-color: #09090b;
+            background: #09090b;
         }
 
         .role-check-indicator::after {
@@ -587,92 +481,154 @@
             opacity: 1;
         }
 
-        .form-row-dual {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        @media (max-width: 480px) {
-            .form-row-dual {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-        }
-
-        /* Sidebar / Operator Reference */
-        .auth-guide {
-            background: var(--bg-card-alt);
-            border-left: 1px solid var(--border-color);
-            padding: 44px 34px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .guide-header {
-            margin-bottom: 22px;
-        }
-
-        .guide-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 16px;
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background: #09090b;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
             font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--text-primary);
+            letter-spacing: 0.02em;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid #09090b;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .guide-title svg {
-            width: 17px;
-            height: 17px;
-            color: var(--red-core);
-        }
-
-        .guide-desc {
-            font-size: 12.5px;
-            color: var(--text-muted);
+            justify-content: center;
+            gap: 7px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             margin-top: 4px;
         }
 
-        .guide-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .btn-submit:hover {
+            background: #27272a;
+            border-color: #27272a;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
         }
 
-        .guide-card {
-            background: var(--bg-input);
+        .btn-submit:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn-submit svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-submit:hover svg {
+            transform: translateX(2px);
+        }
+
+        /* Collapsible Format Akses Peran Dropdown (Closed by default) */
+        .guide-dropdown {
+            margin-top: 14px;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 12px 14px;
+            border-radius: 8px;
+            background: #ffffff;
+            overflow: hidden;
             transition: var(--transition);
         }
 
-        .guide-card:hover {
-            border-color: rgba(229, 37, 37, 0.3);
-            background: #0f1016;
+        .guide-dropdown[open] {
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+        }
+
+        .guide-dropdown-toggle {
+            padding: 9px 12px;
+            cursor: pointer;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            list-style: none;
+            user-select: none;
+            background: #ffffff;
+            transition: var(--transition);
+        }
+
+        .guide-dropdown-toggle::-webkit-details-marker {
+            display: none;
+        }
+
+        .guide-dropdown-toggle:hover {
+            color: var(--text-primary);
+            background: #f8fafc;
+        }
+
+        .guide-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .guide-toggle-left svg {
+            width: 14px;
+            height: 14px;
+            color: #09090b;
+        }
+
+        .chevron-icon {
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .guide-dropdown[open] .chevron-icon {
+            transform: rotate(180deg);
+        }
+
+        .guide-dropdown-body {
+            padding: 10px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            max-height: 230px;
+            overflow-y: auto;
+        }
+
+        .guide-list-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .guide-list-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .guide-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 7px 9px;
+            transition: var(--transition);
         }
 
         .guide-role-badge {
             display: inline-block;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--red-hover);
-            margin-bottom: 6px;
+            letter-spacing: 0.04em;
+            color: #09090b;
+            margin-bottom: 3px;
         }
 
         .guide-pattern {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11.5px;
+            font-size: 10.5px;
             color: var(--text-secondary);
-            line-height: 1.6;
+            line-height: 1.45;
         }
 
         .guide-pattern .key {
@@ -680,20 +636,21 @@
         }
 
         .guide-pattern .val {
-            color: #f1f5f9;
-            background: rgba(255, 255, 255, 0.04);
+            color: #09090b;
+            background: rgba(0, 0, 0, 0.05);
             padding: 1px 4px;
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
-        .guide-footer {
-            margin-top: 24px;
-            padding-top: 16px;
+        /* Footer */
+        .auth-footer {
+            padding: 9px 24px;
             border-top: 1px solid var(--border-color);
+            background: rgba(248, 250, 252, 0.85);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 11.5px;
+            font-size: 11px;
             color: var(--text-muted);
         }
 
@@ -706,28 +663,54 @@
         }
 
         .status-dot {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             background-color: #10b981;
-            box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        /* Responsive Optimization */
+        @media (max-width: 576px) {
+            body {
+                padding: 10px 8px;
+            }
+
             .auth-container {
-                grid-template-columns: 1fr;
-                max-width: 460px;
+                max-width: 100%;
+                border-radius: 12px;
             }
 
             .auth-main {
-                padding: 32px 24px;
+                padding: 20px 16px 16px;
             }
 
-            .auth-guide {
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-                padding: 28px 24px;
+            .brand-header {
+                margin-bottom: 14px;
+            }
+
+            .brand-title {
+                font-size: 24px;
+            }
+
+            .form-row-dual {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .fast-role-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+            }
+
+            .auth-footer {
+                padding: 8px 16px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .fast-role-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -739,10 +722,6 @@
         <!-- Main Login Section -->
         <div class="auth-main">
             <div class="brand-header">
-                <div class="brand-badge">
-                    <span class="indicator-dot"></span>
-                    Local Event Console
-                </div>
                 <h1 class="brand-title">AMBRILINDO<span>.</span></h1>
                 <p class="brand-subtitle">Masuk untuk mengelola turnamen atau penilaian juri tatami.</p>
             </div>
@@ -817,14 +796,13 @@
                     </div>
 
                     <!-- Role Selection -->
-                    <div style="margin-bottom: 8px;">
+                    <div style="margin-bottom: 6px;">
                         <label class="form-label">Pilih Perangkat / Layar Operasional</label>
                     </div>
 
                     <div class="fast-role-grid">
-                        <!-- Wasit VR (Featured) -->
+                        <!-- 1. Wasit VR -->
                         <div class="fast-role-card is-vr selected" onclick="selectFastRole('wasit_vr', this)">
-                            <div class="role-check-indicator"></div>
                             <div class="fast-role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polygon points="23 7 16 12 23 17 23 7"></polygon>
@@ -833,16 +811,32 @@
                             </div>
                             <div class="fast-role-content">
                                 <div class="fast-role-title">
-                                    Wasit VR
+                                    <span>Wasit VR</span>
                                     <span class="fast-role-pill">Cepat</span>
                                 </div>
-                                <div class="fast-role-desc">Cockpit putusan VR wasit (Accept, Decline, Minai)</div>
                             </div>
+                            <div class="role-check-indicator"></div>
                         </div>
 
-                        <!-- LO Kata -->
-                        <div class="fast-role-card" onclick="selectFastRole('lo_kata', this)">
+                        <!-- 2. Admin Tatami -->
+                        <div class="fast-role-card" onclick="selectFastRole('admtatami', this)">
+                            <div class="fast-role-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                                </svg>
+                            </div>
+                            <div class="fast-role-content">
+                                <div class="fast-role-title">
+                                    <span>Admin Tatami</span>
+                                </div>
+                            </div>
                             <div class="role-check-indicator"></div>
+                        </div>
+
+                        <!-- 3. LO Kata -->
+                        <div class="fast-role-card" onclick="selectFastRole('lo_kata', this)">
                             <div class="fast-role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M9 11l3 3L22 4"></path>
@@ -850,14 +844,15 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">LO Kata</div>
-                                <div class="fast-role-desc">Pencatatan nama kata & input nilai tatami</div>
+                                <div class="fast-role-title">
+                                    <span>LO Kata</span>
+                                </div>
                             </div>
+                            <div class="role-check-indicator"></div>
                         </div>
 
-                        <!-- Coach Supervisor -->
+                        <!-- 4. Coach Supervisor -->
                         <div class="fast-role-card" onclick="selectFastRole('coach_sup', this)">
-                            <div class="role-check-indicator"></div>
                             <div class="fast-role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
@@ -865,14 +860,15 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">Coach Supervisor</div>
-                                <div class="fast-role-desc">Monitor tatami, sisa kartu VR & skor atlet</div>
+                                <div class="fast-role-title">
+                                    <span>Coach Supervisor</span>
+                                </div>
                             </div>
+                            <div class="role-check-indicator"></div>
                         </div>
 
-                        <!-- Admin Control -->
+                        <!-- 5. Admin Control -->
                         <div class="fast-role-card" onclick="selectFastRole('admin_control', this)">
-                            <div class="role-check-indicator"></div>
                             <div class="fast-role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="4" y1="21" x2="4" y2="14"></line>
@@ -884,23 +880,26 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">Admin Control</div>
-                                <div class="fast-role-desc">Layar kendali & pantauan tatami (View Only)</div>
+                                <div class="fast-role-title">
+                                    <span>Admin Control</span>
+                                </div>
                             </div>
+                            <div class="role-check-indicator"></div>
                         </div>
 
-                        <!-- Tatami Manager -->
-                        <div class="fast-role-card" style="grid-column: 1 / -1;" onclick="selectFastRole('tatami_manager', this)">
-                            <div class="role-check-indicator"></div>
+                        <!-- 6. Tatami Manager -->
+                        <div class="fast-role-card" onclick="selectFastRole('tatami_manager', this)">
                             <div class="fast-role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">Tatami Manager (Wasit & Bagan)</div>
-                                <div class="fast-role-desc">Manajemen rotasi tim wasit juri & alokasi partai tatami</div>
+                                <div class="fast-role-title">
+                                    <span>Tatami Manager</span>
+                                </div>
                             </div>
+                            <div class="role-check-indicator"></div>
                         </div>
                     </div>
 
@@ -973,96 +972,98 @@
                     </button>
                 </form>
             </div>
-        </div>
 
-        <!-- Operator Reference Side Panel -->
-        <div class="auth-guide">
-            <div>
-                <div class="guide-header">
-                    <h2 class="guide-title">
+            <!-- Format Akses Peran Dropdown (Closed by default) -->
+            <details class="guide-dropdown">
+                <summary class="guide-dropdown-toggle">
+                    <div class="guide-toggle-left">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="12" y1="16" x2="12" y2="12"></line>
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
-                        Format Akses Peran
-                    </h2>
-                    <p class="guide-desc">Kredensial bawaan untuk perangkat operasional arena.</p>
+                        <span>Informasi Format Akses Peran</span>
+                    </div>
+                    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+
+                <div class="guide-dropdown-body">
+                    <div class="guide-list-grid">
+                        <!-- Wasit VR -->
+                        <div class="guide-card">
+                            <span class="guide-role-badge">Wasit Video Review (VR)</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">vr</span></div>
+                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Tatami -->
+                        <div class="guide-card">
+                            <span class="guide-role-badge">Admin Tatami</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">admtatami[T]e[E]</span></div>
+                                <div><span class="key">Pass:</span> <span class="val">sama user</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Juri Tatami -->
+                        <div class="guide-card">
+                            <span class="guide-role-badge">Juri Tatami</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">j[W]t[T]e[E]</span></div>
+                                <div><span class="key">Pass:</span> <span class="val">sama user</span></div>
+                            </div>
+                        </div>
+
+                        <!-- LO Kata -->
+                        <div class="guide-card">
+                            <span class="guide-role-badge">LO Kata (Tatami Input)</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">lo[E]</span></div>
+                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Coach Supervisor -->
+                        <div class="guide-card">
+                            <span class="guide-role-badge">Coach Supervisor</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">c[E]</span></div>
+                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Control -->
+                        <div class="guide-card">
+                            <span class="guide-role-badge">Admin Control (View Only)</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">[E]</span></div>
+                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Tatami Manager -->
+                        <div class="guide-card" style="grid-column: 1 / -1;">
+                            <span class="guide-role-badge">Tatami Manager (Wasit)</span>
+                            <div class="guide-pattern">
+                                <div><span class="key">User:</span> <span class="val">tm[E]</span> &bull; <span class="key">Pass:</span> <span class="val">[no_tatami] (opsional)</span></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </details>
+        </div>
 
-                <div class="guide-list">
-                    <!-- Wasit VR (Featured) -->
-                    <div class="guide-card" style="background: rgba(139, 92, 246, 0.08); border-color: rgba(139, 92, 246, 0.35);">
-                        <span class="guide-role-badge" style="color: #a78bfa;">Wasit Video Review (VR)</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">vr</span> <small class="text-muted">(atau vr[id_event])</small></div>
-                            <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Juri -->
-                    <div class="guide-card">
-                        <span class="guide-role-badge">Juri Tatami</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">j[no_juri]t[no_tatami]e[id_event]</span></div>
-                            <div><span class="key">Pass:</span> <span class="val">sama dengan user</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Admin Tatami -->
-                    <div class="guide-card">
-                        <span class="guide-role-badge">Admin Tatami</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">admtatami[no_tatami]e[id_event]</span></div>
-                            <div><span class="key">Pass:</span> <span class="val">sama dengan user</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Admin Control -->
-                    <div class="guide-card">
-                        <span class="guide-role-badge">Admin Control (View Only)</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">[id_event]</span></div>
-                            <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Coach Supervisor -->
-                    <div class="guide-card">
-                        <span class="guide-role-badge">Coach Supervisor (View Only)</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">c[id_event]</span></div>
-                            <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                        </div>
-                    </div>
-
-                    <!-- LO Kata -->
-                    <div class="guide-card">
-                        <span class="guide-role-badge" style="background: rgba(229, 37, 37, 0.12); color: #f87171; border: 1px solid rgba(229, 37, 37, 0.25);">LO Kata (Tatami Input)</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">lo[id_event]</span></div>
-                            <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Tatami Manager -->
-                    <div class="guide-card">
-                        <span class="guide-role-badge" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);">Tatami Manager (Wasit)</span>
-                        <div class="guide-pattern">
-                            <div><span class="key">User:</span> <span class="val">tm[id_event]</span></div>
-                            <div><span class="key">Pass:</span> <span class="val">[no_tatami] (opsional)</span></div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Footer -->
+        <div class="auth-footer">
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                Sistem Offline Siap
             </div>
-
-            <div class="guide-footer">
-                <div class="status-pill">
-                    <span class="status-dot"></span>
-                    Sistem Offline Siap
-                </div>
-                <span>v2.0 &bull; Local</span>
-            </div>
+            <span>v2.0 &bull; Local Venue</span>
         </div>
     </div>
 
@@ -1109,6 +1110,7 @@
 
             const roleLabels = {
                 'wasit_vr': 'Buka Panel Wasit Video Review (VR)',
+                'admtatami': 'Masuk sebagai Admin Tatami',
                 'lo_kata': 'Buka Panel LO Kata',
                 'coach_sup': 'Buka Layar Coach Supervisor',
                 'admin_control': 'Buka Monitor Admin Control',

@@ -13,18 +13,21 @@
         :root {
             --aka-color: #ef4444;
             --aka-dark: #b91c1c;
-            --aka-glow: rgba(239, 68, 68, 0.45);
-            --ao-color: #3b82f6;
+            --aka-glow: rgba(239, 68, 68, 0.25);
+            --ao-color: #2563eb;
             --ao-dark: #1d4ed8;
-            --ao-glow: rgba(59, 130, 246, 0.45);
-            --bg-cockpit: #121316;
-            --card-cockpit: #1c1e24;
-            --border-cockpit: #2e323b;
+            --ao-glow: rgba(37, 99, 235, 0.25);
+            --bg-cockpit: #f8fafc;
+            --card-cockpit: rgba(255, 255, 255, 0.94);
+            --border-cockpit: rgba(0, 0, 0, 0.08);
         }
 
         body {
             background-color: var(--bg-cockpit);
-            color: #f3f4f6;
+            background-image: 
+                radial-gradient(at 100% 0%, rgba(0, 0, 0, 0.02) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(0, 0, 0, 0.02) 0px, transparent 50%);
+            color: #09090b;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             min-height: 100vh;
             display: flex;
@@ -36,15 +39,17 @@
 
         /* Top Bar */
         .top-hub {
-            background: #181a20;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--border-cockpit);
             padding: 10px 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
 
         .tatami-pill {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: #111827;
+            background: #09090b;
+            color: #ffffff;
             font-weight: 800;
             font-size: 0.95rem;
             letter-spacing: 0.5px;
@@ -53,12 +58,13 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .category-pill {
-            background: #252830;
-            border: 1px solid #374151;
-            color: #e5e7eb;
+            background: #f1f5f9;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #09090b;
             font-size: 0.85rem;
             font-weight: 600;
             border-radius: 8px;
@@ -72,9 +78,11 @@
         /* Corner Cards */
         .corner-card {
             background: var(--card-cockpit);
-            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 18px;
             border: 1px solid var(--border-cockpit);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -99,13 +107,13 @@
         }
 
         .corner-header.aka {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.05) 100%);
-            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.03) 100%);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.15);
         }
 
         .corner-header.ao {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.05) 100%);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(37, 99, 235, 0.03) 100%);
+            border-bottom: 1px solid rgba(37, 99, 235, 0.15);
         }
 
         .corner-badge {
@@ -132,13 +140,13 @@
         .athlete-info {
             padding: 16px 20px;
             border-bottom: 1px solid var(--border-cockpit);
-            background: rgba(0,0,0,0.15);
+            background: #fafafa;
         }
 
         .athlete-name {
             font-size: 1.45rem;
             font-weight: 800;
-            color: #ffffff;
+            color: #09090b;
             line-height: 1.25;
             white-space: nowrap;
             overflow: hidden;
@@ -148,7 +156,7 @@
 
         .athlete-sub {
             font-size: 0.85rem;
-            color: #9ca3af;
+            color: #64748b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -220,13 +228,13 @@
         }
 
         .btn-vr:disabled {
-            background: #272a31 !important;
-            color: #555b68 !important;
-            border-color: #373b44 !important;
+            background: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            border-color: #e2e8f0 !important;
             box-shadow: none !important;
             cursor: not-allowed;
             transform: none !important;
-            opacity: 0.6;
+            opacity: 0.65;
         }
 
         /* Pulsing Pending Review State */
@@ -243,7 +251,7 @@
         /* Status & Action Bar */
         .status-bar {
             padding: 16px 20px;
-            background: #16181d;
+            background: #f8fafc;
             border-top: 1px solid var(--border-cockpit);
             display: flex;
             align-items: center;
@@ -254,6 +262,7 @@
         .status-text {
             font-size: 0.95rem;
             font-weight: 700;
+            color: #09090b;
         }
 
         .card-pill {
@@ -340,7 +349,7 @@
             <div class="d-flex align-items-center gap-2">
                 <!-- Mode View Toggle for Tablets -->
                 <div class="btn-group btn-group-sm" role="group" aria-label="View Mode">
-                    <button type="button" class="btn btn-outline-secondary active text-light px-2" id="mode-both" title="Tampilkan Keduanya">
+                    <button type="button" class="btn btn-outline-dark active px-2" id="mode-both" title="Tampilkan Keduanya">
                         <i class="fas fa-columns me-1"></i> Semua
                     </button>
                     <button type="button" class="btn btn-outline-danger px-2" id="mode-aka" title="Hanya AKA">
@@ -357,10 +366,10 @@
                 </span>
 
                 <!-- Fullscreen & Refresh -->
-                <button class="btn btn-sm btn-outline-secondary text-light" id="btn-fullscreen" title="Layar Penuh">
+                <button class="btn btn-sm btn-outline-dark" id="btn-fullscreen" title="Layar Penuh">
                     <i class="fas fa-expand"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-secondary text-light" onclick="window.location.reload();" title="Muat Ulang Halaman">
+                <button class="btn btn-sm btn-outline-dark" onclick="window.location.reload();" title="Muat Ulang Halaman">
                     <i class="fas fa-arrows-rotate"></i>
                 </button>
             </div>
@@ -420,7 +429,7 @@
                     <div class="status-bar">
                         <div>
                             <div class="small text-muted fw-bold">STATUS REVIEW:</div>
-                            <div class="status-text text-light" id="aka-status-text">Siap diajukan</div>
+                            <div class="status-text text-dark" id="aka-status-text">Siap diajukan</div>
                         </div>
                         <button class="btn btn-warning btn-revisi d-none" id="btn-revisi-aka">
                             <i class="fas fa-undo me-1"></i> BATAL / REVISI
@@ -472,7 +481,7 @@
                     <div class="status-bar">
                         <div>
                             <div class="small text-muted fw-bold">STATUS REVIEW:</div>
-                            <div class="status-text text-light" id="ao-status-text">Siap diajukan</div>
+                            <div class="status-text text-dark" id="ao-status-text">Siap diajukan</div>
                         </div>
                         <button class="btn btn-warning btn-revisi d-none" id="btn-revisi-ao">
                             <i class="fas fa-undo me-1"></i> BATAL / REVISI
