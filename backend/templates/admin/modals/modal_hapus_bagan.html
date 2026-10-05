@@ -13,8 +13,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <a href="#" id="btnConfirmDelete" class="btn btn-danger font-weight-bold">
+                <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                <a href="#" id="btnConfirmDelete" class="btn-modal-danger">
                     <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Bagan
                 </a>
             </div>
@@ -42,16 +42,16 @@
                         <i class="fas fa-exclamation-circle me-1"></i> Seluruh rincian partai pertandingan, skor, jadwal, dan penetapan juara untuk event ini akan <strong>dihapus secara permanen</strong>. Tindakan ini <strong>tidak dapat dibatalkan</strong>.
                     </div>
 
-                    <div class="form-check p-2 rounded bg-dark border border-secondary mb-0">
+                    <div class="form-check p-2.5 rounded border mb-0" style="background: #fff1f2; border-color: #fecdd3 !important;">
                         <input class="form-check-input ms-1 me-2" type="checkbox" id="confirmDeleteAllCheckbox" onchange="document.getElementById('btnSubmitDeleteAll').disabled = !this.checked;">
-                        <label class="form-check-label text-white small" for="confirmDeleteAllCheckbox" style="cursor: pointer;">
+                        <label class="form-check-label small fw-semibold" for="confirmDeleteAllCheckbox" style="color: #9f1239; cursor: pointer;">
                             Saya memahami dan yakin ingin menghapus seluruh bagan di event ini.
                         </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" name="submit_type" value="hapus_semua_bagan" class="btn btn-danger font-weight-bold" id="btnSubmitDeleteAll" disabled>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="hapus_semua_bagan" class="btn-modal-danger" id="btnSubmitDeleteAll" disabled>
                         <i class="fas fa-trash-alt me-1"></i> Ya, Hapus Semua Bagan
                     </button>
                 </div>

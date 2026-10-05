@@ -1603,6 +1603,17 @@ def admin_dashboard(request, event_pk):
         b.finished_matches = fin_count
         b.total_matches = fin_count if is_finished else calc_total
             
+    total_bagans = len(bagans)
+    finished_bagans = sum(1 for b in bagans if getattr(b, 'is_finished', False))
+    active_bagans = sum(1 for b in bagans if getattr(b, 'active_tatami', None))
+    pending_bagans = max(0, total_bagans - finished_bagans)
+    metrics = {
+        'total': total_bagans,
+        'finished': finished_bagans,
+        'active': active_bagans,
+        'pending': pending_bagans,
+    }
+
     event_mapping = get_event_mapping(event.pk)
     if event_mapping and event_mapping.get('hosted_event_name'):
         event_mapping['is_mismatch'] = (event.nama_event or '').strip().lower() != event_mapping.get('hosted_event_name', '').strip().lower()
@@ -1615,6 +1626,7 @@ def admin_dashboard(request, event_pk):
         'role': role,
         'nomor_tandings': nomor_tandings,
         'bagans': bagans,
+        'metrics': metrics,
         'event_mapping': event_mapping,
         'hosted_events': hosted_events,
     }
@@ -4357,6 +4369,16 @@ def admin_tatami(request, event_pk):
     last_tatami = tatamis.order_by('-tatami_number').first()
     next_suggested = (last_tatami.tatami_number + 1) if (last_tatami and last_tatami.tatami_number) else 1
 
+    total_tatami = len(tatamis)
+    active_tatami = sum(1 for t in tatamis if t.detail_bagan and not getattr(t.detail_bagan, 'selesai', False))
+    standby_tatami = total_tatami - active_tatami
+    metrics = {
+        'total': total_tatami,
+        'active': active_tatami,
+        'standby': standby_tatami,
+        'juries': total_tatami * 7,
+    }
+
     context = {
         'on': 'tatami',
         'event': event,
@@ -4364,6 +4386,7 @@ def admin_tatami(request, event_pk):
         'role': user_role,
         'tatamis': tatamis,
         'next_suggested': next_suggested,
+        'metrics': metrics,
     }
 
     return render(request, 'admin/tatami.html', context)

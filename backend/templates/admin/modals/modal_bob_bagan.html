@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="bobBaganModalLabel"><i class="fas fa-trophy me-2 text-danger"></i>Drawing Bagan Best of the Best (BOB)</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST">
                 {% csrf_token %}
@@ -30,8 +30,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" name="submit_type" value="bob_bagan" class="btn btn-primary">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="submit_type" value="bob_bagan" class="btn-modal-primary">
                         <i class="fas fa-trophy me-1"></i> Buat Bagan BOB
                     </button>
                 </div>

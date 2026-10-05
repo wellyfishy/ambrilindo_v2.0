@@ -3,152 +3,395 @@
 
 {% block style %}
 <style>
-/* Dashboard Toolbar & Header Actions */
-.header-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
+/* Page Title & Breadcrumb */
+.page-header h3 {
+    color: #09090b !important;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.02em;
 }
 
-.indicator-dot-green {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: #10b981;
-    display: inline-block;
-    box-shadow: 0 0 6px #10b981;
+/* Head Action Buttons System */
+.btn-head-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+.btn-head-secondary:hover {
+    background: #f1f5f9 !important;
+    color: #09090b !important;
+    border-color: #94a3b8 !important;
 }
 
-/* Filter Toolbar */
-.bagan-toolbar {
+.btn-head-delete-all {
+    background: #ffffff !important;
+    border: 1.5px solid #dc2626 !important;
+    color: #dc2626 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer;
+}
+.btn-head-delete-all:hover {
+    background: #fef2f2 !important;
+    color: #991b1b !important;
+    border-color: #b91c1c !important;
+}
+
+.btn-head-create {
+    background: #09090b !important;
+    border: 1.5px solid #09090b !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer;
+}
+.btn-head-create:hover {
+    background: #27272a !important;
+    border-color: #27272a !important;
+    color: #ffffff !important;
+}
+
+/* Stat Cards */
+.card-stats {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-stats:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+.stat-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
     align-items: center;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    padding: 12px 16px;
-    border-radius: var(--radius-md);
+    justify-content: center;
+    font-size: 15px;
+}
+.stat-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #09090b !important;
+}
+
+/* Filter Card Container */
+.bagan-filter-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    padding: 14px 18px !important;
     margin-bottom: 20px;
 }
 
 .search-input-wrap {
     position: relative;
     flex: 1 1 260px;
-    max-width: 380px;
+    max-width: 360px;
 }
-
+.search-input-wrap input {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #09090b !important;
+    border-radius: 8px !important;
+    padding-left: 36px !important;
+    height: 38px;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: all 0.15s ease;
+}
+.search-input-wrap input::placeholder {
+    color: #475569 !important;
+    font-weight: 500 !important;
+}
+.search-input-wrap input:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
 .search-input-wrap .search-icon {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
+    color: #475569 !important;
     font-size: 13px;
-}
-
-.search-input-wrap input {
-    padding-left: 36px !important;
+    pointer-events: none;
 }
 
 .filter-select {
     flex: 0 0 auto;
-    min-width: 160px;
+    min-width: 170px;
+}
+.filter-select .form-select {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #09090b !important;
+    border-radius: 8px !important;
+    height: 38px;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding-left: 12px !important;
+    padding-right: 32px !important;
+}
+.filter-select .form-select:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
 #bagan-result-count {
     font-size: 12.5px;
-    font-weight: 600;
-    color: var(--red-hover);
+    font-weight: 700;
+    color: #2563eb;
     margin-left: auto;
     white-space: nowrap;
 }
 
 tr.bagan-row-hidden { display: none !important; }
 
-/* Badges for Table */
-.badge-code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    font-weight: 600;
-    background: var(--red-tint);
-    border: 1px solid var(--red-tint-border);
-    color: var(--red-hover);
-    padding: 2px 7px;
-    border-radius: 4px;
-    margin-right: 6px;
+/* Table Card & Header */
+.table-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden;
 }
 
-.badge-tipe-kata {
-    background: rgba(14, 165, 233, 0.15);
-    border: 1px solid rgba(14, 165, 233, 0.35);
-    color: #38bdf8;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
+.table-card-header {
+    background: #f8fafc !important;
+    border-bottom: 1.5px solid #e2e8f0 !important;
+    padding: 12px 18px !important;
 }
 
-.badge-tipe-kumite {
-    background: rgba(229, 37, 37, 0.15);
-    border: 1px solid rgba(229, 37, 37, 0.35);
-    color: #f87171;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
+.table-card-header h5 {
+    color: #09090b !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
 }
 
-.badge-pool {
-    background: rgba(168, 85, 247, 0.15);
-    border: 1px solid rgba(168, 85, 247, 0.35);
-    color: #c084fc;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
+.bagan-table thead th {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    padding: 12px 14px !important;
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+.bagan-table tbody td {
+    padding: 12px 14px !important;
+    color: #0f172a !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    vertical-align: middle !important;
+}
+
+/* Badges & Meta for Table */
+.bagan-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+
+.bagan-title-row {
     display: inline-flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    line-height: 1.4;
 }
 
-.badge-final {
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.35);
-    color: #fbbf24;
+.badge-code {
+    font-family: var(--font-mono, monospace);
     font-size: 11px;
     font-weight: 700;
-    padding: 3px 8px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    padding: 2px 6px;
     border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-}
-
-.badge-bob {
-    background: rgba(229, 37, 37, 0.2);
-    border: 1px solid rgba(229, 37, 37, 0.45);
-    color: #ff6b6b;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    display: inline-flex;
-    align-items: center;
+    margin: 0 !important;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .bagan-link {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary) !important;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #09090b !important;
+    text-decoration: none;
+    line-height: 1.3;
+}
+.bagan-link:hover {
+    color: #2563eb !important;
+    text-decoration: underline;
 }
 
-.bagan-link:hover {
-    color: var(--red-hover) !important;
+.badge-tatami-live {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    padding: 2px 7px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.25) !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+.badge-tatami-live i {
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
+}
+
+.bagan-meta-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 !important;
+}
+
+.badge-match-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    padding: 2px 7px !important;
+    border-radius: 4px !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+.badge-match-status i {
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+}
+.badge-match-status.status-finished {
+    background: #dcfce7 !important;
+    border: 1px solid #86efac !important;
+    color: #15803d !important;
+}
+.badge-match-status.status-ongoing {
+    background: #e0f2fe !important;
+    border: 1px solid #7dd3fc !important;
+    color: #0369a1 !important;
+}
+.badge-match-status.status-pending {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+/* Category & Type Badges */
+.badge-tipe-kata,
+.badge-tipe-kumite {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+    padding: 3px 9px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    line-height: 1.2 !important;
+    margin: 0 auto !important;
+}
+.badge-tipe-kata {
+    background: #e0f2fe !important;
+    border: 1.5px solid #7dd3fc !important;
+    color: #0369a1 !important;
+}
+.badge-tipe-kumite {
+    background: #fee2e2 !important;
+    border: 1.5px solid #fca5a5 !important;
+    color: #b91c1c !important;
+}
+.badge-tipe-kata i,
+.badge-tipe-kumite i {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.badge-pool,
+.badge-final,
+.badge-bob {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    padding: 3px 9px !important;
+    border-radius: 4px !important;
+    line-height: 1.2 !important;
+    margin: 0 auto !important;
+}
+.badge-pool {
+    background: #f3e8ff !important;
+    border: 1.5px solid #d8b4fe !important;
+    color: #7e22ce !important;
+}
+.badge-final {
+    background: #fef3c7 !important;
+    border: 1.5px solid #fde68a !important;
+    color: #92400e !important;
+}
+.badge-bob {
+    background: #fee2e2 !important;
+    border: 1.5px solid #fda4af !important;
+    color: #be123c !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+}
+.badge-pool i,
+.badge-final i,
+.badge-bob i {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
 }
 
 /* Juara 1 - 3 Cell Presentation */
@@ -158,14 +401,12 @@ tr.bagan-row-hidden { display: none !important; }
     gap: 3px;
     font-size: 12px;
 }
-
 .juara-row {
     display: flex;
     align-items: center;
     gap: 6px;
     line-height: 1.3;
 }
-
 .juara-badge {
     width: 17px;
     height: 17px;
@@ -176,53 +417,234 @@ tr.bagan-row-hidden { display: none !important; }
     font-size: 10px;
     font-weight: 800;
     flex-shrink: 0;
+    margin: 0 !important;
 }
-
 .juara-badge-1 {
     background: #f59e0b;
     color: #000;
-    box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
-
 .juara-badge-2 {
     background: #94a3b8;
     color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
-
 .juara-badge-3 {
     background: #b45309;
     color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
-
 .juara-badge-other {
-    background: #475569;
+    background: #64748b;
     color: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-
 .juara-name {
-    color: var(--text-primary);
+    color: #0f172a;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 175px;
+    max-width: clamp(160px, 20vw, 320px);
+}
+
+/* Row Action Buttons System */
+.btn-row-action-edit {
+    height: 32px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+}
+.btn-row-action-edit:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+.btn-row-action-delete {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1.5px solid #fca5a5;
+    background: #ffffff;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-row-action-delete:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #b91c1c;
 }
 
 /* Empty State */
 .empty-state-box {
     text-align: center;
     padding: 48px 24px;
-    color: var(--text-muted);
+    color: #475569;
 }
-
-.empty-state-box i {
-    font-size: 38px;
-    color: var(--border-hover);
-    margin-bottom: 12px;
+.empty-state-icon {
+    font-size: 42px;
+    color: #94a3b8;
+    margin-bottom: 14px;
+    display: inline-block;
 }
-
 .empty-state-box p {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #334155;
+    font-weight: 500;
+}
+
+/* Modals Light Card System */
+.modal-content {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+.modal-header {
+    background: #f8fafc !important;
+    border-bottom: 1.5px solid #e2e8f0 !important;
+    padding: 16px 20px !important;
+}
+.modal-title {
+    color: #09090b !important;
+    font-weight: 800 !important;
+    font-size: 16px !important;
+}
+.modal-header.bg-danger {
+    background: #dc2626 !important;
+    border-bottom-color: #b91c1c !important;
+}
+.modal-body {
+    padding: 20px !important;
+    color: #0f172a !important;
+}
+.modal-body label {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+}
+.modal-body .form-control,
+.modal-body .form-select {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #09090b !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+.modal-footer {
+    background: #f8fafc !important;
+    border-top: 1.5px solid #e2e8f0 !important;
+    padding: 12px 20px !important;
+}
+
+/* Modal Buttons System */
+.btn-modal-cancel {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 7px 18px !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-modal-cancel:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+.btn-modal-primary {
+    background: #09090b !important;
+    border: 1.5px solid #09090b !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 7px 20px !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-modal-primary:hover {
+    background: #27272a !important;
+    border-color: #27272a !important;
+    color: #ffffff !important;
+}
+.btn-modal-danger {
+    background: #dc2626 !important;
+    border: 1.5px solid #dc2626 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 7px 20px !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-modal-danger:hover {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #ffffff !important;
+}
+
+/* Select2 Light Theme Styling */
+.select2-container--default .select2-selection--single {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    height: 42px !important;
+    padding: 4px 6px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #09090b !important;
+    line-height: 32px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+.select2-container--default .select2-selection--multiple {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    min-height: 42px !important;
+    padding: 3px 6px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.5px) {
+    .filter-select {
+        min-width: 150px;
+    }
+}
+@media (max-width: 768px) {
+    .search-input-wrap {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+    }
+    .filter-select {
+        flex: 1 1 calc(50% - 6px) !important;
+        min-width: 130px !important;
+    }
 }
 </style>
 {% endblock style %}
@@ -242,248 +664,310 @@ tr.bagan-row-hidden { display: none !important; }
             </div>
         {% endif %}
 
-        <!-- Main Card -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div>
-                    <h2 class="card-title mb-1">Kumpulan Bagan &bull; {{ event.nama_event }}</h2>
-                    <div class="small text-muted">
-                        Total <strong>{{ bagans.count }}</strong> bagan pertandingan terdaftar
-                    </div>
+        <!-- Page Header & Breadcrumbs -->
+        <div class="page-header d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 12px; font-weight: 700; color: #475569;">
+                    <span>Dashboard</span>
+                    <i class="fas fa-chevron-right" style="font-size: 9px; color: #94a3b8;"></i>
+                    <span style="color: #09090b;">Bagan Utama</span>
+                </div>
+                <h3 class="fw-bold mb-1" style="font-size: 22px; color: #09090b; letter-spacing: -0.01em;">
+                    Manajemen Bagan Pertandingan
+                </h3>
+                <p class="mb-0" style="font-size: 13px; color: #334155; font-weight: 500;">
+                    Kelola bagan turnamen, drawing otomatis, pembagian pool, dan pantau progres partai live tatami.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Buat Bagan Dropdown -->
+                <div class="dropdown d-inline">
+                    <button class="btn-head-create dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-plus"></i> Buat Bagan
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border: 1.5px solid #cbd5e1; border-radius: 8px;">
+                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #0f172a;" data-bs-toggle="modal" data-bs-target="#tambahBaganModal"><i class="fas fa-file-alt me-2 text-primary"></i> Tambah Bagan Satuan</a></li>
+                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #0f172a;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal"><i class="fas fa-random me-2 text-warning"></i> Drawing Otomatis</a></li>
+                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #0f172a;" data-bs-toggle="modal" data-bs-target="#bobBaganModal"><i class="fas fa-trophy me-2 text-danger"></i> Bagan Best of the Best (BOB)</a></li>
+                    </ul>
                 </div>
 
-                <!-- Clean Compact Header Actions -->
-                <div class="header-actions">
-                    <!-- 1. Create Bagan Dropdown -->
-                    <div class="dropdown d-inline">
-                        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-                            <i class="fas fa-plus me-1"></i> Buat Bagan
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" style="right: 0 !important; left: auto !important;">
-                            <li><a href="#" class="dropdown-item py-2" data-bs-toggle="modal" data-bs-target="#tambahBaganModal"><i class="fas fa-file-alt me-2 text-primary"></i> Tambah Bagan Satuan</a></li>
-                            <li><a href="#" class="dropdown-item py-2" data-bs-toggle="modal" data-bs-target="#drawingBaganModal"><i class="fas fa-random me-2 text-warning"></i> Drawing Otomatis</a></li>
-                            <li><a href="#" class="dropdown-item py-2" data-bs-toggle="modal" data-bs-target="#bobBaganModal"><i class="fas fa-trophy me-2 text-danger"></i> Bagan Best of the Best (BOB)</a></li>
-                            {% if bagans %}
-                            <li><hr class="dropdown-divider my-1"></li>
-                            <li><a href="#" class="dropdown-item py-2 text-danger" data-bs-toggle="modal" data-bs-target="#hapusSemuaBaganModal"><i class="fas fa-trash-alt me-2"></i> Hapus Semua Bagan</a></li>
-                            {% endif %}
-                        </ul>
+                <!-- Export Excel -->
+                <button class="btn-head-secondary" type="button" data-bs-toggle="modal" data-bs-target="#exportBaganModal" title="Export File Excel Bagan Manual">
+                    <i class="fas fa-file-excel text-success"></i> Export Excel
+                </button>
+
+                <!-- Hapus Semua Bagan -->
+                {% if bagans %}
+                <button class="btn-head-delete-all" type="button" data-bs-toggle="modal" data-bs-target="#hapusSemuaBaganModal" title="Hapus Semua Bagan di Event Ini">
+                    <i class="fas fa-trash-alt"></i> Hapus Semua Bagan
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 4 Metric Stat Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155;">Total Bagan</span>
+                        <div class="stat-icon-wrap" style="background: #f1f5f9; color: #334155;">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
                     </div>
+                    <div class="stat-value" id="stat-total-bagan">{{ metrics.total }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #475569; font-weight: 600;">Seluruh bagan terdaftar</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #15803d;">Bagan Selesai</span>
+                        <div class="stat-icon-wrap" style="background: #dcfce7; color: #15803d;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #15803d !important;">{{ metrics.finished }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #15803d; font-weight: 600;">Partai tuntas bertanding</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #1d4ed8;">Live Tatami</span>
+                        <div class="stat-icon-wrap" style="background: #eff6ff; color: #1d4ed8;">
+                            <i class="fas fa-tv"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #1d4ed8 !important;">{{ metrics.active }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #1d4ed8; font-weight: 600;">Sedang jalan di tatami</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #b45309;">Belum Selesai</span>
+                        <div class="stat-icon-wrap" style="background: #fffbeb; color: #b45309;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: #b45309 !important;">{{ metrics.pending }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #b45309; font-weight: 600;">Menunggu / sisa partai</div>
+                </div>
+            </div>
+        </div>
 
-                    <!-- 2. Export Excel -->
-                    <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#exportBaganModal" title="Export File Excel Bagan Manual">
-                        <i class="fas fa-file-excel text-success me-1"></i> Export Excel
+        <!-- Filter & Search Toolbar Card -->
+        <div class="bagan-filter-card">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="bagan-search-input" class="form-control" placeholder="Cari nama atau kode bagan...">
+                </div>
+                <div class="filter-select">
+                    <select id="bagan-tipe-filter" class="form-select">
+                        <option value="">Semua Tipe Tanding</option>
+                        <option value="1">Kata</option>
+                        <option value="2">Kumite</option>
+                    </select>
+                </div>
+                <div class="filter-select">
+                    <select id="bagan-pool-filter" class="form-select">
+                        <option value="">Semua Pool</option>
+                        <option value="pool">Pool (Pool A / Pool B)</option>
+                        <option value="final">Final</option>
+                        <option value="bob">BOB (Best of the Best)</option>
+                    </select>
+                </div>
+                <div class="filter-select">
+                    <select id="bagan-status-filter" class="form-select">
+                        <option value="">Semua Status</option>
+                        <option value="active">Sedang Berjalan di Tatami</option>
+                        <option value="finished">Selesai</option>
+                        <option value="unfinished">Belum Selesai</option>
+                    </select>
+                </div>
+                <div id="bagan-result-wrap" class="d-flex align-items-center gap-2 ms-auto">
+                    <span id="bagan-result-count"></span>
+                    <button type="button" id="btn-reset-filters" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 11.5px; display: none;" title="Reset Semua Filter">
+                        <i class="fas fa-undo-alt me-1"></i>Reset
                     </button>
+                </div>
+            </div>
+        </div>
 
-                    <!-- 3. Hapus Semua Bagan Button -->
-                    {% if bagans %}
-                    <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#hapusSemuaBaganModal" title="Hapus Semua Bagan di Event Ini">
-                        <i class="fas fa-trash-alt me-1"></i> Hapus Semua Bagan
-                    </button>
-                    {% endif %}
+        <!-- Table Card -->
+        <div class="table-card">
+            <div class="table-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="mb-0">Daftar Bagan Pertandingan</h5>
+                    <span class="badge" id="bagan-table-count" style="font-size: 11.5px; font-weight: 700; background: #e2e8f0; color: #0f172a; border: 1px solid #cbd5e1;">Menampilkan {{ bagans|length }} bagan</span>
+                </div>
+                <div style="font-size: 12px; color: #334155; font-weight: 600;">
+                    <i class="fas fa-info-circle me-1 text-primary"></i> Klik nama bagan untuk melihat skema bracket atau partai
                 </div>
             </div>
 
-            <div class="card-body">
-                <!-- Filter & Search Toolbar -->
-                <div class="bagan-toolbar">
-                    <div class="search-input-wrap">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="bagan-search-input" class="form-control" placeholder="Cari nama atau kode bagan...">
-                    </div>
-                    <div class="filter-select">
-                        <select id="bagan-tipe-filter" class="form-select">
-                            <option value="">Semua Tipe Tanding</option>
-                            <option value="1">Kata</option>
-                            <option value="2">Kumite</option>
-                        </select>
-                    </div>
-                    <div class="filter-select">
-                        <select id="bagan-pool-filter" class="form-select">
-                            <option value="">Semua Pool</option>
-                            <option value="pool">Pool (Pool A / Pool B)</option>
-                            <option value="final">Final</option>
-                            <option value="bob">BOB (Best of the Best)</option>
-                        </select>
-                    </div>
-                    <div class="filter-select">
-                        <select id="bagan-status-filter" class="form-select">
-                            <option value="">Semua Status</option>
-                            <option value="active">Sedang Berjalan di Tatami</option>
-                            <option value="finished">Selesai</option>
-                            <option value="unfinished">Belum Selesai</option>
-                        </select>
-                    </div>
-                    <div id="bagan-result-count"></div>
-                </div>
-
-                <!-- Bagan Table with Juara 1 - 3 Header -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th scope="col" style="width: 50px; text-align: center;">No</th>
-                                <th scope="col">Nama &amp; Kode Bagan</th>
-                                <th scope="col" style="width: 110px; text-align: center;">Tipe</th>
-                                <th scope="col" style="width: 125px; text-align: center;">Kategori / Pool</th>
-                                <th scope="col" style="width: 210px;">Juara 1 - 3</th>
-                                <th scope="col" style="width: 150px; text-align: center;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bagan-table-body">
-                            {% for bagan in bagans %}
-                            <tr data-search="{{ bagan.kode }} {{ bagan.nama_bagan }} {% if bagan.active_tatami %}tatami {{ bagan.active_tatami }}{% endif %}"
-                                data-tipe="{{ bagan.tipe_tanding }}"
-                                data-status="{% if bagan.active_tatami %}active{% elif bagan.is_finished %}finished{% else %}unfinished{% endif %}"
-                                data-pool-kind="{% if 'BOB' in bagan.nama_bagan|upper or 'BEST OF THE BEST' in bagan.nama_bagan|upper or bagan.nomor_tanding and 'BOB' in bagan.nomor_tanding.nama_nomor_tanding|upper %}bob{% elif 'POOL ' in bagan.nama_bagan|upper or bagan.pool > 1 %}pool{% else %}final{% endif %}">
-                                <td style="text-align: center;" class="text-muted small">{{ forloop.counter }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center flex-wrap gap-1">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 bagan-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 50px; text-align: center;">No</th>
+                            <th scope="col">Nama &amp; Kode Bagan</th>
+                            <th scope="col" style="width: 110px; text-align: center;">Tipe</th>
+                            <th scope="col" style="width: 125px; text-align: center;">Kategori / Pool</th>
+                            <th scope="col" style="width: 210px;">Juara 1 - 3</th>
+                            <th scope="col" style="width: 130px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bagan-table-body" style="font-size: 13px;">
+                        {% for bagan in bagans %}
+                        <tr data-search="{{ bagan.kode }} {{ bagan.nama_bagan }} {% if bagan.active_tatami %}tatami {{ bagan.active_tatami }}{% endif %}"
+                            data-tipe="{{ bagan.tipe_tanding }}"
+                            data-status="{% if bagan.active_tatami %}active{% elif bagan.is_finished %}finished{% else %}unfinished{% endif %}"
+                            data-pool-kind="{% if 'BOB' in bagan.nama_bagan|upper or 'BEST OF THE BEST' in bagan.nama_bagan|upper or bagan.nomor_tanding and 'BOB' in bagan.nomor_tanding.nama_nomor_tanding|upper %}bob{% elif 'POOL ' in bagan.nama_bagan|upper or bagan.pool > 1 %}pool{% else %}final{% endif %}">
+                            <td style="text-align: center; color: var(--text-secondary); font-weight: 500;">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="bagan-info-cell">
+                                    <div class="bagan-title-row">
                                         <span class="badge-code">{{ bagan.kode }}</span>
                                         <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="bagan-link">
                                             {{ bagan.nama_bagan }}
                                         </a>
                                         {% if bagan.active_tatami %}
-                                            <span class="badge bg-danger text-white shadow-sm" style="font-size: 10px;" title="Sedang bertanding di arena Tatami {{ bagan.active_tatami }}">
+                                            <span class="badge-tatami-live" title="Sedang bertanding di arena Tatami {{ bagan.active_tatami }}">
                                                 <i class="fas fa-tv me-1"></i>Tatami {{ bagan.active_tatami }}
                                             </span>
                                         {% endif %}
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                    <div class="bagan-meta-row">
                                         {% if bagan.total_matches > 0 %}
                                             {% if bagan.is_finished or bagan.finished_matches == bagan.total_matches %}
-                                                <span class="badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 10px;">
+                                                <span class="badge-match-status status-finished">
                                                     <i class="fas fa-check-double me-1"></i>Selesai ({{ bagan.finished_matches }}/{{ bagan.total_matches }})
                                                 </span>
                                             {% elif bagan.finished_matches > 0 %}
-                                                <span class="badge" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-size: 10px;">
+                                                <span class="badge-match-status status-ongoing">
                                                     <i class="fas fa-play me-1"></i>{{ bagan.finished_matches }}/{{ bagan.total_matches }} Selesai
                                                 </span>
                                             {% else %}
-                                                <span class="badge text-muted" style="background: rgba(255, 255, 255, 0.05); font-size: 10px;">
-                                                    {{ bagan.total_matches }} Partai
+                                                <span class="badge-match-status status-pending">
+                                                    <i class="fas fa-calendar-alt me-1"></i>{{ bagan.total_matches }} Partai
                                                 </span>
                                             {% endif %}
                                         {% elif bagan.is_finished %}
-                                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; font-size: 10px;">
+                                            <span class="badge-match-status status-finished">
                                                 <i class="fas fa-check-double me-1"></i>Selesai
                                             </span>
                                         {% endif %}
                                     </div>
-                                </td>
-                                <td style="text-align: center;">
-                                    {% if bagan.tipe_tanding == '1' %}
-                                        <span class="badge-tipe-kata"><i class="fas fa-fist-raised me-1"></i>Kata</span>
-                                    {% elif bagan.tipe_tanding == '2' %}
-                                        <span class="badge-tipe-kumite"><i class="fas fa-hand-rock me-1"></i>Kumite</span>
-                                    {% else %}
-                                        <span class="text-muted small">-</span>
-                                    {% endif %}
-                                </td>
-                                <td style="text-align: center;">
-                                    {% if 'BOB' in bagan.nama_bagan|upper or 'BEST OF THE BEST' in bagan.nama_bagan|upper or bagan.nomor_tanding and 'BOB' in bagan.nomor_tanding.nama_nomor_tanding|upper %}
-                                        <span class="badge-bob"><i class="fas fa-trophy me-1"></i>BOB</span>
-                                    {% elif 'POOL ' in bagan.nama_bagan|upper or bagan.pool > 1 %}
-                                        <span class="badge-pool">
-                                            <i class="fas fa-layer-group me-1"></i>
-                                            {% if "POOL A" in bagan.nama_bagan|upper %}Pool A
-                                            {% elif "POOL B" in bagan.nama_bagan|upper %}Pool B
-                                            {% elif "POOL C" in bagan.nama_bagan|upper %}Pool C
-                                            {% elif "POOL D" in bagan.nama_bagan|upper %}Pool D
-                                            {% elif bagan.pool > 0 %}Pool {{ bagan.pool }}
-                                            {% else %}Pool{% endif %}
-                                        </span>
-                                    {% else %}
-                                        <span class="badge-final"><i class="fas fa-crown me-1"></i>Final</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if bagan.juara_1 or bagan.juara_2 or bagan.juara_3a or bagan.juara_3b %}
-                                        <div class="juara-cell">
-                                            {% if bagan.juara_1 %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-1" title="Juara 1">1</span>
-                                                    <span class="juara-name" title="{{ bagan.juara_1.nama_atlet }}">{{ bagan.juara_1.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.juara_2 %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-2" title="Juara 2">2</span>
-                                                    <span class="juara-name" title="{{ bagan.juara_2.nama_atlet }}">{{ bagan.juara_2.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.juara_3a %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-3" title="Juara 3">3</span>
-                                                    <span class="juara-name" title="{{ bagan.juara_3a.nama_atlet }}">{{ bagan.juara_3a.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.juara_3b %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-3" title="Juara 3 Bersama">3</span>
-                                                    <span class="juara-name" title="{{ bagan.juara_3b.nama_atlet }}">{{ bagan.juara_3b.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.peringkat_5 %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-other" title="Peringkat 5">5</span>
-                                                    <span class="juara-name" title="{{ bagan.peringkat_5.nama_atlet }}">{{ bagan.peringkat_5.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.peringkat_6 %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-other" title="Peringkat 6">6</span>
-                                                    <span class="juara-name" title="{{ bagan.peringkat_6.nama_atlet }}">{{ bagan.peringkat_6.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.peringkat_7 %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-other" title="Peringkat 7">7</span>
-                                                    <span class="juara-name" title="{{ bagan.peringkat_7.nama_atlet }}">{{ bagan.peringkat_7.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if bagan.peringkat_8 %}
-                                                <div class="juara-row">
-                                                    <span class="juara-badge juara-badge-other" title="Peringkat 8">8</span>
-                                                    <span class="juara-name" title="{{ bagan.peringkat_8.nama_atlet }}">{{ bagan.peringkat_8.nama_atlet }}</span>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    {% else %}
-                                        <span class="text-muted small">-</span>
-                                    {% endif %}
-                                </td>
-                                <td style="text-align: center;">
-                                    <div class="d-inline-flex gap-1">
-                                        <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-sm btn-secondary" title="Edit Pengaturan Bagan">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger btn-delete-trigger" data-bs-toggle="modal" data-bs-target="#hapusBaganModal" data-bagan-name="{{ bagan.nama_bagan }}" data-delete-url="{% url 'hapus-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" title="Hapus Bagan">
-                                            <i class="fas fa-trash-alt"></i> Hapus
-                                        </button>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if bagan.tipe_tanding == '1' %}
+                                    <span class="badge-tipe-kata"><i class="fas fa-fist-raised"></i>Kata</span>
+                                {% elif bagan.tipe_tanding == '2' %}
+                                    <span class="badge-tipe-kumite"><i class="fas fa-hand-rock"></i>Kumite</span>
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                {% if 'BOB' in bagan.nama_bagan|upper or 'BEST OF THE BEST' in bagan.nama_bagan|upper or bagan.nomor_tanding and 'BOB' in bagan.nomor_tanding.nama_nomor_tanding|upper %}
+                                    <span class="badge-bob"><i class="fas fa-trophy"></i>BOB</span>
+                                {% elif 'POOL ' in bagan.nama_bagan|upper or bagan.pool > 1 %}
+                                    <span class="badge-pool"><i class="fas fa-layer-group"></i>{% if "POOL A" in bagan.nama_bagan|upper %}Pool A{% elif "POOL B" in bagan.nama_bagan|upper %}Pool B{% elif "POOL C" in bagan.nama_bagan|upper %}Pool C{% elif "POOL D" in bagan.nama_bagan|upper %}Pool D{% elif bagan.pool > 0 %}Pool {{ bagan.pool }}{% else %}Pool{% endif %}</span>
+                                {% else %}
+                                    <span class="badge-final"><i class="fas fa-crown"></i>Final</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if bagan.juara_1 or bagan.juara_2 or bagan.juara_3a or bagan.juara_3b %}
+                                    <div class="juara-cell">
+                                        {% if bagan.juara_1 %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-1" title="Juara 1">1</span>
+                                                <span class="juara-name" title="{{ bagan.juara_1.nama_atlet }}">{{ bagan.juara_1.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.juara_2 %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-2" title="Juara 2">2</span>
+                                                <span class="juara-name" title="{{ bagan.juara_2.nama_atlet }}">{{ bagan.juara_2.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.juara_3a %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-3" title="Juara 3">3</span>
+                                                <span class="juara-name" title="{{ bagan.juara_3a.nama_atlet }}">{{ bagan.juara_3a.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.juara_3b %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-3" title="Juara 3 Bersama">3</span>
+                                                <span class="juara-name" title="{{ bagan.juara_3b.nama_atlet }}">{{ bagan.juara_3b.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.peringkat_5 %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-other" title="Peringkat 5">5</span>
+                                                <span class="juara-name" title="{{ bagan.peringkat_5.nama_atlet }}">{{ bagan.peringkat_5.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.peringkat_6 %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-other" title="Peringkat 6">6</span>
+                                                <span class="juara-name" title="{{ bagan.peringkat_6.nama_atlet }}">{{ bagan.peringkat_6.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.peringkat_7 %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-other" title="Peringkat 7">7</span>
+                                                <span class="juara-name" title="{{ bagan.peringkat_7.nama_atlet }}">{{ bagan.peringkat_7.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if bagan.peringkat_8 %}
+                                            <div class="juara-row">
+                                                <span class="juara-badge juara-badge-other" title="Peringkat 8">8</span>
+                                                <span class="juara-name" title="{{ bagan.peringkat_8.nama_atlet }}">{{ bagan.peringkat_8.nama_atlet }}</span>
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <div class="empty-state-box">
-                                        <i class="fas fa-sitemap"></i>
-                                        <p class="mb-2">Belum ada bagan pertandingan yang dibuat untuk event ini.</p>
-                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tambahBaganModal">
-                                            <i class="fas fa-plus me-1"></i> Tambah Bagan Sekarang
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; white-space: nowrap;">
+                                <div class="d-inline-flex gap-1.5 align-items-center">
+                                    <a href="{% url 'edit-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn-row-action-edit" title="Edit Pengaturan Bagan">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn-row-action-delete btn-delete-trigger" data-bs-toggle="modal" data-bs-target="#hapusBaganModal" data-bagan-name="{{ bagan.nama_bagan }}" data-delete-url="{% url 'hapus-admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" title="Hapus Bagan">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="empty-state-box">
+                                    <i class="fas fa-sitemap empty-state-icon"></i>
+                                    <p class="mb-3">Belum ada bagan pertandingan yang dibuat untuk event ini.</p>
+                                    <button type="button" class="btn-modal-primary" data-bs-toggle="modal" data-bs-target="#tambahBaganModal">
+                                        <i class="fas fa-plus me-1"></i> Tambah Bagan Sekarang
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-                    <div id="bagan-empty-state" class="empty-state-box" style="display: none;">
-                        <i class="fas fa-search"></i>
-                        <p>Tidak ada bagan yang cocok dengan kriteria pencarian atau filter yang dipilih.</p>
-                    </div>
+                <div id="bagan-empty-state" class="empty-state-box" style="display: none;">
+                    <i class="fas fa-search empty-state-icon"></i>
+                    <p>Tidak ada bagan yang cocok dengan kriteria pencarian atau filter yang dipilih.</p>
                 </div>
             </div>
         </div>
@@ -629,6 +1113,7 @@ tr.bagan-row-hidden { display: none !important; }
         const poolFilter = document.getElementById('bagan-pool-filter');
         const statusFilter = document.getElementById('bagan-status-filter');
         const resultCount = document.getElementById('bagan-result-count');
+        const btnResetFilters = document.getElementById('btn-reset-filters');
         const emptyState = document.getElementById('bagan-empty-state');
         const rows = document.querySelectorAll('#bagan-table-body tr[data-search]');
 
@@ -638,6 +1123,7 @@ tr.bagan-row-hidden { display: none !important; }
             const tipeValue = tipeFilter ? tipeFilter.value : '';
             const poolValue = poolFilter ? poolFilter.value : '';
             const statusValue = statusFilter ? statusFilter.value : '';
+            const hasActiveFilter = Boolean(query || tipeValue || poolValue || statusValue);
             let visible = 0;
 
             rows.forEach(function(row) {
@@ -652,9 +1138,12 @@ tr.bagan-row-hidden { display: none !important; }
             });
 
             if (resultCount) {
-                resultCount.textContent = (query || tipeValue || poolValue || statusValue)
+                resultCount.textContent = hasActiveFilter
                     ? `${visible} dari ${rows.length} bagan ditemukan`
                     : '';
+            }
+            if (btnResetFilters) {
+                btnResetFilters.style.display = hasActiveFilter ? 'inline-flex' : 'none';
             }
             if (emptyState) {
                 emptyState.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
@@ -665,6 +1154,16 @@ tr.bagan-row-hidden { display: none !important; }
         if (tipeFilter) tipeFilter.addEventListener('change', applyFilters);
         if (poolFilter) poolFilter.addEventListener('change', applyFilters);
         if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+
+        if (btnResetFilters) {
+            btnResetFilters.addEventListener('click', function() {
+                if (searchInput) searchInput.value = '';
+                if (tipeFilter) tipeFilter.value = '';
+                if (poolFilter) poolFilter.value = '';
+                if (statusFilter) statusFilter.value = '';
+                applyFilters();
+            });
+        }
     });
 </script>
 {% endblock script %}

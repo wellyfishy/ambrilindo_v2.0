@@ -56,8 +56,8 @@
 
             /* Typography */
             --text-primary: #09090b;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-secondary: #334155;
+            --text-muted: #475569;
             --text-inverse: #ffffff;
 
             --radius-sm: 6px;
@@ -87,6 +87,15 @@
         body, p, span, div, td, th, label, small, li,
         .text-dark, .text-body, .card-title, .modal-title {
             color: var(--text-primary);
+        }
+
+        .btn, .btn span, .btn i,
+        .badge, .badge span {
+            color: inherit;
+        }
+
+        .btn-head-create, .btn-head-create * {
+            color: #ffffff !important;
         }
 
         .text-muted, .text-secondary, .form-text, .op-7 {
@@ -145,20 +154,76 @@
         }
 
         .brand-text span {
-            color: #09090b;
+            color: #b45309;
         }
 
-        .brand-badge-pill {
-            font-size: 10px;
+        .brand-mini-logo {
+            display: none;
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
             font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #09090b;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            background: #09090b;
-            border: 1px solid #09090b;
-            color: #ffffff;
-            padding: 2px 8px;
-            border-radius: 999px;
-            margin-left: auto;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .brand-mini-logo span {
+            color: #b45309;
+        }
+
+        /* Minimized Sidebar Handling */
+        .sidebar_minimize:not(.sidebar_minimize_hover) .sidebar .sidebar-brand-link {
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            justify-content: center !important;
+            width: auto !important;
+        }
+
+        .sidebar_minimize:not(.sidebar_minimize_hover) .sidebar .brand-text {
+            display: none !important;
+        }
+
+        .sidebar_minimize:not(.sidebar_minimize_hover) .sidebar .brand-mini-logo {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar_minimize:not(.sidebar_minimize_hover) .sidebar .nav-toggle {
+            display: none !important;
+        }
+
+        .sidebar_minimize.sidebar_minimize_hover .sidebar .sidebar-brand-link {
+            position: static !important;
+            transform: none !important;
+            padding: 0 10px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .sidebar_minimize.sidebar_minimize_hover .sidebar .brand-text {
+            display: inline-block !important;
+        }
+
+        .sidebar_minimize.sidebar_minimize_hover .sidebar .brand-mini-logo {
+            display: none !important;
+        }
+
+        .sidebar_minimize.sidebar_minimize_hover .sidebar .nav-toggle {
+            display: flex !important;
+            position: absolute !important;
+            right: 18px !important;
+            left: unset !important;
+            top: 0 !important;
+            height: 100% !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
 
         .sidebar .nav-secondary > .nav-item > a {
@@ -179,13 +244,21 @@
             transition: var(--transition);
         }
 
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item.active > a,
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item > a:hover,
         .sidebar .nav-secondary > .nav-item.active > a,
         .sidebar .nav-secondary > .nav-item > a:hover {
             background-color: #09090b !important;
             color: #ffffff !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
         }
 
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item.active > a i,
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item.active > a p,
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item.active > a .caret,
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item > a:hover i,
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item > a:hover p,
+        .sidebar.sidebar-style-2 .nav.nav-secondary > .nav-item > a:hover .caret,
         .sidebar .nav-secondary > .nav-item.active > a i,
         .sidebar .nav-secondary > .nav-item > a:hover i {
             color: #ffffff !important;
@@ -367,6 +440,10 @@
             gap: 6px;
         }
 
+        .btn span, .btn i, .badge span, .badge i {
+            color: inherit !important;
+        }
+
         .btn-primary {
             background: #09090b !important;
             border: 1px solid #09090b !important;
@@ -384,15 +461,30 @@
 
         .btn-secondary {
             background-color: #ffffff !important;
-            border: 1px solid var(--border-color) !important;
-            color: var(--text-primary) !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            border: 1.5px solid #cbd5e1 !important;
+            color: #1e293b !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .btn-secondary:hover {
-            background-color: #f4f4f5 !important;
-            border-color: var(--border-hover) !important;
-            color: #09090b !important;
+            background-color: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+            color: #0f172a !important;
+        }
+
+        .btn-outline-secondary {
+            background-color: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            color: #1e293b !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+            color: #0f172a !important;
         }
 
         .btn-danger {
@@ -687,37 +779,82 @@
 
         /* Modals */
         .modal-content {
-            background-color: rgba(255, 255, 255, 0.96) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color) !important;
+            background-color: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
             border-radius: var(--radius-lg) !important;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
             color: var(--text-primary);
             overflow: hidden;
         }
 
         .modal-header {
-            background-color: rgba(248, 250, 252, 0.85) !important;
-            border-bottom: 1px solid var(--border-color) !important;
+            background-color: #f8fafc !important;
+            border-bottom: 1.5px solid #e2e8f0 !important;
             padding: 16px 20px;
+        }
+
+        .modal-header.bg-danger {
+            background-color: #dc2626 !important;
+            border-bottom: 1.5px solid #b91c1c !important;
+            color: #ffffff !important;
+        }
+
+        .modal-header.bg-danger .modal-title {
+            color: #ffffff !important;
         }
 
         .modal-header .modal-title {
             font-family: 'Oswald', sans-serif;
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.02em;
-            color: var(--text-primary);
+            color: #09090b !important;
         }
 
         .modal-body {
             padding: 22px 20px;
+            color: #0f172a !important;
+        }
+
+        .modal-body label {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+            font-size: 13.5px !important;
+        }
+
+        .modal-body .form-control,
+        .modal-body .form-select {
+            background-color: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            color: #09090b !important;
+            font-weight: 600 !important;
+        }
+
+        .modal-body .form-control:focus,
+        .modal-body .form-select:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+        }
+
+        .modal-body .form-text {
+            color: #334155 !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            margin-top: 4px !important;
+        }
+
+        .modal-body code {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+            padding: 1px 5px !important;
+            border-radius: 4px !important;
+            font-weight: 700 !important;
         }
 
         .modal-footer {
-            background-color: rgba(248, 250, 252, 0.85) !important;
-            border-top: 1px solid var(--border-color) !important;
+            background-color: #f8fafc !important;
+            border-top: 1.5px solid #e2e8f0 !important;
             padding: 14px 20px;
         }
 
@@ -776,6 +913,65 @@
             color: #09090b !important;
         }
 
+        /* Responsive Breakpoints & Mobile Optimization */
+        @media (max-width: 991.5px) {
+            .main-panel > .container,
+            .main-panel > .container-fluid {
+                margin-top: 80px !important;
+            }
+            .main-header-logo .sidebar-brand-link {
+                position: absolute !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                margin: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-panel > .container,
+            .main-panel > .container-fluid {
+                margin-top: 85px !important;
+                padding: 0 10px !important;
+            }
+            .page-inner {
+                padding: 12px 2px !important;
+            }
+            .sidebar-logo .logo-header,
+            .main-header-logo .logo-header {
+                padding-left: 10px !important;
+                padding-right: 8px !important;
+            }
+            .sidebar-brand-link {
+                gap: 6px;
+                padding: 2px 4px;
+            }
+            .brand-text {
+                font-size: 17px !important;
+            }
+            .event-header-badge {
+                max-width: 175px !important;
+                padding: 4px 8px !important;
+                font-size: 12px !important;
+            }
+            .event-header-badge .event-name-text {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 120px;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .btn-panel-festival span {
+                display: none;
+            }
+            .btn-panel-festival {
+                padding: 5px 9px !important;
+            }
+        }
+
         {% block style %}{% endblock style %}
     </style>
   </head>
@@ -787,7 +983,7 @@
           <div class="logo-header d-flex align-items-center justify-content-between px-3" data-background-color="white">
             <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="sidebar-brand-link">
               <span class="brand-text">AMBRILINDO<span>.</span></span>
-              <span class="brand-badge-pill">Arena</span>
+              <span class="brand-mini-logo">A<span>.</span></span>
             </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">
@@ -865,7 +1061,7 @@
                     </li>
                     <li>
                       <a href="{% url 'summary-booklet' event_pk=event.pk %}" target="_blank">
-                        <span class="sub-item text-warning fw-bold"><i class="fas fa-book-open me-1"></i>Buku Hasil (Booklet)</span>
+                        <span class="sub-item fw-bold" style="color: #b45309;"><i class="fas fa-book-open me-1"></i>Buku Hasil (Booklet)</span>
                       </a>
                     </li>
                     <li class="{% if on == 'utusan' %}active{% endif %}">
@@ -890,7 +1086,7 @@
                     </li>
                     <li class="{% if on == 'fest' %}active{% endif %}">
                       <a href="{% url 'control-panel-fest-entry' event_pk=event.pk %}">
-                        <span class="sub-item text-warning fw-bold"><i class="fas fa-crown me-1 text-warning"></i>Control Panel (Festival)</span>
+                        <span class="sub-item fw-bold" style="color: #b45309;"><i class="fas fa-crown me-1"></i>Control Panel (Festival)</span>
                       </a>
                     </li>
                   </ul>
@@ -958,8 +1154,8 @@
               <!-- Quick Links in Navbar -->
               {% if event.pk %}
               <div class="d-flex align-items-center gap-2 ms-auto me-3">
-                <a href="{% url 'control-panel-fest-entry' event_pk=event.pk %}" class="btn btn-sm btn-outline-warning fw-bold d-flex align-items-center gap-1 shadow-sm px-3 py-1" style="border-radius: 8px; font-size: 13px;" title="Buka Control Panel Khusus Pertandingan Festival (Infinite Match)">
-                  <i class="fas fa-crown text-warning"></i>
+                <a href="{% url 'control-panel-fest-entry' event_pk=event.pk %}" class="btn btn-sm btn-panel-festival fw-semibold d-flex align-items-center gap-1 shadow-sm px-3 py-1" style="background: #fffbeb; border: 1px solid #fde68a; color: #b45309; border-radius: 8px; font-size: 13px;" title="Buka Control Panel Khusus Pertandingan Festival (Infinite Match)">
+                  <i class="fas fa-crown" style="color: #d97706;"></i>
                   <span>Panel Festival</span>
                 </a>
               </div>
@@ -973,8 +1169,8 @@
                       {{ request.user.username|slice:":1"|upper }}
                     </div>
                     <span class="d-none d-md-inline ms-1">
-                      <span class="op-7 small">Halo,</span>
-                      <strong class="text-white">{{ request.user }}</strong>
+                      <span class="op-7 small text-muted">Halo,</span>
+                      <strong style="color: var(--text-primary); font-weight: 600;">{{ request.user }}</strong>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user dropdown-menu-end animated fadeIn">
