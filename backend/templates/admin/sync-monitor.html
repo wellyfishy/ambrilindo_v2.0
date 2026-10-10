@@ -1076,12 +1076,15 @@
     // --- Modal Select2 Initialization ---
     function initModalSelect2($modal) {
         $modal.find('.select2:not(:disabled)').each(function () {
-            if ($(this).hasClass('select2-hidden-accessible')) {
-                $(this).select2('destroy');
+            var $this = $(this);
+            if ($this.hasClass('select2-hidden-accessible')) {
+                $this.select2('destroy');
             }
-            var placeholder = $(this).data('placeholder') || 'Ketik untuk mencari nama bagan...';
-            $(this).select2({
-                dropdownParent: $modal,
+            var $parent = $this.parent();
+            $parent.css('position', 'relative');
+            var placeholder = $this.data('placeholder') || 'Ketik untuk mencari nama bagan...';
+            $this.select2({
+                dropdownParent: $parent,
                 width: '100%',
                 placeholder: placeholder,
                 language: {
@@ -1090,6 +1093,13 @@
                     }
                 }
             });
+            $this.off('select2:open select2:close')
+                .on('select2:open', function () {
+                    $parent.css('z-index', '1060');
+                })
+                .on('select2:close', function () {
+                    $parent.css('z-index', '');
+                });
         });
     }
 
@@ -1104,8 +1114,10 @@
             $('#push_bagan_pk').prop('disabled', false);
             $('#pushCustomBaganWrap').stop(true, true).slideDown(200, function () {
                 if (!$('#push_bagan_pk').hasClass('select2-hidden-accessible')) {
+                    var $pushParent = $('#push_bagan_pk').parent();
+                    $pushParent.css('position', 'relative');
                     $('#push_bagan_pk').select2({
-                        dropdownParent: $('#pushBaganModal'),
+                        dropdownParent: $pushParent,
                         width: '100%',
                         placeholder: $('#push_bagan_pk').data('placeholder') || 'Ketik untuk mencari nama bagan...',
                         language: {
@@ -1114,6 +1126,13 @@
                             }
                         }
                     });
+                    $('#push_bagan_pk').off('select2:open select2:close')
+                        .on('select2:open', function () {
+                            $pushParent.css('z-index', '1060');
+                        })
+                        .on('select2:close', function () {
+                            $pushParent.css('z-index', '');
+                        });
                 }
             });
         } else {

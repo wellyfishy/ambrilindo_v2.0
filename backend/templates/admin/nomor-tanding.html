@@ -1609,17 +1609,35 @@
                 $('#target_pk_select').select2('destroy');
             }
 
+            var $sourceParent = $('#source_pks_select').parent();
+            $sourceParent.css('position', 'relative');
             $('#source_pks_select').select2({
-                dropdownParent: $('#modalGabungNomorTanding'),
+                dropdownParent: $sourceParent,
                 width: '100%',
                 placeholder: 'Ketik untuk mencari kategori asal (misal: -40 kg, -45 kg)...'
             });
+            $('#source_pks_select').off('select2:open select2:close')
+                .on('select2:open', function () {
+                    $sourceParent.css('z-index', '1060');
+                })
+                .on('select2:close', function () {
+                    $sourceParent.css('z-index', '');
+                });
 
+            var $targetParent = $('#target_pk_select').parent();
+            $targetParent.css('position', 'relative');
             $('#target_pk_select').select2({
-                dropdownParent: $('#modalGabungNomorTanding'),
+                dropdownParent: $targetParent,
                 width: '100%',
                 placeholder: 'Pilih atau cari kategori tujuan...'
             });
+            $('#target_pk_select').off('select2:open select2:close')
+                .on('select2:open', function () {
+                    $targetParent.css('z-index', '1060');
+                })
+                .on('select2:close', function () {
+                    $targetParent.css('z-index', '');
+                });
         }
     }
 

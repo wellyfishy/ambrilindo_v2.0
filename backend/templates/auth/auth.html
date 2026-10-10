@@ -5,34 +5,26 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk &bull; Ambrilindo</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Masuk &bull; Ambrilindo Local Venue</title>
 
     <style>
         :root {
-            --bg-body: #f8fafc;
-            --bg-card: rgba(255, 255, 255, 0.94);
-            --bg-card-alt: rgba(248, 250, 252, 0.95);
-            --bg-input: #ffffff;
-            --border-color: rgba(0, 0, 0, 0.09);
-            --border-hover: rgba(0, 0, 0, 0.24);
-            --red-core: #09090b;
-            --red-hover: #27272a;
-            --red-active: #000000;
-            --red-glow: rgba(0, 0, 0, 0.08);
-            --red-tint: rgba(0, 0, 0, 0.04);
-            --red-tint-border: rgba(0, 0, 0, 0.12);
-            --text-primary: #09090b;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --border-card: #334155;
+            --border-input: #64748b;
+            --border-hover: #0f172a;
+            --border-focus: #0f172a;
+            --text-primary: #020617;
+            --text-secondary: #1e293b;
+            --text-muted: #475569;
+            --primary: #000000;
+            --primary-hover: #1e293b;
+            --ring-focus: rgba(2, 6, 23, 0.2);
             --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 16px;
-            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.15s ease-in-out;
         }
 
         * {
@@ -42,158 +34,97 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px 12px;
-            position: relative;
-            overflow-x: hidden;
+            padding: 24px 16px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Subtle radial ambient monochrome glow */
-        body::before {
-            content: "";
-            position: absolute;
-            top: -80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 380px;
-            background: radial-gradient(circle, rgba(0, 0, 0, 0.035) 0%, rgba(248, 250, 252, 0) 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Subtle light grid background */
-        body::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Compact Unified Card Container */
         .auth-container {
-            position: relative;
-            z-index: 1;
             width: 100%;
-            max-width: 530px;
+            max-width: 480px;
             background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
+            border: 1.5px solid var(--border-card);
             border-radius: var(--radius-lg);
-            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08),
-                        0 0 35px -15px var(--red-glow);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            animation: fadeIn 0.35s ease-out;
-            margin: auto;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px) scale(0.99);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Top accent indicator */
-        .auth-header-strip {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent 0%, #09090b 35%, #71717a 65%, transparent 100%);
-        }
-
-        /* Form section */
         .auth-main {
-            padding: 28px 28px 20px;
-            display: flex;
-            flex-direction: column;
+            padding: 28px 28px 24px;
         }
 
+        /* Brand Header */
         .brand-header {
-            margin-bottom: 18px;
             text-align: center;
+            margin-bottom: 22px;
         }
 
-        .brand-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 27px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            line-height: 1.1;
+        .brand-logo-wrap {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            margin-bottom: 8px;
         }
 
-        .brand-title span {
-            color: #09090b;
+        .brand-logo-wrap img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
         }
 
         .brand-subtitle {
-            font-size: 12.5px;
+            font-size: 13px;
+            font-weight: 600;
             color: var(--text-secondary);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        /* Alert Messages */
+        /* Flash Messages */
         .messages-wrap {
             margin-bottom: 16px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
         .alert-box {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(185, 28, 28, 0.08);
-            border: 1px solid rgba(185, 28, 28, 0.22);
-            color: #b91c1c;
-            padding: 9px 12px;
+            align-items: flex-start;
+            gap: 10px;
+            background: #fee2e2;
+            border: 1.5px solid #ef4444;
+            color: #7f1d1d;
+            padding: 10px 12px;
             border-radius: var(--radius-md);
-            font-size: 12.5px;
-            line-height: 1.35;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.4;
         }
 
         .alert-box svg {
             flex-shrink: 0;
             width: 16px;
             height: 16px;
+            margin-top: 1px;
             color: #b91c1c;
         }
 
-        /* Mode Switcher Tabs */
+        /* High Contrast Segmented Navigation */
         .auth-tabs {
             display: flex;
-            background: #f1f5f9;
-            border: 1px solid var(--border-color);
+            background: #e2e8f0;
+            border: 1.5px solid #cbd5e1;
             border-radius: var(--radius-md);
             padding: 3px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             gap: 4px;
         }
 
@@ -202,22 +133,16 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 7px 10px;
-            border-radius: 7px;
+            padding: 8px 12px;
+            border-radius: 6px;
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
-            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
             transition: var(--transition);
-        }
-
-        .auth-tab-btn svg {
-            width: 14px;
-            height: 14px;
+            user-select: none;
         }
 
         .auth-tab-btn:hover {
@@ -226,36 +151,29 @@
         }
 
         .auth-tab-btn.active {
-            background: #09090b;
+            background: #020617;
             color: #ffffff;
-            border: 1px solid #09090b;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .auth-tab-btn.active svg {
-            color: #ffffff;
-        }
-
-        /* Dual Row Form Controls */
+        /* Form Controls */
         .form-row-dual {
             display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 10px;
-            margin-bottom: 12px;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 16px;
         }
 
         .form-label {
             display: block;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
         }
 
         .select-wrap, .input-wrap {
@@ -266,14 +184,15 @@
 
         .form-select, .form-input {
             width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-input);
             color: var(--text-primary);
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
             padding: 9px 12px;
-            border-radius: 8px;
-            transition: var(--transition);
+            border-radius: var(--radius-md);
             outline: none;
+            transition: var(--transition);
             font-family: inherit;
         }
 
@@ -290,7 +209,7 @@
 
         .form-input::placeholder {
             color: var(--text-muted);
-            font-size: 12.5px;
+            font-weight: 400;
         }
 
         .form-select:hover, .form-input:hover {
@@ -298,55 +217,40 @@
         }
 
         .form-select:focus, .form-input:focus {
-            border-color: #09090b;
-            box-shadow: 0 0 0 2.5px rgba(0, 0, 0, 0.08);
-            background-color: #ffffff;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--ring-focus);
         }
 
         .select-arrow {
             position: absolute;
             right: 11px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 14px;
-            height: 14px;
-            color: var(--text-muted);
+            width: 15px;
+            height: 15px;
+            color: var(--text-primary);
             pointer-events: none;
-            transition: var(--transition);
         }
 
         .input-icon {
             position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 15px;
-            height: 15px;
-            color: var(--text-muted);
+            left: 11px;
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
             pointer-events: none;
-            transition: var(--transition);
-        }
-
-        .form-input:focus ~ .input-icon,
-        .input-wrap:focus-within .input-icon {
-            color: #09090b;
         }
 
         .btn-toggle-pwd {
             position: absolute;
             right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             cursor: pointer;
-            padding: 3px;
+            padding: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 4px;
-            transition: var(--transition);
         }
 
         .btn-toggle-pwd:hover {
@@ -358,193 +262,150 @@
             height: 16px;
         }
 
-        /* Fast Access Role Grid (Clean 6-Card Layout without Subtitles) */
+        /* Role Selection Cards */
         .fast-role-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 7px;
-            margin-bottom: 14px;
+            gap: 8px;
+            margin-bottom: 18px;
         }
 
         .fast-role-card {
-            background: #ffffff;
-            border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 10px;
-            cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 8px;
-            position: relative;
-            text-align: left;
-            min-height: 42px;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border-input);
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
             user-select: none;
         }
 
         .fast-role-card:hover {
             border-color: var(--border-hover);
             background: #f8fafc;
-            transform: translateY(-1px);
         }
 
         .fast-role-card.selected {
-            border-color: #09090b;
-            background: rgba(0, 0, 0, 0.035);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            border-color: #000000;
+            border-width: 2px;
+            background: #f1f5f9;
         }
 
         .fast-role-icon {
-            width: 27px;
-            height: 27px;
-            border-radius: 6px;
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--text-secondary);
-            transition: var(--transition);
-        }
-
-        .fast-role-icon svg {
-            width: 14px;
-            height: 14px;
         }
 
         .fast-role-card.selected .fast-role-icon {
-            background: #09090b;
-            color: #ffffff;
-            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            color: #000000;
+        }
+
+        .fast-role-icon svg {
+            width: 18px;
+            height: 18px;
         }
 
         .fast-role-content {
             flex: 1;
             min-width: 0;
-            display: flex;
-            align-items: center;
         }
 
         .fast-role-title {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 13.5px;
+            font-weight: 700;
             color: var(--text-primary);
-            line-height: 1.2;
-            display: flex;
-            align-items: center;
-            gap: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .fast-role-pill {
-            font-size: 8.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            padding: 1.5px 5px;
-            border-radius: 4px;
-            background: #09090b;
-            color: #ffffff;
-            letter-spacing: 0.04em;
+        .fast-role-card.selected .fast-role-title {
+            color: #000000;
+            font-weight: 800;
         }
 
         .role-check-indicator {
-            width: 13px;
-            height: 13px;
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-input);
             border-radius: 50%;
-            border: 1.5px solid var(--border-hover);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            margin-left: auto;
             transition: var(--transition);
         }
 
         .fast-role-card.selected .role-check-indicator {
-            border-color: #09090b;
-            background: #09090b;
-        }
-
-        .role-check-indicator::after {
-            content: '';
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #ffffff;
-            opacity: 0;
-            transition: var(--transition);
+            border-color: #000000;
+            background: #000000;
         }
 
         .fast-role-card.selected .role-check-indicator::after {
-            opacity: 1;
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffffff;
         }
 
-        /* Submit Button */
+        /* Action Submit Button */
         .btn-submit {
             width: 100%;
-            background: #09090b;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            font-size: 13.5px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            padding: 11px 14px;
-            border-radius: 8px;
-            border: 1px solid #09090b;
-            cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 7px;
+            gap: 8px;
+            padding: 11px 16px;
+            background: var(--primary);
+            color: #ffffff;
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
             transition: var(--transition);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            margin-top: 4px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
         .btn-submit:hover {
-            background: #27272a;
-            border-color: #27272a;
-            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .btn-submit:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
         }
 
         .btn-submit svg {
             width: 16px;
             height: 16px;
-            transition: transform 0.2s ease;
+            transition: transform 0.15s ease;
         }
 
         .btn-submit:hover svg {
             transform: translateX(2px);
         }
 
-        /* Collapsible Format Akses Peran Dropdown (Closed by default) */
+        /* Quick Reference Guide */
         .guide-dropdown {
-            margin-top: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            margin-top: 16px;
+            border: 1.5px solid var(--border-input);
+            border-radius: var(--radius-md);
             background: #ffffff;
             overflow: hidden;
-            transition: var(--transition);
-        }
-
-        .guide-dropdown[open] {
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
         }
 
         .guide-dropdown-toggle {
-            padding: 9px 12px;
+            padding: 10px 12px;
             cursor: pointer;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -559,7 +420,6 @@
         }
 
         .guide-dropdown-toggle:hover {
-            color: var(--text-primary);
             background: #f8fafc;
         }
 
@@ -570,16 +430,16 @@
         }
 
         .guide-toggle-left svg {
-            width: 14px;
-            height: 14px;
-            color: #09090b;
+            width: 15px;
+            height: 15px;
+            color: var(--text-primary);
         }
 
         .chevron-icon {
-            width: 14px;
-            height: 14px;
-            color: var(--text-muted);
-            transition: transform 0.2s ease;
+            width: 15px;
+            height: 15px;
+            color: var(--text-secondary);
+            transition: transform 0.15s ease;
         }
 
         .guide-dropdown[open] .chevron-icon {
@@ -587,143 +447,109 @@
         }
 
         .guide-dropdown-body {
-            padding: 10px;
+            padding: 12px;
             background: #f8fafc;
-            border-top: 1px solid var(--border-color);
-            max-height: 230px;
-            overflow-y: auto;
+            border-top: 1.5px solid var(--border-input);
         }
 
-        .guide-list-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 6px;
+        .guide-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
         }
 
-        @media (max-width: 480px) {
-            .guide-list-grid {
-                grid-template-columns: 1fr;
-            }
+        .guide-table th {
+            text-align: left;
+            padding: 6px 8px;
+            font-weight: 800;
+            color: #000000;
+            border-bottom: 2px solid #000000;
         }
 
-        .guide-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 7px 9px;
-            transition: var(--transition);
+        .guide-table td {
+            padding: 6px 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            border-bottom: 1px solid #cbd5e1;
+            vertical-align: middle;
         }
 
-        .guide-role-badge {
-            display: inline-block;
-            font-size: 10px;
+        .guide-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .guide-code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background: #e2e8f0;
+            border: 1px solid #94a3b8;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #09090b;
-            margin-bottom: 3px;
-        }
-
-        .guide-pattern {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10.5px;
-            color: var(--text-secondary);
-            line-height: 1.45;
-        }
-
-        .guide-pattern .key {
-            color: var(--text-muted);
-        }
-
-        .guide-pattern .val {
-            color: #09090b;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 1px 4px;
-            border-radius: 3px;
+            color: #000000;
         }
 
         /* Footer */
         .auth-footer {
-            padding: 9px 24px;
-            border-top: 1px solid var(--border-color);
-            background: rgba(248, 250, 252, 0.85);
+            padding: 10px 24px;
+            border-top: 1.5px solid #cbd5e1;
+            background: #f1f5f9;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 11px;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-muted);
         }
 
         .status-pill {
             display: flex;
             align-items: center;
-            gap: 5px;
-            color: #10b981;
-            font-weight: 500;
+            gap: 6px;
+            color: #065f46;
+            font-weight: 700;
         }
 
         .status-dot {
-            width: 5px;
-            height: 5px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background-color: #10b981;
-            box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+            background-color: #059669;
+            border: 1px solid #047857;
         }
 
-        /* Responsive Optimization */
-        @media (max-width: 576px) {
-            body {
-                padding: 10px 8px;
-            }
-
-            .auth-container {
-                max-width: 100%;
-                border-radius: 12px;
-            }
-
+        @media (max-width: 480px) {
             .auth-main {
-                padding: 20px 16px 16px;
-            }
-
-            .brand-header {
-                margin-bottom: 14px;
-            }
-
-            .brand-title {
-                font-size: 24px;
+                padding: 22px 18px 18px;
             }
 
             .form-row-dual {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 12px;
             }
 
             .fast-role-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 6px;
+                grid-template-columns: 1fr;
             }
 
             .auth-footer {
-                padding: 8px 16px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .fast-role-grid {
-                grid-template-columns: 1fr;
+                padding: 8px 18px;
+                flex-direction: column;
+                gap: 4px;
+                align-items: flex-start;
             }
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-header-strip"></div>
-
         <!-- Main Login Section -->
         <div class="auth-main">
             <div class="brand-header">
-                <h1 class="brand-title">AMBRILINDO<span>.</span></h1>
-                <p class="brand-subtitle">Masuk untuk mengelola turnamen atau penilaian juri tatami.</p>
+                <div class="brand-logo-wrap">
+                    <img src="{% static 'img/ambrilindo/ambrilindo-logo-dark.png' %}" alt="Ambrilindo">
+                </div>
+                <p class="brand-subtitle">Sistem Pertandingan Karate &bull; Local Venue Server</p>
             </div>
 
             {% if messages %}
@@ -740,23 +566,16 @@
             {% endif %}
 
             <!-- Auth Mode Switcher -->
-            <div class="auth-tabs">
-                <button type="button" class="auth-tab-btn active" id="tabBtnFast" onclick="switchAuthTab('fast')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
-                    <span>Akses Cepat Arena</span>
+            <div class="auth-tabs" role="tablist">
+                <button type="button" class="auth-tab-btn active" id="tabBtnFast" role="tab" aria-selected="true" onclick="switchAuthTab('fast')">
+                    Perangkat Tatami
                 </button>
-                <button type="button" class="auth-tab-btn" id="tabBtnManual" onclick="switchAuthTab('manual')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <span>Login Akun Penuh</span>
+                <button type="button" class="auth-tab-btn" id="tabBtnManual" role="tab" aria-selected="false" onclick="switchAuthTab('manual')">
+                    Akun Panitia
                 </button>
             </div>
 
-            <!-- Pane 1: Akses Cepat Arena (1-Klik) -->
+            <!-- Pane 1: Akses Perangkat Tatami (1-Klik) -->
             <div id="paneFastAccess">
                 <form method="POST" action="{% url 'auth' %}" id="fastAccessForm">
                     {% csrf_token %}
@@ -775,7 +594,7 @@
                                         <option disabled selected value="">Belum ada event</option>
                                     {% endfor %}
                                 </select>
-                                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
@@ -788,7 +607,7 @@
                                 <select class="form-select" id="fastTatamiSelect" name="tatami_pk" required>
                                     <option value="">Memuat tatami...</option>
                                 </select>
-                                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </div>
@@ -796,13 +615,13 @@
                     </div>
 
                     <!-- Role Selection -->
-                    <div style="margin-bottom: 6px;">
-                        <label class="form-label">Pilih Perangkat / Layar Operasional</label>
+                    <div style="margin-bottom: 8px;">
+                        <label class="form-label">Pilih Peran / Layar Arena</label>
                     </div>
 
                     <div class="fast-role-grid">
                         <!-- 1. Wasit VR -->
-                        <div class="fast-role-card is-vr selected" onclick="selectFastRole('wasit_vr', this)">
+                        <div class="fast-role-card selected" onclick="selectFastRole('wasit_vr', this)">
                             <div class="fast-role-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polygon points="23 7 16 12 23 17 23 7"></polygon>
@@ -810,10 +629,7 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">
-                                    <span>Wasit VR</span>
-                                    <span class="fast-role-pill">Cepat</span>
-                                </div>
+                                <div class="fast-role-title">Wasit VR</div>
                             </div>
                             <div class="role-check-indicator"></div>
                         </div>
@@ -828,9 +644,7 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">
-                                    <span>Admin Tatami</span>
-                                </div>
+                                <div class="fast-role-title">Admin Tatami</div>
                             </div>
                             <div class="role-check-indicator"></div>
                         </div>
@@ -844,9 +658,7 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">
-                                    <span>LO Kata</span>
-                                </div>
+                                <div class="fast-role-title">LO Kata</div>
                             </div>
                             <div class="role-check-indicator"></div>
                         </div>
@@ -860,9 +672,7 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">
-                                    <span>Coach Supervisor</span>
-                                </div>
+                                <div class="fast-role-title">Coach Supervisor</div>
                             </div>
                             <div class="role-check-indicator"></div>
                         </div>
@@ -880,9 +690,7 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">
-                                    <span>Admin Control</span>
-                                </div>
+                                <div class="fast-role-title">Admin Control</div>
                             </div>
                             <div class="role-check-indicator"></div>
                         </div>
@@ -895,9 +703,7 @@
                                 </svg>
                             </div>
                             <div class="fast-role-content">
-                                <div class="fast-role-title">
-                                    <span>Tatami Manager</span>
-                                </div>
+                                <div class="fast-role-title">Tatami Manager</div>
                             </div>
                             <div class="role-check-indicator"></div>
                         </div>
@@ -912,23 +718,23 @@
                 </form>
             </div>
 
-            <!-- Pane 2: Login Akun Penuh (Manual) -->
+            <!-- Pane 2: Login Akun Panitia (Manual) -->
             <div id="paneManualLogin" style="display: none;">
                 <form method="POST" action="{% url 'auth' %}" autocomplete="off">
                     {% csrf_token %}
 
                     <!-- Event Selection -->
                     <div class="form-group">
-                        <label for="manualEventSelect" class="form-label">Pilih Event Pertandingan</label>
+                        <label for="manualEventSelect" class="form-label">Event Pertandingan</label>
                         <div class="select-wrap">
                             <select class="form-select" id="manualEventSelect" name="event_pk" required>
                                 {% for event in events %}
-                                    <option value="{{ event.pk }}">{{ event.nama_event }} (Kode: e{{ event.pk }})</option>
+                                    <option value="{{ event.pk }}">{{ event.nama_event }} (e{{ event.pk }})</option>
                                 {% empty %}
                                     <option disabled selected value="">Belum ada event tersedia</option>
                                 {% endfor %}
                             </select>
-                            <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                         </div>
@@ -942,7 +748,7 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" class="form-input" id="username" name="username" placeholder="cth: vr1, admtatami1e1, j1t1e1" required>
+                            <input type="text" class="form-input" id="username" name="username" placeholder="cth: admin, j1t1e1, vr" required>
                         </div>
                     </div>
 
@@ -965,7 +771,7 @@
                     </div>
 
                     <button type="submit" class="btn-submit">
-                        <span>Masuk ke Akun</span>
+                        <span>Masuk ke Sistem</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="9 18 15 12 9 6"></polyline>
                         </svg>
@@ -982,7 +788,7 @@
                             <line x1="12" y1="16" x2="12" y2="12"></line>
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
-                        <span>Informasi Format Akses Peran</span>
+                        <span>Panduan Format Login Cepat</span>
                     </div>
                     <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -990,69 +796,52 @@
                 </summary>
 
                 <div class="guide-dropdown-body">
-                    <div class="guide-list-grid">
-                        <!-- Wasit VR -->
-                        <div class="guide-card">
-                            <span class="guide-role-badge">Wasit Video Review (VR)</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">vr</span></div>
-                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Admin Tatami -->
-                        <div class="guide-card">
-                            <span class="guide-role-badge">Admin Tatami</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">admtatami[T]e[E]</span></div>
-                                <div><span class="key">Pass:</span> <span class="val">sama user</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Juri Tatami -->
-                        <div class="guide-card">
-                            <span class="guide-role-badge">Juri Tatami</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">j[W]t[T]e[E]</span></div>
-                                <div><span class="key">Pass:</span> <span class="val">sama user</span></div>
-                            </div>
-                        </div>
-
-                        <!-- LO Kata -->
-                        <div class="guide-card">
-                            <span class="guide-role-badge">LO Kata (Tatami Input)</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">lo[E]</span></div>
-                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Coach Supervisor -->
-                        <div class="guide-card">
-                            <span class="guide-role-badge">Coach Supervisor</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">c[E]</span></div>
-                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Admin Control -->
-                        <div class="guide-card">
-                            <span class="guide-role-badge">Admin Control (View Only)</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">[E]</span></div>
-                                <div><span class="key">Pass:</span> <span class="val">[no_tatami]</span></div>
-                            </div>
-                        </div>
-
-                        <!-- Tatami Manager -->
-                        <div class="guide-card" style="grid-column: 1 / -1;">
-                            <span class="guide-role-badge">Tatami Manager (Wasit)</span>
-                            <div class="guide-pattern">
-                                <div><span class="key">User:</span> <span class="val">tm[E]</span> &bull; <span class="key">Pass:</span> <span class="val">[no_tatami] (opsional)</span></div>
-                            </div>
-                        </div>
-                    </div>
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Peran</th>
+                                <th>Username</th>
+                                <th>Password</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Wasit VR</td>
+                                <td><span class="guide-code">vr</span> atau <span class="guide-code">vr[E]</span></td>
+                                <td><span class="guide-code">[no_tatami]</span></td>
+                            </tr>
+                            <tr>
+                                <td>Admin Tatami</td>
+                                <td><span class="guide-code">admtatami[T]e[E]</span></td>
+                                <td><span class="guide-code">sama user</span></td>
+                            </tr>
+                            <tr>
+                                <td>Juri Tatami</td>
+                                <td><span class="guide-code">j[W]t[T]e[E]</span></td>
+                                <td><span class="guide-code">sama user</span></td>
+                            </tr>
+                            <tr>
+                                <td>LO Kata</td>
+                                <td><span class="guide-code">lo[E]</span></td>
+                                <td><span class="guide-code">[no_tatami]</span></td>
+                            </tr>
+                            <tr>
+                                <td>Coach Supervisor</td>
+                                <td><span class="guide-code">c[E]</span></td>
+                                <td><span class="guide-code">[no_tatami]</span></td>
+                            </tr>
+                            <tr>
+                                <td>Admin Control</td>
+                                <td><span class="guide-code">[E]</span></td>
+                                <td><span class="guide-code">[no_tatami]</span></td>
+                            </tr>
+                            <tr>
+                                <td>Tatami Manager</td>
+                                <td><span class="guide-code">tm[E]</span></td>
+                                <td><span class="guide-code">[no_tatami]</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </details>
         </div>
@@ -1061,9 +850,9 @@
         <div class="auth-footer">
             <div class="status-pill">
                 <span class="status-dot"></span>
-                Sistem Offline Siap
+                <span>Server Lokal Aktif</span>
             </div>
-            <span>v2.0 &bull; Local Venue</span>
+            <span>Ambrilindo v2.0 &bull; Local Venue</span>
         </div>
     </div>
 
@@ -1131,12 +920,16 @@
 
             if (mode === 'fast') {
                 btnFast.classList.add('active');
+                btnFast.setAttribute('aria-selected', 'true');
                 btnManual.classList.remove('active');
+                btnManual.setAttribute('aria-selected', 'false');
                 paneFast.style.display = 'block';
                 paneManual.style.display = 'none';
             } else {
                 btnManual.classList.add('active');
+                btnManual.setAttribute('aria-selected', 'true');
                 btnFast.classList.remove('active');
+                btnFast.setAttribute('aria-selected', 'false');
                 paneManual.style.display = 'block';
                 paneFast.style.display = 'none';
 
@@ -1167,7 +960,6 @@
                 const isPassword = pwdInput.getAttribute('type') === 'password';
                 pwdInput.setAttribute('type', isPassword ? 'text' : 'password');
                 
-                // Switch icon
                 if (isPassword) {
                     eyeIcon.innerHTML = `
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>

@@ -284,11 +284,20 @@ function initFestivalMixSelect2() {
         if ($('#source_pks_select').hasClass('select2-hidden-accessible')) {
             $('#source_pks_select').select2('destroy');
         }
+        var $parent = $('#source_pks_select').parent();
+        $parent.css('position', 'relative');
         $('#source_pks_select').select2({
-            dropdownParent: $('#modalFestivalMix'),
+            dropdownParent: $parent,
             width: '100%',
             placeholder: 'Ketik untuk mencari kategori festival...'
         });
+        $('#source_pks_select').off('select2:open select2:close')
+            .on('select2:open', function () {
+                $parent.css('z-index', '1060');
+            })
+            .on('select2:close', function () {
+                $parent.css('z-index', '');
+            });
     }
 }
 

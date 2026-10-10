@@ -5,16 +5,17 @@
 <style>
 /* Page Title & Breadcrumb */
 .page-header h3 {
-    color: #09090b !important;
-    font-family: 'Oswald', sans-serif;
-    letter-spacing: 0.02em;
+    color: #020617 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
 }
 
 /* Head Action Buttons System */
 .btn-head-secondary {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #1e293b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 8px 16px !important;
@@ -22,19 +23,19 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
     text-decoration: none !important;
 }
 .btn-head-secondary:hover {
     background: #f1f5f9 !important;
-    color: #09090b !important;
-    border-color: #94a3b8 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
 }
 
 .btn-head-delete-all {
     background: #ffffff !important;
-    border: 1.5px solid #dc2626 !important;
+    border: 1.5px solid #ef4444 !important;
     color: #dc2626 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
@@ -43,18 +44,18 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
 }
 .btn-head-delete-all:hover {
-    background: #fef2f2 !important;
+    background: #fee2e2 !important;
     color: #991b1b !important;
     border-color: #b91c1c !important;
 }
 
 .btn-head-create {
-    background: #09090b !important;
-    border: 1.5px solid #09090b !important;
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
@@ -63,26 +64,28 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
 .btn-head-create:hover {
-    background: #27272a !important;
-    border-color: #27272a !important;
+    background: #1e293b !important;
+    border-color: #1e293b !important;
     color: #ffffff !important;
 }
 
 /* Stat Cards */
 .card-stats {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 .card-stats:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
 }
 .stat-icon-wrap {
     width: 36px;
@@ -92,21 +95,22 @@
     align-items: center;
     justify-content: center;
     font-size: 15px;
+    border: 1px solid currentColor;
 }
 .stat-value {
-    font-family: 'Oswald', sans-serif;
     font-size: 28px;
     font-weight: 800;
     line-height: 1.1;
-    color: #09090b !important;
+    color: #020617 !important;
+    letter-spacing: -0.02em;
 }
 
 /* Filter Card Container */
 .bagan-filter-card {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
     padding: 14px 18px !important;
     margin-bottom: 20px;
 }
@@ -118,29 +122,29 @@
 }
 .search-input-wrap input {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #09090b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     border-radius: 8px !important;
     padding-left: 36px !important;
     height: 38px;
-    font-size: 13px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
-    transition: all 0.15s ease;
+    transition: all 0.15s ease-in-out;
 }
 .search-input-wrap input::placeholder {
     color: #475569 !important;
     font-weight: 500 !important;
 }
 .search-input-wrap input:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
 }
 .search-input-wrap .search-icon {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #475569 !important;
+    color: #020617 !important;
     font-size: 13px;
     pointer-events: none;
 }
@@ -151,24 +155,24 @@
 }
 .filter-select .form-select {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #09090b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     border-radius: 8px !important;
     height: 38px;
-    font-size: 13px !important;
-    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
     padding-left: 12px !important;
     padding-right: 32px !important;
 }
 .filter-select .form-select:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
 }
 
 #bagan-result-count {
     font-size: 12.5px;
-    font-weight: 700;
-    color: #2563eb;
+    font-weight: 800;
+    color: #020617;
     margin-left: auto;
     white-space: nowrap;
 }
@@ -178,40 +182,42 @@ tr.bagan-row-hidden { display: none !important; }
 /* Table Card & Header */
 .table-card {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #334155 !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08) !important;
     overflow: hidden;
 }
 
 .table-card-header {
     background: #f8fafc !important;
-    border-bottom: 1.5px solid #e2e8f0 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
     padding: 12px 18px !important;
 }
 
 .table-card-header h5 {
-    color: #09090b !important;
+    color: #020617 !important;
     font-size: 15px !important;
     font-weight: 800 !important;
+    letter-spacing: -0.01em;
 }
 
 .bagan-table thead th {
     background: #f8fafc !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     font-size: 12px !important;
     font-weight: 800 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    border-bottom: 2px solid #cbd5e1 !important;
+    border-bottom: 2px solid #000000 !important;
     padding: 12px 14px !important;
     vertical-align: middle !important;
     white-space: nowrap;
 }
 .bagan-table tbody td {
     padding: 12px 14px !important;
-    color: #0f172a !important;
-    border-bottom: 1px solid #e2e8f0 !important;
+    color: #020617 !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
     vertical-align: middle !important;
 }
 
@@ -232,12 +238,12 @@ tr.bagan-row-hidden { display: none !important; }
 }
 
 .badge-code {
-    font-family: var(--font-mono, monospace);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 11px;
     font-weight: 700;
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    color: #0f172a;
+    background: #e2e8f0;
+    border: 1px solid #94a3b8;
+    color: #000000;
     padding: 2px 6px;
     border-radius: 4px;
     margin: 0 !important;
@@ -246,14 +252,14 @@ tr.bagan-row-hidden { display: none !important; }
 }
 
 .bagan-link {
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 800;
-    color: #09090b !important;
+    color: #020617 !important;
     text-decoration: none;
     line-height: 1.3;
 }
 .bagan-link:hover {
-    color: #2563eb !important;
+    color: #1d4ed8 !important;
     text-decoration: underline;
 }
 
@@ -261,20 +267,18 @@ tr.bagan-row-hidden { display: none !important; }
     display: inline-flex !important;
     align-items: center !important;
     gap: 4px !important;
-    background: #ef4444 !important;
+    background: #dc2626 !important;
     color: #ffffff !important;
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    padding: 2px 7px !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    padding: 3px 8px !important;
     border-radius: 4px !important;
-    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.25) !important;
     white-space: nowrap !important;
     margin: 0 !important;
     line-height: 1.2 !important;
 }
 .badge-tatami-live i {
-    font-size: 9.5px !important;
-    line-height: 1 !important;
+    font-size: 10px !important;
     color: #ffffff !important;
 }
 
@@ -289,7 +293,7 @@ tr.bagan-row-hidden { display: none !important; }
     display: inline-flex !important;
     align-items: center !important;
     gap: 4px !important;
-    font-size: 10.5px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
     padding: 2px 7px !important;
     border-radius: 4px !important;
@@ -298,23 +302,22 @@ tr.bagan-row-hidden { display: none !important; }
     line-height: 1.2 !important;
 }
 .badge-match-status i {
-    font-size: 9.5px !important;
-    line-height: 1 !important;
+    font-size: 10px !important;
 }
 .badge-match-status.status-finished {
     background: #dcfce7 !important;
-    border: 1px solid #86efac !important;
+    border: 1.5px solid #22c55e !important;
     color: #15803d !important;
 }
 .badge-match-status.status-ongoing {
     background: #e0f2fe !important;
-    border: 1px solid #7dd3fc !important;
+    border: 1.5px solid #38bdf8 !important;
     color: #0369a1 !important;
 }
 .badge-match-status.status-pending {
     background: #f1f5f9 !important;
-    border: 1px solid #cbd5e1 !important;
-    color: #475569 !important;
+    border: 1.5px solid #94a3b8 !important;
+    color: #334155 !important;
 }
 
 /* Category & Type Badges */
@@ -334,22 +337,14 @@ tr.bagan-row-hidden { display: none !important; }
     margin: 0 auto !important;
 }
 .badge-tipe-kata {
-    background: #e0f2fe !important;
-    border: 1.5px solid #7dd3fc !important;
-    color: #0369a1 !important;
+    background: #dbeafe !important;
+    border: 1.5px solid #60a5fa !important;
+    color: #1e40af !important;
 }
 .badge-tipe-kumite {
     background: #fee2e2 !important;
-    border: 1.5px solid #fca5a5 !important;
-    color: #b91c1c !important;
-}
-.badge-tipe-kata i,
-.badge-tipe-kumite i {
-    font-size: 11px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
+    border: 1.5px solid #f87171 !important;
+    color: #991b1b !important;
 }
 
 .badge-pool,
@@ -368,33 +363,24 @@ tr.bagan-row-hidden { display: none !important; }
     margin: 0 auto !important;
 }
 .badge-pool {
-    background: #f3e8ff !important;
-    border: 1.5px solid #d8b4fe !important;
-    color: #7e22ce !important;
+    background: #f1f5f9 !important;
+    border: 1.5px solid #94a3b8 !important;
+    color: #0f172a !important;
 }
 .badge-final {
     background: #fef3c7 !important;
-    border: 1.5px solid #fde68a !important;
+    border: 1.5px solid #f59e0b !important;
     color: #92400e !important;
 }
 .badge-bob {
     background: #fee2e2 !important;
-    border: 1.5px solid #fda4af !important;
-    color: #be123c !important;
+    border: 1.5px solid #ef4444 !important;
+    color: #991b1b !important;
     letter-spacing: 0.04em !important;
     text-transform: uppercase !important;
 }
-.badge-pool i,
-.badge-final i,
-.badge-bob i {
-    font-size: 11px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-}
 
-/* Juara 1 - 3 Cell Presentation */
+/* Juara Presentation */
 .juara-cell {
     display: flex;
     flex-direction: column;
@@ -421,54 +407,54 @@ tr.bagan-row-hidden { display: none !important; }
 }
 .juara-badge-1 {
     background: #f59e0b;
-    color: #000;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    color: #000000;
+    font-weight: 800;
 }
 .juara-badge-2 {
     background: #94a3b8;
-    color: #0f172a;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    color: #020617;
+    font-weight: 800;
 }
 .juara-badge-3 {
     background: #b45309;
-    color: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    color: #ffffff;
+    font-weight: 800;
 }
 .juara-badge-other {
     background: #64748b;
-    color: #fff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    color: #ffffff;
+    font-weight: 800;
 }
 .juara-name {
-    color: #0f172a;
-    font-weight: 600;
+    color: #020617;
+    font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: clamp(160px, 20vw, 320px);
 }
 
-/* Row Action Buttons System */
+/* Row Action Buttons */
 .btn-row-action-edit {
     height: 32px;
-    padding: 0 10px;
+    padding: 0 12px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 700;
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #64748b;
     background: #ffffff;
-    color: #1e293b;
+    color: #020617;
     cursor: pointer;
     text-decoration: none !important;
-    transition: all 0.15s ease;
+    transition: all 0.15s ease-in-out;
 }
 .btn-row-action-edit:hover {
     background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #0f172a;
+    border-color: #0f172a;
+    color: #000000;
 }
 .btn-row-action-delete {
     width: 32px;
@@ -479,16 +465,16 @@ tr.bagan-row-hidden { display: none !important; }
     justify-content: center;
     border-radius: 6px;
     font-size: 13px;
-    border: 1.5px solid #fca5a5;
+    border: 1.5px solid #ef4444;
     background: #ffffff;
     color: #dc2626;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.15s ease-in-out;
 }
 .btn-row-action-delete:hover {
-    background: #fef2f2;
-    border-color: #ef4444;
-    color: #b91c1c;
+    background: #fee2e2;
+    border-color: #b91c1c;
+    color: #991b1b;
 }
 
 /* Empty State */
@@ -499,32 +485,33 @@ tr.bagan-row-hidden { display: none !important; }
 }
 .empty-state-icon {
     font-size: 42px;
-    color: #94a3b8;
+    color: #64748b;
     margin-bottom: 14px;
     display: inline-block;
 }
 .empty-state-box p {
     font-size: 14px;
-    color: #334155;
-    font-weight: 500;
+    color: #1e293b;
+    font-weight: 600;
 }
 
-/* Modals Light Card System */
+/* Modals High Contrast Card System */
 .modal-content {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.25) !important;
 }
 .modal-header {
     background: #f8fafc !important;
-    border-bottom: 1.5px solid #e2e8f0 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
     padding: 16px 20px !important;
 }
 .modal-title {
-    color: #09090b !important;
+    color: #020617 !important;
     font-weight: 800 !important;
     font-size: 16px !important;
+    letter-spacing: -0.01em;
 }
 .modal-header.bg-danger {
     background: #dc2626 !important;
@@ -532,75 +519,76 @@ tr.bagan-row-hidden { display: none !important; }
 }
 .modal-body {
     padding: 20px !important;
-    color: #0f172a !important;
+    color: #020617 !important;
 }
 .modal-body label {
-    color: #0f172a !important;
+    color: #020617 !important;
     font-weight: 700 !important;
     font-size: 13.5px !important;
 }
 .modal-body .form-control,
 .modal-body .form-select {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #09090b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
 }
 .modal-body .form-control:focus,
 .modal-body .form-select:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
 }
 .modal-footer {
     background: #f8fafc !important;
-    border-top: 1.5px solid #e2e8f0 !important;
+    border-top: 1.5px solid #cbd5e1 !important;
     padding: 12px 20px !important;
 }
 
 /* Modal Buttons System */
 .btn-modal-cancel {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1.5px solid #64748b !important;
     color: #1e293b !important;
     font-weight: 700 !important;
     font-size: 13px !important;
-    padding: 7px 18px !important;
-    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.15s ease-in-out;
 }
 .btn-modal-cancel:hover {
     background: #f1f5f9 !important;
-    color: #0f172a !important;
-    border-color: #94a3b8 !important;
+    color: #020617 !important;
+    border-color: #0f172a !important;
 }
 .btn-modal-primary {
-    background: #09090b !important;
-    border: 1.5px solid #09090b !important;
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
-    padding: 7px 20px !important;
-    border-radius: 6px !important;
+    padding: 8px 20px !important;
+    border-radius: 8px !important;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
 }
 .btn-modal-primary:hover {
-    background: #27272a !important;
-    border-color: #27272a !important;
+    background: #1e293b !important;
+    border-color: #1e293b !important;
     color: #ffffff !important;
 }
 .btn-modal-danger {
     background: #dc2626 !important;
-    border: 1.5px solid #dc2626 !important;
+    border: 2px solid #dc2626 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
-    padding: 7px 20px !important;
-    border-radius: 6px !important;
+    padding: 8px 20px !important;
+    border-radius: 8px !important;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.15s ease-in-out;
 }
 .btn-modal-danger:hover {
     background: #b91c1c !important;
@@ -611,20 +599,20 @@ tr.bagan-row-hidden { display: none !important; }
 /* Select2 Light Theme Styling */
 .select2-container--default .select2-selection--single {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 8px !important;
     height: 42px !important;
     padding: 4px 6px !important;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #09090b !important;
+    color: #020617 !important;
     line-height: 32px !important;
-    font-size: 13px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
 }
 .select2-container--default .select2-selection--multiple {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 8px !important;
     min-height: 42px !important;
     padding: 3px 6px !important;
@@ -667,12 +655,12 @@ tr.bagan-row-hidden { display: none !important; }
         <!-- Page Header & Breadcrumbs -->
         <div class="page-header d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
             <div>
-                <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 12px; font-weight: 700; color: #475569;">
+                <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 12px; font-weight: 700; color: #334155;">
                     <span>Dashboard</span>
-                    <i class="fas fa-chevron-right" style="font-size: 9px; color: #94a3b8;"></i>
-                    <span style="color: #09090b;">Bagan Utama</span>
+                    <i class="fas fa-chevron-right" style="font-size: 9px; color: #64748b;"></i>
+                    <span style="color: #020617; font-weight: 800;">Bagan Utama</span>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size: 22px; color: #09090b; letter-spacing: -0.01em;">
+                <h3 class="fw-bold mb-1" style="font-size: 22px; color: #020617; letter-spacing: -0.01em;">
                     Manajemen Bagan Pertandingan
                 </h3>
                 <p class="mb-0" style="font-size: 13px; color: #334155; font-weight: 500;">
@@ -685,10 +673,10 @@ tr.bagan-row-hidden { display: none !important; }
                     <button class="btn-head-create dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-plus"></i> Buat Bagan
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border: 1.5px solid #cbd5e1; border-radius: 8px;">
-                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #0f172a;" data-bs-toggle="modal" data-bs-target="#tambahBaganModal"><i class="fas fa-file-alt me-2 text-primary"></i> Tambah Bagan Satuan</a></li>
-                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #0f172a;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal"><i class="fas fa-random me-2 text-warning"></i> Drawing Otomatis</a></li>
-                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #0f172a;" data-bs-toggle="modal" data-bs-target="#bobBaganModal"><i class="fas fa-trophy me-2 text-danger"></i> Bagan Best of the Best (BOB)</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border: 1.5px solid #334155; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);">
+                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #020617;" data-bs-toggle="modal" data-bs-target="#tambahBaganModal"><i class="fas fa-file-alt me-2 text-primary"></i> Tambah Bagan Satuan</a></li>
+                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #020617;" data-bs-toggle="modal" data-bs-target="#drawingBaganModal"><i class="fas fa-random me-2 text-warning"></i> Drawing Otomatis</a></li>
+                        <li><a href="#" class="dropdown-item py-2 fw-semibold" style="font-size: 13px; color: #020617;" data-bs-toggle="modal" data-bs-target="#bobBaganModal"><i class="fas fa-trophy me-2 text-danger"></i> Bagan Best of the Best (BOB)</a></li>
                     </ul>
                 </div>
 
@@ -711,49 +699,49 @@ tr.bagan-row-hidden { display: none !important; }
             <div class="col-6 col-md-3">
                 <div class="card card-stats p-3 mb-0">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155;">Total Bagan</span>
-                        <div class="stat-icon-wrap" style="background: #f1f5f9; color: #334155;">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #020617;">Total Bagan</span>
+                        <div class="stat-icon-wrap" style="background: #f1f5f9; color: #020617; border-color: #64748b;">
                             <i class="fas fa-sitemap"></i>
                         </div>
                     </div>
                     <div class="stat-value" id="stat-total-bagan">{{ metrics.total }}</div>
-                    <div class="mt-1" style="font-size: 11.5px; color: #475569; font-weight: 600;">Seluruh bagan terdaftar</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #334155; font-weight: 600;">Seluruh bagan terdaftar</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="card card-stats p-3 mb-0">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #15803d;">Bagan Selesai</span>
-                        <div class="stat-icon-wrap" style="background: #dcfce7; color: #15803d;">
+                        <div class="stat-icon-wrap" style="background: #dcfce7; color: #15803d; border-color: #86efac;">
                             <i class="fas fa-check-circle"></i>
                         </div>
                     </div>
                     <div class="stat-value" style="color: #15803d !important;">{{ metrics.finished }}</div>
-                    <div class="mt-1" style="font-size: 11.5px; color: #15803d; font-weight: 600;">Partai tuntas bertanding</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #166534; font-weight: 600;">Partai tuntas bertanding</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="card card-stats p-3 mb-0">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #1d4ed8;">Live Tatami</span>
-                        <div class="stat-icon-wrap" style="background: #eff6ff; color: #1d4ed8;">
+                        <div class="stat-icon-wrap" style="background: #eff6ff; color: #1d4ed8; border-color: #93c5fd;">
                             <i class="fas fa-tv"></i>
                         </div>
                     </div>
                     <div class="stat-value" style="color: #1d4ed8 !important;">{{ metrics.active }}</div>
-                    <div class="mt-1" style="font-size: 11.5px; color: #1d4ed8; font-weight: 600;">Sedang jalan di tatami</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #1e40af; font-weight: 600;">Sedang jalan di tatami</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="card card-stats p-3 mb-0">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #b45309;">Belum Selesai</span>
-                        <div class="stat-icon-wrap" style="background: #fffbeb; color: #b45309;">
+                        <div class="stat-icon-wrap" style="background: #fffbeb; color: #b45309; border-color: #fde68a;">
                             <i class="fas fa-clock"></i>
                         </div>
                     </div>
                     <div class="stat-value" style="color: #b45309 !important;">{{ metrics.pending }}</div>
-                    <div class="mt-1" style="font-size: 11.5px; color: #b45309; font-weight: 600;">Menunggu / sisa partai</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #92400e; font-weight: 600;">Menunggu / sisa partai</div>
                 </div>
             </div>
         </div>
@@ -802,7 +790,7 @@ tr.bagan-row-hidden { display: none !important; }
             <div class="table-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
                     <h5 class="mb-0">Daftar Bagan Pertandingan</h5>
-                    <span class="badge" id="bagan-table-count" style="font-size: 11.5px; font-weight: 700; background: #e2e8f0; color: #0f172a; border: 1px solid #cbd5e1;">Menampilkan {{ bagans|length }} bagan</span>
+                    <span class="badge" id="bagan-table-count" style="font-size: 11.5px; font-weight: 700; background: #f1f5f9; color: #020617; border: 1.5px solid #64748b;">Menampilkan {{ bagans|length }} bagan</span>
                 </div>
                 <div style="font-size: 12px; color: #334155; font-weight: 600;">
                     <i class="fas fa-info-circle me-1 text-primary"></i> Klik nama bagan untuk melihat skema bracket atau partai
@@ -827,7 +815,7 @@ tr.bagan-row-hidden { display: none !important; }
                             data-tipe="{{ bagan.tipe_tanding }}"
                             data-status="{% if bagan.active_tatami %}active{% elif bagan.is_finished %}finished{% else %}unfinished{% endif %}"
                             data-pool-kind="{% if 'BOB' in bagan.nama_bagan|upper or 'BEST OF THE BEST' in bagan.nama_bagan|upper or bagan.nomor_tanding and 'BOB' in bagan.nomor_tanding.nama_nomor_tanding|upper %}bob{% elif 'POOL ' in bagan.nama_bagan|upper or bagan.pool > 1 %}pool{% else %}final{% endif %}">
-                            <td style="text-align: center; color: var(--text-secondary); font-weight: 500;">{{ forloop.counter }}</td>
+                            <td style="text-align: center; color: #334155; font-weight: 700;">{{ forloop.counter }}</td>
                             <td>
                                 <div class="bagan-info-cell">
                                     <div class="bagan-title-row">
@@ -870,7 +858,7 @@ tr.bagan-row-hidden { display: none !important; }
                                 {% elif bagan.tipe_tanding == '2' %}
                                     <span class="badge-tipe-kumite"><i class="fas fa-hand-rock"></i>Kumite</span>
                                 {% else %}
-                                    <span class="text-muted small">-</span>
+                                    <span style="color: #64748b; font-weight: 700;">—</span>
                                 {% endif %}
                             </td>
                             <td style="text-align: center;">
@@ -935,7 +923,7 @@ tr.bagan-row-hidden { display: none !important; }
                                         {% endif %}
                                     </div>
                                 {% else %}
-                                    <span class="text-muted small">-</span>
+                                    <span style="color: #64748b; font-weight: 700;">—</span>
                                 {% endif %}
                             </td>
                             <td style="text-align: center; white-space: nowrap;">
@@ -987,23 +975,33 @@ tr.bagan-row-hidden { display: none !important; }
     // Initialize Select2 in modals with responsive width on shown.bs.modal
     function initModalSelect2($modal) {
         $modal.find('.select2:not(:disabled)').each(function () {
-            if ($(this).hasClass('select2-hidden-accessible')) {
-                $(this).select2('destroy');
+            var $this = $(this);
+            if ($this.hasClass('select2-hidden-accessible')) {
+                $this.select2('destroy');
             }
-            var elementId = $(this).attr('id') || '';
+            var $parent = $this.parent();
+            $parent.css('position', 'relative');
+            var elementId = $this.attr('id') || '';
             var noResultsMsg = (elementId.indexOf('nomor_tanding') !== -1)
                 ? "Nomor tanding tidak ditemukan"
                 : "Bagan tidak ditemukan";
-            $(this).select2({
-                dropdownParent: $modal,
+            $this.select2({
+                dropdownParent: $parent,
                 width: '100%',
-                placeholder: $(this).data('placeholder') || 'Pilih opsi...',
+                placeholder: $this.data('placeholder') || 'Pilih opsi...',
                 language: {
                     noResults: function () {
                         return noResultsMsg;
                     }
                 }
             });
+            $this.off('select2:open select2:close')
+                .on('select2:open', function () {
+                    $parent.css('z-index', '1060');
+                })
+                .on('select2:close', function () {
+                    $parent.css('z-index', '');
+                });
         });
     }
 
@@ -1018,8 +1016,10 @@ tr.bagan-row-hidden { display: none !important; }
             $('#export_bagan_pk').prop('disabled', false);
             $('#exportCustomBaganWrap').stop(true, true).slideDown(200, function () {
                 if (!$('#export_bagan_pk').hasClass('select2-hidden-accessible')) {
+                    var $exportParent = $('#export_bagan_pk').parent();
+                    $exportParent.css('position', 'relative');
                     $('#export_bagan_pk').select2({
-                        dropdownParent: $('#exportBaganModal'),
+                        dropdownParent: $exportParent,
                         width: '100%',
                         placeholder: $('#export_bagan_pk').data('placeholder') || 'Ketik untuk mencari nama bagan...',
                         language: {
@@ -1028,6 +1028,13 @@ tr.bagan-row-hidden { display: none !important; }
                             }
                         }
                     });
+                    $('#export_bagan_pk').off('select2:open select2:close')
+                        .on('select2:open', function () {
+                            $exportParent.css('z-index', '1060');
+                        })
+                        .on('select2:close', function () {
+                            $exportParent.css('z-index', '');
+                        });
                 }
             });
         } else {
