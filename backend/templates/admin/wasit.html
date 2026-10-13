@@ -1,36 +1,369 @@
 {% extends "admin/base-dashboard.html" %}
 {% load static %}
 
+{% block style %}
+<style>
+/* Page Title & Breadcrumb */
+.page-header h3 {
+    color: #020617 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* Head Action Buttons System */
+.btn-head-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+.btn-head-secondary:hover {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
+}
+
+.btn-head-create {
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer;
+    text-decoration: none !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+.btn-head-create:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
+    color: #ffffff !important;
+}
+
+/* Stat Cards */
+.card-stats {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.card-stats:hover {
+    transform: translateY(-2px);
+    border-color: #0f172a !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+.stat-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border: 1px solid currentColor;
+}
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #020617 !important;
+    letter-spacing: -0.02em;
+}
+
+/* Tatami Filter Bar */
+.filter-card {
+    background: #ffffff !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.tatami-filter-pill {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    border: 1.5px solid #64748b !important;
+    background: #ffffff !important;
+    color: #020617 !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.tatami-filter-pill:hover {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
+}
+.tatami-filter-pill.active {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Table Card & Header */
+.table-card {
+    background: #ffffff !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    overflow: hidden;
+}
+
+.table-card-header {
+    background: #f8fafc !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
+    padding: 14px 20px !important;
+}
+
+.table-card-header h5 {
+    color: #020617 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+}
+
+.table th {
+    background: #f8fafc !important;
+    color: #000000 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 12px 16px !important;
+    vertical-align: middle !important;
+    border-bottom: 2px solid #000000 !important;
+}
+
+.table td {
+    padding: 14px 16px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+    color: #020617 !important;
+    font-weight: 600;
+}
+
+/* Search input */
+.wasit-search-input {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+.wasit-search-input:focus {
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
+}
+.wasit-search-input::placeholder {
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+
+/* Row Action Buttons System */
+.btn-row-action-edit {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1.5px solid #64748b;
+    background: #ffffff;
+    color: #020617;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-row-action-edit:hover {
+    background: #f1f5f9;
+    border-color: #0f172a;
+    color: #000000;
+}
+
+.btn-row-action-delete {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1.5px solid #ef4444;
+    background: #ffffff;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-row-action-delete:hover {
+    background: #fee2e2;
+    border-color: #b91c1c;
+    color: #991b1b;
+}
+
+.btn-row-action-assign {
+    height: 28px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border: 1.5px solid #000000;
+    background: #000000;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-row-action-assign:hover {
+    background: #1e293b;
+    border-color: #1e293b;
+    color: #ffffff;
+}
+
+/* Modals Light Card System */
+.modal-content {
+    background: #ffffff !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-header {
+    background: #f8fafc !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
+    padding: 16px 20px !important;
+}
+
+.modal-title {
+    color: #020617 !important;
+    font-weight: 800 !important;
+    font-size: 16px !important;
+    letter-spacing: -0.01em !important;
+}
+
+.modal-body {
+    padding: 20px !important;
+    color: #020617 !important;
+}
+
+.modal-body label {
+    color: #020617 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
+}
+
+.modal-footer {
+    background: #f8fafc !important;
+    border-top: 1.5px solid #cbd5e1 !important;
+    padding: 12px 20px !important;
+}
+
+/* Modal Buttons System */
+.btn-modal-cancel {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 7px 18px !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.btn-modal-cancel:hover {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
+}
+
+.btn-modal-primary {
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 7px 20px !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+.btn-modal-primary:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
+    color: #ffffff !important;
+}
+</style>
+{% endblock style %}
+
 {% block content %}
 <div class="container">
     <div class="page-inner">
         <!-- Page Header -->
         <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);">
-                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: var(--text-secondary); text-decoration: none;">Dashboard</a></li>
-                    <li><span style="opacity: 0.5;">/</span></li>
-                    <li style="color: var(--text-primary); font-weight: 600;">Wasit & Juri</li>
+                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: #64748b; font-weight: 600; text-decoration: none;">Dashboard</a></li>
+                    <li><span style="color: #94a3b8; font-weight: 700;">/</span></li>
+                    <li style="color: #020617; font-weight: 700;">Wasit & Juri</li>
                 </ul>
-                <h3 class="fw-bold mb-1" style="color: #ffffff; font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; font-size: 24px;">
+                <h3 class="fw-bold mb-1">
                     MANAJEMEN WASIT & JURI
                 </h3>
-                <p class="text-muted mb-0" style="font-size: 13.5px;">
+                <p class="mb-0" style="font-size: 13.5px; color: #334155; font-weight: 500;">
                     Kelola data wasit, import excel, lisensi, perguruan, dan distribusi penugasan arena tatami.
                 </p>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a href="{% url 'tatami-manager' event_pk=event.pk %}" class="btn btn-secondary d-flex align-items-center gap-2" style="font-weight: 600; padding: 9px 16px; border-radius: 8px;">
+                <a href="{% url 'tatami-manager' event_pk=event.pk %}" class="btn btn-head-secondary">
                     <i class="fas fa-desktop"></i>
                     <span>Buka Tatami Manager</span>
                 </a>
-                <button type="button" class="btn btn-secondary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#importWasitModal" style="font-weight: 600; padding: 9px 16px; border-radius: 8px;">
+                <button type="button" class="btn btn-head-secondary" data-bs-toggle="modal" data-bs-target="#importWasitModal">
                     <i class="fas fa-file-excel text-success"></i>
                     <span>Import Excel / CSV</span>
                 </button>
-                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#tambahWasitModal" style="font-weight: 600; padding: 9px 18px; border-radius: 8px;">
+                <button type="button" class="btn btn-head-create" data-bs-toggle="modal" data-bs-target="#tambahWasitModal">
                     <i class="fas fa-user-plus"></i>
-                    <span>+ Tambah Wasit</span>
+                    <span>Tambah Wasit</span>
                 </button>
             </div>
         </div>
@@ -38,7 +371,7 @@
         <!-- Notification Alerts -->
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert" style="border-radius: 10px;">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert" style="border-radius: 8px;">
                     <div class="d-flex align-items-center gap-2">
                         {% if message.tags == 'success' %}
                             <i class="fas fa-check-circle fs-5 text-success"></i>
@@ -47,7 +380,7 @@
                         {% else %}
                             <i class="fas fa-info-circle fs-5 text-info"></i>
                         {% endif %}
-                        <div style="font-weight: 500;">{{ message }}</div>
+                        <div style="font-weight: 600;">{{ message }}</div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -57,78 +390,74 @@
         <!-- Metric Cards -->
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
-                <div class="card p-3" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px;">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Total Wasit</span>
-                            <h3 class="fw-bold mb-0 mt-1" style="color: #ffffff; font-size: 26px;">{{ metrics.total_wasit }}</h3>
-                        </div>
-                        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-users text-primary" style="font-size: 20px;"></i>
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155;">Total Wasit</span>
+                        <div class="stat-icon-wrap" style="background: #f1f5f9; color: #334155;">
+                            <i class="fas fa-users"></i>
                         </div>
                     </div>
+                    <div class="stat-value">{{ metrics.total_wasit }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #475569; font-weight: 600;">Wasit terdaftar</div>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card p-3" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px;">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Ditugaskan</span>
-                            <h3 class="fw-bold mb-0 mt-1" style="color: #34d399; font-size: 26px;">{{ metrics.assigned_wasit }}</h3>
-                        </div>
-                        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-clipboard-check text-success" style="font-size: 20px;"></i>
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #15803d;">Ditugaskan</span>
+                        <div class="stat-icon-wrap" style="background: #dcfce7; color: #15803d;">
+                            <i class="fas fa-clipboard-check"></i>
                         </div>
                     </div>
+                    <div class="stat-value" style="color: #15803d !important;">{{ metrics.assigned_wasit }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #15803d; font-weight: 600;">Memiliki tugas tatami</div>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card p-3" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px;">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Standby / Pool</span>
-                            <h3 class="fw-bold mb-0 mt-1" style="color: #93c5fd; font-size: 26px;">{{ metrics.pool_wasit }}</h3>
-                        </div>
-                        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.3); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-clock text-info" style="font-size: 20px;"></i>
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #1d4ed8;">Standby / Pool</span>
+                        <div class="stat-icon-wrap" style="background: #eff6ff; color: #1d4ed8;">
+                            <i class="fas fa-user-clock"></i>
                         </div>
                     </div>
+                    <div class="stat-value" style="color: #1d4ed8 !important;">{{ metrics.pool_wasit }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #1d4ed8; font-weight: 600;">Pool wasit cadangan</div>
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <div class="card p-3" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px;">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Arena Tatami</span>
-                            <h3 class="fw-bold mb-0 mt-1" style="color: #f87171; font-size: 26px;">{{ tatamis|length }}</h3>
-                        </div>
-                        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(229, 37, 37, 0.12); border: 1px solid rgba(229, 37, 37, 0.3); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-tv text-danger" style="font-size: 20px;"></i>
+                <div class="card card-stats p-3 mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #dc2626;">Arena Tatami</span>
+                        <div class="stat-icon-wrap" style="background: #fee2e2; color: #dc2626;">
+                            <i class="fas fa-tv"></i>
                         </div>
                     </div>
+                    <div class="stat-value" style="color: #dc2626 !important;">{{ tatamis|length }}</div>
+                    <div class="mt-1" style="font-size: 11.5px; color: #dc2626; font-weight: 600;">Arena aktif event</div>
                 </div>
             </div>
         </div>
 
         <!-- Tatami Distribution Badges -->
         {% if tatami_stats %}
-            <div class="card p-3 mb-4" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px;">
+            <div class="card filter-card p-3 mb-4">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">
+                    <span style="font-size: 12px; font-weight: 800; color: #020617; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px;">
                         Distribusi Tatami:
                     </span>
                     {% for ts in tatami_stats %}
-                        <a href="javascript:void(0)" onclick="filterByTatami('{{ ts.tatami.pk }}')" class="badge text-decoration-none tatami-filter-pill" id="pillTatami{{ ts.tatami.pk }}" style="font-size: 12.5px; padding: 6px 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; cursor: pointer;">
+                        <a href="javascript:void(0)" onclick="filterByTatami('{{ ts.tatami.pk }}')" class="badge text-decoration-none tatami-filter-pill" id="pillTatami{{ ts.tatami.pk }}">
                             <strong>Tatami {{ ts.tatami.tatami_number }}:</strong> {{ ts.count }} Wasit
                         </a>
                     {% endfor %}
-                    <a href="javascript:void(0)" onclick="filterByTatami('pool')" class="badge text-decoration-none tatami-filter-pill" id="pillTatamiPool" style="font-size: 12.5px; padding: 6px 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; cursor: pointer;">
+                    <a href="javascript:void(0)" onclick="filterByTatami('pool')" class="badge text-decoration-none tatami-filter-pill" id="pillTatamiPool">
                         <strong>Pool (Unassigned):</strong> {{ metrics.pool_wasit }} Wasit
                     </a>
-                    <a href="javascript:void(0)" onclick="filterByTatami('all')" class="badge text-decoration-none tatami-filter-pill active" id="pillTatamiAll" style="font-size: 12.5px; padding: 6px 12px; background: var(--red-core); border: 1px solid var(--red-core); color: #fff; border-radius: 6px; cursor: pointer;">
+                    <a href="javascript:void(0)" onclick="filterByTatami('all')" class="badge text-decoration-none tatami-filter-pill active" id="pillTatamiAll">
                         Semua Wasit ({{ metrics.total_wasit }})
                     </a>
                 </div>
@@ -136,20 +465,20 @@
         {% endif %}
 
         <!-- Main Card: Wasit Table -->
-        <div class="card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden;">
-            <div class="card-header py-3" style="background: var(--bg-surface-alt); border-bottom: 1px solid var(--border-color);">
+        <div class="table-card">
+            <div class="table-card-header">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fas fa-list text-danger"></i>
-                        <span class="card-title fw-bold" style="font-size: 15px; margin: 0; color: #fff;">Daftar Wasit & Juri Terdaftar</span>
+                        <h5 class="mb-0">Daftar Wasit & Juri Terdaftar</h5>
+                        <span class="badge" style="font-size: 11.5px; font-weight: 700; background: #e2e8f0; color: #020617; border: 1px solid #cbd5e1;">{{ all_wasits|length }} Wasit</span>
                     </div>
 
                     <div style="min-width: 280px; max-width: 420px; flex: 1;">
                         <div class="input-group">
-                            <span class="input-group-text" style="background: var(--bg-input); border-color: var(--border-color); color: var(--text-muted);">
+                            <span class="input-group-text" style="background: #ffffff; border: 1.5px solid #64748b; border-right: none; color: #64748b; border-radius: 8px 0 0 8px;">
                                 <i class="fas fa-search"></i>
                             </span>
-                            <input type="text" id="adminWasitSearch" class="form-control" placeholder="Cari nama wasit, perguruan, kab/kota, lisensi..." onkeyup="filterAdminWasitTable()">
+                            <input type="text" id="adminWasitSearch" class="form-control wasit-search-input" style="border-left: none; border-radius: 0 8px 8px 0;" placeholder="Cari nama wasit, perguruan, kab/kota, lisensi..." onkeyup="filterAdminWasitTable()">
                         </div>
                     </div>
                 </div>
@@ -158,16 +487,16 @@
             <div class="card-body p-0">
                 {% if all_wasits %}
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="wasitTable" style="color: var(--text-primary);">
-                            <thead style="background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--border-color);">
-                                <tr style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);">
-                                    <th style="padding: 14px 20px; width: 60px;">No</th>
-                                    <th style="padding: 14px 20px; min-width: 200px;">Nama Wasit</th>
-                                    <th style="padding: 14px 20px; min-width: 150px;">Perguruan</th>
-                                    <th style="padding: 14px 20px; min-width: 140px;">Kabupaten / Kota</th>
-                                    <th style="padding: 14px 20px; min-width: 140px;">Lisensi</th>
-                                    <th style="padding: 14px 20px; min-width: 200px;">Penugasan Tatami</th>
-                                    <th style="padding: 14px 20px; width: 140px; text-align: center;">Aksi</th>
+                        <table class="table table-hover align-middle mb-0" id="wasitTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">No</th>
+                                    <th style="min-width: 200px;">Nama Wasit</th>
+                                    <th style="min-width: 150px;">Perguruan</th>
+                                    <th style="min-width: 140px;">Kabupaten / Kota</th>
+                                    <th style="min-width: 140px;">Lisensi</th>
+                                    <th style="min-width: 200px;">Penugasan Tatami</th>
+                                    <th style="width: 140px; text-align: center;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -177,82 +506,81 @@
                                         data-perguruan="{{ w.perguruan.nama_perguruan|default:''|lower }}"
                                         data-kab-kota="{{ w.kab_kota|default:''|lower }}"
                                         data-lisensi="{{ w.lisensi|default:''|lower }}"
-                                        data-tatami-pk="{% if w.assignment %}{{ w.assignment.tatami_id }}{% else %}pool{% endif %}"
-                                        style="border-bottom: 1px solid var(--border-color);">
+                                        data-tatami-pk="{% if w.assignment %}{{ w.assignment.tatami_id }}{% else %}pool{% endif %}">
                                         
                                         <!-- No -->
-                                        <td style="padding: 14px 20px; color: var(--text-muted); font-size: 13px;">
+                                        <td style="color: #64748b; font-size: 13px; font-weight: 700;">
                                             {{ forloop.counter }}
                                         </td>
 
                                         <!-- Nama Wasit -->
-                                        <td style="padding: 14px 20px;">
-                                            <div class="fw-bold" style="font-size: 15px; color: #ffffff;">
+                                        <td>
+                                            <div class="fw-bold" style="font-size: 14px; color: #020617;">
                                                 {{ w.nama_wasit }}
                                             </div>
                                             {% if w.no_lisensi %}
-                                                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">
+                                                <div style="font-size: 11px; color: #64748b; font-weight: 600;">
                                                     No: {{ w.no_lisensi }}
                                                 </div>
                                             {% endif %}
                                         </td>
 
                                         <!-- Perguruan -->
-                                        <td style="padding: 14px 20px;">
-                                            <span class="badge" style="font-size: 12px; font-weight: 600; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd;">
-                                                <i class="fas fa-shield-alt"></i>
+                                        <td>
+                                            <span class="badge" style="font-size: 11.5px; font-weight: 700; background: #eff6ff; border: 1.5px solid #93c5fd; color: #1d4ed8;">
+                                                <i class="fas fa-shield-alt me-1"></i>
                                                 {{ w.perguruan.nama_perguruan|default:"PB / Umum" }}
                                             </span>
                                         </td>
 
                                         <!-- Kab / Kota -->
-                                        <td style="padding: 14px 20px; font-size: 13.5px; color: #cbd5e1;">
+                                        <td style="font-size: 13px; color: #334155; font-weight: 600;">
                                             {% if w.kab_kota %}
                                                 <span style="display: inline-flex; align-items: center; gap: 5px;">
-                                                    <i class="fas fa-map-marker-alt text-danger" style="font-size: 12px;"></i>
+                                                    <i class="fas fa-map-marker-alt text-danger" style="font-size: 11px;"></i>
                                                     {{ w.kab_kota }}
                                                 </span>
                                             {% else %}
-                                                <span style="color: var(--text-muted);">-</span>
+                                                <span style="color: #94a3b8;">-</span>
                                             {% endif %}
                                         </td>
 
                                         <!-- Lisensi -->
-                                        <td style="padding: 14px 20px; font-size: 13.5px; color: #cbd5e1;">
+                                        <td style="font-size: 13px; color: #020617; font-weight: 700;">
                                             {{ w.lisensi|default:"-" }}
                                         </td>
 
                                         <!-- Penugasan Tatami -->
-                                        <td style="padding: 14px 20px;">
+                                        <td>
                                             {% if w.assignment %}
                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                    <span class="badge" style="font-size: 12px; font-weight: 700; background: linear-gradient(135deg, #e52525, #b91c1c); padding: 5px 10px; border-radius: 5px;">
+                                                    <span class="badge" style="font-size: 12px; font-weight: 800; background: #dc2626; color: #ffffff; padding: 5px 10px; border-radius: 5px;">
                                                         Tatami {{ w.assignment.tatami.tatami_number }}
                                                     </span>
-                                                    <span class="badge bg-secondary" style="font-size: 11px; padding: 4px 8px;">
+                                                    <span class="badge" style="font-size: 11px; font-weight: 700; background: #e2e8f0; color: #020617; border: 1px solid #cbd5e1; padding: 4px 8px;">
                                                         {{ w.assignment.get_posisi_display }}
                                                     </span>
-                                                    <button type="button" class="btn btn-sm btn-outline-light p-1" style="font-size: 11px; line-height: 1;" title="Ubah Penugasan" onclick="openQuickAssignModal('{{ w.pk }}', '{{ w.nama_wasit|escapejs }}', '{{ w.assignment.tatami_id }}', '{{ w.assignment.posisi }}')">
-                                                        <i class="fas fa-pen"></i>
+                                                    <button type="button" class="btn-row-action-edit" title="Ubah Penugasan" onclick="openQuickAssignModal('{{ w.pk }}', '{{ w.nama_wasit|escapejs }}', '{{ w.assignment.tatami_id }}', '{{ w.assignment.posisi }}')">
+                                                        <i class="fas fa-pen" style="font-size: 11px;"></i>
                                                     </button>
                                                 </div>
                                             {% else %}
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge" style="font-size: 11.5px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: var(--text-muted); padding: 5px 10px;">
+                                                    <span class="badge" style="font-size: 11.5px; font-weight: 700; background: #f1f5f9; border: 1.5px solid #cbd5e1; color: #334155; padding: 5px 10px;">
                                                         Pool Standby
                                                     </span>
-                                                    <button type="button" class="btn btn-sm btn-primary p-1 px-2" style="font-size: 11.5px; border-radius: 4px;" title="Tugaskan ke Tatami" onclick="openQuickAssignModal('{{ w.pk }}', '{{ w.nama_wasit|escapejs }}', '', 'pool')">
-                                                        + Tugaskan
+                                                    <button type="button" class="btn-row-action-assign" title="Tugaskan ke Tatami" onclick="openQuickAssignModal('{{ w.pk }}', '{{ w.nama_wasit|escapejs }}', '', 'pool')">
+                                                        <i class="fas fa-plus"></i> Tugaskan
                                                     </button>
                                                 </div>
                                             {% endif %}
                                         </td>
 
                                         <!-- Aksi -->
-                                        <td style="padding: 14px 20px; text-align: center;">
-                                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <td style="text-align: center;">
+                                            <div class="d-flex align-items-center justify-content-center gap-1.5">
                                                 <!-- Edit Button -->
-                                                <button type="button" class="btn btn-sm btn-secondary" title="Edit Wasit" onclick="openEditWasitModal('{{ w.pk }}', '{{ w.nama_wasit|escapejs }}', '{{ w.perguruan_id|default:'' }}', '{{ w.kab_kota|default:''|escapejs }}', '{{ w.lisensi|default:''|escapejs }}', '{{ w.no_lisensi|default:''|escapejs }}', '{% if w.assignment %}{{ w.assignment.tatami_id }}{% endif %}', '{% if w.assignment %}{{ w.assignment.posisi }}{% endif %}')" style="padding: 5px 10px;">
+                                                <button type="button" class="btn-row-action-edit" title="Edit Wasit" onclick="openEditWasitModal('{{ w.pk }}', '{{ w.nama_wasit|escapejs }}', '{{ w.perguruan_id|default:'' }}', '{{ w.kab_kota|default:''|escapejs }}', '{{ w.lisensi|default:''|escapejs }}', '{{ w.no_lisensi|default:''|escapejs }}', '{% if w.assignment %}{{ w.assignment.tatami_id }}{% endif %}', '{% if w.assignment %}{{ w.assignment.posisi }}{% endif %}')">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
 
@@ -261,7 +589,7 @@
                                                     {% csrf_token %}
                                                     <input type="hidden" name="submit_type" value="hapus_wasit">
                                                     <input type="hidden" name="wasit_id" value="{{ w.pk }}">
-                                                    <button type="submit" class="btn btn-sm btn-danger" title="Hapus Wasit" style="padding: 5px 10px;">
+                                                    <button type="submit" class="btn-row-action-delete" title="Hapus Wasit">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>
@@ -275,16 +603,20 @@
                     </div>
                 {% else %}
                     <div class="p-5 text-center">
-                        <i class="fas fa-users-slash" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px;"></i>
-                        <h5 class="fw-bold text-white mb-2">Belum Ada Wasit Terdaftar</h5>
-                        <p class="text-muted mb-3" style="max-width: 460px; margin: 0 auto; font-size: 13.5px;">
+                        <div class="mb-3">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; border: 1.5px solid #fca5a5;">
+                                <i class="fas fa-users text-danger fs-3"></i>
+                            </span>
+                        </div>
+                        <h5 class="fw-bold mb-1" style="color: #020617;">Belum Ada Wasit Terdaftar</h5>
+                        <p class="text-secondary mb-4" style="max-width: 440px; margin: 0 auto; font-size: 13px;">
                             Daftarkan wasit pertandingan satu per satu atau import data dari file Excel (.xlsx) untuk memulai penugasan tatami.
                         </p>
                         <div class="d-flex justify-content-center gap-2">
-                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importWasitModal">
+                            <button type="button" class="btn-head-secondary" data-bs-toggle="modal" data-bs-target="#importWasitModal">
                                 <i class="fas fa-file-excel text-success"></i> Import Excel
                             </button>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahWasitModal">
+                            <button type="button" class="btn-head-create" data-bs-toggle="modal" data-bs-target="#tambahWasitModal">
                                 <i class="fas fa-user-plus"></i> Tambah Wasit Baru
                             </button>
                         </div>
@@ -346,8 +678,8 @@
                         </div>
                     </div>
 
-                    <div class="card p-3" style="background: var(--bg-surface-alt); border: 1px solid var(--border-color); border-radius: 8px;">
-                        <span class="fw-bold mb-2 text-white" style="font-size: 13px;">Penugasan Tatami Awal (Opsional)</span>
+                    <div class="card p-3" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+                        <span class="fw-bold mb-2" style="font-size: 13px; color: #020617;">Penugasan Tatami Awal (Opsional)</span>
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <label class="form-label" style="font-size: 12px;">Pilih Tatami</label>
@@ -370,8 +702,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Wasit</button>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn-modal-primary">Simpan Wasit</button>
                 </div>
             </form>
         </div>
@@ -429,8 +761,8 @@
                         </div>
                     </div>
 
-                    <div class="card p-3" style="background: var(--bg-surface-alt); border: 1px solid var(--border-color); border-radius: 8px;">
-                        <span class="fw-bold mb-2 text-white" style="font-size: 13px;">Penugasan Arena Tatami</span>
+                    <div class="card p-3" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+                        <span class="fw-bold mb-2" style="font-size: 13px; color: #020617;">Penugasan Arena Tatami</span>
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <label class="form-label" style="font-size: 12px;">Tatami</label>
@@ -453,8 +785,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn-modal-primary">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -475,8 +807,8 @@
                 <input type="hidden" name="wasit_id" id="quickAssignWasitId">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <span style="font-size: 12px; color: var(--text-muted); display: block;">Wasit:</span>
-                        <strong id="quickAssignWasitNama" style="color: #fff; font-size: 15px;"></strong>
+                        <span style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">Wasit:</span>
+                        <strong id="quickAssignWasitNama" style="color: #020617; font-size: 15px;"></strong>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Pilih Tatami</label>
@@ -497,8 +829,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Tugaskan</button>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn-modal-primary">Tugaskan</button>
                 </div>
             </form>
         </div>
@@ -533,8 +865,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Mulai Import</button>
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn-modal-primary">Mulai Import</button>
                 </div>
             </form>
         </div>
@@ -550,18 +882,20 @@
 
         // Highlight active pill
         document.querySelectorAll('.tatami-filter-pill').forEach(pill => {
-            pill.style.background = 'rgba(255,255,255,0.06)';
-            pill.style.borderColor = 'var(--border-color)';
-            pill.style.color = 'var(--text-primary)';
+            pill.classList.remove('active');
+            pill.style.background = '#ffffff';
+            pill.style.borderColor = '#64748b';
+            pill.style.color = '#020617';
         });
 
         const activePill = tatamiPk === 'all' 
             ? document.getElementById('pillTatamiAll') 
             : (tatamiPk === 'pool' ? document.getElementById('pillTatamiPool') : document.getElementById('pillTatami' + tatamiPk));
         if (activePill) {
-            activePill.style.background = 'var(--red-core)';
-            activePill.style.borderColor = 'var(--red-core)';
-            activePill.style.color = '#fff';
+            activePill.classList.add('active');
+            activePill.style.background = '#000000';
+            activePill.style.borderColor = '#000000';
+            activePill.style.color = '#ffffff';
         }
 
         filterAdminWasitTable();

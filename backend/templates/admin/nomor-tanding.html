@@ -5,16 +5,17 @@
 <style>
 /* Page Title & Breadcrumb */
 .page-header h3 {
-    color: #09090b !important;
-    font-family: 'Oswald', sans-serif;
-    letter-spacing: 0.02em;
+    color: #020617 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
 }
 
-/* Head Action Buttons */
+/* Head Action Buttons System */
 .btn-head-merge {
     background: #ffffff !important;
-    border: 1.5px solid #2563eb !important;
-    color: #1d4ed8 !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 8px 16px !important;
@@ -22,18 +23,18 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
 }
 .btn-head-merge:hover {
-    background: #eff6ff !important;
-    color: #1e40af !important;
-    border-color: #1d4ed8 !important;
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
 }
 
 .btn-head-delete-all {
     background: #ffffff !important;
-    border: 1.5px solid #dc2626 !important;
+    border: 1.5px solid #ef4444 !important;
     color: #dc2626 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
@@ -42,18 +43,18 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
 }
 .btn-head-delete-all:hover {
-    background: #fef2f2 !important;
+    background: #fee2e2 !important;
     color: #991b1b !important;
     border-color: #b91c1c !important;
 }
 
 .btn-head-create {
-    background: #09090b !important;
-    border: 1.5px solid #09090b !important;
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
@@ -62,27 +63,29 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
 .btn-head-create:hover {
-    background: #27272a !important;
-    border-color: #27272a !important;
+    background: #1e293b !important;
+    border-color: #1e293b !important;
     color: #ffffff !important;
 }
 
 /* Stat Cards */
 .card-stats {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .card-stats:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .stat-icon-wrap {
@@ -93,14 +96,15 @@
     align-items: center;
     justify-content: center;
     font-size: 15px;
+    border: 1px solid currentColor;
 }
 
 .stat-value {
-    font-family: 'Oswald', sans-serif;
     font-size: 28px;
     font-weight: 800;
     line-height: 1.1;
-    color: #09090b !important;
+    color: #020617 !important;
+    letter-spacing: -0.02em;
 }
 
 /* Section Tabs (Tournament / Festival / BOB) */
@@ -112,24 +116,24 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #64748b;
     background: #ffffff;
-    color: #1e293b;
+    color: #020617;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 
 .section-tab-btn:hover {
     background: #f1f5f9;
-    color: #09090b;
-    border-color: #94a3b8;
+    color: #000000;
+    border-color: #0f172a;
 }
 
 .section-tab-btn.active-tab {
-    background: #09090b !important;
-    border-color: #09090b !important;
+    background: #000000 !important;
+    border-color: #000000 !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .section-tab-btn .badge-count {
@@ -138,7 +142,7 @@
     padding: 2px 8px;
     border-radius: 12px;
     background: #e2e8f0;
-    color: #0f172a;
+    color: #020617;
 }
 
 .section-tab-btn.active-tab .badge-count {
@@ -152,9 +156,9 @@
     font-weight: 700;
     padding: 5px 13px;
     border-radius: 20px;
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #64748b;
     background: #ffffff;
-    color: #1e293b;
+    color: #020617;
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -164,27 +168,27 @@
 
 .sub-filter-pill:hover {
     background: #f1f5f9;
-    color: #09090b;
-    border-color: #94a3b8;
+    color: #000000;
+    border-color: #0f172a;
 }
 
 .sub-filter-pill.active-pill {
-    background: #09090b !important;
-    border-color: #09090b !important;
+    background: #000000 !important;
+    border-color: #000000 !important;
     color: #ffffff !important;
 }
 
 .sub-filter-pill-warning {
-    border-color: #fca5a5 !important;
+    border-color: #ef4444 !important;
     background: #fef2f2 !important;
-    color: #991b1b !important;
+    color: #dc2626 !important;
     font-weight: 800 !important;
 }
 
 .sub-filter-pill-warning:hover {
     background: #fee2e2 !important;
-    border-color: #f87171 !important;
-    color: #7f1d1d !important;
+    border-color: #b91c1c !important;
+    color: #991b1b !important;
 }
 
 .sub-filter-pill-warning.active-pill {
@@ -196,8 +200,8 @@
 /* Search input */
 .nt-search-wrap input {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #09090b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     padding-left: 36px !important;
@@ -205,53 +209,54 @@
 }
 
 .nt-search-wrap input::placeholder {
-    color: #475569 !important;
+    color: #64748b !important;
     font-weight: 500 !important;
 }
 
 .nt-search-wrap input:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
 }
 
 /* Table Card & Header */
 .table-card {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #334155 !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
     overflow: hidden;
 }
 
 .table-card-header {
     background: #f8fafc !important;
-    border-bottom: 1.5px solid #e2e8f0 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
     padding: 12px 18px !important;
 }
 
 .table-card-header h5 {
-    color: #09090b !important;
+    color: #020617 !important;
     font-size: 15px !important;
     font-weight: 800 !important;
 }
 
 .table th {
     background: #f8fafc !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     font-size: 12px !important;
     font-weight: 800 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
     padding: 12px 14px !important;
     vertical-align: middle !important;
-    border-bottom: 2px solid #cbd5e1 !important;
+    border-bottom: 2px solid #000000 !important;
 }
 
 .table td {
     padding: 12px 14px !important;
     vertical-align: middle !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    color: #0f172a !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+    color: #020617 !important;
+    font-weight: 600 !important;
 }
 
 .table td .badge,
@@ -263,14 +268,14 @@
 .nt-name-title {
     font-size: 13.5px;
     font-weight: 800;
-    color: #09090b !important;
+    color: #020617 !important;
     line-height: 1.35;
 }
 
 /* Badges System */
 .badge-disiplin-kata {
     background: #e0f2fe !important;
-    border: 1.5px solid #7dd3fc !important;
+    border: 1.5px solid #38bdf8 !important;
     color: #0369a1 !important;
     font-size: 11px !important;
     font-weight: 800 !important;
@@ -284,7 +289,7 @@
 
 .badge-disiplin-kumite {
     background: #fee2e2 !important;
-    border: 1.5px solid #fca5a5 !important;
+    border: 1.5px solid #f87171 !important;
     color: #b91c1c !important;
     font-size: 11px !important;
     font-weight: 800 !important;
@@ -299,7 +304,7 @@
 .badge-gender {
     background: #e2e8f0 !important;
     border: 1.5px solid #94a3b8 !important;
-    color: #0f172a !important;
+    color: #020617 !important;
     font-size: 10.5px !important;
     font-weight: 800 !important;
     padding: 3px 7px !important;
@@ -309,7 +314,7 @@
 
 .badge-vr-on {
     background: #dcfce7 !important;
-    border: 1.5px solid #86efac !important;
+    border: 1.5px solid #4ade80 !important;
     color: #15803d !important;
     font-size: 10px !important;
     font-weight: 800 !important;
@@ -341,7 +346,7 @@
 .badge-atlet-single {
     background: #fee2e2 !important;
     border: 1.5px solid #f87171 !important;
-    color: #991b1b !important;
+    color: #dc2626 !important;
     font-size: 11.5px !important;
     font-weight: 800 !important;
     padding: 3px 9px !important;
@@ -354,7 +359,7 @@
 
 .badge-atlet-single:hover {
     background: #fecaca !important;
-    color: #7f1d1d !important;
+    color: #991b1b !important;
 }
 
 .badge-atlet-pair {
@@ -379,7 +384,7 @@
 .badge-atlet-normal {
     background: #f1f5f9 !important;
     border: 1.5px solid #cbd5e1 !important;
-    color: #0f172a !important;
+    color: #020617 !important;
     font-size: 11.5px !important;
     font-weight: 800 !important;
     padding: 3px 9px !important;
@@ -392,13 +397,13 @@
 
 .badge-atlet-normal:hover {
     background: #e2e8f0 !important;
-    color: #020617 !important;
+    color: #000000 !important;
 }
 
 /* Status Bagan Badges */
 .badge-bagan-ready {
     background: #dcfce7 !important;
-    border: 1.5px solid #86efac !important;
+    border: 1.5px solid #4ade80 !important;
     color: #15803d !important;
     font-size: 11.5px !important;
     font-weight: 800 !important;
@@ -444,16 +449,16 @@
     border-radius: 6px;
     font-size: 12px;
     font-weight: 700;
-    border: 1.5px solid #93c5fd;
-    background: #eff6ff;
-    color: #1d4ed8;
+    border: 1.5px solid #64748b;
+    background: #ffffff;
+    color: #020617;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .btn-row-action-gabung:hover {
-    background: #dbeafe;
-    border-color: #3b82f6;
-    color: #1e40af;
+    background: #f1f5f9;
+    border-color: #0f172a;
+    color: #000000;
 }
 
 .btn-row-action-gabung-urgent {
@@ -486,16 +491,16 @@
     justify-content: center;
     border-radius: 6px;
     font-size: 13px;
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #64748b;
     background: #ffffff;
-    color: #1e293b;
+    color: #020617;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .btn-row-action-edit:hover {
     background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #0f172a;
+    border-color: #0f172a;
+    color: #000000;
 }
 
 .btn-row-action-delete {
@@ -507,113 +512,115 @@
     justify-content: center;
     border-radius: 6px;
     font-size: 13px;
-    border: 1.5px solid #fca5a5;
+    border: 1.5px solid #ef4444;
     background: #ffffff;
     color: #dc2626;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .btn-row-action-delete:hover {
-    background: #fef2f2;
-    border-color: #ef4444;
-    color: #b91c1c;
+    background: #fee2e2;
+    border-color: #b91c1c;
+    color: #991b1b;
 }
 
 /* Modals Light Card System */
 .modal-content {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
 }
 
 .modal-header {
     background: #f8fafc !important;
-    border-bottom: 1.5px solid #e2e8f0 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
     padding: 16px 20px !important;
 }
 
 .modal-title {
-    color: #09090b !important;
+    color: #020617 !important;
     font-weight: 800 !important;
     font-size: 16px !important;
+    letter-spacing: -0.01em !important;
 }
 
 .modal-body {
     padding: 20px !important;
-    color: #0f172a !important;
+    color: #020617 !important;
 }
 
 .modal-body label {
-    color: #0f172a !important;
+    color: #020617 !important;
     font-weight: 700 !important;
-    font-size: 13.5px !important;
+    font-size: 13px !important;
 }
 
 .modal-body .form-control,
 .modal-body .form-select {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #09090b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
 }
 
 .modal-body .form-control:focus,
 .modal-body .form-select:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15) !important;
 }
 
 .modal-footer {
     background: #f8fafc !important;
-    border-top: 1.5px solid #e2e8f0 !important;
+    border-top: 1.5px solid #cbd5e1 !important;
     padding: 12px 20px !important;
 }
 
 /* Modal Buttons System */
 .btn-modal-cancel {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #1e293b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 18px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .btn-modal-cancel:hover {
     background: #f1f5f9 !important;
-    color: #0f172a !important;
-    border-color: #94a3b8 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
 }
 
 .btn-modal-primary {
-    background: #09090b !important;
-    border: 1.5px solid #09090b !important;
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 20px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
 .btn-modal-primary:hover {
-    background: #27272a !important;
-    border-color: #27272a !important;
+    background: #1e293b !important;
+    border-color: #1e293b !important;
     color: #ffffff !important;
 }
 
 .btn-modal-danger {
     background: #dc2626 !important;
-    border: 1.5px solid #dc2626 !important;
+    border: 2px solid #dc2626 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 20px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
 }
@@ -626,21 +633,21 @@
 /* Select2 Light Theme Styling */
 .select2-container--default .select2-selection--single {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 8px !important;
     height: 42px !important;
     padding: 4px 6px !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #09090b !important;
+    color: #020617 !important;
     line-height: 32px !important;
     font-size: 13px !important;
     font-weight: 600 !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__placeholder {
-    color: #475569 !important;
+    color: #64748b !important;
     font-weight: 500 !important;
 }
 
@@ -651,7 +658,7 @@
 
 .select2-container--default .select2-selection--multiple {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 8px !important;
     min-height: 42px !important;
     padding: 3px 6px !important;
@@ -659,14 +666,14 @@
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
     margin-top: 5px !important;
-    color: #09090b !important;
+    color: #020617 !important;
     font-size: 13px !important;
     font-weight: 500 !important;
     line-height: 24px !important;
 }
 
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
-    color: #475569 !important;
+    color: #64748b !important;
     opacity: 1 !important;
 }
 
@@ -688,24 +695,24 @@
 
 .select2-dropdown {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 1.5px solid #334155 !important;
     border-radius: 8px !important;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-    color: #09090b !important;
+    color: #020617 !important;
     font-size: 13px !important;
 }
 
 .select2-container--default .select2-search--dropdown .select2-search__field {
     background-color: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #09090b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 500 !important;
     border-radius: 6px !important;
     padding: 8px 10px !important;
 }
 
 .select2-container--default .select2-results__option {
-    color: #0f172a !important;
+    color: #020617 !important;
     font-weight: 600 !important;
     padding: 8px 12px !important;
 }
@@ -717,7 +724,7 @@
 
 .select2-container--default .select2-results__option[aria-selected="true"] {
     background-color: #f1f5f9 !important;
-    color: #0f172a !important;
+    color: #020617 !important;
 }
 
 /* Modal Helper Texts & Code Styling */
@@ -731,7 +738,7 @@
 .modal-body code {
     background-color: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
-    color: #0f172a !important;
+    color: #020617 !important;
     padding: 1px 5px !important;
     border-radius: 4px !important;
     font-weight: 700 !important;
@@ -740,8 +747,8 @@
 
 .badge-source-count {
     background: #f1f5f9 !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #334155 !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 700 !important;
     font-size: 12px !important;
     padding: 4px 10px !important;
@@ -767,13 +774,13 @@
                 <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px;">
                     <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: #475569; font-weight: 600; text-decoration: none;">Dashboard</a></li>
                     <li><span style="color: #94a3b8; font-weight: 700;">/</span></li>
-                    <li style="color: #09090b; font-weight: 700;">Nomor Tanding</li>
+                    <li style="color: #020617; font-weight: 700;">Nomor Tanding</li>
                 </ul>
                 <h3 class="fw-bold mb-1">
                     MANAJEMEN NOMOR TANDING
                 </h3>
                 <p class="mb-0" style="font-size: 13.5px; color: #334155; font-weight: 500;">
-                    Kelola kategori tanding, kuota atlet, dan bagan pertandingan untuk event <strong style="color: #09090b;">{{ event.nama_event }}</strong>.
+                    Kelola kategori tanding, kuota atlet, dan bagan pertandingan untuk event <strong style="color: #020617;">{{ event.nama_event }}</strong>.
                 </p>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-2">

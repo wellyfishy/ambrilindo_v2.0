@@ -3,955 +3,953 @@
 
 {% block style %}
 <style>
-  /* Summary Juara Styling */
-  .summary-header-card {
-    background: linear-gradient(135deg, rgba(22, 24, 31, 0.95) 0%, rgba(29, 31, 40, 0.95) 100%);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 24px 28px;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  }
-  .summary-header-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #f59e0b 0%, #e52525 50%, #3b82f6 100%);
-  }
+/* Page Title & Breadcrumbs */
+.page-header h3 {
+    color: #020617 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+}
 
-  /* Podium Cards */
-  .podium-grid {
+/* Head Action Buttons */
+.btn-head-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+.btn-head-secondary:hover {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
+}
+.btn-head-primary {
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer;
+    text-decoration: none !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+}
+.btn-head-primary:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
+    color: #ffffff !important;
+}
+
+/* Podium & Metric Grid */
+.podium-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
-  }
-
-  .podium-card {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 20px;
+}
+.podium-card {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    border-radius: 12px;
+    padding: 18px 20px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .podium-card:hover {
-    transform: translateY(-2px);
-  }
+    transition: all 0.15s ease-in-out;
+}
+.podium-card:hover {
+    border-color: #0f172a;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+.podium-card.rank-1 {
+    border: 2px solid #f59e0b;
+    background: #fffbeb;
+}
+.podium-card.rank-2 {
+    border: 2px solid #94a3b8;
+    background: #f8fafc;
+}
+.podium-card.rank-3 {
+    border: 2px solid #ea580c;
+    background: #fff7ed;
+}
+.podium-card.stat-card {
+    border: 1.5px solid #64748b;
+    background: #ffffff;
+}
 
-  .podium-card.rank-1 {
-    border-color: rgba(245, 158, 11, 0.5);
-    background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 70%), var(--bg-surface);
-    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12);
-  }
-  .podium-card.rank-2 {
-    border-color: rgba(156, 163, 175, 0.4);
-    background: radial-gradient(circle at top right, rgba(156, 163, 175, 0.1), transparent 70%), var(--bg-surface);
-  }
-  .podium-card.rank-3 {
-    border-color: rgba(217, 119, 6, 0.4);
-    background: radial-gradient(circle at top right, rgba(217, 119, 6, 0.1), transparent 70%), var(--bg-surface);
-  }
-  .podium-card.stat-card {
-    border-color: var(--border-color);
-    background: radial-gradient(circle at top right, rgba(229, 37, 37, 0.08), transparent 70%), var(--bg-surface);
-  }
-
-  .podium-badge {
+.podium-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 11.5px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 4px 10px;
-    border-radius: 999px;
-    margin-bottom: 12px;
-  }
-  .podium-card.rank-1 .podium-badge {
-    background: rgba(245, 158, 11, 0.2);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.4);
-  }
-  .podium-card.rank-2 .podium-badge {
-    background: rgba(156, 163, 175, 0.2);
-    color: #e5e7eb;
-    border: 1px solid rgba(156, 163, 175, 0.4);
-  }
-  .podium-card.rank-3 .podium-badge {
-    background: rgba(217, 119, 6, 0.2);
-    color: #f59e0b;
-    border: 1px solid rgba(217, 119, 6, 0.4);
-  }
-
-  .podium-title {
-    font-family: 'Oswald', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 12px;
-    line-height: 1.2;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+.podium-card.rank-1 .podium-badge {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+}
+.podium-card.rank-2 .podium-badge {
+    background: #e2e8f0;
+    color: #1e293b;
+    border: 1px solid #94a3b8;
+}
+.podium-card.rank-3 .podium-badge {
+    background: #ffedd5;
+    color: #9a3412;
+    border: 1px solid #ea580c;
+}
+.podium-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #020617;
+    margin-bottom: 10px;
+    line-height: 1.25;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
+}
 
-  .medal-tally-pills {
+.medal-tally-pills {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
-  }
-
-  .medal-pill {
+}
+.medal-pill {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    font-family: 'JetBrains Mono', monospace;
+    gap: 4px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     padding: 3px 8px;
     border-radius: 6px;
-  }
-  .medal-pill.gold {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.35);
-  }
-  .medal-pill.silver {
-    background: rgba(156, 163, 175, 0.15);
-    color: #e5e7eb;
-    border: 1px solid rgba(156, 163, 175, 0.35);
-  }
-  .medal-pill.bronze {
-    background: rgba(217, 119, 6, 0.15);
-    color: #f59e0b;
-    border: 1px solid rgba(217, 119, 6, 0.35);
-  }
-  .medal-pill.total {
-    background: rgba(229, 37, 37, 0.15);
-    color: #fca5a5;
-    border: 1px solid rgba(229, 37, 37, 0.35);
-  }
+    line-height: 1;
+}
+.medal-pill.gold {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+}
+.medal-pill.silver {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #94a3b8;
+}
+.medal-pill.bronze {
+    background: #ffedd5;
+    color: #9a3412;
+    border: 1px solid #ea580c;
+}
+.medal-pill.total {
+    background: #020617;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
 
-  /* Navigation Tabs */
-  .summary-nav-tabs {
+/* Navigation Tabs */
+.summary-nav-tabs {
     display: flex;
     gap: 8px;
-    border-bottom: 1px solid var(--border-color);
     margin-bottom: 20px;
-    padding-bottom: 2px;
-    overflow-x: auto;
-  }
-  .summary-tab-btn {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text-secondary);
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 9px 18px;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    flex-wrap: wrap;
+}
+.summary-tab-btn {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.15s ease-in-out;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-  }
-  .summary-tab-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.03);
-  }
-  .summary-tab-btn.active {
-    color: #fff;
-    background-color: var(--bg-surface);
-    border-color: var(--border-color);
-    border-bottom-color: var(--bg-surface);
-    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.3);
-  }
-  .summary-tab-btn.active .tab-indicator {
-    background-color: var(--red-core);
-  }
-  .tab-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: transparent;
-    transition: var(--transition);
-  }
+}
+.summary-tab-btn:hover {
+    background: #f1f5f9;
+    color: #000000;
+    border-color: #0f172a;
+}
+.summary-tab-btn.active {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
 
-  /* Search & Controls */
-  .control-bar {
+/* Control Bar (Search Box) */
+.control-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 16px;
-  }
-  .search-box {
+}
+.search-box {
     position: relative;
     min-width: 260px;
-    max-width: 360px;
+    max-width: 380px;
     flex: 1;
-  }
-  .search-box i {
+}
+.search-box i {
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
+    color: #64748b;
     font-size: 13px;
-  }
-  .search-box input {
+}
+.search-box input {
     width: 100%;
-    background-color: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 8px 12px 8px 36px;
-    color: var(--text-primary);
-    font-size: 13px;
-    outline: none;
-    transition: var(--transition);
-  }
-  .search-box input:focus {
-    border-color: var(--red-core);
-    box-shadow: 0 0 0 2px var(--red-glow);
-  }
-
-  /* Standings Table */
-  .table-custom-dark {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    color: var(--text-primary);
-    margin-bottom: 0;
-  }
-  .table-custom-dark th {
-    background-color: var(--bg-surface-alt);
-    color: var(--text-secondary);
-    font-family: 'Oswald', sans-serif;
-    font-size: 13px;
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    border-radius: 8px;
+    padding: 8px 14px 8px 36px;
+    font-size: 13.5px;
+    color: #020617;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border-color);
-    border-top: none;
-    vertical-align: middle;
-  }
-  .table-custom-dark td {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--border-subtle);
-    vertical-align: middle;
-    background-color: var(--bg-surface);
-    transition: background-color 0.15s ease;
-  }
-  .table-custom-dark tr:hover td {
-    background-color: var(--bg-surface-elevated);
-  }
+    outline: none;
+    transition: all 0.15s ease-in-out;
+}
+.search-box input:focus {
+    border-color: #000000;
+    box-shadow: 0 0 0 2px rgba(2, 6, 23, 0.15);
+}
 
-  .rank-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+/* Table Card Container */
+.table-card {
+    background: #ffffff;
+    border: 1.5px solid #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+.table-custom {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+.table-custom thead th {
+    background: #f8fafc;
+    color: #020617;
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 14px;
+    border-bottom: 2px solid #000000;
+    vertical-align: middle;
+}
+.table-custom tbody tr {
+    border-bottom: 1px solid #cbd5e1;
+    transition: background 0.1s ease-in-out;
+}
+.table-custom tbody tr:hover {
+    background: #f8fafc;
+}
+.table-custom tbody td {
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: #020617;
+    vertical-align: middle;
+}
+
+/* Rank Badges */
+.rank-badge {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    font-family: 'Oswald', sans-serif;
-    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    border: 1.5px solid #cbd5e1;
+}
+.rank-badge.top-1 {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #b45309;
+}
+.rank-badge.top-2 {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #334155;
+}
+.rank-badge.top-3 {
+    background: #ffedd5;
+    border-color: #ea580c;
+    color: #c2410c;
+}
+.rank-badge.other {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.standings-name {
     font-weight: 700;
-  }
-  .rank-badge.top-1 {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #111;
-    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
-  }
-  .rank-badge.top-2 {
-    background: linear-gradient(135deg, #e5e7eb, #9ca3af);
-    color: #111;
-    box-shadow: 0 2px 10px rgba(156, 163, 175, 0.3);
-  }
-  .rank-badge.top-3 {
-    background: linear-gradient(135deg, #f97316, #c2410c);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);
-  }
-  .rank-badge.other {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-  }
-
-  .standings-name {
-    font-weight: 600;
-    font-size: 14.5px;
-    color: #fff;
-  }
-
-  .medal-count {
-    font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
-    font-weight: 700;
+    color: #020617;
+}
+
+.medal-count {
+    font-size: 13.5px;
+    font-weight: 800;
     text-align: center;
-  }
-  .medal-count.gold { color: #fbbf24; }
-  .medal-count.silver { color: #e5e7eb; }
-  .medal-count.bronze { color: #f59e0b; }
-  .medal-count.total {
-    color: #fff;
-    font-size: 15px;
-  }
+}
+.medal-count.gold { color: #b45309; }
+.medal-count.silver { color: #334155; }
+.medal-count.bronze { color: #c2410c; }
+.medal-count.total {
+    color: #020617;
+    font-size: 14px;
+}
 
-  .btn-detail-athletes {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    transition: var(--transition);
-  }
-  .btn-detail-athletes:hover {
-    background: var(--red-tint);
-    border-color: var(--red-tint-border);
-    color: var(--red-hover);
-  }
-
-  /* Expandable detail row */
-  .detail-row {
+/* Expandable detail row */
+.detail-row {
     display: none;
-  }
-  .detail-row.show {
+    background: #f8fafc;
+    border-bottom: 1.5px solid #cbd5e1;
+}
+.detail-row.show {
     display: table-row;
-  }
-  .detail-box {
+}
+.detail-box {
     padding: 16px 20px;
-    background: var(--bg-surface-alt);
-    border-radius: var(--radius-md);
-    margin: 8px 0;
-    border-left: 3px solid var(--red-core);
-  }
-  .winner-mini-chip {
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #000000;
+}
+.winner-mini-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
     border-radius: 6px;
     padding: 6px 12px;
     margin: 4px;
     font-size: 12.5px;
-  }
+    color: #020617;
+}
 
-  /* Print Stylesheet */
-  @media print {
+.btn-detail-athletes {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    color: #020617;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+.btn-detail-athletes:hover {
+    background: #f1f5f9;
+    border-color: #0f172a;
+}
+.btn-detail-athletes.active {
+    background: #000000;
+    border-color: #000000;
+    color: #ffffff;
+}
+
+/* Print Stylesheet */
+@media print {
     body {
-      background: #ffffff !important;
-      color: #000000 !important;
-      background-image: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
     }
-    .sidebar, .main-header, .btn-print-hide, .search-box, .summary-nav-tabs, .footer {
-      display: none !important;
+    .sidebar, .main-header, .btn-print-hide, .search-box, .summary-nav-tabs, .footer, .btn-detail-athletes {
+        display: none !important;
     }
-    .main-panel {
-      padding: 0 !important;
-      margin: 0 !important;
-      width: 100% !important;
+    .container, .container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
     }
-    .summary-header-card, .podium-card, .card {
-      border: 1px solid #ddd !important;
-      background: #fff !important;
-      color: #000 !important;
-      box-shadow: none !important;
-    }
-    .table-custom-dark {
-      color: #000 !important;
-    }
-    .table-custom-dark th {
-      background: #f0f0f0 !important;
-      color: #000 !important;
-      border-color: #ccc !important;
-    }
-    .table-custom-dark td {
-      background: #fff !important;
-      color: #000 !important;
-      border-color: #ddd !important;
-    }
-    .standings-name {
-      color: #000 !important;
+    .podium-card, .table-card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
     }
     .print-only-header {
-      display: block !important;
-      margin-bottom: 20px;
-      text-align: center;
-      border-bottom: 2px solid #000;
-      padding-bottom: 12px;
+        display: block !important;
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 12px;
     }
-  }
-  .print-only-header {
+    .detail-row.show {
+        display: table-row !important;
+    }
+}
+.print-only-header {
     display: none;
-  }
+}
 </style>
 {% endblock style %}
 
 {% block content %}
-<div class="container-fluid px-4 py-4">
-  <!-- Print Letterhead (visible only when printing) -->
-  <div class="print-only-header">
-    <h2 style="font-family: 'Oswald', sans-serif; font-weight: 700; margin-bottom: 4px;">KLASEMEN PEROLEHAN MEDALI & SUMMARY JUARA</h2>
-    <h4 style="margin-bottom: 4px;">{{ event.nama_event }}</h4>
-    <p style="font-size: 12px; color: #555;">Dicetak pada: <span id="printDate"></span></p>
-  </div>
-
-  <!-- Header Banner -->
-  <div class="summary-header-card">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-      <div>
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <span class="badge bg-danger" style="font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;">Official Standings</span>
-          <span class="text-secondary" style="font-size: 13px;">Event: {{ event.nama_event }}</span>
-        </div>
-        <h2 class="fw-bold mb-1" style="font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; color: #fff;">
-          SUMMARY JUARA & KLASEMEN MEDALI
-        </h2>
-        <p class="text-secondary mb-0" style="font-size: 13.5px;">
-          Peringkat resmi perolehan medali Emas, Perak, dan Perunggu untuk seluruh Kontingen dan Perguruan.
-        </p>
-      </div>
-
-      <div class="d-flex align-items-center gap-2 btn-print-hide">
-        <a href="{% url 'summary-booklet' event_pk=event.pk %}" target="_blank" class="btn btn-warning btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); font-weight: 700; color: #111; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
-          <i class="fas fa-book-open"></i> Buku Hasil Pertandingan (Booklet PDF)
-        </a>
-        <button onclick="window.print()" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); font-weight: 600;">
-          <i class="fas fa-print"></i> Cetak Halaman
-        </button>
-        <button onclick="window.location.reload()" class="btn btn-dark btn-sm d-flex align-items-center gap-2 px-3 py-2" style="border-radius: var(--radius-md); border: 1px solid var(--border-color); font-weight: 600;">
-          <i class="fas fa-sync-alt"></i> Refresh
-        </button>
-      </div>
-    </div>
-  </div>
-
-  {% if uncontested_bagan_count > 0 %}
-  <!-- Info Banner: Bagan Tanpa Lawan -->
-  <div class="alert alert-dark d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 py-2 px-3 btn-print-hide" style="border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); border-radius: var(--radius-md); font-size: 13px; color: #fde68a;">
-    <div class="d-flex align-items-center gap-2">
-      <i class="fas fa-info-circle text-warning fs-5"></i>
-      <span>
-        Terdapat <strong>{{ uncontested_bagan_count }} kategori bagan tanpa lawan</strong> (hanya 1 peserta). Medali emas pada bagan tersebut tidak dimasukkan ke dalam perhitungan klasemen <strong>Juara Umum</strong>.
-      </span>
-    </div>
-    <span class="badge" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 11px;">
-      {{ uncontested_bagan_count }} Kategori Tunggal
-    </span>
-  </div>
-  {% endif %}
-
-  <!-- Podium & KPI Grid -->
-  <div class="podium-grid">
-    <!-- Juara Umum 1 -->
-    <div class="podium-card rank-1">
-      <div class="podium-badge">
-        <i class="fas fa-trophy text-warning"></i> Juara Umum 1
-      </div>
-      {% if top_3_utusan.0 %}
-      <div class="podium-title" title="{{ top_3_utusan.0.nama }}">{{ top_3_utusan.0.nama }}</div>
-      <div class="medal-tally-pills">
-        <span class="medal-pill gold">🥇 {{ top_3_utusan.0.gold }}</span>
-        <span class="medal-pill silver">🥈 {{ top_3_utusan.0.silver }}</span>
-        <span class="medal-pill bronze">🥉 {{ top_3_utusan.0.bronze }}</span>
-        <span class="medal-pill total">Total {{ top_3_utusan.0.total }}</span>
-      </div>
-      {% else %}
-      <div class="podium-title text-muted">- Belum Ada Juara -</div>
-      <div class="text-secondary" style="font-size: 12px;">Pertandingan belum selesai</div>
-      {% endif %}
-    </div>
-
-    <!-- Juara Umum 2 -->
-    <div class="podium-card rank-2">
-      <div class="podium-badge">
-        <i class="fas fa-medal text-light"></i> Juara Umum 2
-      </div>
-      {% if top_3_utusan.1 %}
-      <div class="podium-title" title="{{ top_3_utusan.1.nama }}">{{ top_3_utusan.1.nama }}</div>
-      <div class="medal-tally-pills">
-        <span class="medal-pill gold">🥇 {{ top_3_utusan.1.gold }}</span>
-        <span class="medal-pill silver">🥈 {{ top_3_utusan.1.silver }}</span>
-        <span class="medal-pill bronze">🥉 {{ top_3_utusan.1.bronze }}</span>
-        <span class="medal-pill total">Total {{ top_3_utusan.1.total }}</span>
-      </div>
-      {% else %}
-      <div class="podium-title text-muted">- Belum Ada Juara -</div>
-      <div class="text-secondary" style="font-size: 12px;">Pertandingan belum selesai</div>
-      {% endif %}
-    </div>
-
-    <!-- Juara Umum 3 -->
-    <div class="podium-card rank-3">
-      <div class="podium-badge">
-        <i class="fas fa-award" style="color: #f59e0b;"></i> Juara Umum 3
-      </div>
-      {% if top_3_utusan.2 %}
-      <div class="podium-title" title="{{ top_3_utusan.2.nama }}">{{ top_3_utusan.2.nama }}</div>
-      <div class="medal-tally-pills">
-        <span class="medal-pill gold">🥇 {{ top_3_utusan.2.gold }}</span>
-        <span class="medal-pill silver">🥈 {{ top_3_utusan.2.silver }}</span>
-        <span class="medal-pill bronze">🥉 {{ top_3_utusan.2.bronze }}</span>
-        <span class="medal-pill total">Total {{ top_3_utusan.2.total }}</span>
-      </div>
-      {% else %}
-      <div class="podium-title text-muted">- Belum Ada Juara -</div>
-      <div class="text-secondary" style="font-size: 12px;">Pertandingan belum selesai</div>
-      {% endif %}
-    </div>
-
-    <!-- Tournament Progress Stat -->
-    <div class="podium-card stat-card">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="text-secondary" style="font-size: 13px; font-weight: 600; text-transform: uppercase;">Progres Turnamen</span>
-        <span class="badge bg-danger" style="font-size: 11px;">{{ finished_bagan }} / {{ total_bagan }} Selesai</span>
-      </div>
-      <div class="d-flex align-items-baseline gap-2 mb-2">
-        <span style="font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: #fff;">{{ total_medals }}</span>
-        <span class="text-secondary" style="font-size: 13px;">Total Medali Diberikan</span>
-      </div>
-      <div class="medal-tally-pills">
-        <span class="medal-pill gold">🥇 {{ total_gold }} Emas</span>
-        <span class="medal-pill silver">🥈 {{ total_silver }} Perak</span>
-        <span class="medal-pill bronze">🥉 {{ total_bronze }} Perunggu</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Navigation Tabs -->
-  <div class="summary-nav-tabs btn-print-hide">
-    <button type="button" class="summary-tab-btn active" onclick="switchTab('tab-utusan', this)">
-      <span class="tab-indicator"></span>
-      <i class="fas fa-flag"></i> Klasemen Kontingen (Utusan)
-    </button>
-    <button type="button" class="summary-tab-btn" onclick="switchTab('tab-perguruan', this)">
-      <span class="tab-indicator"></span>
-      <i class="fas fa-fist-raised"></i> Klasemen Perguruan
-    </button>
-    <button type="button" class="summary-tab-btn" onclick="switchTab('tab-all-winners', this)">
-      <span class="tab-indicator"></span>
-      <i class="fas fa-list-ol"></i> Daftar Semua Juara ({{ all_winners|length }})
-    </button>
-  </div>
-
-  <!-- ==================== TAB 1: KLASEMEN KONTINGEN ==================== -->
-  <div id="tab-utusan" class="tab-pane-content">
-    <div class="card" style="background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden;">
-      <div class="card-body p-3 p-md-4">
-        <div class="control-bar">
-          <div>
-            <h5 class="fw-bold mb-1" style="font-family: 'Oswald', sans-serif; color: #fff;">
-              PEROLEHAN MEDALI KONTINGEN (UTUSAN)
-            </h5>
-            <small class="text-secondary">Peringkat diurutkan berdasarkan Emas, Perak, Perunggu, dan Nama Kontingen.</small>
-          </div>
-          <div class="search-box btn-print-hide">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchUtusan" placeholder="Cari Kontingen..." onkeyup="filterTable('tableUtusan', this.value)">
-          </div>
+<div class="container">
+    <div class="page-inner">
+        <!-- Print Letterhead (visible only when printing) -->
+        <div class="print-only-header">
+            <h2 style="font-weight: 800; margin-bottom: 4px;">KLASEMEN PEROLEHAN MEDALI & SUMMARY JUARA</h2>
+            <h4 style="margin-bottom: 4px;">{{ event.nama_event }}</h4>
+            <p style="font-size: 12px; color: #555;">Dicetak pada: <span id="printDate"></span></p>
         </div>
 
-        <div class="table-responsive">
-          <table class="table-custom-dark" id="tableUtusan">
-            <thead>
-              <tr>
-                <th style="width: 70px; text-align: center;">Rank</th>
-                <th>Nama Kontingen / Utusan</th>
-                <th style="width: 90px; text-align: center;">🥇 Emas</th>
-                <th style="width: 90px; text-align: center;">🥈 Perak</th>
-                <th style="width: 90px; text-align: center;">🥉 Perunggu</th>
-                <th style="width: 100px; text-align: center;">Total Medali</th>
-                <th class="btn-print-hide" style="width: 160px; text-align: center;">Rincian</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for u in utusan_standings %}
-              <tr class="standings-row" data-target="detail-u-{{ u.pk }}">
-                <td style="text-align: center;">
-                  {% if u.rank == 1 and u.total > 0 %}
-                  <span class="rank-badge top-1">1</span>
-                  {% elif u.rank == 2 and u.total > 0 %}
-                  <span class="rank-badge top-2">2</span>
-                  {% elif u.rank == 3 and u.total > 0 %}
-                  <span class="rank-badge top-3">3</span>
-                  {% else %}
-                  <span class="rank-badge other">{{ u.rank }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <div class="standings-name">{{ u.nama }}</div>
-                  {% if u.total > 0 %}
-                  <small class="text-secondary">{{ u.winners|length }} Atlet Juara</small>
-                  {% endif %}
-                  {% if u.uncontested_winners %}
-                  <small class="text-warning ms-1" style="font-size: 11px;" title="Kategori tanpa lawan tidak dihitung ke Juara Umum">({{ u.uncontested_winners|length }} Tanpa Lawan)</small>
-                  {% endif %}
-                </td>
-                <td class="medal-count gold">{{ u.gold }}</td>
-                <td class="medal-count silver">{{ u.silver }}</td>
-                <td class="medal-count bronze">{{ u.bronze }}</td>
-                <td class="medal-count total">
-                  <span class="badge" style="background: rgba(255,255,255,0.08); font-size: 13px; font-weight: 700;">{{ u.total }}</span>
-                </td>
-                <td class="btn-print-hide" style="text-align: center;">
-                  {% if u.winners or u.uncontested_winners %}
-                  <button type="button" class="btn-detail-athletes" onclick="toggleDetail('detail-u-{{ u.pk }}', this)">
-                    <i class="fas fa-chevron-down"></i> Lihat Atlet ({{ u.winners|length|add:u.uncontested_winners|length }})
-                  </button>
-                  {% else %}
-                  <span class="text-muted" style="font-size: 12px;">-</span>
-                  {% endif %}
-                </td>
-              </tr>
-              <!-- Expandable Winner List Row -->
-              {% if u.winners or u.uncontested_winners %}
-              <tr id="detail-u-{{ u.pk }}" class="detail-row">
-                <td colspan="7">
-                  <div class="detail-box">
-                    {% if u.winners %}
-                    <div class="fw-bold mb-2 text-secondary" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                      <i class="fas fa-trophy text-warning"></i> Daftar Atlet Peraih Medali Juara Umum — {{ u.nama }}
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                      {% for w in u.winners %}
-                      <div class="winner-mini-chip">
-                        <span>{{ w.medal_icon }}</span>
-                        <strong>{{ w.atlet_nama }}</strong>
-                        <span class="text-muted">• {{ w.perguruan_nama }}</span>
-                        <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-dark text-info ms-1" style="border: 1px solid var(--border-color);" title="Buka Bagan">
-                          {{ w.bagan_nama }}
-                        </a>
-                      </div>
-                      {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    {% if u.uncontested_winners %}
-                    <div class="fw-bold {% if u.winners %}mt-3{% endif %} mb-2 text-warning" style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;">
-                      <i class="fas fa-shield-alt text-warning me-1"></i> Atlet Juara Kategori Tanpa Lawan (Tidak Dihitung Juara Umum)
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                      {% for w in u.uncontested_winners %}
-                      <div class="winner-mini-chip" style="opacity: 0.9; border-color: rgba(245, 158, 11, 0.35);">
-                        <span>🥇</span>
-                        <strong>{{ w.atlet_nama }}</strong>
-                        <span class="badge bg-warning text-dark ms-1" style="font-size: 10px;">Tanpa Lawan</span>
-                        <span class="text-muted">• {{ w.perguruan_nama }}</span>
-                        <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-dark text-info ms-1" style="border: 1px solid var(--border-color);" title="Buka Bagan">
-                          {{ w.bagan_nama }}
-                        </a>
-                      </div>
-                      {% endfor %}
-                    </div>
-                    {% endif %}
-                  </div>
-                </td>
-              </tr>
-              {% endif %}
-              {% empty %}
-              <tr>
-                <td colspan="7" class="text-center py-4 text-muted">Belum ada data kontingen / utusan terdaftar.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <!-- Page Header -->
+        <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: #64748b; font-weight: 600; text-decoration: none;">Dashboard</a></li>
+                    <li><span style="color: #94a3b8; font-weight: 700;">/</span></li>
+                    <li><span style="color: #64748b; font-weight: 600;">Rekapan & Event</span></li>
+                    <li><span style="color: #94a3b8; font-weight: 700;">/</span></li>
+                    <li style="color: #020617; font-weight: 700;">Summary Juara</li>
+                </ul>
+                <h3 class="fw-bold mb-1">
+                    SUMMARY JUARA & KLASEMEN MEDALI
+                </h3>
+                <p class="mb-0" style="font-size: 13.5px; color: #334155; font-weight: 500;">
+                    Peringkat resmi perolehan medali Emas, Perak, dan Perunggu untuk seluruh Kontingen dan Perguruan pada {{ event.nama_event }}.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap btn-print-hide">
+                <a href="{% url 'summary-booklet' event_pk=event.pk %}" target="_blank" class="btn btn-head-primary">
+                    <i class="fas fa-book-open"></i>
+                    <span>Buku Hasil (Booklet PDF)</span>
+                </a>
+                <button type="button" onclick="window.print()" class="btn btn-head-secondary">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak Halaman</span>
+                </button>
+                <button type="button" onclick="window.location.reload()" class="btn btn-head-secondary">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
         </div>
-      </div>
+
+        {% if uncontested_bagan_count > 0 %}
+        <!-- Info Banner: Bagan Tanpa Lawan -->
+        <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 py-2 px-3 btn-print-hide" style="border: 1.5px solid #d97706; background: #fffbeb; border-radius: 8px; font-size: 13px; color: #92400e;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-info-circle text-warning fs-5"></i>
+                <span>
+                    Terdapat <strong>{{ uncontested_bagan_count }} kategori bagan tanpa lawan</strong> (hanya 1 peserta). Medali emas pada bagan tersebut tidak dimasukkan ke dalam perhitungan klasemen <strong>Juara Umum</strong>.
+                </span>
+            </div>
+            <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; font-size: 11px; font-weight: 700;">
+                {{ uncontested_bagan_count }} Kategori Tunggal
+            </span>
+        </div>
+        {% endif %}
+
+        <!-- Podium & Progress Grid -->
+        <div class="podium-grid">
+            <!-- Juara Umum 1 -->
+            <div class="podium-card rank-1">
+                <div class="podium-badge">
+                    <i class="fas fa-trophy text-warning"></i> Juara Umum 1
+                </div>
+                {% if top_3_utusan.0 %}
+                <div class="podium-title" title="{{ top_3_utusan.0.nama }}">{{ top_3_utusan.0.nama }}</div>
+                <div class="medal-tally-pills">
+                    <span class="medal-pill gold">🥇 {{ top_3_utusan.0.gold }}</span>
+                    <span class="medal-pill silver">🥈 {{ top_3_utusan.0.silver }}</span>
+                    <span class="medal-pill bronze">🥉 {{ top_3_utusan.0.bronze }}</span>
+                    <span class="medal-pill total">Total {{ top_3_utusan.0.total }}</span>
+                </div>
+                {% else %}
+                <div class="podium-title text-muted">- Belum Ada Juara -</div>
+                <div class="text-muted" style="font-size: 12px;">Pertandingan belum selesai</div>
+                {% endif %}
+            </div>
+
+            <!-- Juara Umum 2 -->
+            <div class="podium-card rank-2">
+                <div class="podium-badge">
+                    <i class="fas fa-medal text-secondary"></i> Juara Umum 2
+                </div>
+                {% if top_3_utusan.1 %}
+                <div class="podium-title" title="{{ top_3_utusan.1.nama }}">{{ top_3_utusan.1.nama }}</div>
+                <div class="medal-tally-pills">
+                    <span class="medal-pill gold">🥇 {{ top_3_utusan.1.gold }}</span>
+                    <span class="medal-pill silver">🥈 {{ top_3_utusan.1.silver }}</span>
+                    <span class="medal-pill bronze">🥉 {{ top_3_utusan.1.bronze }}</span>
+                    <span class="medal-pill total">Total {{ top_3_utusan.1.total }}</span>
+                </div>
+                {% else %}
+                <div class="podium-title text-muted">- Belum Ada Juara -</div>
+                <div class="text-muted" style="font-size: 12px;">Pertandingan belum selesai</div>
+                {% endif %}
+            </div>
+
+            <!-- Juara Umum 3 -->
+            <div class="podium-card rank-3">
+                <div class="podium-badge">
+                    <i class="fas fa-award text-danger"></i> Juara Umum 3
+                </div>
+                {% if top_3_utusan.2 %}
+                <div class="podium-title" title="{{ top_3_utusan.2.nama }}">{{ top_3_utusan.2.nama }}</div>
+                <div class="medal-tally-pills">
+                    <span class="medal-pill gold">🥇 {{ top_3_utusan.2.gold }}</span>
+                    <span class="medal-pill silver">🥈 {{ top_3_utusan.2.silver }}</span>
+                    <span class="medal-pill bronze">🥉 {{ top_3_utusan.2.bronze }}</span>
+                    <span class="medal-pill total">Total {{ top_3_utusan.2.total }}</span>
+                </div>
+                {% else %}
+                <div class="podium-title text-muted">- Belum Ada Juara -</div>
+                <div class="text-muted" style="font-size: 12px;">Pertandingan belum selesai</div>
+                {% endif %}
+            </div>
+
+            <!-- Progress Card -->
+            <div class="podium-card stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted fw-bold" style="font-size: 12px; text-transform: uppercase;">Progres Turnamen</span>
+                    <span class="badge" style="background: #f1f5f9; color: #020617; border: 1px solid #cbd5e1; font-weight: 700; font-size: 11px;">
+                        {{ finished_bagan }} / {{ total_bagan }} Bagan
+                    </span>
+                </div>
+                <div class="d-flex align-items-baseline gap-2 mb-2">
+                    <span style="font-size: 26px; font-weight: 800; color: #020617;">{{ total_medals }}</span>
+                    <span class="text-muted" style="font-size: 12.5px; font-weight: 600;">Total Medali Diberikan</span>
+                </div>
+                <div class="medal-tally-pills">
+                    <span class="medal-pill gold">🥇 {{ total_gold }} E</span>
+                    <span class="medal-pill silver">🥈 {{ total_silver }} P</span>
+                    <span class="medal-pill bronze">🥉 {{ total_bronze }} B</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="summary-nav-tabs btn-print-hide">
+            <button type="button" class="summary-tab-btn active" onclick="switchTab('tab-utusan', this)">
+                <i class="fas fa-flag"></i> Klasemen Kontingen (Utusan)
+            </button>
+            <button type="button" class="summary-tab-btn" onclick="switchTab('tab-perguruan', this)">
+                <i class="fas fa-shield-alt"></i> Klasemen Perguruan
+            </button>
+            <button type="button" class="summary-tab-btn" onclick="switchTab('tab-all-winners', this)">
+                <i class="fas fa-list-ol"></i> Daftar Semua Juara ({{ all_winners|length }})
+            </button>
+        </div>
+
+        <!-- ==================== TAB 1: KLASEMEN KONTINGEN ==================== -->
+        <div id="tab-utusan" class="tab-pane-content">
+            <div class="table-card">
+                <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #ffffff;">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #020617; font-size: 15px;">
+                            PEROLEHAN MEDALI KONTINGEN (UTUSAN)
+                        </h5>
+                        <small class="text-muted">Peringkat diurutkan berdasarkan Emas, Perak, Perunggu, dan Nama Kontingen.</small>
+                    </div>
+                    <div class="search-box btn-print-hide">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUtusan" placeholder="Cari Kontingen..." onkeyup="filterTable('tableUtusan', this.value)">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-custom" id="tableUtusan">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px; text-align: center;">Rank</th>
+                                <th>Nama Kontingen / Utusan</th>
+                                <th style="width: 80px; text-align: center;">Emas 🥇</th>
+                                <th style="width: 80px; text-align: center;">Perak 🥈</th>
+                                <th style="width: 80px; text-align: center;">Perunggu 🥉</th>
+                                <th style="width: 90px; text-align: center;">Total</th>
+                                <th class="btn-print-hide" style="width: 150px; text-align: center;">Rincian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in utusan_standings %}
+                            <tr class="standings-row" data-target="detail-u-{{ u.pk }}">
+                                <td style="text-align: center;">
+                                    <span class="rank-badge {% if u.rank == 1 and u.total > 0 %}top-1{% elif u.rank == 2 and u.total > 0 %}top-2{% elif u.rank == 3 and u.total > 0 %}top-3{% else %}other{% endif %}">
+                                        {{ u.rank }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="standings-name">{{ u.nama }}</div>
+                                    {% if u.total > 0 %}
+                                    <small class="text-muted" style="font-weight: 500;">{{ u.winners|length }} Atlet Juara</small>
+                                    {% endif %}
+                                    {% if u.uncontested_winners %}
+                                    <small class="text-warning ms-1 fw-bold" style="font-size: 11px;" title="Kategori tanpa lawan tidak dihitung ke Juara Umum">({{ u.uncontested_winners|length }} Tanpa Lawan)</small>
+                                    {% endif %}
+                                </td>
+                                <td class="medal-count gold">{{ u.gold }}</td>
+                                <td class="medal-count silver">{{ u.silver }}</td>
+                                <td class="medal-count bronze">{{ u.bronze }}</td>
+                                <td class="medal-count total">
+                                    <span class="badge" style="background: #020617; color: #ffffff; font-size: 13px; font-weight: 700; padding: 4px 8px; border-radius: 6px;">{{ u.total }}</span>
+                                </td>
+                                <td class="btn-print-hide" style="text-align: center;">
+                                    {% if u.winners or u.uncontested_winners %}
+                                    <button type="button" class="btn-detail-athletes" onclick="toggleDetail('detail-u-{{ u.pk }}', this)">
+                                        <i class="fas fa-chevron-down"></i>
+                                        <span>Lihat Atlet ({{ u.winners|length|add:u.uncontested_winners|length }})</span>
+                                    </button>
+                                    {% else %}
+                                    <span class="text-muted" style="font-size: 12px; font-weight: 600;">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if u.winners or u.uncontested_winners %}
+                            <tr id="detail-u-{{ u.pk }}" class="detail-row">
+                                <td colspan="7" class="p-0">
+                                    <div class="detail-box m-3">
+                                        {% if u.winners %}
+                                        <div class="fw-bold mb-2" style="font-size: 12.5px; color: #020617;">
+                                            <i class="fas fa-trophy text-warning me-1"></i> Daftar Atlet Peraih Medali — {{ u.nama }}
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for w in u.winners %}
+                                            <div class="winner-mini-chip">
+                                                <span>{{ w.medal_icon }}</span>
+                                                <strong>{{ w.atlet_nama }}</strong>
+                                                <span class="text-muted">&bull; {{ w.perguruan_nama }}</span>
+                                                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-light text-dark ms-1" style="border: 1px solid #cbd5e1; text-decoration: none;" title="Buka Bagan">
+                                                    {{ w.bagan_nama }}
+                                                </a>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+
+                                        {% if u.uncontested_winners %}
+                                        <div class="fw-bold {% if u.winners %}mt-3{% endif %} mb-2 text-warning" style="font-size: 12px;">
+                                            <i class="fas fa-shield-alt text-warning me-1"></i> Atlet Juara Kategori Tanpa Lawan (Tidak Dihitung Juara Umum)
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for w in u.uncontested_winners %}
+                                            <div class="winner-mini-chip" style="border-color: #f59e0b;">
+                                                <span>🥇</span>
+                                                <strong>{{ w.atlet_nama }}</strong>
+                                                <span class="badge" style="background: #fef3c7; color: #92400e; font-size: 10px;">Tanpa Lawan</span>
+                                                <span class="text-muted">&bull; {{ w.perguruan_nama }}</span>
+                                                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-light text-dark ms-1" style="border: 1px solid #cbd5e1; text-decoration: none;" title="Buka Bagan">
+                                                    {{ w.bagan_nama }}
+                                                </a>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">Belum ada data kontingen / utusan terdaftar.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: KLASEMEN PERGURUAN ==================== -->
+        <div id="tab-perguruan" class="tab-pane-content" style="display: none;">
+            <div class="table-card">
+                <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #ffffff;">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #020617; font-size: 15px;">
+                            PEROLEHAN MEDALI PERGURUAN
+                        </h5>
+                        <small class="text-muted">Peringkat diurutkan berdasarkan Emas, Perak, Perunggu, dan Nama Perguruan.</small>
+                    </div>
+                    <div class="search-box btn-print-hide">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchPerguruan" placeholder="Cari Perguruan..." onkeyup="filterTable('tablePerguruan', this.value)">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-custom" id="tablePerguruan">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px; text-align: center;">Rank</th>
+                                <th>Nama Perguruan</th>
+                                <th style="width: 80px; text-align: center;">Emas 🥇</th>
+                                <th style="width: 80px; text-align: center;">Perak 🥈</th>
+                                <th style="width: 80px; text-align: center;">Perunggu 🥉</th>
+                                <th style="width: 90px; text-align: center;">Total</th>
+                                <th class="btn-print-hide" style="width: 150px; text-align: center;">Rincian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in perguruan_standings %}
+                            <tr class="standings-row" data-target="detail-p-{{ p.pk }}">
+                                <td style="text-align: center;">
+                                    <span class="rank-badge {% if p.rank == 1 and p.total > 0 %}top-1{% elif p.rank == 2 and p.total > 0 %}top-2{% elif p.rank == 3 and p.total > 0 %}top-3{% else %}other{% endif %}">
+                                        {{ p.rank }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="standings-name">{{ p.nama }}</div>
+                                    {% if p.total > 0 %}
+                                    <small class="text-muted" style="font-weight: 500;">{{ p.winners|length }} Atlet Juara</small>
+                                    {% endif %}
+                                    {% if p.uncontested_winners %}
+                                    <small class="text-warning ms-1 fw-bold" style="font-size: 11px;" title="Kategori tanpa lawan tidak dihitung ke Juara Umum">({{ p.uncontested_winners|length }} Tanpa Lawan)</small>
+                                    {% endif %}
+                                </td>
+                                <td class="medal-count gold">{{ p.gold }}</td>
+                                <td class="medal-count silver">{{ p.silver }}</td>
+                                <td class="medal-count bronze">{{ p.bronze }}</td>
+                                <td class="medal-count total">
+                                    <span class="badge" style="background: #020617; color: #ffffff; font-size: 13px; font-weight: 700; padding: 4px 8px; border-radius: 6px;">{{ p.total }}</span>
+                                </td>
+                                <td class="btn-print-hide" style="text-align: center;">
+                                    {% if p.winners or p.uncontested_winners %}
+                                    <button type="button" class="btn-detail-athletes" onclick="toggleDetail('detail-p-{{ p.pk }}', this)">
+                                        <i class="fas fa-chevron-down"></i>
+                                        <span>Lihat Atlet ({{ p.winners|length|add:p.uncontested_winners|length }})</span>
+                                    </button>
+                                    {% else %}
+                                    <span class="text-muted" style="font-size: 12px; font-weight: 600;">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if p.winners or p.uncontested_winners %}
+                            <tr id="detail-p-{{ p.pk }}" class="detail-row">
+                                <td colspan="7" class="p-0">
+                                    <div class="detail-box m-3">
+                                        {% if p.winners %}
+                                        <div class="fw-bold mb-2" style="font-size: 12.5px; color: #020617;">
+                                            <i class="fas fa-trophy text-warning me-1"></i> Daftar Atlet Peraih Medali — {{ p.nama }}
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for w in p.winners %}
+                                            <div class="winner-mini-chip">
+                                                <span>{{ w.medal_icon }}</span>
+                                                <strong>{{ w.atlet_nama }}</strong>
+                                                <span class="text-muted">&bull; Kontingen: {{ w.utusan_nama }}</span>
+                                                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-light text-dark ms-1" style="border: 1px solid #cbd5e1; text-decoration: none;" title="Buka Bagan">
+                                                    {{ w.bagan_nama }}
+                                                </a>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+
+                                        {% if p.uncontested_winners %}
+                                        <div class="fw-bold {% if p.winners %}mt-3{% endif %} mb-2 text-warning" style="font-size: 12px;">
+                                            <i class="fas fa-shield-alt text-warning me-1"></i> Atlet Juara Kategori Tanpa Lawan (Tidak Dihitung Juara Umum)
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for w in p.uncontested_winners %}
+                                            <div class="winner-mini-chip" style="border-color: #f59e0b;">
+                                                <span>🥇</span>
+                                                <strong>{{ w.atlet_nama }}</strong>
+                                                <span class="badge" style="background: #fef3c7; color: #92400e; font-size: 10px;">Tanpa Lawan</span>
+                                                <span class="text-muted">&bull; Kontingen: {{ w.utusan_nama }}</span>
+                                                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-light text-dark ms-1" style="border: 1px solid #cbd5e1; text-decoration: none;" title="Buka Bagan">
+                                                    {{ w.bagan_nama }}
+                                                </a>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">Belum ada data perguruan terdaftar.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: DAFTAR SEMUA ATLET JUARA ==================== -->
+        <div id="tab-all-winners" class="tab-pane-content" style="display: none;">
+            <div class="table-card">
+                <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #ffffff;">
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color: #020617; font-size: 15px;">
+                            MASTER DAFTAR PERAIH JUARA
+                        </h5>
+                        <small class="text-muted">Rincian seluruh pemenang dari setiap kategori bagan yang telah selesai.</small>
+                    </div>
+                    <div class="search-box btn-print-hide">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchAllWinners" placeholder="Cari Atlet, Kelas, Kontingen..." onkeyup="filterTable('tableAllWinners', this.value)">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-custom" id="tableAllWinners">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px; text-align: center;">No</th>
+                                <th style="width: 140px; text-align: center;">Peringkat</th>
+                                <th>Nama Atlet</th>
+                                <th>Kontingen / Utusan</th>
+                                <th>Perguruan</th>
+                                <th>Kategori / Kelas Tanding</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for w in all_winners %}
+                            <tr class="standings-row">
+                                <td style="text-align: center; color: #64748b; font-size: 13px; font-weight: 600;">{{ forloop.counter }}</td>
+                                <td style="text-align: center;">
+                                    {% if w.juara == '1' %}
+                                    <span class="badge" style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; font-size: 12px; font-weight: 700; padding: 4px 8px;">🥇 Juara 1</span>
+                                    {% if w.tanpa_lawan %}
+                                    <div class="mt-1">
+                                        <span class="badge" style="background: #f1f5f9; color: #475569; font-size: 10px; font-weight: normal;" title="Kategori tanpa lawan, tidak dihitung Juara Umum">Tanpa Lawan</span>
+                                    </div>
+                                    {% endif %}
+                                    {% elif w.juara == '2' %}
+                                    <span class="badge" style="background: #f1f5f9; color: #334155; border: 1px solid #94a3b8; font-size: 12px; font-weight: 700; padding: 4px 8px;">🥈 Juara 2</span>
+                                    {% elif w.juara == '3a' or w.juara == '3b' %}
+                                    <span class="badge" style="background: #ffedd5; color: #9a3412; border: 1px solid #ea580c; font-size: 12px; font-weight: 700; padding: 4px 8px;">🥉 Juara 3</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary" style="font-size: 11px;">🎖️ {{ w.juara_label }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong style="color: #020617; font-size: 14px;">{{ w.atlet_nama }}</strong>
+                                </td>
+                                <td>{{ w.utusan_nama }}</td>
+                                <td>{{ w.perguruan_nama }}</td>
+                                <td>
+                                    <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" style="color: #020617; font-weight: 600; text-decoration: none;">
+                                        <i class="fas fa-external-link-alt text-muted me-1" style="font-size: 10px;"></i>{{ w.bagan_nama }}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">Belum ada bagan yang menyelesaikan pertandingan.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature section (print only) -->
+        <div class="print-only-header mt-5 pt-4">
+            <div style="display: flex; justify-content: space-between; text-align: center; margin-top: 40px;">
+                <div style="width: 220px;">
+                    <p style="font-size: 13px; margin-bottom: 60px;">Ketua Panitia Pelaksana,</p>
+                    <p style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px;">( ........................................ )</p>
+                </div>
+                <div style="width: 220px;">
+                    <p style="font-size: 13px; margin-bottom: 60px;">Chief Referee / Technical Delegate,</p>
+                    <p style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px;">( ........................................ )</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- ==================== TAB 2: KLASEMEN PERGURUAN ==================== -->
-  <div id="tab-perguruan" class="tab-pane-content" style="display: none;">
-    <div class="card" style="background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden;">
-      <div class="card-body p-3 p-md-4">
-        <div class="control-bar">
-          <div>
-            <h5 class="fw-bold mb-1" style="font-family: 'Oswald', sans-serif; color: #fff;">
-              PEROLEHAN MEDALI PERGURUAN
-            </h5>
-            <small class="text-secondary">Peringkat diurutkan berdasarkan Emas, Perak, Perunggu, dan Nama Perguruan.</small>
-          </div>
-          <div class="search-box btn-print-hide">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchPerguruan" placeholder="Cari Perguruan..." onkeyup="filterTable('tablePerguruan', this.value)">
-          </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table-custom-dark" id="tablePerguruan">
-            <thead>
-              <tr>
-                <th style="width: 70px; text-align: center;">Rank</th>
-                <th>Nama Perguruan</th>
-                <th style="width: 90px; text-align: center;">🥇 Emas</th>
-                <th style="width: 90px; text-align: center;">🥈 Perak</th>
-                <th style="width: 90px; text-align: center;">🥉 Perunggu</th>
-                <th style="width: 100px; text-align: center;">Total Medali</th>
-                <th class="btn-print-hide" style="width: 160px; text-align: center;">Rincian</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for p in perguruan_standings %}
-              <tr class="standings-row" data-target="detail-p-{{ p.pk }}">
-                <td style="text-align: center;">
-                  {% if p.rank == 1 and p.total > 0 %}
-                  <span class="rank-badge top-1">1</span>
-                  {% elif p.rank == 2 and p.total > 0 %}
-                  <span class="rank-badge top-2">2</span>
-                  {% elif p.rank == 3 and p.total > 0 %}
-                  <span class="rank-badge top-3">3</span>
-                  {% else %}
-                  <span class="rank-badge other">{{ p.rank }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <div class="standings-name">{{ p.nama }}</div>
-                  {% if p.total > 0 %}
-                  <small class="text-secondary">{{ p.winners|length }} Atlet Juara</small>
-                  {% endif %}
-                  {% if p.uncontested_winners %}
-                  <small class="text-warning ms-1" style="font-size: 11px;" title="Kategori tanpa lawan tidak dihitung ke Juara Umum">({{ p.uncontested_winners|length }} Tanpa Lawan)</small>
-                  {% endif %}
-                </td>
-                <td class="medal-count gold">{{ p.gold }}</td>
-                <td class="medal-count silver">{{ p.silver }}</td>
-                <td class="medal-count bronze">{{ p.bronze }}</td>
-                <td class="medal-count total">
-                  <span class="badge" style="background: rgba(255,255,255,0.08); font-size: 13px; font-weight: 700;">{{ p.total }}</span>
-                </td>
-                <td class="btn-print-hide" style="text-align: center;">
-                  {% if p.winners or p.uncontested_winners %}
-                  <button type="button" class="btn-detail-athletes" onclick="toggleDetail('detail-p-{{ p.pk }}', this)">
-                    <i class="fas fa-chevron-down"></i> Lihat Atlet ({{ p.winners|length|add:p.uncontested_winners|length }})
-                  </button>
-                  {% else %}
-                  <span class="text-muted" style="font-size: 12px;">-</span>
-                  {% endif %}
-                </td>
-              </tr>
-              <!-- Expandable Winner List Row -->
-              {% if p.winners or p.uncontested_winners %}
-              <tr id="detail-p-{{ p.pk }}" class="detail-row">
-                <td colspan="7">
-                  <div class="detail-box">
-                    {% if p.winners %}
-                    <div class="fw-bold mb-2 text-secondary" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
-                      <i class="fas fa-trophy text-warning"></i> Daftar Atlet Peraih Medali Juara Umum — {{ p.nama }}
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                      {% for w in p.winners %}
-                      <div class="winner-mini-chip">
-                        <span>{{ w.medal_icon }}</span>
-                        <strong>{{ w.atlet_nama }}</strong>
-                        <span class="text-muted">• Kontingen: {{ w.utusan_nama }}</span>
-                        <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-dark text-info ms-1" style="border: 1px solid var(--border-color);" title="Buka Bagan">
-                          {{ w.bagan_nama }}
-                        </a>
-                      </div>
-                      {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    {% if p.uncontested_winners %}
-                    <div class="fw-bold {% if p.winners %}mt-3{% endif %} mb-2 text-warning" style="font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;">
-                      <i class="fas fa-shield-alt text-warning me-1"></i> Atlet Juara Kategori Tanpa Lawan (Tidak Dihitung Juara Umum)
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                      {% for w in p.uncontested_winners %}
-                      <div class="winner-mini-chip" style="opacity: 0.9; border-color: rgba(245, 158, 11, 0.35);">
-                        <span>🥇</span>
-                        <strong>{{ w.atlet_nama }}</strong>
-                        <span class="badge bg-warning text-dark ms-1" style="font-size: 10px;">Tanpa Lawan</span>
-                        <span class="text-muted">• Kontingen: {{ w.utusan_nama }}</span>
-                        <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="badge bg-dark text-info ms-1" style="border: 1px solid var(--border-color);" title="Buka Bagan">
-                          {{ w.bagan_nama }}
-                        </a>
-                      </div>
-                      {% endfor %}
-                    </div>
-                    {% endif %}
-                  </div>
-                </td>
-              </tr>
-              {% endif %}
-              {% empty %}
-              <tr>
-                <td colspan="7" class="text-center py-4 text-muted">Belum ada data perguruan terdaftar.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== TAB 3: DAFTAR SEMUA ATLET JUARA ==================== -->
-  <div id="tab-all-winners" class="tab-pane-content" style="display: none;">
-    <div class="card" style="background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden;">
-      <div class="card-body p-3 p-md-4">
-        <div class="control-bar">
-          <div>
-            <h5 class="fw-bold mb-1" style="font-family: 'Oswald', sans-serif; color: #fff;">
-              MASTER DAFTAR PERAIH JUARA
-            </h5>
-            <small class="text-secondary">Rincian seluruh pemenang dari setiap kategori bagan yang telah selesai.</small>
-          </div>
-          <div class="search-box btn-print-hide">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchAllWinners" placeholder="Cari Atlet, Kelas, Kontingen..." onkeyup="filterTable('tableAllWinners', this.value)">
-          </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table-custom-dark" id="tableAllWinners">
-            <thead>
-              <tr>
-                <th style="width: 60px; text-align: center;">No</th>
-                <th style="width: 140px; text-align: center;">Peringkat</th>
-                <th>Nama Atlet</th>
-                <th>Kontingen / Utusan</th>
-                <th>Perguruan</th>
-                <th>Kategori / Kelas Tanding</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for w in all_winners %}
-              <tr class="standings-row">
-                <td style="text-align: center; color: var(--text-muted); font-size: 13px;">{{ forloop.counter }}</td>
-                <td style="text-align: center;">
-                  {% if w.juara == '1' %}
-                  <span class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); font-size: 12px;">🥇 Juara 1</span>
-                  {% if w.tanpa_lawan %}
-                  <div class="mt-1">
-                    <span class="badge bg-secondary" style="font-size: 10px; font-weight: normal;" title="Kategori tanpa lawan, tidak dihitung Juara Umum">Tanpa Lawan</span>
-                  </div>
-                  {% endif %}
-                  {% elif w.juara == '2' %}
-                  <span class="badge" style="background: rgba(156,163,175,0.2); color: #e5e7eb; border: 1px solid rgba(156,163,175,0.4); font-size: 12px;">🥈 Juara 2</span>
-                  {% elif w.juara == '3a' or w.juara == '3b' %}
-                  <span class="badge" style="background: rgba(217,119,6,0.2); color: #f59e0b; border: 1px solid rgba(217,119,6,0.4); font-size: 12px;">🥉 Juara 3</span>
-                  {% else %}
-                  <span class="badge bg-secondary" style="font-size: 11px;">🎖️ {{ w.juara_label }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <strong style="color: #fff; font-size: 14px;">{{ w.atlet_nama }}</strong>
-                </td>
-                <td>{{ w.utusan_nama }}</td>
-                <td>{{ w.perguruan_nama }}</td>
-                <td>
-                  <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=w.bagan_pk %}" class="text-light" style="font-weight: 500;">
-                    <i class="fas fa-external-link-alt text-muted me-1" style="font-size: 10px;"></i>{{ w.bagan_nama }}
-                  </a>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="6" class="text-center py-4 text-muted">Belum ada bagan yang menyelesaikan pertandingan.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Signature section (print only) -->
-  <div class="print-only-header mt-5 pt-4">
-    <div style="display: flex; justify-content: space-between; text-align: center; margin-top: 40px;">
-      <div style="width: 200px;">
-        <p style="font-size: 13px; margin-bottom: 60px;">Ketua Panitia Pelaksana,</p>
-        <p style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px;">( ........................................ )</p>
-      </div>
-      <div style="width: 200px;">
-        <p style="font-size: 13px; margin-bottom: 60px;">Chief Referee / Technical Delegate,</p>
-        <p style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px;">( ........................................ )</p>
-      </div>
-    </div>
-  </div>
 </div>
+{% endblock content %}
 
+{% block script %}
 <script>
-  // Tab Switching
-  function switchTab(tabId, btn) {
+// Tab Switching
+function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-pane-content').forEach(function(pane) {
-      pane.style.display = 'none';
+        pane.style.display = 'none';
     });
     document.querySelectorAll('.summary-tab-btn').forEach(function(b) {
-      b.classList.remove('active');
+        b.classList.remove('active');
     });
     var target = document.getElementById(tabId);
     if (target) {
-      target.style.display = 'block';
+        target.style.display = 'block';
     }
     if (btn) {
-      btn.classList.add('active');
+        btn.classList.add('active');
     }
-  }
+}
 
-  // Toggle detail accordion rows
-  function toggleDetail(detailId, btn) {
+// Toggle detail accordion rows
+function toggleDetail(detailId, btn) {
     var row = document.getElementById(detailId);
     if (!row) return;
-    if (row.classList.contains('show')) {
-      row.classList.remove('show');
-      btn.innerHTML = '<i class="fas fa-chevron-down"></i> Lihat Atlet';
-    } else {
-      row.classList.add('show');
-      btn.innerHTML = '<i class="fas fa-chevron-up"></i> Tutup Rincian';
+    row.classList.toggle('show');
+    btn.classList.toggle('active');
+    var chevron = btn.querySelector('.fa-chevron-down, .fa-chevron-up');
+    if (chevron) {
+        if (row.classList.contains('show')) {
+            chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        } else {
+            chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        }
     }
-  }
+}
 
-  // Real-time table search filter
-  function filterTable(tableId, query) {
+// Real-time table search filter
+function filterTable(tableId, query) {
     var q = query.toLowerCase().trim();
     var table = document.getElementById(tableId);
     if (!table) return;
     var rows = table.querySelectorAll('tbody tr.standings-row');
     rows.forEach(function(row) {
-      var text = row.innerText.toLowerCase();
-      var detailTargetId = row.getAttribute('data-target');
-      if (text.includes(q)) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-        if (detailTargetId) {
-          var detailRow = document.getElementById(detailTargetId);
-          if (detailRow) detailRow.classList.remove('show');
+        var text = row.innerText.toLowerCase();
+        var detailTargetId = row.getAttribute('data-target');
+        if (text.includes(q)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+            if (detailTargetId) {
+                var detailRow = document.getElementById(detailTargetId);
+                if (detailRow) detailRow.classList.remove('show');
+            }
         }
-      }
     });
-  }
+}
 
-  // Set print date
-  document.addEventListener('DOMContentLoaded', function() {
+// Set print date
+document.addEventListener('DOMContentLoaded', function() {
     var d = new Date();
     var dateStr = d.toLocaleDateString('id-ID', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
     });
     var printElem = document.getElementById('printDate');
     if (printElem) printElem.innerText = dateStr;
-  });
+});
 </script>
-{% endblock content %}
+{% endblock script %}

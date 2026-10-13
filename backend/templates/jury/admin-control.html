@@ -1,156 +1,810 @@
-{% extends "admin/base-dashboard.html" %} {% load static %}
+{% extends "admin/base-dashboard.html" %}
+{% load static %}
+
+{% block style %}
+<style>
+    :root {
+        --aka-red: #ef4444;
+        --aka-dark: #b91c1c;
+        --ao-blue: #2563eb;
+        --ao-dark: #1d4ed8;
+        --border-card: #334155;
+        --border-input: #64748b;
+        --border-divider: #cbd5e1;
+        --text-primary: #020617;
+        --text-secondary: #1e293b;
+        --text-muted: #475569;
+    }
+
+    .admin-control-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .header-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+        margin: 0;
+    }
+
+    .badge-tatami {
+        background: #000000;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 6px;
+        letter-spacing: 0.04em;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ws-badge {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1.5px solid transparent;
+        transition: all 0.15s ease-in-out;
+    }
+    .ws-badge.live {
+        background: #f0fdf4;
+        color: #065f46;
+        border-color: #047857;
+    }
+    .ws-badge.connecting {
+        background: #fefce8;
+        color: #854d0e;
+        border-color: #ca8a04;
+    }
+    .ws-badge.offline {
+        background: #fee2e2;
+        color: #7f1d1d;
+        border-color: #ef4444;
+    }
+
+    .ws-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+
+    .tatami-selector-btn {
+        background: #ffffff;
+        border: 1.5px solid var(--border-input);
+        color: var(--text-primary);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.15s ease-in-out;
+    }
+    .tatami-selector-btn:hover {
+        border-color: var(--text-primary);
+    }
+
+    /* Live Telemetry Panel */
+    .telemetry-card {
+        background: #ffffff;
+        border: 1.5px solid var(--border-card);
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .telemetry-header {
+        background: #f8fafc;
+        border-bottom: 1.5px solid var(--border-divider);
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .match-info-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .match-category-tag {
+        background: #e2e8f0;
+        border: 1px solid #cbd5e1;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .telemetry-body {
+        padding: 18px;
+    }
+
+    /* Telemetry Hero Grid */
+    .hero-telemetry-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.9fr 1.2fr;
+        gap: 14px;
+        align-items: stretch;
+        margin-bottom: 20px;
+    }
+    @media (max-width: 992px) {
+        .hero-telemetry-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .fighter-hero-card {
+        border: 1.5px solid var(--border-input);
+        border-radius: 10px;
+        padding: 14px 16px;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .fighter-hero-card.aka {
+        border-top: 5px solid var(--aka-red);
+    }
+    .fighter-hero-card.ao {
+        border-top: 5px solid var(--ao-blue);
+    }
+
+    .fighter-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    .fighter-badge {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: #ffffff;
+    }
+    .fighter-badge.aka { background: var(--aka-red); }
+    .fighter-badge.ao { background: var(--ao-blue); }
+
+    .fighter-score-display {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+    .fighter-score-display.aka { color: var(--aka-red); }
+    .fighter-score-display.ao { color: var(--ao-blue); }
+
+    .fighter-name-text {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.2;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .fighter-sub-text {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Timer Box */
+    .timer-hero-box {
+        border: 1.5px solid var(--border-card);
+        border-radius: 10px;
+        background: #020617;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        text-align: center;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .timer-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        margin-bottom: 4px;
+    }
+
+    .timer-digits {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        color: #ffffff;
+        line-height: 1;
+    }
+
+    .timer-sub-ms {
+        font-size: 13px;
+        font-weight: 700;
+        color: #38bdf8;
+        margin-top: 4px;
+    }
+
+    /* Jury Grid Display */
+    .jury-live-panel {
+        background: #f8fafc;
+        border: 1.5px solid var(--border-divider);
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 20px;
+    }
+
+    .jury-panel-title {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+        margin-bottom: 10px;
+    }
+
+    .jury-boxes-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    @media (max-width: 576px) {
+        .jury-boxes-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .jury-box-item {
+        background: #ffffff;
+        border: 1.5px solid var(--border-input);
+        border-radius: 6px;
+        padding: 8px 10px;
+        text-align: center;
+    }
+    .jury-box-label {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+    .jury-box-values {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 15px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .val-aka { color: var(--aka-red); }
+    .val-ao { color: var(--ao-blue); }
+    .val-slash { color: var(--border-divider); }
+
+    /* Feed Table */
+    .feed-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: #f8fafc;
+        border-bottom: 1.5px solid var(--border-card);
+    }
+    .feed-card-title {
+        font-size: 13.5px;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .control-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+    .control-table th {
+        background: #020617;
+        color: #ffffff;
+        font-weight: 800;
+        text-align: center;
+        padding: 9px 12px;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+    }
+    .control-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-divider);
+        color: var(--text-primary);
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+    }
+    .control-table tr:hover td {
+        background: #f8fafc;
+    }
+    .control-table .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-weight: 700;
+    }
+
+    .empty-state-cell {
+        padding: 24px 16px !important;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="page-inner">
-        <div class="page-header">
-            <a class="btn btn-dark" style="margin-left: 5px; background: #09090b; border-color: #09090b;" href=""><b><i class="fas fa-sync-alt me-1"></i> Refresh</b></a>
-          <h3 class="fw-bold mb-3"></h3>
+<div class="container-fluid py-3 px-3 px-md-4">
+    <!-- Header -->
+    <div class="admin-control-header">
+        <div class="header-title-wrap">
+            <span class="badge-tatami">TATAMI {{ tatami.tatami_number }}</span>
+            <h1 class="header-title">Admin Control Monitor</h1>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Admin Control</div>
-                        <div></div>
+        <div class="header-actions">
+            <!-- Tatami Switcher -->
+            {% if all_tatamis|length > 1 %}
+            <div class="dropdown d-inline-block">
+                <button class="tatami-selector-btn dropdown-toggle" type="button" id="tatamiSelectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-th-large me-1"></i> Ganti Tatami
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="tatamiSelectDropdown" style="border: 1.5px solid #334155;">
+                    {% for t in all_tatamis %}
+                    <li>
+                        <a class="dropdown-item fw-bold {% if t.pk == tatami.pk %}active bg-dark text-white{% endif %}" href="{% url 'admin-control' tatami_pk=t.pk %}">
+                            Tatami {{ t.tatami_number }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- WebSocket Status Badge -->
+            <div id="wsBadge" class="ws-badge connecting">
+                <span class="ws-dot"></span>
+                <span id="wsText">Menghubungkan...</span>
+            </div>
+
+            <!-- Refresh Button -->
+            <a href="" class="btn btn-sm btn-dark fw-bold" style="background: #000000; border-color: #000000; border-radius: 6px;">
+                <i class="fas fa-sync-alt me-1"></i> Refresh
+            </a>
+        </div>
+    </div>
+
+    <!-- Live Telemetry Card -->
+    <div class="telemetry-card">
+        <div class="telemetry-header">
+            <div class="match-info-pill">
+                <i class="fas fa-flag-checkered text-primary"></i>
+                <span id="headerCategoryText">
+                    {% if detail_bagan and detail_bagan.bagan %}
+                        {{ detail_bagan.bagan.nomor_tanding.nama_nomor_tanding|default:detail_bagan.bagan.nama_bagan }}
+                        {% if detail_bagan.round %}&bull; Babak {{ detail_bagan.round }}{% endif %}
+                    {% else %}
+                        Menunggu partai dimulai...
+                    {% endif %}
+                </span>
+            </div>
+            <div class="text-muted fw-bold small" id="headerMatchId">
+                {% if detail_bagan %}Partai #{{ detail_bagan.urutan }}{% endif %}
+            </div>
+        </div>
+
+        <div class="telemetry-body">
+            <!-- 3-Column Hero Grid -->
+            <div class="hero-telemetry-grid">
+                <!-- AKA (RED) -->
+                <div class="fighter-hero-card aka">
+                    <div>
+                        <div class="fighter-header">
+                            <span class="fighter-badge aka">AKA (MERAH)</span>
+                            <span class="fighter-score-display aka" id="akaLiveScore">
+                                {{ detail_bagan.score1|default:"0" }}
+                            </span>
+                        </div>
+                        <div class="fighter-name-text" id="akaLiveName">
+                            {{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}
+                        </div>
+                        <div class="fighter-sub-text" id="akaLiveSub">
+                            {{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-striped mt-3" style="text-align: center;">
-                            <thead>
-                                <tr>
-                                    <th scope="col" style="text-align: center;">Timer</th>
-                                    <th scope="col" style="text-align: center;">J1</th>
-                                    <th scope="col" style="text-align: center;">J2</th>
-                                    <th scope="col" style="text-align: center;">J3</th>
-                                    <th scope="col" style="text-align: center;">J4</th>
-                                    <th scope="col" style="text-align: center;">Score Aka</th>
-                                    <th scope="col" style="text-align: center;">Score Ao</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="font-size: 30px;">
-                                        <span id="minute">00</span>
-                                        :
-                                        <span id="secods">00</span>
-                                        :
-                                        <span id="milliseconds">00</span>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <span id="j1-aka">-</span>
-                                        /
-                                        <span id="j1-ao">-</span>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <span id="j2-aka">-</span>
-                                        /
-                                        <span id="j2-ao">-</span>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <span id="j3-aka">-</span>
-                                        /
-                                        <span id="j3-ao">-</span>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <span id="j4-aka">-</span>
-                                        /
-                                        <span id="j4-ao">-</span>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <span id="ms-aka">-</span>
-                                    </td>
-                                    <td style="text-align: center; font-size: 20px;">
-                                        <span id="ms-ao">-</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                </div>
+
+                <!-- TIMER -->
+                <div class="timer-hero-box">
+                    <span class="timer-title"><i class="fas fa-stopwatch me-1"></i> WAKTU ARENA</span>
+                    <div class="timer-digits">
+                        <span id="minuteDisplay">00</span>:<span id="secondDisplay">00</span>
+                    </div>
+                    <span class="timer-sub-ms"><span id="msDisplay">00</span> ms</span>
+                </div>
+
+                <!-- AO (BLUE) -->
+                <div class="fighter-hero-card ao">
+                    <div>
+                        <div class="fighter-header">
+                            <span class="fighter-badge ao">AO (BIRU)</span>
+                            <span class="fighter-score-display ao" id="aoLiveScore">
+                                {{ detail_bagan.score2|default:"0" }}
+                            </span>
+                        </div>
+                        <div class="fighter-name-text" id="aoLiveName">
+                            {{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}
+                        </div>
+                        <div class="fighter-sub-text" id="aoLiveSub">
+                            {{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Real-Time Jury Signals Panel -->
+            <div class="jury-live-panel">
+                <div class="jury-panel-title">
+                    <i class="fas fa-users-cog me-1"></i> Sinyal Wasit & Juri (Live)
+                </div>
+                <div class="jury-boxes-grid">
+                    <!-- Juri 1 -->
+                    <div class="jury-box-item">
+                        <div class="jury-box-label">JURI 1</div>
+                        <div class="jury-box-values">
+                            <span class="val-aka" id="j1LiveAka">-</span>
+                            <span class="val-slash">/</span>
+                            <span class="val-ao" id="j1LiveAo">-</span>
+                        </div>
+                    </div>
+                    <!-- Juri 2 -->
+                    <div class="jury-box-item">
+                        <div class="jury-box-label">JURI 2</div>
+                        <div class="jury-box-values">
+                            <span class="val-aka" id="j2LiveAka">-</span>
+                            <span class="val-slash">/</span>
+                            <span class="val-ao" id="j2LiveAo">-</span>
+                        </div>
+                    </div>
+                    <!-- Juri 3 -->
+                    <div class="jury-box-item">
+                        <div class="jury-box-label">JURI 3</div>
+                        <div class="jury-box-values">
+                            <span class="val-aka" id="j3LiveAka">-</span>
+                            <span class="val-slash">/</span>
+                            <span class="val-ao" id="j3LiveAo">-</span>
+                        </div>
+                    </div>
+                    <!-- Juri 4 -->
+                    <div class="jury-box-item">
+                        <div class="jury-box-label">JURI 4</div>
+                        <div class="jury-box-values">
+                            <span class="val-aka" id="j4LiveAka">-</span>
+                            <span class="val-slash">/</span>
+                            <span class="val-ao" id="j4LiveAo">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Events History Table -->
+        <div class="feed-card-header">
+            <span class="feed-card-title">
+                <i class="fas fa-stream"></i> Riwayat Sinyal & Keputusan Arena
+            </span>
+            <span class="small text-muted fw-bold" id="eventCounter">0 aktivitas</span>
+        </div>
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+            <table class="control-table">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Waktu</th>
+                        <th style="width: 130px;">Timer Arena</th>
+                        <th>Juri 1</th>
+                        <th>Juri 2</th>
+                        <th>Juri 3</th>
+                        <th>Juri 4</th>
+                        <th style="width: 120px;">Skor Aka</th>
+                        <th style="width: 120px;">Skor Ao</th>
+                    </tr>
+                </thead>
+                <tbody id="feedTableBody">
+                    <tr id="emptyFeedRow">
+                        <td colspan="8" class="empty-state-cell">
+                            Belum ada riwayat aktivitas sinyal wasit yang diterima pada sesi ini.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-    const tbody = document.querySelector('tbody');
-
     const tatamiPk = "{{ tatami.pk }}";
-    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const socket = new WebSocket(protocol + window.location.host + `/ws/admin-control/${tatamiPk}`);
+    let socket = null;
+    let reconnectTimeout = null;
+    let eventCount = 0;
 
-    socket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        if (data.command === 'mouse') {
-            const details = JSON.parse(data.details);
-            const time = new Date().toLocaleTimeString().slice(0,5);
-            const aka = details[0] || '-';
-            const ao = details[1] || '-';
+    const wsBadge = document.getElementById('wsBadge');
+    const wsText = document.getElementById('wsText');
+    const feedTableBody = document.getElementById('feedTableBody');
+    const emptyFeedRow = document.getElementById('emptyFeedRow');
+    const eventCounter = document.getElementById('eventCounter');
+
+    // UI Elements
+    const minuteDisplay = document.getElementById('minuteDisplay');
+    const secondDisplay = document.getElementById('secondDisplay');
+    const msDisplay = document.getElementById('msDisplay');
+
+    const akaLiveScore = document.getElementById('akaLiveScore');
+    const aoLiveScore = document.getElementById('aoLiveScore');
+    const akaLiveName = document.getElementById('akaLiveName');
+    const aoLiveName = document.getElementById('aoLiveName');
+    const akaLiveSub = document.getElementById('akaLiveSub');
+    const aoLiveSub = document.getElementById('aoLiveSub');
+    const headerCategoryText = document.getElementById('headerCategoryText');
+    const headerMatchId = document.getElementById('headerMatchId');
+
+    const j1LiveAka = document.getElementById('j1LiveAka');
+    const j1LiveAo = document.getElementById('j1LiveAo');
+    const j2LiveAka = document.getElementById('j2LiveAka');
+    const j2LiveAo = document.getElementById('j2LiveAo');
+    const j3LiveAka = document.getElementById('j3LiveAka');
+    const j3LiveAo = document.getElementById('j3LiveAo');
+    const j4LiveAka = document.getElementById('j4LiveAka');
+    const j4LiveAo = document.getElementById('j4LiveAo');
+
+    function updateWsStatus(status) {
+        if (!wsBadge) return;
+        wsBadge.className = 'ws-badge ' + status;
+        if (status === 'live') {
+            wsText.textContent = 'WS Aktif';
+        } else if (status === 'connecting') {
+            wsText.textContent = 'Menghubungkan...';
+        } else {
+            wsText.textContent = 'Terputus';
+        }
+    }
+
+    function initSocket() {
+        if (socket) {
+            try { socket.close(); } catch(e) {}
+        }
+        updateWsStatus('connecting');
+
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsUrl = protocol + window.location.host + `/ws/admin-control/${tatamiPk}`;
+
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function() {
+            updateWsStatus('live');
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+                reconnectTimeout = null;
+            }
+        };
+
+        socket.onclose = function() {
+            updateWsStatus('offline');
+            if (!reconnectTimeout) {
+                reconnectTimeout = setTimeout(initSocket, 2500);
+            }
+        };
+
+        socket.onerror = function() {
+            updateWsStatus('offline');
+            try { socket.close(); } catch(e) {}
+        };
+
+        socket.onmessage = function(e) {
+            try {
+                const data = JSON.parse(e.data);
+                handleMessage(data);
+            } catch(err) {
+                console.error("Parse message error:", err);
+            }
+        };
+    }
+
+    function handleMessage(data) {
+        const cmd = data.command || data.action || data.message;
+
+        // 1. Initial / Telemetry athlete info
+        if (cmd === 'get_atlet') {
+            const det = data.details || {};
+            if (det.nomor_tanding || det.nama_bagan) {
+                const roundStr = det.round_label ? ` • ${det.round_label}` : (det.round ? ` • Babak ${det.round}` : '');
+                headerCategoryText.textContent = (det.nomor_tanding || det.nama_bagan) + roundStr;
+            }
+            if (det.urutan) {
+                headerMatchId.textContent = `Partai #${det.urutan}`;
+            }
+            if (det.atlet_red && det.atlet_red !== '-') {
+                akaLiveName.textContent = det.atlet_red;
+                const perg = det.atlet_red_perguruan || '-';
+                const uts = det.atlet_red_utusan || '-';
+                akaLiveSub.textContent = `${perg} • ${uts}`;
+            }
+            if (det.atlet_blue && det.atlet_blue !== '-') {
+                aoLiveName.textContent = det.atlet_blue;
+                const perg = det.atlet_blue_perguruan || '-';
+                const uts = det.atlet_blue_utusan || '-';
+                aoLiveSub.textContent = `${perg} • ${uts}`;
+            }
+            return;
+        }
+
+        // 2. Timer update
+        if (cmd === 'timer') {
+            const parts = String(data.details || '').split(':');
+            if (parts.length >= 2) {
+                minuteDisplay.textContent = parts[0].padStart(2, '0');
+                secondDisplay.textContent = parts[1].split('.')[0].padStart(2, '0');
+            }
+            return;
+        }
+
+        // 3. Score updates
+        if (cmd === 'score') {
+            const det = String(data.details || '');
+            if (det.startsWith('aka-')) {
+                akaLiveScore.textContent = det.replace('aka-', '');
+            } else if (det.startsWith('ao-')) {
+                aoLiveScore.textContent = det.replace('ao-', '');
+            }
+            return;
+        }
+
+        // 4. Mouse input telemetry (referee / scoring keystrokes)
+        if (cmd === 'mouse') {
+            let details;
+            try {
+                details = typeof data.details === 'string' ? JSON.parse(data.details) : data.details;
+            } catch(e) {
+                details = data.details;
+            }
+            if (!details) return;
+
+            const akaScore = details[0] !== undefined ? details[0] : '-';
+            const aoScore = details[1] !== undefined ? details[1] : '-';
             const codes = details[2] || [];
-            const totalSeconds = details[3];
+            const totalSeconds = details[3] || 0;
+            const ms = details[4] !== undefined ? details[4] : 0;
+
             const minutes = Math.floor(totalSeconds / 60);
-            var seconds = totalSeconds % 60;
-            if (seconds < 10) {
-                seconds = `0${seconds}`
-            }
-            var ms = details[4] || 0;
-            if (ms < 10) {
-                ms = `0${ms}`
-            }
+            const seconds = totalSeconds % 60;
+            const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const msStr = String(ms).padStart(2, '0');
 
-            console.log(codes)
+            // Update Top Live Telemetry
+            minuteDisplay.textContent = String(minutes).padStart(2, '0');
+            secondDisplay.textContent = String(seconds).padStart(2, '0');
+            msDisplay.textContent = msStr;
+            if (akaScore !== '-') akaLiveScore.textContent = akaScore;
+            if (aoScore !== '-') aoLiveScore.textContent = aoScore;
 
-            let j1aka = '-', j2aka = '-', j3aka = '-', j4aka = '-';
-            let j1ao = '-', j2ao = '-', j3ao = '-', j4ao = '-';
+            // Decode Jury Signals
+            let j1aka = '-', j1ao = '-';
+            let j2aka = '-', j2ao = '-';
+            let j3aka = '-', j3ao = '-';
+            let j4aka = '-', j4ao = '-';
 
             codes.forEach(c => {
+                // J1
                 if (c === 'a') j1aka = '1';
                 else if (c === 'b') j1aka = '2';
                 else if (c === 'c') j1aka = '3';
-
                 else if (c === 'd') j1ao = '1';
                 else if (c === 'e') j1ao = '2';
                 else if (c === 'f') j1ao = '3';
-
+                // J2
                 else if (c === 'g') j2aka = '1';
                 else if (c === 'h') j2aka = '2';
                 else if (c === 'i') j2aka = '3';
-
                 else if (c === 'j') j2ao = '1';
                 else if (c === 'k') j2ao = '2';
                 else if (c === 'l') j2ao = '3';
-
+                // J3
                 else if (c === 'n') j3aka = '1';
                 else if (c === 'm') j3aka = '2';
                 else if (c === 'o') j3aka = '3';
-
                 else if (c === 'p') j3ao = '1';
                 else if (c === 'q') j3ao = '2';
                 else if (c === 'r') j3ao = '3';
-
+                // J4
                 else if (c === 's') j4aka = '1';
                 else if (c === 't') j4aka = '2';
                 else if (c === 'u') j4aka = '3';
-
                 else if (c === 'v') j4ao = '1';
                 else if (c === 'w') j4ao = '2';
                 else if (c === 'x') j4ao = '3';
             });
 
+            // Update Live Jury Signals Panel
+            j1LiveAka.textContent = j1aka;
+            j1LiveAo.textContent = j1ao;
+            j2LiveAka.textContent = j2aka;
+            j2LiveAo.textContent = j2ao;
+            j3LiveAka.textContent = j3aka;
+            j3LiveAo.textContent = j3ao;
+            j4LiveAka.textContent = j4aka;
+            j4LiveAo.textContent = j4ao;
+
+            // Remove placeholder row
+            if (emptyFeedRow && emptyFeedRow.parentNode) {
+                emptyFeedRow.remove();
+            }
+
+            // Prepend Row to Feed Table
+            const now = new Date();
+            const wallClock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="font-size: 30px;"><span>0${minutes}</span> : <span>${seconds}</span> : <span>${ms}</span></td>
-                <td style="text-align:center;font-size:20px;"><b><span style="color: red">${j1aka}</span> / <span style="color: blue">${j2ao}</span></b></td>
-                <td style="text-align:center;font-size:20px;"><b><span style="color: red">${j2aka}</span> / <span style="color: blue">${j1ao}</span></b></td>
-                <td style="text-align:center;font-size:20px;"><b><span style="color: red">${j3aka}</span> / <span style="color: blue">${j3ao}</span></b></td>
-                <td style="text-align:center;font-size:20px;"><b><span style="color: red">${j4aka}</span> / <span style="color: blue">${j4ao}</span></b></td>
-                <td style="text-align:center;font-size:20px;"><b><span style="color: red">${aka}</span></b></td>
-                <td style="text-align:center;font-size:20px;"><b><span style="color: blue">${ao}</span></b></td>
+                <td class="mono small">${wallClock}</td>
+                <td class="mono fw-bold">${timeStr} <span class="text-muted small">.${msStr}</span></td>
+                <td class="mono"><b><span style="color: var(--aka-red);">${j1aka}</span> <span class="val-slash">/</span> <span style="color: var(--ao-blue);">${j1ao}</span></b></td>
+                <td class="mono"><b><span style="color: var(--aka-red);">${j2aka}</span> <span class="val-slash">/</span> <span style="color: var(--ao-blue);">${j2ao}</span></b></td>
+                <td class="mono"><b><span style="color: var(--aka-red);">${j3aka}</span> <span class="val-slash">/</span> <span style="color: var(--ao-blue);">${j3ao}</span></b></td>
+                <td class="mono"><b><span style="color: var(--aka-red);">${j4aka}</span> <span class="val-slash">/</span> <span style="color: var(--ao-blue);">${j4ao}</span></b></td>
+                <td class="mono fw-bold" style="color: var(--aka-red);">${akaScore}</td>
+                <td class="mono fw-bold" style="color: var(--ao-blue);">${aoScore}</td>
             `;
-            tbody.prepend(tr);
-        }
-    };
+            feedTableBody.prepend(tr);
 
+            eventCount++;
+            eventCounter.textContent = `${eventCount} aktivitas`;
+
+            // Keep max 100 entries to prevent memory leak
+            if (feedTableBody.children.length > 100) {
+                feedTableBody.removeChild(feedTableBody.lastChild);
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initSocket);
 </script>
-{% endblock content %}
+{% endblock %}

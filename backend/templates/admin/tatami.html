@@ -5,18 +5,16 @@
 <style>
 /* Page Title & Breadcrumb */
 .page-header h3 {
-    color: #09090b !important;
-    font-family: 'Oswald', sans-serif;
-    letter-spacing: 0.02em;
+    color: #020617 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
 }
 
 /* Head Action Button */
-.btn-head-create, .btn-head-create * {
-    color: #ffffff !important;
-}
 .btn-head-create {
-    background: #09090b !important;
-    border: 1.5px solid #09090b !important;
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
@@ -25,27 +23,29 @@
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.15s ease-in-out !important;
     cursor: pointer;
     text-decoration: none !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
-.btn-head-create:hover, .btn-head-create:hover * {
-    background: #27272a !important;
-    border-color: #27272a !important;
+.btn-head-create:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
     color: #ffffff !important;
 }
 
 /* Stat Cards */
 .card-stats {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #64748b !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 .card-stats:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
 }
 .stat-icon-wrap {
     width: 36px;
@@ -55,68 +55,66 @@
     align-items: center;
     justify-content: center;
     font-size: 15px;
+    border: 1px solid currentColor;
 }
 .stat-value {
-    font-family: 'Oswald', sans-serif;
     font-size: 28px;
     font-weight: 800;
     line-height: 1.1;
-    color: #09090b !important;
+    color: #020617 !important;
+    letter-spacing: -0.02em;
 }
 
 /* Table Card & Header */
 .table-card {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1.5px solid #334155 !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
     overflow: hidden;
 }
 
 .table-card-header {
     background: #f8fafc !important;
-    border-bottom: 1.5px solid #e2e8f0 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
     padding: 12px 18px !important;
 }
 
 .table-card-header h5 {
-    color: #09090b !important;
+    color: #020617 !important;
     font-size: 15px !important;
     font-weight: 800 !important;
 }
 
 .tatami-table thead th {
     background: #f8fafc !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     font-size: 12px !important;
     font-weight: 800 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    border-bottom: 2px solid #cbd5e1 !important;
+    border-bottom: 2px solid #000000 !important;
     padding: 12px 16px !important;
     vertical-align: middle !important;
     white-space: nowrap;
 }
 .tatami-table tbody td {
     padding: 14px 16px !important;
-    color: #0f172a !important;
-    border-bottom: 1px solid #e2e8f0 !important;
+    color: #020617 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
     vertical-align: middle !important;
+    font-weight: 600;
 }
 
 /* Tatami Arena Badge */
-.tatami-badge, .tatami-badge * {
-    color: #ffffff !important;
-}
 .tatami-badge {
-    font-family: 'Oswald', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     background: #dc2626;
     color: #ffffff !important;
     padding: 6px 14px;
     border-radius: 6px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     display: inline-block;
     box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
     white-space: nowrap;
@@ -124,7 +122,7 @@
 
 /* Match Presentation inside Cell */
 .match-title {
-    color: #09090b !important;
+    color: #020617 !important;
     font-weight: 800;
     font-size: 13.5px;
     line-height: 1.35;
@@ -132,7 +130,7 @@
 
 .badge-round {
     background: #eff6ff !important;
-    border: 1px solid #93c5fd !important;
+    border: 1.5px solid #93c5fd !important;
     color: #1d4ed8 !important;
     font-size: 11px !important;
     font-weight: 800 !important;
@@ -142,8 +140,8 @@
 
 .badge-status-live {
     background: #fee2e2 !important;
-    border: 1px solid #fca5a5 !important;
-    color: #b91c1c !important;
+    border: 1.5px solid #f87171 !important;
+    color: #dc2626 !important;
     font-size: 10.5px !important;
     font-weight: 800 !important;
     padding: 2.5px 7px !important;
@@ -155,7 +153,7 @@
 
 .badge-status-done {
     background: #dcfce7 !important;
-    border: 1px solid #86efac !important;
+    border: 1.5px solid #4ade80 !important;
     color: #15803d !important;
     font-size: 10.5px !important;
     font-weight: 800 !important;
@@ -166,9 +164,9 @@
 .badge-standby {
     background: #f1f5f9 !important;
     border: 1.5px solid #cbd5e1 !important;
-    color: #475569 !important;
+    color: #334155 !important;
     font-size: 11.5px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     padding: 5px 12px !important;
     border-radius: 6px !important;
     display: inline-flex;
@@ -179,7 +177,7 @@
 /* Quick Launcher Buttons */
 .btn-launcher {
     height: 30px;
-    padding: 0 9px;
+    padding: 0 10px;
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -194,56 +192,56 @@
 
 .btn-launcher-scoring {
     background: #fff1f2;
-    border: 1.5px solid #fca5a5;
+    border: 1.5px solid #f87171;
     color: #be123c;
 }
 .btn-launcher-scoring:hover {
     background: #fee2e2;
-    border-color: #f87171;
+    border-color: #ef4444;
     color: #9f1239;
 }
 
 .btn-launcher-control {
     background: #f0f9ff;
-    border: 1.5px solid #7dd3fc;
+    border: 1.5px solid #38bdf8;
     color: #0369a1;
 }
 .btn-launcher-control:hover {
     background: #e0f2fe;
-    border-color: #38bdf8;
+    border-color: #0284c7;
     color: #075985;
 }
 
 .btn-launcher-lo {
     background: #fefce8;
-    border: 1.5px solid #fde68a;
+    border: 1.5px solid #facc15;
     color: #854d0e;
 }
 .btn-launcher-lo:hover {
     background: #fef9c3;
-    border-color: #facc15;
+    border-color: #eab308;
     color: #713f12;
 }
 
 .btn-launcher-coach {
     background: #f8fafc;
-    border: 1.5px solid #cbd5e1;
-    color: #334155;
+    border: 1.5px solid #64748b;
+    color: #020617;
 }
 .btn-launcher-coach:hover {
     background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #0f172a;
+    border-color: #0f172a;
+    color: #000000;
 }
 
 .btn-launcher-vr {
     background: #f5f3ff;
-    border: 1.5px solid #c4b5fd;
+    border: 1.5px solid #a78bfa;
     color: #6d28d9;
 }
 .btn-launcher-vr:hover {
     background: #ede9fe;
-    border-color: #a78bfa;
+    border-color: #8b5cf6;
     color: #5b21b6;
 }
 
@@ -257,17 +255,17 @@
     border-radius: 6px;
     font-size: 12px;
     font-weight: 700;
-    border: 1.5px solid #cbd5e1;
+    border: 1.5px solid #64748b;
     background: #ffffff;
-    color: #1e293b;
+    color: #020617;
     cursor: pointer;
     transition: all 0.15s ease;
     white-space: nowrap;
 }
 .btn-row-credential:hover {
     background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #0f172a;
+    border-color: #0f172a;
+    color: #000000;
 }
 
 .btn-row-action-reset {
@@ -279,7 +277,7 @@
     justify-content: center;
     border-radius: 6px;
     font-size: 13px;
-    border: 1.5px solid #fde68a;
+    border: 1.5px solid #facc15;
     background: #ffffff;
     color: #b45309;
     cursor: pointer;
@@ -287,7 +285,7 @@
 }
 .btn-row-action-reset:hover {
     background: #fef3c7;
-    border-color: #f59e0b;
+    border-color: #eab308;
     color: #92400e;
 }
 
@@ -300,34 +298,35 @@
     justify-content: center;
     border-radius: 6px;
     font-size: 13px;
-    border: 1.5px solid #fca5a5;
+    border: 1.5px solid #ef4444;
     background: #ffffff;
     color: #dc2626;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .btn-row-action-delete:hover {
-    background: #fef2f2;
-    border-color: #ef4444;
-    color: #b91c1c;
+    background: #fee2e2;
+    border-color: #b91c1c;
+    color: #991b1b;
 }
 
 /* Modals Light Card System */
 .modal-content {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    border: 1.5px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
 }
 .modal-header {
     background: #f8fafc !important;
-    border-bottom: 1.5px solid #e2e8f0 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
     padding: 16px 20px !important;
 }
 .modal-title {
-    color: #09090b !important;
+    color: #020617 !important;
     font-weight: 800 !important;
     font-size: 16px !important;
+    letter-spacing: -0.01em !important;
 }
 .modal-header.bg-danger {
     background: #dc2626 !important;
@@ -335,85 +334,77 @@
 }
 .modal-body {
     padding: 20px !important;
-    color: #0f172a !important;
+    color: #020617 !important;
 }
 .modal-footer {
     background: #f8fafc !important;
-    border-top: 1.5px solid #e2e8f0 !important;
+    border-top: 1.5px solid #cbd5e1 !important;
     padding: 12px 20px !important;
 }
 
 /* Modal Buttons */
 .btn-modal-cancel {
     background: #ffffff !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #1e293b !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 18px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .btn-modal-cancel:hover {
     background: #f1f5f9 !important;
-    color: #0f172a !important;
-    border-color: #94a3b8 !important;
-}
-.btn-modal-primary, .btn-modal-primary * {
-    color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
 }
 .btn-modal-primary {
-    background: #09090b !important;
-    border: 1.5px solid #09090b !important;
+    background: #000000 !important;
+    border: 2px solid #000000 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 20px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
-.btn-modal-primary:hover, .btn-modal-primary:hover * {
-    background: #27272a !important;
-    border-color: #27272a !important;
-    color: #ffffff !important;
-}
-.btn-modal-danger, .btn-modal-danger * {
+.btn-modal-primary:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
     color: #ffffff !important;
 }
 .btn-modal-danger {
     background: #dc2626 !important;
-    border: 1.5px solid #dc2626 !important;
+    border: 2px solid #dc2626 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 20px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
 }
-.btn-modal-danger:hover, .btn-modal-danger:hover * {
+.btn-modal-danger:hover {
     background: #b91c1c !important;
     border-color: #b91c1c !important;
     color: #ffffff !important;
 }
 
-.btn-modal-warning, .btn-modal-warning * {
-    color: #ffffff !important;
-}
 .btn-modal-warning {
     background: #d97706 !important;
-    border: 1.5px solid #d97706 !important;
+    border: 2px solid #d97706 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     padding: 7px 20px !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer;
     transition: all 0.15s ease;
 }
-.btn-modal-warning:hover, .btn-modal-warning:hover * {
+.btn-modal-warning:hover {
     background: #b45309 !important;
     border-color: #b45309 !important;
     color: #ffffff !important;
@@ -423,12 +414,12 @@
 .cred-card {
     border-radius: 8px;
     padding: 12px 14px;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid #64748b;
     background: #ffffff;
 }
 .cred-card code {
     background: #f1f5f9;
-    color: #0f172a;
+    color: #020617;
     border: 1px solid #cbd5e1;
     padding: 2px 6px;
     border-radius: 4px;
@@ -446,9 +437,9 @@
                 <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 12px; font-weight: 700; color: #475569;">
                     <span>Dashboard</span>
                     <i class="fas fa-chevron-right" style="font-size: 9px; color: #94a3b8;"></i>
-                    <span style="color: #09090b;">Manajemen Tatami</span>
+                    <span style="color: #020617;">Manajemen Tatami</span>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size: 22px; color: #09090b; letter-spacing: -0.01em;">
+                <h3 class="fw-bold mb-1" style="font-size: 22px; color: #020617; letter-spacing: -0.01em;">
                     Manajemen Tatami Event
                 </h3>
                 <p class="mb-0" style="font-size: 13px; color: #334155; font-weight: 500;">
@@ -596,14 +587,14 @@
                                                     <div class="d-flex align-items-center gap-3 flex-wrap mt-0.5" style="font-size: 12.5px;">
                                                         <div>
                                                             <span class="fw-bold" style="color: #dc2626;">AKA:</span> 
-                                                            <strong style="color: #09090b;">{{ tatami.detail_bagan.atlet1.nama_atlet|default:"-" }}</strong>
+                                                            <strong style="color: #020617;">{{ tatami.detail_bagan.atlet1.nama_atlet|default:"-" }}</strong>
                                                             {% if tatami.detail_bagan.atlet1.perguruan %}
                                                                 <span style="color: #475569;">({{ tatami.detail_bagan.atlet1.perguruan.nama_perguruan }})</span>
                                                             {% endif %}
                                                         </div>
                                                         <div>
                                                             <span class="fw-bold" style="color: #2563eb;">AO:</span> 
-                                                            <strong style="color: #09090b;">{{ tatami.detail_bagan.atlet2.nama_atlet|default:"-" }}</strong>
+                                                            <strong style="color: #020617;">{{ tatami.detail_bagan.atlet2.nama_atlet|default:"-" }}</strong>
                                                             {% if tatami.detail_bagan.atlet2.perguruan %}
                                                                 <span style="color: #475569;">({{ tatami.detail_bagan.atlet2.perguruan.nama_perguruan }})</span>
                                                             {% endif %}
@@ -673,7 +664,7 @@
                                 <i class="fas fa-layer-group text-danger fs-3"></i>
                             </span>
                         </div>
-                        <h5 class="fw-bold mb-1" style="color: #09090b;">Belum Ada Tatami Ditambahkan</h5>
+                        <h5 class="fw-bold mb-1" style="color: #020617;">Belum Ada Tatami Ditambahkan</h5>
                         <p class="text-secondary mb-4" style="max-width: 420px; margin: 0 auto; font-size: 13px;">
                             Tambahkan tatami pertama untuk mengaktifkan scoring board, sistem juri, dan panel kendali pertandingan.
                         </p>
@@ -841,7 +832,7 @@
                             <div class="p-3 rounded" style="background: #f8fafc; border: 1.5px solid #cbd5e1;">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <i class="fas fa-users-cog text-primary"></i>
-                                    <span class="fw-bold" style="font-size: 13px; color: #09090b;">Akun Juri Tatami (1 s/d 7)</span>
+                                    <span class="fw-bold" style="font-size: 13px; color: #020617;">Akun Juri Tatami (1 s/d 7)</span>
                                 </div>
                                 <div class="row g-2 mt-1" style="font-size: 12.5px;">
                                     {% for j in "1234567" %}

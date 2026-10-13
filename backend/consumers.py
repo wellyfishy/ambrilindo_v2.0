@@ -181,6 +181,14 @@ class AdminControlConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        # Send current match details immediately upon connection
+        details = await get_current_match_details(self.tatami_pk)
+        if details:
+            await self.send(text_data=json.dumps({
+                "command": "get_atlet",
+                "details": details
+            }))
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.group_name,

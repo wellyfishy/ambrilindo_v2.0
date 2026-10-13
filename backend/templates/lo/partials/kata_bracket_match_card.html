@@ -40,7 +40,7 @@
                 <span>{% if db.pemenang == '1' %}<i class="fas fa-crown text-warning me-1" title="Pemenang"></i>{% endif %}{% if db.atlet1.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if db.atlet1 %}{{ db.atlet1.nama_atlet }}{% else %}BYE{% endif %}</span>
             </div>
             <div class="player-sub">
-                {% if db.atlet1 %}{{ db.atlet1.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet1.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                {% if db.atlet1 %}<span class="perguruan-name">{{ db.atlet1.perguruan.nama_perguruan|default:"-" }}</span> &bull; <span class="utusan-name">{{ db.atlet1.utusan.nama_utusan|default:"-" }}</span>{% else %}&mdash;{% endif %}
             </div>
         </div>
         <div class="match-kata-slot">
@@ -62,7 +62,7 @@
                 <span>{% if db.pemenang == '2' %}<i class="fas fa-crown text-warning me-1"></i>{% endif %}{% if db.atlet2.is_priority %}<i class="fas fa-star text-warning me-1" title="Unggulan / Prioritas (BYE)"></i>{% endif %}{% if db.atlet2 %}{{ db.atlet2.nama_atlet }}{% else %}BYE{% endif %}</span>
             </div>
             <div class="player-sub">
-                {% if db.atlet2 %}{{ db.atlet2.perguruan.nama_perguruan|default:"-" }} &bull; {{ db.atlet2.utusan.nama_utusan|default:"-" }}{% else %}&mdash;{% endif %}
+                {% if db.atlet2 %}<span class="perguruan-name">{{ db.atlet2.perguruan.nama_perguruan|default:"-" }}</span> &bull; <span class="utusan-name">{{ db.atlet2.utusan.nama_utusan|default:"-" }}</span>{% else %}&mdash;{% endif %}
             </div>
         </div>
         <div class="match-kata-slot">

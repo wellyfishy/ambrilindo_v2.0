@@ -15,22 +15,24 @@
     <style>
         :root {
             --bg-body: #f8fafc;
-            --bg-surface: rgba(255, 255, 255, 0.9);
+            --bg-surface: #ffffff;
             --bg-surface-elevated: #ffffff;
-            --bg-card: rgba(255, 255, 255, 0.94);
-            --border-glass: rgba(0, 0, 0, 0.08);
-            --border-highlight: rgba(0, 0, 0, 0.16);
+            --bg-card: #ffffff;
+            --border-glass: #334155;
+            --border-highlight: #020617;
+            --border-card: #334155;
+            --border-divider: #cbd5e1;
             --cal-red: #dc2626;
             --cal-blue: #2563eb;
             --cal-gold: #d97706;
-            --text-primary: #09090b;
-            --text-secondary: #475569;
-            --text-muted: #64748b;
+            --text-primary: #020617;
+            --text-secondary: #1e293b;
+            --text-muted: #475569;
             --radius-card: 10px;
             --radius-control: 8px;
             --radius-pill: 9999px;
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-mono: 'JetBrains Mono', Consolas, monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         * {
@@ -44,12 +46,6 @@
             color: var(--text-primary);
             font-family: var(--font-sans);
             min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 20%),
-                linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
             display: flex;
             flex-direction: column;
         }
@@ -337,15 +333,15 @@
             justify-content: center;
             gap: 8px;
             font-family: var(--font-mono);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.12em;
+            font-size: 11.5px;
+            font-weight: 850;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: #09090b;
+            color: #020617;
             margin-bottom: 20px;
             flex-shrink: 0;
             padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-glass);
+            border-bottom: 2px solid #334155;
         }
 
         .round-step {
@@ -355,10 +351,11 @@
             width: 22px;
             height: 22px;
             border-radius: var(--radius-pill);
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            font-size: 9.5px;
-            color: #09090b;
+            background: #0f172a;
+            border: 1px solid #0f172a;
+            font-size: 10px;
+            font-weight: 800;
+            color: #ffffff;
         }
 
         .round-matches {
@@ -375,14 +372,14 @@
             padding-bottom: 0;
         }
 
-        /* Match Card */
+        /* Match Card - High Contrast */
         .match {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glass);
+            background: #ffffff;
+            border: 2px solid #334155;
             border-radius: var(--radius-control);
             overflow: hidden;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             position: relative;
         }
 
@@ -394,31 +391,31 @@
         }
 
         .match:hover {
-            border-color: #09090b;
-            box-shadow: 0 0 0 1px rgba(9, 9, 11, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-color: #020617;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
             transform: translateY(-2px);
         }
 
         .match.is-final-card {
-            border-color: rgba(245, 158, 11, 0.4);
-            box-shadow: 0 0 24px rgba(245, 158, 11, 0.08);
+            border-color: #d97706;
+            box-shadow: 0 0 16px rgba(217, 119, 6, 0.15);
         }
 
         .match.is-active-match {
-            border-color: #10b981 !important;
-            box-shadow: 0 0 18px rgba(16, 185, 129, 0.35) !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 2px #16a34a, 0 4px 14px rgba(22, 163, 74, 0.3) !important;
         }
 
         .badge-live-tatami {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: 8.5px;
+            font-size: 9px;
             font-weight: 800;
-            color: #059669;
-            background: rgba(16, 185, 129, 0.14);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            padding: 1px 6px;
+            color: #ffffff;
+            background: #dc2626;
+            border: 1px solid #b91c1c;
+            padding: 2px 7px;
             border-radius: 4px;
             letter-spacing: 0.05em;
         }
@@ -427,8 +424,8 @@
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 6px #10b981;
+            background: #ffffff;
+            box-shadow: 0 0 4px #ffffff;
             animation: livePulse 1.5s infinite;
         }
 
@@ -438,7 +435,7 @@
         }
 
         .match.is-finished {
-            border-color: rgba(0, 0, 0, 0.12);
+            border-color: #64748b;
         }
 
         .match-header {
@@ -446,32 +443,35 @@
             align-items: center;
             justify-content: space-between;
             font-family: var(--font-mono);
-            font-size: 9.5px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 5px 10px;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border-glass);
+            color: #020617;
+            padding: 6px 10px;
+            background: #f1f5f9;
+            border-bottom: 2px solid #334155;
         }
 
         .match-num {
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            color: #020617;
+            font-weight: 800;
         }
 
         .match-badge-finish {
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            font-size: 8.5px;
-            color: #059669;
-            background: rgba(16, 185, 129, 0.12);
-            padding: 1px 5px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #166534;
+            background: #dcfce7;
+            padding: 2px 6px;
             border-radius: 4px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            border: 1px solid #86efac;
         }
 
         /* Player Row */
@@ -483,10 +483,11 @@
             min-height: 62px;
             transition: background 0.15s ease;
             position: relative;
+            background: #ffffff;
         }
 
         .player + .player {
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            border-top: 1.5px solid #cbd5e1;
         }
 
         .player.player-aka {
@@ -499,8 +500,8 @@
 
         /* Gold Winner Highlighting */
         .player.is-winner {
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.18) 0%, rgba(245, 158, 11, 0.04) 100%) !important;
-            border-left: 3.5px solid #f59e0b !important;
+            background: #fef3c7 !important;
+            border-left: 4.5px solid #d97706 !important;
             position: relative;
         }
 
@@ -511,29 +512,29 @@
             right: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(180deg, rgba(245, 158, 11, 0.8), rgba(245, 158, 11, 0.15));
+            background: #d97706;
             pointer-events: none;
         }
 
         .player.is-winner .player-name span,
         .player.is-winner .player-name {
-            color: #92400e !important;
-            font-weight: 700 !important;
+            color: #78350f !important;
+            font-weight: 800 !important;
         }
 
         .player.is-winner .player-score {
-            color: #b45309 !important;
-            font-weight: 800 !important;
-            border-color: rgba(245, 158, 11, 0.4) !important;
-            background: rgba(245, 158, 11, 0.15) !important;
+            color: #78350f !important;
+            font-weight: 900 !important;
+            border-color: #d97706 !important;
+            background: #fde68a !important;
         }
 
-        /* Subtle dimming for finished match loser */
+        /* Finished match loser */
         .match.is-finished .player:not(.is-winner) {
-            opacity: 0.65;
+            opacity: 0.72;
         }
         .match.is-finished .player:not(.is-winner):hover {
-            opacity: 0.95;
+            opacity: 1;
         }
 
         .player-side {
@@ -584,9 +585,9 @@
         }
 
         .player-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: #09090b;
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #020617;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -597,19 +598,29 @@
         }
 
         .player-name.empty {
-            color: var(--text-muted);
+            color: #64748b;
             font-style: italic;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .player-sub {
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 600;
-            color: #64748b;
+            color: #1e293b;
             margin-top: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .player-sub .perguruan-name {
+            color: #0369a1;
+            font-weight: 700;
+        }
+
+        .player-sub .utusan-name {
+            color: #1e293b;
+            font-weight: 600;
         }
 
         .dojo-badge-img {
@@ -635,9 +646,9 @@
 
         .meta-kata {
             font-size: 10px;
-            font-weight: 600;
+            font-weight: 700;
             border-radius: 3px;
-            padding: 0 4px;
+            padding: 1px 5px;
             display: inline-block;
             max-width: 140px;
             white-space: nowrap;
@@ -646,15 +657,15 @@
         }
 
         .meta-kata.aka {
-            background: rgba(220, 38, 38, 0.12);
-            color: #dc2626;
-            border: 1px solid rgba(220, 38, 38, 0.3);
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
         }
 
         .meta-kata.ao {
-            background: rgba(37, 99, 235, 0.12);
-            color: #2563eb;
-            border: 1px solid rgba(37, 99, 235, 0.3);
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #60a5fa;
         }
 
         .meta-vr-badge {
@@ -696,21 +707,21 @@
             font-size: 14px;
             font-weight: 800;
             background: #f1f5f9;
-            color: #09090b;
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #020617;
+            border: 1.5px solid #94a3b8;
             padding: 0 6px;
         }
 
         .player.player-aka .player-score {
-            border-color: rgba(220, 38, 38, 0.3);
-            background: rgba(220, 38, 38, 0.1);
-            color: #dc2626;
+            border-color: #dc2626;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .player.player-ao .player-score {
-            border-color: rgba(37, 99, 235, 0.3);
-            background: rgba(37, 99, 235, 0.1);
-            color: #2563eb;
+            border-color: #2563eb;
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .player-score-small {
@@ -3052,8 +3063,8 @@
             const cols = Array.from(document.querySelectorAll('.round-col'));
 
             const isPrint = document.body.classList.contains('is-printing') || (window.matchMedia && window.matchMedia('print').matches);
-            const strokeColor = isPrint ? '#09090b' : 'rgba(15, 23, 42, 0.25)';
-            const strokeWidth = isPrint ? '1.2' : '1.5';
+            const strokeColor = isPrint ? '#09090b' : '#334155';
+            const strokeWidth = isPrint ? '1.5' : '2.2';
 
             for (let ri = 0; ri < cols.length - 1; ri++) {
                 const fromCards = Array.from(cols[ri].querySelectorAll('.match'));

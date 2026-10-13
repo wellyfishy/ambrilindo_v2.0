@@ -1,102 +1,655 @@
-{% extends "admin/base-dashboard.html" %} {% load static %} {% load custom_tags %}
+{% extends "admin/base-dashboard.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block style %}
+<style>
+/* Page Title & Breadcrumbs */
+.page-header h3 {
+    color: #020617 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* Head Action Buttons */
+.btn-head-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid #64748b !important;
+    color: #020617 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+.btn-head-secondary:hover {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-color: #0f172a !important;
+}
+
+/* Metric Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.card-stats {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.15s ease-in-out;
+}
+.card-stats:hover {
+    border-color: #0f172a;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+.card-stats .stat-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+    margin-bottom: 4px;
+}
+.card-stats .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: #020617;
+    line-height: 1.2;
+}
+.card-stats .stat-subtext {
+    font-size: 11.5px;
+    color: #64748b;
+    font-weight: 600;
+    margin-top: 4px;
+}
+.card-stats .stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+}
+
+/* Control Bar (Search & Filter Pills) */
+.control-bar {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 260px;
+    max-width: 420px;
+}
+.search-wrapper i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 14px;
+}
+.search-input {
+    width: 100%;
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    border-radius: 8px;
+    padding: 8px 14px 8px 36px;
+    font-size: 13.5px;
+    color: #020617;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+}
+.search-input:focus {
+    border-color: #000000;
+    box-shadow: 0 0 0 2px rgba(2, 6, 23, 0.15);
+}
+
+.filter-pills-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.filter-pill {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    color: #1e293b;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.filter-pill:hover {
+    background: #f1f5f9;
+    border-color: #0f172a;
+    color: #000000;
+}
+.filter-pill.active {
+    background: #000000 !important;
+    border-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* Table Card Container */
+.table-card {
+    background: #ffffff;
+    border: 1.5px solid #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+.table-custom {
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+.table-custom thead th {
+    background: #f8fafc;
+    color: #020617;
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 14px;
+    border-bottom: 2px solid #000000;
+    vertical-align: middle;
+}
+.table-custom tbody tr {
+    border-bottom: 1px solid #cbd5e1;
+    transition: background 0.1s ease-in-out;
+}
+.table-custom tbody tr:hover {
+    background: #f8fafc;
+}
+.table-custom tbody td {
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: #020617;
+    vertical-align: middle;
+}
+
+/* Rank Badges */
+.rank-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    border: 1.5px solid #cbd5e1;
+}
+.rank-badge.rank-1 {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #b45309;
+}
+.rank-badge.rank-2 {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #334155;
+}
+.rank-badge.rank-3 {
+    background: #ffedd5;
+    border-color: #ea580c;
+    color: #c2410c;
+}
+.rank-badge.rank-other {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+/* Contingent Logo & Name */
+.contingent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.contingent-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 12px;
+    color: #334155;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.contingent-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.contingent-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #020617;
+}
+
+/* Medal Badges */
+.medal-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 13px;
+    line-height: 1;
+}
+.medal-gold {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+}
+.medal-silver {
+    background: #f1f5f9;
+    border: 1px solid #94a3b8;
+    color: #334155;
+}
+.medal-bronze {
+    background: #ffedd5;
+    border: 1px solid #f97316;
+    color: #9a3412;
+}
+.medal-total {
+    background: #020617;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+/* Drawer Toggle Button */
+.btn-toggle-winners {
+    background: #ffffff;
+    border: 1.5px solid #64748b;
+    color: #020617;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+.btn-toggle-winners:hover {
+    background: #f1f5f9;
+    border-color: #0f172a;
+}
+.btn-toggle-winners.active {
+    background: #000000;
+    border-color: #000000;
+    color: #ffffff;
+}
+
+/* Expandable Drawer Row */
+.drawer-row {
+    display: none;
+    background: #f8fafc;
+    border-bottom: 1.5px solid #cbd5e1;
+}
+.drawer-row.show {
+    display: table-row;
+}
+.drawer-content {
+    padding: 16px 20px;
+}
+.winner-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+}
+.winner-card {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.winner-card.gold-border { border-left: 4px solid #f59e0b; }
+.winner-card.silver-border { border-left: 4px solid #94a3b8; }
+.winner-card.bronze-border { border-left: 4px solid #ea580c; }
+
+@media print {
+    .btn-head-secondary, .control-bar, .sidebar, .main-header, .footer, .btn-toggle-winners {
+        display: none !important;
+    }
+    .page-inner { padding: 0 !important; }
+    .card-stats { border: 1px solid #000 !important; }
+    .table-card { border: 1px solid #000 !important; }
+    .drawer-row.show { display: table-row !important; }
+}
+</style>
+{% endblock style %}
 
 {% block content %}
 <div class="container">
     <div class="page-inner">
-        <div class="page-header">
-          <h3 class="fw-bold mb-3"></h3>
+        <!-- Page Header -->
+        <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <ul class="breadcrumbs ps-0 ms-0 mb-1" style="list-style: none; display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                    <li><a href="{% url 'admin-dashboard' event_pk=event.pk %}" style="color: #64748b; font-weight: 600; text-decoration: none;">Dashboard</a></li>
+                    <li><span style="color: #94a3b8; font-weight: 700;">/</span></li>
+                    <li><span style="color: #64748b; font-weight: 600;">Rekapan & Event</span></li>
+                    <li><span style="color: #94a3b8; font-weight: 700;">/</span></li>
+                    <li style="color: #020617; font-weight: 700;">Kontingen / Utusan</li>
+                </ul>
+                <h3 class="fw-bold mb-1">
+                    KUMPULAN KONTINGEN & UTUSAN
+                </h3>
+                <p class="mb-0" style="font-size: 13.5px; color: #334155; font-weight: 500;">
+                    Daftar seluruh kontingen peserta, jumlah atlet, sebaran perguruan, serta rekap perolehan medali juara resmi pada {{ event.nama_event }}.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a href="{% url 'summary-booklet' event_pk=event.pk %}" target="_blank" class="btn btn-head-secondary">
+                    <i class="fas fa-book-open text-warning"></i>
+                    <span>Buku Hasil (Booklet)</span>
+                </a>
+                <button type="button" onclick="window.print()" class="btn btn-head-secondary">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak Rekapan</span>
+                </button>
+            </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Kumpulan Utusan Pada Event {{ event.nama_event }}</div>
-                    </div>
-                    
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                            <th scope="col" style="text-align: center;">No</th>
-                            <th scope="col" style="text-align: center;">Nama Utusan</th>
-                            <th scope="col" style="text-align: center;">Gold 🥇</th>
-                            <th scope="col" style="text-align: center;">Silver 🥈</th>
-                            <th scope="col" style="text-align: center;">Bronze 🥉</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for utusan in utusans %}
-                            <tr>
-                                <td style="text-align: center;">{{ forloop.counter }}</td>
-                                <td>{{ utusan.nama_utusan }}</td>
-                                <td style="text-align: center;">{{ utusan_medals|get_item:utusan.pk|get_item:"gold"|default:"0" }}</td>
-                                <td style="text-align: center;">{{ utusan_medals|get_item:utusan.pk|get_item:"silver"|default:"0" }}</td>
-                                <td style="text-align: center;">{{ utusan_medals|get_item:utusan.pk|get_item:"bronze"|default:"0" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                        </table>
-                    </div>
-                </div>
 
-                {% for utusan in utusans %}
-                {% if utusan.winners %}
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="card-title" style="margin-right: 10px;">Winner List: {{ utusan.nama_utusan }}</div>
-                    </div>
-                    
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                            <th scope="col" style="text-align: center;">No</th>
-                            <th scope="col" style="text-align: center;">Juara 🥇🥈🥉</th>
-                            <th scope="col" style="text-align: center;">Nama</th>
-                            <th scope="col" style="text-align: center;">Perguruan</th>
-                            <th scope="col" style="text-align: center;">Kelas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for winner in utusan.winners %}
-                            <tr>
-                                <td style="text-align: center;">{{ forloop.counter }}</td>
-                                <td style="text-align: center;">
-                                    <b>{% if winner.juara == '1' %}1 🥇
-                                        {% elif winner.juara == '2' %} 2 🥈
-                                        {% elif winner.juara == '3a' or winner.juara == '3b' %} 3 🥉{% endif %}
-                                    </b>
-                                </td>
-                                <td><b>{{ winner.nama_atlet }}</b></td>
-                                <td><b>{{ winner.perguruan }}</b></td>
-                                <td><b>{{ winner.nama_bagan }}</b></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                        </table>
+        <!-- Metric Stat Cards -->
+        <div class="stats-grid">
+            <div class="card-stats">
+                <div>
+                    <div class="stat-label">Total Kontingen</div>
+                    <div class="stat-value">{{ total_utusans }}</div>
+                    <div class="stat-subtext">Delegasi / Daerah Terdaftar</div>
+                </div>
+                <div class="stat-icon text-primary">
+                    <i class="fas fa-flag"></i>
+                </div>
+            </div>
+            <div class="card-stats">
+                <div>
+                    <div class="stat-label">Total Atlet Terdaftar</div>
+                    <div class="stat-value">{{ total_atlets }}</div>
+                    <div class="stat-subtext">Peserta di Seluruh Kontingen</div>
+                </div>
+                <div class="stat-icon text-primary">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="card-stats">
+                <div>
+                    <div class="stat-label">Kontingen Berprestasi</div>
+                    <div class="stat-value">{{ utusans_with_medals }}</div>
+                    <div class="stat-subtext">Meraih Minimal 1 Medali</div>
+                </div>
+                <div class="stat-icon text-warning">
+                    <i class="fas fa-trophy"></i>
+                </div>
+            </div>
+            <div class="card-stats">
+                <div>
+                    <div class="stat-label">Total Medali Diraih</div>
+                    <div class="stat-value">{{ total_medals }}</div>
+                    <div class="stat-subtext">
+                        <span class="text-warning fw-bold">{{ total_gold }} E</span> &bull; 
+                        <span class="text-secondary fw-bold">{{ total_silver }} P</span> &bull; 
+                        <span class="text-danger fw-bold">{{ total_bronze }} B</span>
                     </div>
                 </div>
-                {% endif %}
-                {% endfor %}
+                <div class="stat-icon text-danger">
+                    <i class="fas fa-medal"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Bar: Search & Filter Pills -->
+        <div class="control-bar">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="utusanSearchInput" class="search-input" placeholder="Cari nama kontingen atau atlet..." onkeyup="filterUtusans()">
+            </div>
+            <div class="filter-pills-group">
+                <button type="button" class="filter-pill active" onclick="setFilter('all', this)">
+                    <i class="fas fa-list"></i> Semua ({{ total_utusans }})
+                </button>
+                <button type="button" class="filter-pill" onclick="setFilter('medals', this)">
+                    <i class="fas fa-medal text-warning"></i> Peraih Medali ({{ utusans_with_medals }})
+                </button>
+                <button type="button" class="filter-pill" onclick="setFilter('zero', this)">
+                    <i class="fas fa-circle-notch text-muted"></i> Belum Meraih Medali
+                </button>
+            </div>
+        </div>
+
+        <!-- Contingents Directory Table Card -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="table-custom" id="utusanTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px; text-align: center;">Rank</th>
+                            <th>Kontingen / Utusan</th>
+                            <th style="width: 130px; text-align: center;">Partisipasi</th>
+                            <th style="width: 140px; text-align: center;">Sebaran Aliran</th>
+                            <th style="width: 75px; text-align: center;">Emas 🥇</th>
+                            <th style="width: 75px; text-align: center;">Perak 🥈</th>
+                            <th style="width: 75px; text-align: center;">Perunggu 🥉</th>
+                            <th style="width: 80px; text-align: center;">Total</th>
+                            <th style="width: 140px; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for utusan in utusans %}
+                        <tr class="utusan-row" data-name="{{ utusan.nama_utusan|lower }}" data-total-medals="{{ utusan.total_medals }}" data-winners="{{ utusan.winners|length }}">
+                            <td style="text-align: center;">
+                                <span class="rank-badge {% if utusan.rank == 1 %}rank-1{% elif utusan.rank == 2 %}rank-2{% elif utusan.rank == 3 %}rank-3{% else %}rank-other{% endif %}">
+                                    {{ utusan.rank }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="contingent-item">
+                                    <div class="contingent-avatar">
+                                        {% if utusan.logo %}
+                                            <img src="{{ utusan.logo.url }}" alt="{{ utusan.nama_utusan }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                            <span style="display: none;">{{ utusan.nama_utusan|slice:":3"|upper }}</span>
+                                        {% else %}
+                                            <span>{{ utusan.nama_utusan|slice:":3"|upper }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="contingent-name">{{ utusan.nama_utusan }}</div>
+                                        <div class="text-muted" style="font-size: 12px; font-weight: 500;">
+                                            ID: #U{{ utusan.pk }} &bull; {{ utusan.atlet_count }} Atlet
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; font-weight: 700; font-size: 12px; padding: 5px 10px; border-radius: 6px;">
+                                    {{ utusan.atlet_count }} Atlet
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; font-weight: 600; font-size: 12px; padding: 5px 10px; border-radius: 6px;">
+                                    {{ utusan.perguruan_count }} Perguruan
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="medal-badge medal-gold">{{ utusan.gold }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="medal-badge medal-silver">{{ utusan.silver }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="medal-badge medal-bronze">{{ utusan.bronze }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="medal-badge medal-total">{{ utusan.total_medals }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if utusan.winners %}
+                                <button type="button" class="btn-toggle-winners" onclick="toggleDrawer('drawer-{{ utusan.pk }}', this)">
+                                    <i class="fas fa-trophy text-warning"></i>
+                                    <span>Juara ({{ utusan.winners|length }})</span>
+                                    <i class="fas fa-chevron-down ms-1" style="font-size: 10px;"></i>
+                                </button>
+                                {% else %}
+                                <span class="text-muted" style="font-size: 12px; font-weight: 600;">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <!-- Expandable Winners Drawer Row -->
+                        {% if utusan.winners %}
+                        <tr class="drawer-row" id="drawer-{{ utusan.pk }}" data-parent-name="{{ utusan.nama_utusan|lower }}">
+                            <td colspan="9" class="p-0">
+                                <div class="drawer-content">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="fw-bold" style="font-size: 13px; color: #020617;">
+                                            <i class="fas fa-award text-warning me-1"></i> Daftar Peraih Medali: <span class="text-primary">{{ utusan.nama_utusan }}</span>
+                                        </div>
+                                        <div class="small text-muted fw-bold">{{ utusan.winners|length }} Atlet di Podium</div>
+                                    </div>
+                                    <div class="winner-card-grid">
+                                        {% for winner in utusan.winners %}
+                                        <div class="winner-card {% if winner.juara == '1' %}gold-border{% elif winner.juara == '2' %}silver-border{% else %}bronze-border{% endif %}">
+                                            <div>
+                                                {% if winner.juara == '1' %}
+                                                <span class="medal-badge medal-gold" style="font-size: 11px; padding: 2px 6px;">JUARA 1 🥇</span>
+                                                {% elif winner.juara == '2' %}
+                                                <span class="medal-badge medal-silver" style="font-size: 11px; padding: 2px 6px;">JUARA 2 🥈</span>
+                                                {% else %}
+                                                <span class="medal-badge medal-bronze" style="font-size: 11px; padding: 2px 6px;">JUARA 3 🥉</span>
+                                                {% endif %}
+                                            </div>
+                                            <div style="flex: 1; min-width: 0;">
+                                                <div class="fw-bold text-truncate" style="font-size: 13.5px; color: #020617;">
+                                                    {{ winner.nama_atlet }}
+                                                </div>
+                                                <div class="text-muted text-truncate" style="font-size: 12px; font-weight: 500;">
+                                                    {{ winner.nama_bagan }} &bull; {{ winner.perguruan }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: #64748b;">
+                                <i class="fas fa-flag fa-2x mb-2 text-muted"></i>
+                                <div class="fw-bold">Belum Ada Data Kontingen</div>
+                                <div style="font-size: 13px;">Silakan daftarkan kontingen / atlet pada event ini.</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    
 </div>
 {% endblock content %}
+
+{% block script %}
+<script>
+let currentFilter = 'all';
+
+function setFilter(filterType, btnEl) {
+    currentFilter = filterType;
+    document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
+    btnEl.classList.add('active');
+    filterUtusans();
+}
+
+function filterUtusans() {
+    const query = (document.getElementById('utusanSearchInput').value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('.utusan-row');
+
+    rows.forEach(row => {
+        const name = row.getAttribute('data-name') || '';
+        const totalMedals = parseInt(row.getAttribute('data-total-medals') || '0', 10);
+        
+        let matchesQuery = !query || name.includes(query);
+        let matchesFilter = true;
+
+        if (currentFilter === 'medals') {
+            matchesFilter = totalMedals > 0;
+        } else if (currentFilter === 'zero') {
+            matchesFilter = totalMedals === 0;
+        }
+
+        if (matchesQuery && matchesFilter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+            // Also hide its drawer if open
+            const drawerId = row.querySelector('.btn-toggle-winners')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+            if (drawerId) {
+                const drawer = document.getElementById(drawerId);
+                if (drawer) drawer.classList.remove('show');
+            }
+        }
+    });
+}
+
+function toggleDrawer(drawerId, btn) {
+    const drawer = document.getElementById(drawerId);
+    if (!drawer) return;
+    drawer.classList.toggle('show');
+    btn.classList.toggle('active');
+    const chevron = btn.querySelector('.fa-chevron-down, .fa-chevron-up');
+    if (chevron) {
+        if (drawer.classList.contains('show')) {
+            chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        } else {
+            chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        }
+    }
+}
+</script>
+{% endblock script %}

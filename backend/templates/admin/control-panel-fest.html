@@ -2,65 +2,242 @@
 
 {% block style %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap');
-
 /* ========================================================
-   AMBRILINDO COCKPIT CONTROL PANEL - HIGH-EFFICIENCY UI
+   AMBRILINDO COCKPIT CONTROL PANEL - HIGH-EFFICIENCY TOURNAMENT UI
    ======================================================== */
-:root {
+.cockpit-theme-wrapper,
+.modal-cockpit,
+.modal-content {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-condensed: 'Barlow Condensed', 'Arial Narrow', 'Franklin Gothic Medium', -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
   --aka-color: #ef4444;
   --aka-dark: #b91c1c;
+  --aka-border: #fca5a5;
   --aka-glow: rgba(239, 68, 68, 0.45);
   
   --ao-color: #3b82f6;
   --ao-dark: #1d4ed8;
+  --ao-border: #93c5fd;
   --ao-glow: rgba(59, 130, 246, 0.45);
 
-  --gold-color: #fbbf24;
-  --gold-glow: rgba(251, 191, 36, 0.5);
+  --gold-color: #f59e0b;
+  --gold-bright: #fbbf24;
+  --gold-glow: rgba(251, 191, 36, 0.45);
 
-  --panel-bg: #090d16;
-  --card-bg: #111827;
-  --card-border: rgba(255, 255, 255, 0.12);
-  --input-bg: rgba(0, 0, 0, 0.4);
+  --emerald-color: #10b981;
+  --emerald-dark: #059669;
+  --emerald-border: #34d399;
+
+  --cockpit-bg: #030712;
+  --card-bg: #0f172a;
+  --surface-elevated: #1e293b;
+  --inset-bg: #020617;
+
+  --card-border: #334155;
+  --border-divider: #475569;
+  --border-input: #64748b;
+  --border-focus: #94a3b8;
+
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-muted-safe: #94a3b8;
 }
 
-/* Page Header & Save Bar */
+.cockpit-theme-wrapper {
+  background-color: #030712 !important;
+  color: #ffffff !important;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  margin-bottom: 24px;
+}
+
+.cockpit-theme-wrapper,
+.cockpit-theme-wrapper p,
+.cockpit-theme-wrapper span,
+.cockpit-theme-wrapper div,
+.cockpit-theme-wrapper td,
+.cockpit-theme-wrapper th,
+.cockpit-theme-wrapper label,
+.cockpit-theme-wrapper small,
+.cockpit-theme-wrapper li,
+.cockpit-theme-wrapper h1,
+.cockpit-theme-wrapper h2,
+.cockpit-theme-wrapper h3,
+.cockpit-theme-wrapper h4,
+.cockpit-theme-wrapper h5,
+.cockpit-theme-wrapper h6 {
+  color: inherit;
+}
+
+.cockpit-theme-wrapper .text-muted,
+.modal-content .text-muted {
+  color: var(--text-muted-safe) !important;
+}
+.cockpit-theme-wrapper .text-secondary,
+.modal-content .text-secondary {
+  color: var(--text-secondary) !important;
+}
+.cockpit-theme-wrapper .text-light,
+.modal-content .text-light {
+  color: #ffffff !important;
+}
+.cockpit-theme-wrapper .text-warning,
+.modal-content .text-warning {
+  color: var(--gold-bright) !important;
+}
+
+/* Badge high-contrast overrides */
+.cockpit-theme-wrapper .badge.bg-success {
+  background-color: var(--emerald-dark) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--emerald-border);
+}
+.cockpit-theme-wrapper .badge.bg-danger {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border: 1px solid #f87171;
+}
+.cockpit-theme-wrapper .badge.bg-warning {
+  background-color: #d97706 !important;
+  color: #ffffff !important;
+  border: 1px solid var(--gold-bright);
+}
+.cockpit-theme-wrapper .badge.bg-secondary {
+  background-color: var(--surface-elevated) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-input);
+}
+
+/* Card & Modal Overrides */
+.card.bg-dark,
+.modal-content.bg-dark {
+  background: var(--card-bg) !important;
+  border: 1.5px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+}
+.border-secondary {
+  border-color: var(--card-border) !important;
+}
+
+/* Header & Operations Bar */
 .cockpit-page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 10px 16px;
-  border: 1px solid var(--card-border);
-  background: var(--card-bg);
-  border-radius: 10px;
+  padding: 12px 18px;
+  border: 1.5px solid #334155 !important;
+  background: #0f172a !important;
+  border-radius: 12px;
   margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.btn-cockpit-back {
+  background: #1e293b !important;
+  border: 1.5px solid #475569 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.btn-cockpit-back:hover {
+  background: #334155 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.btn-cockpit-action {
+  background: #1e293b !important;
+  border: 1.5px solid #475569 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 6px 13px;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-cockpit-action:hover {
+  background: #334155 !important;
+  border-color: #cbd5e1 !important;
+  color: #ffffff !important;
+}
+
+/* Cockpit Status Pills */
+.cockpit-status-pill {
+  background: #1e293b !important;
+  border: 1.5px solid #475569 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 8px;
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+.cockpit-status-pill.pill-pending {
+  border-color: #b45309 !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+}
+.cockpit-status-pill.pill-online {
+  border-color: #059669 !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+}
+.cockpit-status-pill.pill-offline {
+  border-color: #b91c1c !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
 }
 
 .match-identity-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--card-border);
+  gap: 10px;
+  background: #020617 !important;
+  border: 1.5px solid #475569 !important;
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 13.5px;
-  font-weight: 700;
-  color: #f1f5f9;
+  font-weight: 750;
+  color: #ffffff !important;
 }
 
 .match-identity-pill .badge-tag {
-  background: rgba(251, 191, 36, 0.15);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  border-radius: 4px;
-  padding: 2px 7px;
-  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1.5px solid var(--gold-color);
+  border-radius: 5px;
+  padding: 3px 8px;
+  color: var(--gold-bright);
   text-transform: uppercase;
   font-size: 11px;
-  letter-spacing: 0.05em;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.festival-pill {
+  background: var(--inset-bg) !important;
+  border: 1.5px solid var(--gold-color) !important;
+  color: #ffffff !important;
+  font-weight: 800;
 }
 
 /* 3-Column Cockpit Command Grid */
@@ -83,11 +260,11 @@
   background: var(--card-bg);
   border: 2px solid var(--card-border);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -95,65 +272,64 @@
 
 .competitor-pod.aka {
   border-top: 4px solid var(--aka-color);
-  background: linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(17, 24, 39, 0.98) 45%);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.16) 0%, rgba(15, 23, 42, 0.98) 45%);
 }
 
 .competitor-pod.ao {
   border-top: 4px solid var(--ao-color);
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.12) 0%, rgba(17, 24, 39, 0.98) 45%);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.16) 0%, rgba(15, 23, 42, 0.98) 45%);
 }
 
-/* Athlete Header Inside Pod */
 .pod-athlete-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--border-divider);
   gap: 10px;
+  min-height: 84px;
 }
 
 .pod-side-tag {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: 12.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
   text-transform: uppercase;
   display: inline-block;
   margin-bottom: 4px;
 }
-.competitor-pod.aka .pod-side-tag { background: var(--aka-color); color: #fff; }
-.competitor-pod.ao .pod-side-tag { background: var(--ao-color); color: #fff; }
+.competitor-pod.aka .pod-side-tag { background: var(--aka-color); color: #fff; border: 1px solid var(--aka-border); }
+.competitor-pod.ao .pod-side-tag { background: var(--ao-color); color: #fff; border: 1px solid var(--ao-border); }
 
 .pod-athlete-name {
-  font-size: clamp(17px, 1.7vw, 22px);
+  font-size: clamp(18px, 1.8vw, 24px);
   font-weight: 850;
   text-transform: uppercase;
   line-height: 1.15;
+  color: #ffffff;
 }
-.competitor-pod.aka .pod-athlete-name { color: #fecaca; }
-.competitor-pod.ao .pod-athlete-name { color: #bfdbfe; }
 
 .pod-athlete-sub {
-  font-size: 11.5px;
-  color: #94a3b8;
-  font-weight: 600;
-  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin-top: 4px;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-/* Winner Selector Button Inside Pod Header */
 .btn-winner-select {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  color: #94a3b8;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff !important;
   border-radius: 8px;
-  padding: 6px 12px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
+  padding: 7px 14px;
+  font-family: var(--font-condensed);
+  font-size: 14.5px;
   font-weight: 850;
   letter-spacing: 0.05em;
   cursor: pointer;
@@ -165,8 +341,9 @@
   white-space: nowrap;
 }
 .btn-winner-select:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff !important;
 }
 .btn-winner-select.selected-aka {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
@@ -181,7 +358,7 @@
   box-shadow: 0 0 16px rgba(59, 130, 246, 0.7);
 }
 
-/* Score Core Row (Big Digit + Senshu Ribbon) */
+/* Score Core Row */
 .score-core-row {
   display: flex;
   align-items: center;
@@ -191,38 +368,38 @@
 }
 
 .score-huge-box {
-  background: #06090e;
-  border: 2px solid rgba(255, 255, 255, 0.14);
+  background: var(--inset-bg);
+  border: 2px solid var(--border-divider);
   border-radius: 12px;
   flex: 1;
-  height: clamp(80px, 8.5vh, 105px);
+  height: clamp(84px, 8.8vh, 108px);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.9);
   position: relative;
 }
-.competitor-pod.aka .score-huge-box { border-color: rgba(239, 68, 68, 0.5); }
-.competitor-pod.ao .score-huge-box { border-color: rgba(59, 130, 246, 0.5); }
+.competitor-pod.aka .score-huge-box { border-color: #dc2626; }
+.competitor-pod.ao .score-huge-box { border-color: #2563eb; }
 
 .score-huge-digit {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(60px, 6vw, 84px);
+  font-family: var(--font-condensed);
+  font-size: clamp(62px, 6.2vw, 86px);
   font-weight: 900;
   line-height: 1;
-  color: #ffffff;
+  color: #ffffff !important;
   letter-spacing: -0.02em;
 }
 
 /* Senshu Ribbon Badge */
 .btn-senshu-ribbon {
-  width: clamp(75px, 8vw, 95px);
-  height: clamp(80px, 8.5vh, 105px);
-  background: rgba(251, 191, 36, 0.08);
-  border: 2px dashed rgba(251, 191, 36, 0.35);
+  width: clamp(78px, 8vw, 98px);
+  height: clamp(84px, 8.8vh, 108px);
+  background: var(--surface-elevated);
+  border: 2px solid #b45309;
   border-radius: 12px;
-  color: #fbbf24;
-  font-family: 'Barlow Condensed', sans-serif;
+  color: var(--gold-bright);
+  font-family: var(--font-condensed);
   font-size: 14px;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -236,8 +413,8 @@
   user-select: none;
 }
 .btn-senshu-ribbon:hover {
-  background: rgba(251, 191, 36, 0.18);
-  border-color: #fbbf24;
+  background: #334155;
+  border-color: #f59e0b;
 }
 .btn-senshu-ribbon i {
   font-size: 24px;
@@ -263,17 +440,17 @@
 }
 
 .fast-score-deck.mirrored {
-  grid-template-columns: 48px 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 48px;
 }
 
 .btn-point-act {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: 17px;
   font-weight: 900;
   letter-spacing: 0.05em;
   padding: 10px 6px;
   border-radius: 8px;
-  border: none;
+  border: 1.5px solid transparent;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -287,33 +464,33 @@
   transform: scale(0.95);
 }
 
-/* AKA Point Buttons */
-.btn-point-act.aka-1 { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-.btn-point-act.aka-2 { background: linear-gradient(135deg, #f97316 0%, #c2410c 100%); }
-.btn-point-act.aka-3 { background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%); }
+/* Disciplined AKA Point Buttons */
+.btn-point-act.aka-1 { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border-color: #fca5a5; }
+.btn-point-act.aka-2 { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border-color: #f87171; }
+.btn-point-act.aka-3 { background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); border-color: #ef4444; }
 
-/* AO Point Buttons */
-.btn-point-act.ao-1 { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-.btn-point-act.ao-2 { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
-.btn-point-act.ao-3 { background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%); }
+/* Disciplined AO Point Buttons */
+.btn-point-act.ao-1 { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-color: #93c5fd; }
+.btn-point-act.ao-2 { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border-color: #60a5fa; }
+.btn-point-act.ao-3 { background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%); border-color: #3b82f6; }
 
 .btn-point-act.btn-dec {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  color: #cbd5e1;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff;
   padding: 0;
   font-size: 18px;
 }
 .btn-point-act.btn-dec:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: #ef4444;
+  background: #334155;
+  border-color: #ffffff;
   color: #ffffff;
 }
 
 /* Criteria / Penalty Strip */
 .criteria-strip {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--inset-bg);
+  border: 1.5px solid var(--card-border);
   border-radius: 10px;
   padding: 8px 12px;
   display: flex;
@@ -324,10 +501,10 @@
 }
 
 .criteria-title {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 850;
   letter-spacing: 0.06em;
-  color: #94a3b8;
+  color: #ffffff !important;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -335,16 +512,16 @@
 .criteria-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .pill-crit {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  color: #94a3b8;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 800;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff !important;
+  font-family: var(--font-condensed);
+  font-size: 13.5px;
+  font-weight: 850;
   padding: 0 10px;
   height: 34px;
   border-radius: 6px;
@@ -357,27 +534,28 @@
   white-space: nowrap;
 }
 .pill-crit:hover {
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff !important;
 }
 .pill-crit.active-red {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
   color: #ffffff !important;
   border-color: #fca5a5 !important;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.7);
 }
 .pill-crit.active-blue {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
   color: #ffffff !important;
   border-color: #93c5fd !important;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.7);
 }
 
 .btn-crit-step {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
   color: #ffffff;
-  width: 30px;
+  width: 32px;
   height: 34px;
   border-radius: 6px;
   display: inline-flex;
@@ -388,78 +566,64 @@
   font-weight: 800;
 }
 .btn-crit-step:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-/* VR Dropdown Bar */
-.vr-action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.vr-badge-btn {
-  font-size: 11.5px;
-  font-weight: 800;
-  padding: 5px 10px;
-  border-radius: 6px;
+  background: #334155;
+  border-color: #cbd5e1;
 }
 
 /* ==================== CENTER COLUMN: MASTER MATCH HUB ==================== */
 .cockpit-hub {
-  background: #0a0f1d;
-  border: 2px solid rgba(255, 255, 255, 0.14);
-  border-top: 4px solid var(--gold-color);
+  background: #0f172a !important;
+  border: 2px solid #334155 !important;
+  border-top: 4px solid #f59e0b !important;
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  gap: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6) !important;
+  gap: 12px;
 }
 
 .hub-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 4px;
+  padding-bottom: 4px;
 }
-
 .hub-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #94a3b8;
 }
 
 /* Digital Timer Box */
 .hub-timer-box {
-  background: #05070c;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: #020617 !important;
+  border: 2px solid #475569 !important;
   border-radius: 12px;
   padding: 8px 10px;
   text-align: center;
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.9) !important;
 }
 
 .hub-timer-digits {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: clamp(48px, 4.5vw, 68px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   -moz-font-feature-settings: "tnum";
   -webkit-font-feature-settings: "tnum";
   font-feature-settings: "tnum";
-  color: #ffffff;
+  color: #ffffff !important;
   line-height: 0.95;
   letter-spacing: 0.02em;
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 .hub-timer-digits.running {
-  color: #fbbf24;
-  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  color: var(--gold-bright) !important;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.7);
 }
 .hub-timer-digits .ms-part {
   font-size: 60%;
@@ -468,13 +632,13 @@
 
 /* Primary Start/Pause Button */
 .btn-master-start {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: 24px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  padding: 10px 18px;
+  padding: 11px 18px;
   border-radius: 10px;
-  border: none;
+  border: 2px solid transparent;
   color: #ffffff;
   width: 100%;
   cursor: pointer;
@@ -487,19 +651,13 @@
 }
 .btn-master-start.start-state {
   background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  border-color: #34d399;
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
-}
-.btn-master-start.start-state:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
 }
 .btn-master-start.pause-state {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  border-color: #fca5a5;
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
-}
-.btn-master-start.pause-state:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
 }
 
 /* Time Micro-adjust & Presets */
@@ -511,37 +669,44 @@
 }
 
 .btn-time-step {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #e2e8f0;
-  font-family: 'Barlow Condensed', sans-serif;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff;
+  font-family: var(--font-condensed);
   font-size: 15px;
   font-weight: 850;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .btn-time-step:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #334155;
+  border-color: #cbd5e1;
   color: #ffffff;
+}
+
+#timer-choice {
+  background-color: var(--inset-bg) !important;
+  border: 1.5px solid var(--border-input) !important;
+  color: #ffffff !important;
 }
 
 .hub-presets-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 5px;
 }
 
 .btn-preset-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff;
+  font-family: var(--font-condensed);
+  font-size: 13.5px;
   font-weight: 800;
-  padding: 6px 8px;
+  padding: 5px 8px;
   border-radius: 6px;
   cursor: pointer;
   flex: 1;
@@ -549,26 +714,19 @@
   transition: all 0.15s ease;
 }
 .btn-preset-chip:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #334155;
+  border-color: #cbd5e1;
   color: #ffffff;
-}
-.btn-preset-chip.text-danger {
-  color: #ef4444 !important;
-  border-color: rgba(239, 68, 68, 0.35);
-}
-.btn-preset-chip.text-danger:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fca5a5 !important;
 }
 
 /* Tutup Banner Score Button */
 .btn-tutup-banner {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  border: none;
-  color: #000000;
-  font-family: 'Barlow Condensed', sans-serif;
+  background: #1e293b;
+  border: 1.5px solid #d97706;
+  color: #fbbf24 !important;
+  font-family: var(--font-condensed);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 850;
   letter-spacing: 0.05em;
   padding: 8px 12px;
   border-radius: 8px;
@@ -578,18 +736,19 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.15s ease;
 }
 .btn-tutup-banner:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  background: #b45309;
+  color: #ffffff !important;
+  border-color: #fbbf24;
 }
 
 /* Secondary Switches */
 .hub-tools-strip {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--inset-bg);
+  border: 1.5px solid var(--card-border);
   border-radius: 8px;
   padding: 6px 14px;
   display: flex;
@@ -598,359 +757,56 @@
   gap: 12px;
 }
 
-/* ==================== BOTTOM REAL-TIME JUDGE STICK MONITOR ==================== */
-.stick-monitor-strip {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 10px 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-
-.stick-strip-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.stick-status-deck {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-.stick-live-card {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 8px 10px;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-.stick-live-card.vote-aka {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.22);
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
-}
-.stick-live-card.vote-ao {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.22);
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
-}
-
-.stick-live-title {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-
-.stick-live-val {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  margin-top: 2px;
-  color: #cbd5e1;
-}
-
-/* History Log Collapsible Drawer */
-.history-drawer {
-  max-height: 180px;
-  overflow-y: auto;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.3);
-  margin-top: 10px;
-}
-
-/* ==================== KATA MATCH 5-JUDGE PANEL STYLING ==================== */
-.kata-card-header {
-  background: linear-gradient(180deg, #111827 0%, #0b0f19 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 14px 20px;
-}
-
-.kata-scoring-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: 100%;
-}
-
-.kata-scoring-table th {
-  padding: 16px 12px;
-  vertical-align: middle;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 23, 42, 0.6);
-}
-
-.juri-th {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-  min-width: 110px;
-}
-
-.juri-th:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-}
-
-.juri-th-title {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #f1f5f9;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.juri-decision-wrap {
-  margin-top: 6px;
-  min-height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.decision-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 8px;
-  letter-spacing: 0.02em;
-  transition: all 0.25s ease;
-}
-
-.decision-aka {
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
-  color: #ffffff;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
-}
-
-.decision-ao {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: #ffffff;
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
-}
-
-.decision-seri {
-  background: #475569;
-  color: #f8fafc;
-}
-
-.decision-empty {
-  background: rgba(255, 255, 255, 0.06);
-  color: #64748b;
-  font-size: 14px;
-}
-
-.kata-scoring-table td {
-  padding: 16px 12px;
-  vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.kata-atlet-name {
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1.25;
-}
-
-.kata-atlet-sub {
-  font-size: 14px;
-  color: #94a3b8;
-  font-weight: 500;
-  margin-top: 4px;
-}
-
-.kata-score-input {
-  width: 92px;
-  height: 54px;
-  font-family: 'JetBrains Mono', 'Barlow Condensed', monospace, sans-serif;
-  font-size: 26px;
-  font-weight: 800;
-  text-align: center;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-}
-
-.kata-score-input.ao {
-  background: rgba(30, 58, 138, 0.25);
-  border: 2px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
-}
-
-.kata-score-input.ao:focus {
-  background: rgba(30, 58, 138, 0.45);
-  border-color: #3b82f6;
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
-  color: #ffffff;
-}
-
-.kata-score-input.aka {
-  background: rgba(127, 29, 29, 0.25);
-  border: 2px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
-}
-
-.kata-score-input.aka:focus {
-  background: rgba(127, 29, 29, 0.45);
-  border-color: #ef4444;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
-  color: #ffffff;
-}
-
-.kata-bendera-val,
-.kata-bendera-val:read-only,
-.kata-bendera-val[readonly] {
-  width: 85px;
-  height: 54px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 28px;
-  font-weight: 900;
-  text-align: center;
-  border-radius: 10px;
-  background: rgba(30, 58, 138, 0.45) !important;
-  border: 2.5px solid #3b82f6 !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
-  opacity: 1 !important;
-}
-
-.kata-bendera-select {
-  width: 85px;
-  height: 54px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 26px;
-  font-weight: 900;
-  text-align: center;
-  border-radius: 10px;
-  background-color: rgba(127, 29, 29, 0.45) !important;
-  border: 2.5px solid #ef4444 !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
-  cursor: pointer;
-}
-
-.kata-bendera-select option {
-  background-color: #1e1e2d;
-  color: #ffffff;
-  font-size: 18px;
-}
-
-.kata-total-point {
-  width: 100px;
-  height: 60px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 38px;
-  font-weight: 900;
-  text-align: center;
-  border-radius: 12px;
-}
-
-.kata-total-point.ao {
-  background: rgba(37, 99, 235, 0.2);
-  border: 2.5px solid #3b82f6;
-  color: #60a5fa;
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
-}
-
-.kata-total-point.aka {
-  background: rgba(220, 38, 38, 0.2);
-  border: 2.5px solid #ef4444;
-  color: #f87171;
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
-}
-
-.btn-wasit-tab {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 15px;
-}
-
-.btn-wasit-tab.active {
-  background: #f59e0b !important;
-  color: #000000 !important;
-  border-color: #f59e0b !important;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
-}
-
-.btn-glow-pulse {
-  animation: btnGlowPulse 1.2s infinite alternate;
-}
-@keyframes btnGlowPulse {
-  0% { box-shadow: 0 0 5px rgba(255,255,255,0.4); transform: scale(1); }
-  100% { box-shadow: 0 0 18px rgba(255,255,255,0.9); transform: scale(1.03); }
-}
-
+/* Festival Utility Styles */
 .btn-ao-blue {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  border: 1px solid #3b82f6 !important;
+  border: 1.5px solid #60a5fa !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
 }
 .btn-ao-blue:hover, .btn-ao-blue:focus {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-  border-color: #60a5fa !important;
+  border-color: #93c5fd !important;
   color: #ffffff !important;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5) !important;
 }
 
 .btn-aka-red {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-  border: 1px solid #ef4444 !important;
+  border: 1.5px solid #f87171 !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
 }
 .btn-aka-red:hover, .btn-aka-red:focus {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-  border-color: #f87171 !important;
+  border-color: #fca5a5 !important;
   color: #ffffff !important;
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5) !important;
 }
 
 .badge-ao-blue {
   background-color: #2563eb !important;
   color: #ffffff !important;
+  border: 1px solid #60a5fa !important;
 }
 
 .badge-aka-red {
   background-color: #dc2626 !important;
   color: #ffffff !important;
-}
-
-/* Festival Custom Enhancements */
-.festival-pill {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
-    border: 1px solid rgba(245, 158, 11, 0.6);
-    color: #fef3c7;
-    font-weight: 800;
+  border: 1px solid #f87171 !important;
 }
 </style>
 {% endblock style %}
 
 {% block content %}
 <div class="container-fluid px-3 py-2">
+<div class="cockpit-theme-wrapper">
     <!-- Top Operations Bar -->
     <div class="cockpit-page-header">
         <div class="d-flex align-items-center gap-2">
-            <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn btn-outline-danger">
-                <i class="fas fa-arrow-left me-1"></i> <b>Kembali</b>
+            <a href="{% url 'admin-dashboard' event_pk=event.pk %}" class="btn-cockpit-back">
+                <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
-            <button type="button" class="btn btn-warning fw-bold px-3 py-2 shadow" id="btn-reset-match" onclick="resetFestivalMatch()" title="Reset pertandingan festival ke 0-0 (Bisa juga tekan Ctrl + R)">
-                <i class="fas fa-undo me-1"></i> <b>Reset Match (Baru)</b>
+            <button type="button" class="btn-cockpit-action text-warning" id="btn-reset-match" onclick="resetFestivalMatch()" title="Reset pertandingan festival ke 0-0 (Bisa juga tekan Ctrl + R)">
+                <i class="fas fa-undo me-1"></i> Reset Match (Baru)
             </button>
         </div>
 
@@ -981,18 +837,18 @@
             </div>
             {% endif %}
 
-            <span id="ws-status-badge" class="badge bg-secondary py-2 px-3">
+            <span id="ws-status-badge" class="cockpit-status-pill pill-offline">
                 <i class="fas fa-network-wired me-1"></i> WS Connect...
             </span>
-            <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-2 shadow-sm" id="btn-sync-board-kumite" onclick="syncFestivalBoard()" title="Sinkronkan ulang status festival ke Scoring Board">
+            <button type="button" class="btn-cockpit-action text-warning" id="btn-sync-board-kumite" onclick="syncFestivalBoard()" title="Sinkronkan ulang status festival ke Scoring Board">
                 <i class="fas fa-sync-alt me-1"></i> Sync Board
             </button>
             <div id="status-indicator">
-                <span id="status-loading" class="badge bg-warning text-dark py-2 px-3"><i class="fas fa-spinner fa-spin me-1"></i> Sync...</span>
-                <span id="status-success" style="display:none;" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Tatami Online</span>
-                <span id="status-error" style="display:none;" class="badge bg-danger py-2 px-3">
+                <span id="status-loading" class="cockpit-status-pill pill-pending"><i class="fas fa-spinner fa-spin me-1"></i> Sync...</span>
+                <span id="status-success" style="display:none;" class="cockpit-status-pill pill-online"><i class="fas fa-check-circle me-1"></i> Tatami Online</span>
+                <span id="status-error" style="display:none;" class="cockpit-status-pill pill-offline">
                     <i class="fas fa-exclamation-triangle me-1"></i> Offline
-                    <button id="retry-status-btn" class="btn btn-sm btn-light py-0 px-1 ms-1" type="button" onclick="syncFestivalBoard()">Retry</button>
+                    <button id="retry-status-btn" class="btn btn-sm btn-light py-0 px-1 ms-1 text-dark fw-bold" type="button" onclick="syncFestivalBoard()">Retry</button>
                 </span>
             </div>
         </div>
@@ -1026,19 +882,19 @@
                     </button>
                 </div>
 
-                <!-- 1-Click Fast Scoring Deck (Mirrored on Ao) -->
-                <div class="fast-score-deck mirrored">
-                    <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin AO">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn-point-act ao-3" onclick="addScorePoint('ao', 3, 'ao-ippon')" title="+3 IPPON AO">
-                        +3 IPPON
+                <!-- 1-Click Fast Scoring Deck -->
+                <div class="fast-score-deck">
+                    <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')" title="+1 YUKO AO">
+                        +1 YUKO
                     </button>
                     <button type="button" class="btn-point-act ao-2" onclick="addScorePoint('ao', 2, 'ao-wazaari')" title="+2 WAZA AO">
                         +2 WAZA
                     </button>
-                    <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')" title="+1 YUKO AO">
-                        +1 YUKO
+                    <button type="button" class="btn-point-act ao-3" onclick="addScorePoint('ao', 3, 'ao-ippon')" title="+3 IPPON AO">
+                        +3 IPPON
+                    </button>
+                    <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin AO">
+                        <i class="fas fa-minus"></i>
                     </button>
                 </div>
 
@@ -1189,6 +1045,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock content %}
 

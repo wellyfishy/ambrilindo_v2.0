@@ -277,12 +277,34 @@ def auth(request):
     return render(request, 'auth/auth.html', context)
 
 def admin_control(request, tatami_pk):
-    tatami = Tatami.objects.get(pk=tatami_pk)
+    tatami = get_object_or_404(
+        Tatami.objects.select_related(
+            'event',
+            'detail_bagan__bagan__nomor_tanding',
+            'detail_bagan__atlet1__perguruan',
+            'detail_bagan__atlet1__utusan',
+            'detail_bagan__atlet2__perguruan',
+            'detail_bagan__atlet2__utusan',
+        ),
+        pk=tatami_pk
+    )
     event = tatami.event
+    request.session['view_only_role'] = 'admin_control'
+    request.session['view_only_tatami_pk'] = tatami.pk
+    if event:
+        request.session['view_only_event_pk'] = event.pk
+
+    all_tatamis = Tatami.objects.filter(event=event).order_by('tatami_number') if event else []
+    detail_bagan = tatami.detail_bagan
+    bagan = detail_bagan.bagan if detail_bagan else None
+
     context = {
         'tatami': tatami,
         'on': 'control',
         'event': event,
+        'detail_bagan': detail_bagan,
+        'bagan': bagan,
+        'all_tatamis': all_tatamis,
     }
     return render(request, 'jury/admin-control.html', context)
 
@@ -340,6 +362,10 @@ def jury_panel(request, tatami_pk):
             messages.error(request, "Anda tidak memiliki akses ke panel juri.")
             return redirect('auth')
 
+    if tatami.event_id:
+        request.session['view_only_event_pk'] = tatami.event_id
+        request.session['view_only_tatami_pk'] = tatami.pk
+
     context = {
         'jury': jury_obj,
         'jury_number': jury_number,
@@ -365,10 +391,20 @@ def coach_supervisor(request, tatami_pk):
     detail_bagan = tatami.detail_bagan
     bagan = detail_bagan.bagan if detail_bagan else None
 
+    # Establish session for view-only arena access
+    request.session['view_only_role'] = 'coach_sup'
+    request.session['view_only_tatami_pk'] = tatami.pk
+    if tatami.event:
+        request.session['view_only_event_pk'] = tatami.event.pk
+
+    all_tatamis = Tatami.objects.filter(event=tatami.event).order_by('tatami_number') if tatami.event else []
+
     context = {
         'tatami': tatami,
         'detail_bagan': detail_bagan,
         'bagan': bagan,
+        'event': tatami.event,
+        'all_tatamis': all_tatamis,
     }
     return render(request, 'jury/coach-supervisor.html', context)
 
@@ -391,6 +427,8 @@ def wasit_vr(request, tatami_pk):
     # Establish session for view-only arena access
     request.session['view_only_role'] = 'wasit_vr'
     request.session['view_only_tatami_pk'] = tatami.pk
+    if tatami.event:
+        request.session['view_only_event_pk'] = tatami.event.pk
 
     # Retrieve assigned Wasit VR for this Tatami if any
     assigned_vr_wasit = tatami.wasit_assignments.filter(posisi='vr_wasit').select_related('wasit').first()
@@ -662,7 +700,7 @@ def message_retriever_coach_supervisor(request, tatami_pk):
 OFFICIAL_KATA_LIST = [
     "Blank", "Anan", "Anan Dai", "Ananko", "Aoyagi", "Bassai", "Bassai Dai", "Bassai Sho",
     "Chatanyara Kusanku", "Chibana No Kushanku", "Chinte", "Chinto", "Enpi", "Fukyugata Ichi",
-    "Fukvugata Ni", "Gankaku", "Garyu", "Gekisai (Geksai) 1", "Gekisai (Geksai) 2", "Gojushiho",
+    "Fukyugata Ni", "Gankaku", "Garyu", "Gekisai (Geksai) 1", "Gekisai (Geksai) 2", "Gojushiho",
     "Gojushiho Dai", "Gojushiho Sho", "Hakucho", "Hangetsu", "Haufa (Haffa)", "Heian Shodan",
     "Heian Nidan", "Heian Sandan", "Heian Yondan", "Heian Godan", "Heiku", "Ishimine Bassai",
     "Itosu Rohai Shodan", "Itosu Rohai Nidan", "Itosu Rohai Sandan", "Jiin", "Jion", "Jitte",
@@ -1016,31 +1054,16 @@ def lo_kata_view(request, tatami_pk):
 
     if selected_bagan:
         referchange = 'REFERCHANGE' in selected_bagan.nama_bagan.upper()
-        detail_bagans_round_1 = list(
-            DetailBagan.objects.filter(bagan=selected_bagan, round=1)
+        all_round_dbs = list(
+            DetailBagan.objects.filter(bagan=selected_bagan, round__in=[1, 2, 3, 4, 5])
             .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
-            .order_by('urutan')
+            .order_by('round', 'urutan')
         )
-        detail_bagans_round_2 = list(
-            DetailBagan.objects.filter(bagan=selected_bagan, round=2)
-            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
-            .order_by('urutan')
-        )
-        detail_bagans_round_3 = list(
-            DetailBagan.objects.filter(bagan=selected_bagan, round=3)
-            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
-            .order_by('urutan')
-        )
-        detail_bagans_round_4 = list(
-            DetailBagan.objects.filter(bagan=selected_bagan, round=4)
-            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
-            .order_by('urutan')
-        )
-        detail_bagan_round_5 = (
-            DetailBagan.objects.filter(bagan=selected_bagan, round=5)
-            .select_related('atlet1__perguruan', 'atlet1__utusan', 'atlet2__perguruan', 'atlet2__utusan', 'assigned_tatami')
-            .first()
-        )
+        detail_bagans_round_1 = [m for m in all_round_dbs if m.round == 1]
+        detail_bagans_round_2 = [m for m in all_round_dbs if m.round == 2]
+        detail_bagans_round_3 = [m for m in all_round_dbs if m.round == 3]
+        detail_bagans_round_4 = [m for m in all_round_dbs if m.round == 4]
+        detail_bagan_round_5 = next((m for m in all_round_dbs if m.round == 5), None)
 
         all_matches = detail_bagans_round_1 + detail_bagans_round_2 + detail_bagans_round_3 + detail_bagans_round_4
         for m in all_matches:

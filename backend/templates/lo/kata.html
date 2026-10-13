@@ -8,33 +8,32 @@
     <meta name="theme-color" content="#08080a">
     <title>LO Kata Manager &bull; {% if selected_bagan %}{{ selected_bagan.nama_bagan }}{% else %}Bagan Arena{% endif %} &bull; Tatami {{ tatami.tatami_number }}</title>
 
-    <!-- Stylesheets & Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Stylesheets & Local Icons -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'icons/fontawesome-free/css/all.min.css' %}">
 
     <style>
         :root {
-            --bg-body: #f8fafc;
-            --bg-surface: rgba(255, 255, 255, 0.9);
+            --bg-body: #f1f5f9;
+            --bg-surface: #ffffff;
             --bg-surface-elevated: #ffffff;
-            --bg-card: rgba(255, 255, 255, 0.94);
-            --border-glass: rgba(0, 0, 0, 0.08);
-            --border-highlight: rgba(0, 0, 0, 0.16);
-            --cal-red: #dc2626;
+            --bg-card: #ffffff;
+            --border-glass: #cbd5e1;
+            --border-card: #334155;
+            --border-input: #64748b;
+            --border-highlight: #020617;
+            --cal-red: #ef4444;
             --cal-blue: #2563eb;
             --cal-gold: #d97706;
             --cal-green: #059669;
-            --text-primary: #09090b;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-primary: #020617;
+            --text-secondary: #1e293b;
+            --text-muted: #475569;
             --radius-card: 10px;
             --radius-control: 8px;
             --radius-pill: 9999px;
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-mono: 'JetBrains Mono', Consolas, monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         * {
@@ -49,12 +48,6 @@
             color: var(--text-primary);
             font-family: var(--font-sans);
             min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 20%),
-                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
             display: flex;
             flex-direction: column;
         }
@@ -379,15 +372,15 @@
             justify-content: center;
             gap: 8px;
             font-family: var(--font-mono);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.12em;
+            font-size: 11.5px;
+            font-weight: 850;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: var(--text-secondary);
+            color: #020617;
             margin-bottom: 20px;
             flex-shrink: 0;
             padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-glass);
+            border-bottom: 2px solid #334155;
         }
 
         .round-step {
@@ -397,10 +390,11 @@
             width: 22px;
             height: 22px;
             border-radius: var(--radius-pill);
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            font-size: 9.5px;
-            color: var(--text-primary);
+            background: #0f172a;
+            border: 1px solid #0f172a;
+            font-size: 10px;
+            font-weight: 800;
+            color: #ffffff;
         }
 
         .round-matches {
@@ -411,33 +405,33 @@
             gap: 18px;
         }
 
-        /* Match Card Styles */
+        /* Match Card Styles - High Contrast */
         .match {
-            background: var(--bg-card);
-            border: 1.5px solid var(--border-glass);
+            background: #ffffff;
+            border: 2px solid #334155;
             border-radius: var(--radius-control);
             overflow: hidden;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             position: relative;
             cursor: pointer;
             user-select: none;
         }
 
         .match:hover {
-            border-color: rgba(0, 0, 0, 0.25);
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 6px 18px rgba(0, 0, 0, 0.08);
+            border-color: #020617;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
             transform: translateY(-2px);
         }
 
         .match.is-active-match {
-            border-color: #059669 !important;
-            box-shadow: 0 0 16px rgba(5, 150, 105, 0.2) !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 2px #16a34a, 0 4px 14px rgba(22, 163, 74, 0.3) !important;
         }
 
         .match.is-finished {
-            border-color: rgba(0, 0, 0, 0.12);
-            opacity: 0.92;
+            border-color: #64748b;
+            opacity: 0.95;
         }
 
         .match-header {
@@ -445,8 +439,8 @@
             align-items: center;
             justify-content: space-between;
             padding: 6px 12px;
-            background: rgba(0, 0, 0, 0.02);
-            border-bottom: 1px solid var(--border-glass);
+            background: #f1f5f9;
+            border-bottom: 2px solid #334155;
             font-size: 11px;
         }
 
@@ -535,11 +529,12 @@
         }
 
         .player-aka {
-            border-bottom: 1px solid var(--border-glass);
+            border-bottom: 1.5px solid #cbd5e1;
         }
 
         .player.is-winner {
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.1), transparent);
+            background: #fef3c7 !important;
+            border-left: 4.5px solid #d97706 !important;
         }
 
         .player-side {
@@ -559,12 +554,12 @@
 
         .player-side.aka {
             background: #dc2626;
-            border: 1px solid #ef4444;
+            border: 1px solid #b91c1c;
         }
 
         .player-side.ao {
             background: #2563eb;
-            border: 1px solid #3b82f6;
+            border: 1px solid #1d4ed8;
         }
 
         .player-dojo-logo {
@@ -580,9 +575,9 @@
         }
 
         .player-name {
-            font-size: 13.5px;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 800;
+            color: #020617;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -590,17 +585,29 @@
         }
 
         .player-name.empty {
-            color: var(--text-muted);
+            color: #64748b;
             font-style: italic;
+            font-weight: 600;
         }
 
         .player-sub {
-            font-size: 11px;
-            color: var(--text-muted);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #1e293b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-top: 1px;
+            margin-top: 2px;
+        }
+
+        .player-sub .perguruan-name {
+            color: #0369a1;
+            font-weight: 700;
+        }
+
+        .player-sub .utusan-name {
+            color: #1e293b;
+            font-weight: 600;
         }
 
         .match-kata-slot {
@@ -614,7 +621,7 @@
             gap: 5px;
             font-family: var(--font-mono);
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             padding: 3px 8px;
             border-radius: 5px;
             white-space: nowrap;
@@ -625,21 +632,22 @@
         }
 
         .match-kata-chip.aka {
-            background: rgba(220, 38, 38, 0.08);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            color: #dc2626;
+            background: #fee2e2;
+            border: 1.5px solid #dc2626;
+            color: #991b1b;
         }
 
         .match-kata-chip.ao {
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            color: #2563eb;
+            background: #dbeafe;
+            border: 1.5px solid #2563eb;
+            color: #1e40af;
         }
 
         .match-kata-chip.empty {
-            background: rgba(0, 0, 0, 0.03);
-            border: 1px dashed rgba(0, 0, 0, 0.15);
-            color: var(--text-muted);
+            background: #f1f5f9;
+            border: 1.5px dashed #64748b;
+            color: #334155;
+            font-weight: 700;
         }
 
         /* Match Kata Assignment Modal - High Precision Broadcast UI */
@@ -1611,8 +1619,8 @@
 
             const outer = svg.parentElement.getBoundingClientRect();
             const cols = Array.from(document.querySelectorAll('.round-col'));
-            const strokeColor = 'rgba(15, 23, 42, 0.25)';
-            const strokeWidth = '1.5';
+            const strokeColor = '#334155';
+            const strokeWidth = '2.2';
 
             for (let ri = 0; ri < cols.length - 1; ri++) {
                 const fromCards = Array.from(cols[ri].querySelectorAll('.match'));

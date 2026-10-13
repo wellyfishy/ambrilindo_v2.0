@@ -2,27 +2,215 @@
 
 {% block style %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap');
-
 /* ========================================================
-   AMBRILINDO COCKPIT CONTROL PANEL - HIGH-EFFICIENCY UI
+   AMBRILINDO COCKPIT CONTROL PANEL - HIGH-EFFICIENCY TOURNAMENT UI
    ======================================================== */
-:root {
+.cockpit-theme-wrapper,
+.modal-cockpit,
+.modal-content {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-condensed: 'Barlow Condensed', 'Arial Narrow', 'Franklin Gothic Medium', -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
   --aka-color: #ef4444;
   --aka-dark: #b91c1c;
+  --aka-border: #fca5a5;
   --aka-glow: rgba(239, 68, 68, 0.45);
   
   --ao-color: #3b82f6;
   --ao-dark: #1d4ed8;
+  --ao-border: #93c5fd;
   --ao-glow: rgba(59, 130, 246, 0.45);
 
-  --gold-color: #fbbf24;
-  --gold-glow: rgba(251, 191, 36, 0.5);
+  --gold-color: #f59e0b;
+  --gold-bright: #fbbf24;
+  --gold-glow: rgba(251, 191, 36, 0.45);
 
-  --panel-bg: #090d16;
-  --card-bg: #111827;
-  --card-border: rgba(255, 255, 255, 0.12);
-  --input-bg: rgba(0, 0, 0, 0.4);
+  --emerald-color: #10b981;
+  --emerald-dark: #059669;
+  --emerald-border: #34d399;
+
+  --cockpit-bg: #030712;
+  --card-bg: #0f172a;
+  --surface-elevated: #1e293b;
+  --inset-bg: #020617;
+
+  --card-border: #334155;
+  --border-divider: #475569;
+  --border-input: #64748b;
+  --border-focus: #94a3b8;
+
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-muted-safe: #94a3b8;
+}
+
+.cockpit-theme-wrapper {
+  background-color: #030712 !important;
+  color: #ffffff !important;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  margin-bottom: 24px;
+}
+
+.cockpit-theme-wrapper,
+.cockpit-theme-wrapper p,
+.cockpit-theme-wrapper span,
+.cockpit-theme-wrapper div,
+.cockpit-theme-wrapper td,
+.cockpit-theme-wrapper th,
+.cockpit-theme-wrapper label,
+.cockpit-theme-wrapper small,
+.cockpit-theme-wrapper li,
+.cockpit-theme-wrapper h1,
+.cockpit-theme-wrapper h2,
+.cockpit-theme-wrapper h3,
+.cockpit-theme-wrapper h4,
+.cockpit-theme-wrapper h5,
+.cockpit-theme-wrapper h6 {
+  color: inherit;
+}
+
+.cockpit-theme-wrapper .text-muted,
+.modal-content .text-muted {
+  color: var(--text-muted-safe) !important;
+}
+.cockpit-theme-wrapper .text-secondary,
+.modal-content .text-secondary {
+  color: var(--text-secondary) !important;
+}
+.cockpit-theme-wrapper .text-light,
+.modal-content .text-light {
+  color: #ffffff !important;
+}
+.cockpit-theme-wrapper .text-warning,
+.modal-content .text-warning {
+  color: var(--gold-bright) !important;
+}
+.cockpit-theme-wrapper .text-danger,
+.modal-content .text-danger {
+  color: #f87171 !important;
+}
+.cockpit-theme-wrapper .text-primary,
+.modal-content .text-primary {
+  color: #60a5fa !important;
+}
+.cockpit-theme-wrapper .text-success,
+.modal-content .text-success {
+  color: #34d399 !important;
+}
+
+/* ==================== RESETS AGAINST BASE-DASHBOARD LIGHT RULES ==================== */
+.cockpit-theme-wrapper .card,
+.modal-content .card {
+  background-color: #0f172a !important;
+  border: 1.5px solid #334155 !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+.cockpit-theme-wrapper .card-header,
+.modal-content .card-header {
+  background-color: #1e293b !important;
+  border-bottom: 1.5px solid #334155 !important;
+  color: #ffffff !important;
+}
+
+.cockpit-theme-wrapper .card-body,
+.modal-content .card-body {
+  color: #ffffff !important;
+}
+
+.cockpit-theme-wrapper .table,
+.cockpit-theme-wrapper .table-dark,
+.cockpit-theme-wrapper .kata-scoring-table,
+.modal-content .table {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+.cockpit-theme-wrapper .table > :not(caption) > * > *,
+.cockpit-theme-wrapper table.table > tbody > tr > *,
+.cockpit-theme-wrapper .kata-scoring-table td,
+.modal-content .table > :not(caption) > * > * {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-bottom: 1.5px solid #334155 !important;
+}
+
+.cockpit-theme-wrapper table.table-striped > tbody > tr:nth-of-type(odd) > *,
+.cockpit-theme-wrapper .kata-scoring-table tbody tr:nth-of-type(odd) td {
+  background-color: #131d33 !important;
+  color: #ffffff !important;
+}
+
+.cockpit-theme-wrapper table.table-hover > tbody > tr:hover > *,
+.cockpit-theme-wrapper .kata-scoring-table tbody tr:hover td {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.cockpit-theme-wrapper table.table thead th,
+.cockpit-theme-wrapper .kata-scoring-table th,
+.modal-content table.table thead th {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-bottom: 2px solid #475569 !important;
+}
+
+.cockpit-theme-wrapper .form-control,
+.cockpit-theme-wrapper .form-select,
+.cockpit-theme-wrapper select.form-control,
+.modal-content .form-control,
+.modal-content .form-select {
+  background-color: #020617 !important;
+  color: #ffffff !important;
+  border: 1.5px solid #64748b !important;
+  border-radius: 8px !important;
+}
+
+.cockpit-theme-wrapper .form-control:focus,
+.cockpit-theme-wrapper .form-select:focus,
+.modal-content .form-control:focus,
+.modal-content .form-select:focus {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35) !important;
+}
+
+.cockpit-theme-wrapper .select2-container--default .select2-selection--single {
+  background-color: #020617 !important;
+  border: 1.5px solid #64748b !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  height: 40px !important;
+}
+.cockpit-theme-wrapper .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #ffffff !important;
+  line-height: 38px !important;
+}
+.cockpit-theme-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 38px !important;
+}
+.cockpit-theme-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #94a3b8 transparent transparent transparent !important;
+}
+
+/* Modal Content Theme */
+.modal-content.bg-dark {
+  background: var(--card-bg) !important;
+  border: 2px solid var(--card-border) !important;
+  border-radius: 12px;
+  color: #ffffff;
+}
+.cockpit-theme-wrapper .border-secondary,
+.modal-content .border-secondary {
+  border-color: var(--card-border) !important;
 }
 
 /* Page Header & Save Bar */
@@ -32,35 +220,123 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 10px 16px;
-  border: 1px solid var(--card-border);
-  background: var(--card-bg);
-  border-radius: 10px;
+  padding: 12px 18px;
+  border: 1.5px solid #334155 !important;
+  background: #0f172a !important;
+  border-radius: 12px;
   margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Dedicated Tactical Buttons for Header */
+.btn-cockpit-back {
+  background: #1e293b !important;
+  border: 1.5px solid #475569 !important;
+  color: #ffffff !important;
+  padding: 7px 15px;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+.btn-cockpit-back:hover {
+  background: #334155 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.btn-cockpit-save {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border: 1.5px solid #34d399 !important;
+  color: #ffffff !important;
+  font-size: 14.5px;
+  font-weight: 850;
+  padding: 7px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.15s ease;
+}
+.btn-cockpit-save:hover {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border-color: #6ee7b7 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.cockpit-status-pill {
+  background: #1e293b !important;
+  border: 1.5px solid #475569 !important;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 750;
+  color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cockpit-status-pill.pill-online {
+  border-color: #059669 !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+}
+.cockpit-status-pill.pill-offline {
+  border-color: #b91c1c !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #fca5a5 !important;
+}
+
+.btn-cockpit-action {
+  background: #1e293b !important;
+  border: 1.5px solid #475569 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 6px 13px;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-cockpit-action:hover {
+  background: #334155 !important;
+  border-color: #cbd5e1 !important;
+  color: #ffffff !important;
 }
 
 .match-identity-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--card-border);
+  gap: 10px;
+  background: #020617 !important;
+  border: 1.5px solid #475569 !important;
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 13.5px;
-  font-weight: 700;
-  color: #f1f5f9;
+  font-weight: 750;
+  color: #ffffff !important;
 }
 
 .match-identity-pill .badge-tag {
-  background: rgba(251, 191, 36, 0.15);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  border-radius: 4px;
-  padding: 2px 7px;
-  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1.5px solid var(--gold-color);
+  border-radius: 5px;
+  padding: 3px 8px;
+  color: var(--gold-bright);
   text-transform: uppercase;
   font-size: 11px;
-  letter-spacing: 0.05em;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 /* 3-Column Cockpit Command Grid */
@@ -83,11 +359,11 @@
   background: var(--card-bg);
   border: 2px solid var(--card-border);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -95,12 +371,12 @@
 
 .competitor-pod.aka {
   border-top: 4px solid var(--aka-color);
-  background: linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(17, 24, 39, 0.98) 45%);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.16) 0%, rgba(15, 23, 42, 0.98) 45%);
 }
 
 .competitor-pod.ao {
   border-top: 4px solid var(--ao-color);
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.12) 0%, rgba(17, 24, 39, 0.98) 45%);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.16) 0%, rgba(15, 23, 42, 0.98) 45%);
 }
 
 /* Athlete Header Inside Pod */
@@ -109,51 +385,53 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--border-divider);
   gap: 10px;
+  min-height: 84px;
 }
 
 .pod-side-tag {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: 12.5px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
   text-transform: uppercase;
   display: inline-block;
   margin-bottom: 4px;
 }
-.competitor-pod.aka .pod-side-tag { background: var(--aka-color); color: #fff; }
-.competitor-pod.ao .pod-side-tag { background: var(--ao-color); color: #fff; }
+.competitor-pod.aka .pod-side-tag { background: var(--aka-color); color: #ffffff; border: 1px solid var(--aka-border); }
+.competitor-pod.ao .pod-side-tag { background: var(--ao-color); color: #ffffff; border: 1px solid var(--ao-border); }
 
 .pod-athlete-name {
-  font-size: clamp(17px, 1.7vw, 22px);
+  font-size: clamp(20px, 2vw, 26px);
   font-weight: 850;
   text-transform: uppercase;
   line-height: 1.15;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
-.competitor-pod.aka .pod-athlete-name { color: #fecaca; }
-.competitor-pod.ao .pod-athlete-name { color: #bfdbfe; }
 
 .pod-athlete-sub {
-  font-size: 11.5px;
-  color: #94a3b8;
-  font-weight: 600;
-  margin-top: 2px;
+  font-size: 12.5px;
+  color: #e2e8f0 !important;
+  font-weight: 700;
+  margin-top: 4px;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 /* Winner Selector Button Inside Pod Header */
 .btn-winner-select {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  color: #94a3b8;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff !important;
   border-radius: 8px;
-  padding: 6px 12px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
+  padding: 7px 14px;
+  font-family: var(--font-condensed);
+  font-size: 14.5px;
   font-weight: 850;
   letter-spacing: 0.05em;
   cursor: pointer;
@@ -165,8 +443,9 @@
   white-space: nowrap;
 }
 .btn-winner-select:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff !important;
 }
 .btn-winner-select.selected-aka {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
@@ -191,38 +470,38 @@
 }
 
 .score-huge-box {
-  background: #06090e;
-  border: 2px solid rgba(255, 255, 255, 0.14);
+  background: var(--inset-bg);
+  border: 2px solid var(--border-divider);
   border-radius: 12px;
   flex: 1;
-  height: clamp(80px, 8.5vh, 105px);
+  height: clamp(84px, 8.8vh, 108px);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.9);
   position: relative;
 }
-.competitor-pod.aka .score-huge-box { border-color: rgba(239, 68, 68, 0.5); }
-.competitor-pod.ao .score-huge-box { border-color: rgba(59, 130, 246, 0.5); }
+.competitor-pod.aka .score-huge-box { border-color: #dc2626; }
+.competitor-pod.ao .score-huge-box { border-color: #2563eb; }
 
 .score-huge-digit {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: clamp(60px, 6vw, 84px);
+  font-family: var(--font-condensed);
+  font-size: clamp(62px, 6.2vw, 86px);
   font-weight: 900;
   line-height: 1;
-  color: #ffffff;
+  color: #ffffff !important;
   letter-spacing: -0.02em;
 }
 
 /* Senshu Ribbon Badge */
 .btn-senshu-ribbon {
-  width: clamp(75px, 8vw, 95px);
-  height: clamp(80px, 8.5vh, 105px);
-  background: rgba(251, 191, 36, 0.08);
-  border: 2px dashed rgba(251, 191, 36, 0.35);
+  width: clamp(78px, 8vw, 98px);
+  height: clamp(84px, 8.8vh, 108px);
+  background: var(--surface-elevated);
+  border: 2px solid #b45309;
   border-radius: 12px;
-  color: #fbbf24;
-  font-family: 'Barlow Condensed', sans-serif;
+  color: var(--gold-bright);
+  font-family: var(--font-condensed);
   font-size: 14px;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -236,8 +515,8 @@
   user-select: none;
 }
 .btn-senshu-ribbon:hover {
-  background: rgba(251, 191, 36, 0.18);
-  border-color: #fbbf24;
+  background: #334155;
+  border-color: #f59e0b;
 }
 .btn-senshu-ribbon i {
   font-size: 24px;
@@ -263,17 +542,17 @@
 }
 
 .fast-score-deck.mirrored {
-  grid-template-columns: 48px 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 48px;
 }
 
 .btn-point-act {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: 17px;
   font-weight: 900;
   letter-spacing: 0.05em;
   padding: 10px 6px;
   border-radius: 8px;
-  border: none;
+  border: 1.5px solid transparent;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -287,33 +566,33 @@
   transform: scale(0.95);
 }
 
-/* AKA Point Buttons */
-.btn-point-act.aka-1 { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-.btn-point-act.aka-2 { background: linear-gradient(135deg, #f97316 0%, #c2410c 100%); }
-.btn-point-act.aka-3 { background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%); }
+/* Disciplined AKA Point Buttons */
+.btn-point-act.aka-1 { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border-color: #fca5a5; }
+.btn-point-act.aka-2 { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border-color: #f87171; }
+.btn-point-act.aka-3 { background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); border-color: #ef4444; }
 
-/* AO Point Buttons */
-.btn-point-act.ao-1 { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-.btn-point-act.ao-2 { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
-.btn-point-act.ao-3 { background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%); }
+/* Disciplined AO Point Buttons */
+.btn-point-act.ao-1 { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-color: #93c5fd; }
+.btn-point-act.ao-2 { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border-color: #60a5fa; }
+.btn-point-act.ao-3 { background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%); border-color: #3b82f6; }
 
 .btn-point-act.btn-dec {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  color: #cbd5e1;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff;
   padding: 0;
   font-size: 18px;
 }
 .btn-point-act.btn-dec:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: #ef4444;
+  background: #334155;
+  border-color: #ffffff;
   color: #ffffff;
 }
 
 /* Criteria / Penalty Strip */
 .criteria-strip {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--inset-bg);
+  border: 1.5px solid var(--card-border);
   border-radius: 10px;
   padding: 8px 12px;
   display: flex;
@@ -324,10 +603,10 @@
 }
 
 .criteria-title {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 850;
   letter-spacing: 0.06em;
-  color: #94a3b8;
+  color: #ffffff !important;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -335,16 +614,16 @@
 .criteria-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .pill-crit {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
-  color: #94a3b8;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 800;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff !important;
+  font-family: var(--font-condensed);
+  font-size: 13.5px;
+  font-weight: 850;
   padding: 0 10px;
   height: 34px;
   border-radius: 6px;
@@ -357,27 +636,28 @@
   white-space: nowrap;
 }
 .pill-crit:hover {
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff !important;
 }
 .pill-crit.active-red {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
   color: #ffffff !important;
   border-color: #fca5a5 !important;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.7);
 }
 .pill-crit.active-blue {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
   color: #ffffff !important;
   border-color: #93c5fd !important;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.7);
 }
 
 .btn-crit-step {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
   color: #ffffff;
-  width: 30px;
+  width: 32px;
   height: 34px;
   border-radius: 6px;
   display: inline-flex;
@@ -388,7 +668,8 @@
   font-weight: 800;
 }
 .btn-crit-step:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: #334155;
+  border-color: #cbd5e1;
 }
 
 /* VR Dropdown Bar */
@@ -398,52 +679,60 @@
   justify-content: space-between;
 }
 .vr-badge-btn {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 800;
-  padding: 5px 10px;
+  padding: 5px 12px;
   border-radius: 6px;
+  border-width: 1.5px;
+  background: var(--surface-elevated);
+  color: #ffffff !important;
+  border-color: var(--border-input);
+}
+.vr-badge-btn:hover {
+  background: #334155;
+  border-color: #cbd5e1;
 }
 
 /* ==================== CENTER COLUMN: MASTER MATCH HUB ==================== */
 .cockpit-hub {
-  background: #0a0f1d;
-  border: 2px solid rgba(255, 255, 255, 0.14);
-  border-top: 4px solid var(--gold-color);
+  background: #0f172a !important;
+  border: 2px solid #334155 !important;
+  border-top: 4px solid #f59e0b !important;
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  gap: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6) !important;
+  gap: 12px;
 }
 
 /* Digital Timer Box */
 .hub-timer-box {
-  background: #05070c;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: #020617 !important;
+  border: 2px solid #475569 !important;
   border-radius: 12px;
   padding: 8px 10px;
   text-align: center;
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.9) !important;
 }
 
 .hub-timer-digits {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: clamp(48px, 4.5vw, 68px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   -moz-font-feature-settings: "tnum";
   -webkit-font-feature-settings: "tnum";
   font-feature-settings: "tnum";
-  color: #ffffff;
+  color: #ffffff !important;
   line-height: 0.95;
   letter-spacing: 0.02em;
   transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 .hub-timer-digits.running {
-  color: #fbbf24;
-  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  color: var(--gold-bright) !important;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.7);
 }
 .hub-timer-digits .ms-part {
   font-size: 60%;
@@ -452,13 +741,13 @@
 
 /* Primary Start/Pause Button */
 .btn-master-start {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-condensed);
   font-size: 24px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  padding: 10px 18px;
+  padding: 11px 18px;
   border-radius: 10px;
-  border: none;
+  border: 2px solid transparent;
   color: #ffffff;
   width: 100%;
   cursor: pointer;
@@ -471,10 +760,12 @@
 }
 .btn-master-start.start-state {
   background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  border-color: #34d399;
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
 }
 .btn-master-start.pause-state {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  border-color: #fca5a5;
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
 }
 
@@ -487,37 +778,45 @@
 }
 
 .btn-time-step {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #e2e8f0;
-  font-family: 'Barlow Condensed', sans-serif;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff !important;
+  font-family: var(--font-condensed);
   font-size: 15px;
   font-weight: 850;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .btn-time-step:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff !important;
+}
+
+#timer-choice {
+  background-color: var(--inset-bg) !important;
+  border: 1.5px solid var(--border-input) !important;
+  color: #ffffff !important;
+  font-weight: 700;
 }
 
 .hub-presets-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 5px;
 }
 
 .btn-preset-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 800;
-  padding: 4px 8px;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff !important;
+  font-family: var(--font-condensed);
+  font-size: 13.5px;
+  font-weight: 850;
+  padding: 5px 8px;
   border-radius: 6px;
   cursor: pointer;
   flex: 1;
@@ -525,18 +824,19 @@
   transition: all 0.15s ease;
 }
 .btn-preset-chip:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff !important;
 }
 
 /* Tutup Banner Score Button */
 .btn-tutup-banner {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  border: none;
-  color: #000000;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 17px;
-  font-weight: 900;
+  background: #1e293b;
+  border: 1.5px solid #d97706;
+  color: #fbbf24 !important;
+  font-family: var(--font-condensed);
+  font-size: 16px;
+  font-weight: 850;
   letter-spacing: 0.05em;
   padding: 8px 12px;
   border-radius: 8px;
@@ -546,20 +846,21 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: all 0.15s ease;
 }
 .btn-tutup-banner:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  background: #b45309;
+  color: #ffffff !important;
+  border-color: #fbbf24;
 }
 
 /* Secondary Switches & Injury */
 .hub-tools-strip {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--inset-bg);
+  border: 1.5px solid var(--card-border);
   border-radius: 8px;
-  padding: 6px 10px;
+  padding: 6px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -568,18 +869,18 @@
 
 /* ==================== BOTTOM REAL-TIME JUDGE STICK MONITOR ==================== */
 .stick-monitor-strip {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: #0f172a !important;
+  border: 2px solid #334155 !important;
   border-radius: 12px;
-  padding: 10px 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  padding: 12px 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
 .stick-strip-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -591,8 +892,8 @@
 }
 
 .stick-live-card {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: #020617 !important;
+  border: 1.5px solid #475569 !important;
   border-radius: 8px;
   padding: 8px 10px;
   text-align: center;
@@ -600,29 +901,29 @@
 }
 .stick-live-card.vote-aka {
   border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.22);
+  background: rgba(239, 68, 68, 0.25);
   box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
 }
 .stick-live-card.vote-ao {
   border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.22);
+  background: rgba(59, 130, 246, 0.25);
   box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
 }
 
 .stick-live-title {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: 0.08em;
-  color: #94a3b8;
+  color: #e2e8f0 !important;
   text-transform: uppercase;
 }
 
 .stick-live-val {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
+  font-family: var(--font-condensed);
+  font-size: 18px;
   font-weight: 900;
   margin-top: 2px;
-  color: #cbd5e1;
+  color: #ffffff !important;
 }
 
 /* History Log Collapsible Drawer */
@@ -630,15 +931,15 @@
   max-height: 180px;
   overflow-y: auto;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.3);
+  border: 1.5px solid var(--card-border);
+  background: var(--inset-bg);
   margin-top: 10px;
 }
 
 /* ==================== KATA MATCH 5-JUDGE PANEL STYLING ==================== */
 .kata-card-header {
-  background: linear-gradient(180deg, #111827 0%, #0b0f19 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
+  border-bottom: 2px solid var(--card-border);
   padding: 14px 20px;
 }
 
@@ -649,38 +950,38 @@
 }
 
 .kata-scoring-table th {
-  padding: 16px 12px;
+  padding: 10px 8px !important;
   vertical-align: middle;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 2px solid var(--border-divider) !important;
+  background: var(--surface-elevated) !important;
+  color: #ffffff;
 }
 
 .juri-th {
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
-  min-width: 110px;
+  min-width: 82px !important;
 }
-
 .juri-th:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: #334155 !important;
 }
 
 .juri-th-title {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #f1f5f9;
+  font-size: 15px;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  color: #ffffff;
   text-transform: uppercase;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .juri-decision-wrap {
-  margin-top: 6px;
-  min-height: 30px;
+  margin-top: 4px;
+  min-height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -689,11 +990,11 @@
 .decision-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: 8px;
+  gap: 3px;
+  font-size: 12.5px;
+  font-weight: 850;
+  padding: 3px 8px;
+  border-radius: 6px;
   letter-spacing: 0.02em;
   transition: all 0.25s ease;
 }
@@ -701,190 +1002,288 @@
 .decision-aka {
   background: linear-gradient(135deg, #ef4444, #b91c1c);
   color: #ffffff;
+  border: 1.5px solid #fca5a5;
   box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
 }
 
 .decision-ao {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: #ffffff;
+  border: 1.5px solid #93c5fd;
   box-shadow: 0 0 14px rgba(59, 130, 246, 0.45);
 }
 
 .decision-seri {
   background: #475569;
-  color: #f8fafc;
+  color: #ffffff;
+  border: 1.5px solid #94a3b8;
 }
 
 .decision-empty {
-  background: rgba(255, 255, 255, 0.06);
-  color: #64748b;
+  background: var(--surface-elevated);
+  color: #94a3b8;
+  border: 1.5px solid var(--border-divider);
   font-size: 14px;
 }
 
 .kata-scoring-table td {
-  padding: 16px 12px;
+  padding: 12px 8px !important;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1.5px solid var(--card-border) !important;
+}
+
+.kata-winner-radio {
+  width: 28px !important;
+  height: 28px !important;
+  cursor: pointer;
+  background-color: #020617 !important;
+  border: 2px solid var(--border-input) !important;
+  border-radius: 50% !important;
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.kata-winner-radio:checked {
+  background-color: var(--gold-bright) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.8) !important;
+}
+.kata-winner-radio:checked::after {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-color: #000000;
+  border-radius: 50%;
+  position: absolute;
+  top: 6px;
+  left: 6px;
 }
 
 .kata-atlet-name {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 850;
   line-height: 1.25;
 }
 
 .kata-atlet-sub {
-  font-size: 14px;
-  color: #94a3b8;
-  font-weight: 500;
-  margin-top: 4px;
+  font-size: 12.5px;
+  color: #e2e8f0 !important;
+  font-weight: 650;
+  margin-top: 3px;
 }
 
 .kata-score-input {
-  width: 92px;
-  height: 54px;
-  font-family: 'JetBrains Mono', 'Barlow Condensed', monospace, sans-serif;
-  font-size: 26px;
+  width: 76px !important;
+  height: 48px !important;
+  font-family: var(--font-mono);
+  font-size: 22px !important;
   font-weight: 800;
   text-align: center;
-  border-radius: 10px;
+  border-radius: 8px !important;
   transition: all 0.2s ease;
 }
 
 .kata-score-input.ao {
-  background: rgba(30, 58, 138, 0.25);
-  border: 2px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: #091326 !important;
+  border: 2px solid #3b82f6 !important;
+  color: #ffffff !important;
 }
-
 .kata-score-input.ao:focus {
-  background: rgba(30, 58, 138, 0.45);
-  border-color: #3b82f6;
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.5);
-  color: #ffffff;
+  background: #0c1e3d !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45) !important;
+  color: #ffffff !important;
 }
 
 .kata-score-input.aka {
-  background: rgba(127, 29, 29, 0.25);
-  border: 2px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: #1a0808 !important;
+  border: 2px solid #ef4444 !important;
+  color: #ffffff !important;
 }
-
 .kata-score-input.aka:focus {
-  background: rgba(127, 29, 29, 0.45);
-  border-color: #ef4444;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
-  color: #ffffff;
+  background: #2b0c0c !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.45) !important;
+  color: #ffffff !important;
 }
 
 .kata-bendera-val,
 .kata-bendera-val:read-only,
 .kata-bendera-val[readonly] {
-  width: 85px;
-  height: 54px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 28px;
+  width: 74px !important;
+  height: 48px !important;
+  font-family: var(--font-condensed);
+  font-size: 24px !important;
   font-weight: 900;
   text-align: center;
-  border-radius: 10px;
-  background: rgba(30, 58, 138, 0.45) !important;
-  border: 2.5px solid #3b82f6 !important;
+  border-radius: 8px !important;
+  background: #1e3a8a !important;
+  border: 2px solid #3b82f6 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
   opacity: 1 !important;
 }
 
 .kata-bendera-select {
-  width: 85px;
-  height: 54px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 26px;
+  width: 74px !important;
+  height: 48px !important;
+  font-family: var(--font-condensed);
+  font-size: 24px !important;
   font-weight: 900;
   text-align: center;
-  border-radius: 10px;
-  background-color: rgba(127, 29, 29, 0.45) !important;
-  border: 2.5px solid #ef4444 !important;
+  border-radius: 8px !important;
+  background-color: #7f1d1d !important;
+  border: 2px solid #ef4444 !important;
   color: #ffffff !important;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
   cursor: pointer;
 }
 
 .kata-bendera-select option {
   background-color: #1e1e2d;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .kata-total-point {
-  width: 100px;
-  height: 60px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 38px;
+  width: 80px !important;
+  height: 48px !important;
+  font-family: var(--font-condensed);
+  font-size: 28px !important;
   font-weight: 900;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 8px !important;
 }
 
 .kata-total-point.ao {
-  background: rgba(37, 99, 235, 0.2);
-  border: 2.5px solid #3b82f6;
-  color: #60a5fa;
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+  background: #1e3a8a !important;
+  border: 2px solid #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
 }
 
 .kata-total-point.aka {
-  background: rgba(220, 38, 38, 0.2);
-  border: 2.5px solid #ef4444;
-  color: #f87171;
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+  background: #7f1d1d !important;
+  border: 2px solid #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
 }
 
 .btn-wasit-tab {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border-input);
+  color: #ffffff;
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 15px;
+  font-weight: 800;
 }
-
+.btn-wasit-tab:hover {
+  background: #334155;
+  border-color: #cbd5e1;
+  color: #ffffff;
+}
 .btn-wasit-tab.active {
-  background: #f59e0b !important;
+  background: var(--gold-color) !important;
   color: #000000 !important;
-  border-color: #f59e0b !important;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
 }
 
-.btn-glow-pulse {
-  animation: btnGlowPulse 1.2s infinite alternate;
+/* Modal Scoring Steppers & Presets */
+.modal-dialog .step-score {
+  background: var(--surface-elevated) !important;
+  border-width: 1.5px !important;
+  color: #ffffff !important;
+  font-weight: 850;
+  border-radius: 6px;
+  min-width: 44px;
+  height: 42px;
+  transition: all 0.15s ease;
 }
-@keyframes btnGlowPulse {
-  0% { box-shadow: 0 0 5px rgba(255,255,255,0.4); transform: scale(1); }
-  100% { box-shadow: 0 0 18px rgba(255,255,255,0.9); transform: scale(1.03); }
+.modal-dialog .step-score[data-side="ao"] {
+  border-color: #3b82f6 !important;
+  color: #93c5fd !important;
+}
+.modal-dialog .step-score[data-side="ao"]:hover {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+.modal-dialog .step-score[data-side="aka"] {
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+.modal-dialog .step-score[data-side="aka"]:hover {
+  background: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.modal-dialog .preset-score {
+  background: var(--surface-elevated) !important;
+  border: 1.5px solid var(--border-divider) !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 6px 11px;
+  transition: all 0.15s ease;
+}
+.modal-dialog .preset-score:hover {
+  background: #334155 !important;
+  border-color: #cbd5e1 !important;
+  color: #ffffff !important;
+}
+.modal-dialog .preset-score[data-val="0.0"] {
+  background: #7f1d1d !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 850;
+}
+.modal-dialog .preset-score[data-val="0.0"]:hover {
+  background: #991b1b !important;
+  border-color: #fca5a5 !important;
+  color: #ffffff !important;
+}
+
+.modal-dialog .form-range::-webkit-slider-runnable-track {
+  background-color: #334155;
+  height: 8px;
+  border-radius: 4px;
+}
+.modal-dialog .form-range::-webkit-slider-thumb {
+  background-color: var(--gold-color);
+  border: 2px solid #ffffff;
+  width: 20px;
+  height: 20px;
+  margin-top: -6px;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
 }
 
 .btn-ao-blue {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  border: 1px solid #3b82f6 !important;
+  border: 1.5px solid #60a5fa !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
 }
 .btn-ao-blue:hover, .btn-ao-blue:focus {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-  border-color: #60a5fa !important;
+  border-color: #93c5fd !important;
   color: #ffffff !important;
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5) !important;
 }
 
 .btn-aka-red {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-  border: 1px solid #ef4444 !important;
+  border: 1.5px solid #f87171 !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
 }
 .btn-aka-red:hover, .btn-aka-red:focus {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-  border-color: #f87171 !important;
+  border-color: #fca5a5 !important;
   color: #ffffff !important;
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5) !important;
 }
@@ -892,17 +1291,20 @@
 .badge-ao-blue {
   background-color: #2563eb !important;
   color: #ffffff !important;
+  border: 1px solid #60a5fa !important;
 }
 
 .badge-aka-red {
   background-color: #dc2626 !important;
   color: #ffffff !important;
+  border: 1px solid #f87171 !important;
 }
 </style>
 {% endblock style %}
 
 {% block content %}
 <div class="container">
+<div class="cockpit-theme-wrapper">
 {% if bagan.tipe_tanding == '1' %}
     <!-- ========================================================
          KATA MATCH OPERATOR PANEL (5 JUDGES SCORING)
@@ -914,11 +1316,11 @@
     <div class="page-inner">
         <div class="cockpit-page-header">
             <div class="d-flex align-items-center gap-2">
-                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-outline-danger">
-                    <i class="fas fa-arrow-left me-1"></i> <b>Kembali</b>
+                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn-cockpit-back">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
                 </a>
-                <button type="submit" class="btn btn-success fw-bold px-3 shadow" id="simpan-keluar-btn" style="font-size: 15px;">
-                    <i class="fas fa-save me-1"></i> <b>Simpan & Keluar</b>
+                <button type="submit" class="btn-cockpit-save" id="simpan-keluar-btn">
+                    <i class="fas fa-save me-1"></i> Simpan & Keluar
                 </button>
             </div>
 
@@ -928,17 +1330,17 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <span id="ws-status-badge" class="badge bg-secondary py-2 px-3"><i class="fas fa-network-wired me-1"></i> WS Connect...</span>
-                <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-2 shadow-sm" id="btn-sync-board-kata" title="Sinkronkan ulang data partai & atlet ke Scoring Board">
-                    <i class="fas fa-sync-alt me-1"></i> Sync Board
+                <span id="ws-status-badge" class="cockpit-status-pill"><i class="fas fa-network-wired me-1"></i> WS Connect...</span>
+                <button type="button" class="btn-cockpit-action" id="btn-sync-board-kata" title="Sinkronkan ulang data partai & atlet ke Scoring Board">
+                    <i class="fas fa-sync-alt me-1 text-warning"></i> Sync Board
                 </button>
-                <button type="button" class="btn btn-sm btn-info fw-bold px-3 py-2 shadow-sm" id="tampilkan-poin" title="Kirim hanya poin total ke scoreboard (tanpa tabel skor juri)">
-                    <i class="fas fa-tv me-1"></i> Tampilkan Poin di Board
+                <button type="button" class="btn-cockpit-action" id="tampilkan-poin" title="Kirim hanya poin total ke scoreboard (tanpa tabel skor juri)">
+                    <i class="fas fa-tv me-1 text-info"></i> Tampilkan Poin di Board
                 </button>
-                <button type="button" class="btn btn-sm btn-secondary fw-bold px-3 py-2 shadow-sm" id="tampilkan-score" title="Buka / tutup overlay tabel skor 5 juri di scoreboard">
-                    <i class="fas fa-table me-1"></i> Tampilkan Skor 5 Juri
+                <button type="button" class="btn-cockpit-action" id="tampilkan-score" title="Buka / tutup overlay tabel skor 5 juri di scoreboard">
+                    <i class="fas fa-table me-1 text-primary"></i> Tampilkan Skor 5 Juri
                 </button>
-                <span id="status-success" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Online</span>
+                <span id="status-success" class="cockpit-status-pill pill-online"><i class="fas fa-check-circle me-1"></i> Online</span>
             </div>
         </div>
 
@@ -959,12 +1361,12 @@
                     <span class="fw-bold text-warning text-uppercase fs-5">
                         <i class="fas fa-gavel me-2"></i>Penilaian Juri Kata (5 Juri)
                     </span>
-                    <span class="small text-muted d-none d-md-inline">Rentang nilai 5.0 - 10.0 • 0.0 (DQ / Kiken) • Komparasi skor otomatis menentukan pemenang (+1 poin)</span>
+                    <span class="small text-secondary d-none d-md-inline">Rentang nilai 5.0 - 10.0 • 0.0 (DQ / Kiken) • Komparasi skor otomatis menentukan pemenang (+1 poin)</span>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <!-- Chief Referee / Tatami Manager Override Dropdown (Standar WKF) -->
                     <div class="dropdown">
-                        <button type="button" class="btn btn-outline-danger fw-bold px-3 py-2 shadow-sm dropdown-toggle" id="chiefRefereeOverrideBtn" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 13px;">
+                        <button type="button" class="btn btn-outline-danger fw-bold px-3 py-2 shadow-sm dropdown-toggle" id="chiefRefereeOverrideBtn" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 13px; background: #1e293b; color: #fca5a5; border: 1.5px solid #ef4444;">
                             <i class="fas fa-gavel me-1"></i> Chief Referee Override (DQ)
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" aria-labelledby="chiefRefereeOverrideBtn" style="border: 1px solid #475569; min-width: 260px;">
@@ -982,7 +1384,7 @@
                         </ul>
                     </div>
 
-                    <button type="button" class="btn btn-warning fw-bold px-3 py-2 shadow-sm" id="btn-open-kata-modal" data-bs-toggle="modal" data-bs-target="#kataScoreModal" style="font-size: 14px;">
+                    <button type="button" class="btn btn-warning fw-bold px-3 py-2 shadow-sm" id="btn-open-kata-modal" data-bs-toggle="modal" data-bs-target="#kataScoreModal" style="font-size: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid #fbbf24; color: #020617;">
                         <i class="fas fa-keyboard me-1"></i> Input Skor Wasit (Pop-Up)
                     </button>
                 </div>
@@ -993,46 +1395,46 @@
                         <thead>
                             <tr class="text-light">
                                 <th style="text-align: left; padding-left: 24px; min-width: 220px;">
-                                    <span class="text-uppercase" style="font-size: 16px; font-weight: 800; color: #94a3b8; letter-spacing: 0.05em;">Atlet</span>
+                                    <span class="text-uppercase" style="font-size: 15px; font-weight: 850; color: #ffffff; letter-spacing: 0.05em;">Atlet</span>
                                 </th>
                                 <th class="juri-th" id="th-j1" data-juri="1" title="Klik untuk membuka popup input Wasit 1">
-                                    <div class="juri-th-title">J1 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-th-title">J1 <i class="fas fa-external-link-alt ms-1" style="font-size: 11px; color: #94a3b8;"></i></div>
                                     <div class="juri-decision-wrap" id="j1-decision">
                                         <span class="decision-badge decision-empty">-</span>
                                     </div>
                                 </th>
                                 <th class="juri-th" id="th-j2" data-juri="2" title="Klik untuk membuka popup input Wasit 2">
-                                    <div class="juri-th-title">J2 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-th-title">J2 <i class="fas fa-external-link-alt ms-1" style="font-size: 11px; color: #94a3b8;"></i></div>
                                     <div class="juri-decision-wrap" id="j2-decision">
                                         <span class="decision-badge decision-empty">-</span>
                                     </div>
                                 </th>
                                 <th class="juri-th" id="th-j3" data-juri="3" title="Klik untuk membuka popup input Wasit 3">
-                                    <div class="juri-th-title">J3 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-th-title">J3 <i class="fas fa-external-link-alt ms-1" style="font-size: 11px; color: #94a3b8;"></i></div>
                                     <div class="juri-decision-wrap" id="j3-decision">
                                         <span class="decision-badge decision-empty">-</span>
                                     </div>
                                 </th>
                                 <th class="juri-th" id="th-j4" data-juri="4" title="Klik untuk membuka popup input Wasit 4">
-                                    <div class="juri-th-title">J4 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-th-title">J4 <i class="fas fa-external-link-alt ms-1" style="font-size: 11px; color: #94a3b8;"></i></div>
                                     <div class="juri-decision-wrap" id="j4-decision">
                                         <span class="decision-badge decision-empty">-</span>
                                     </div>
                                 </th>
                                 <th class="juri-th" id="th-j5" data-juri="5" title="Klik untuk membuka popup input Wasit 5">
-                                    <div class="juri-th-title">J5 <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 11px;"></i></div>
+                                    <div class="juri-th-title">J5 <i class="fas fa-external-link-alt ms-1" style="font-size: 11px; color: #94a3b8;"></i></div>
                                     <div class="juri-decision-wrap" id="j5-decision">
                                         <span class="decision-badge decision-empty">-</span>
                                     </div>
                                 </th>
-                                <th style="min-width: 110px;">
-                                    <span class="text-uppercase" style="font-size: 15px; font-weight: 800; color: #94a3b8;">Manual Bendera</span>
+                                <th style="min-width: 85px;">
+                                    <span class="text-uppercase" style="font-size: 13.5px; font-weight: 850; color: #ffffff;">Bendera</span>
                                 </th>
-                                <th style="min-width: 120px;">
-                                    <span class="text-uppercase text-warning" style="font-size: 17px; font-weight: 900; letter-spacing: 0.05em;">Total Poin</span>
+                                <th style="min-width: 95px;">
+                                    <span class="text-uppercase text-warning" style="font-size: 15px; font-weight: 900; letter-spacing: 0.05em;">Total Poin</span>
                                 </th>
-                                <th style="min-width: 110px;">
-                                    <span class="text-uppercase" style="font-size: 15px; font-weight: 800; color: #94a3b8;">Pemenang</span>
+                                <th style="min-width: 90px;">
+                                    <span class="text-uppercase" style="font-size: 13.5px; font-weight: 850; color: #ffffff;">Pemenang</span>
                                 </th>
                             </tr>
                         </thead>
@@ -1040,7 +1442,10 @@
                             <!-- AKA (MERAH) ROW -->
                             <tr>
                                 <td style="text-align: left; padding-left: 24px;">
-                                    <div class="kata-atlet-name text-danger">{{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-danger text-uppercase px-2 py-1" style="font-size: 11px; font-weight: 900;">AKA</span>
+                                        <div class="kata-atlet-name text-white">{{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}</div>
+                                    </div>
                                     <div class="kata-atlet-sub">{{ detail_bagan.atlet1.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet1.utusan.nama_utusan|default:"-" }}</div>
                                 </td>
                                 <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input aka mx-auto" id="akaj1" name="akaScores" value="{{ aka_score.score1|default:'0.0' }}" placeholder="0.0"></td>
@@ -1063,8 +1468,8 @@
                                     <input type="text" class="form-control kata-total-point aka mx-auto" id="totalAka" name="totalAka" value="{% if detail_bagan.score1 %}{{ detail_bagan.score1 }}{% else %}0{% endif %}">
                                 </td>
                                 <td>
-                                    <div class="form-check d-flex justify-content-center">
-                                        <input class="form-check-input" type="radio" name="pemenang" id="winner-aka-radio" value="aka" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
+                                    <div class="d-flex justify-content-center">
+                                        <input class="kata-winner-radio" type="radio" name="pemenang" id="winner-aka-radio" value="aka" {% if detail_bagan.pemenang == '1' %}checked{% endif %}>
                                     </div>
                                 </td>
                             </tr>
@@ -1072,7 +1477,10 @@
                             <!-- AO (BIRU) ROW -->
                             <tr>
                                 <td style="text-align: left; padding-left: 24px;">
-                                    <div class="kata-atlet-name text-primary">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary text-uppercase px-2 py-1" style="font-size: 11px; font-weight: 900;">AO</span>
+                                        <div class="kata-atlet-name text-white">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</div>
+                                    </div>
                                     <div class="kata-atlet-sub">{{ detail_bagan.atlet2.perguruan.nama_perguruan|default:"-" }} • {{ detail_bagan.atlet2.utusan.nama_utusan|default:"-" }}</div>
                                 </td>
                                 <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj1" name="aoScores" value="{{ ao_score.score1|default:'0.0' }}" placeholder="0.0"></td>
@@ -1081,14 +1489,14 @@
                                 <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj4" name="aoScores" value="{{ ao_score.score4|default:'0.0' }}" placeholder="0.0"></td>
                                 <td><input type="number" step="0.1" min="0.0" max="10.0" class="form-control kata-score-input ao mx-auto" id="aoj5" name="aoScores" value="{{ ao_score.score5|default:'0.0' }}" placeholder="0.0"></td>
                                 <td>
-                                    <input type="text" class="form-control kata-bendera-val mx-auto" id="ao-bendera" value="0" readonly style="background: rgba(30, 58, 138, 0.5) !important; color: #ffffff !important; border: 2.5px solid #3b82f6 !important; font-size: 28px; font-weight: 900;">
+                                    <input type="text" class="form-control kata-bendera-val mx-auto" id="ao-bendera" value="0" readonly style="background: rgba(30, 58, 138, 0.7) !important; color: #ffffff !important; border: 2.5px solid #3b82f6 !important; font-size: 28px; font-weight: 900;">
                                 </td>
                                 <td>
                                     <input type="text" class="form-control kata-total-point ao mx-auto" id="totalAo" name="totalAo" value="{% if detail_bagan.score2 %}{{ detail_bagan.score2 }}{% else %}0{% endif %}">
                                 </td>
                                 <td>
-                                    <div class="form-check d-flex justify-content-center">
-                                        <input class="form-check-input" type="radio" name="pemenang" id="winner-ao-radio" value="ao" style="transform: scale(2.0); cursor: pointer;" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
+                                    <div class="d-flex justify-content-center">
+                                        <input class="kata-winner-radio" type="radio" name="pemenang" id="winner-ao-radio" value="ao" {% if detail_bagan.pemenang == '2' %}checked{% endif %}>
                                     </div>
                                 </td>
                             </tr>
@@ -1149,7 +1557,7 @@
                         <div class="row g-3 align-items-stretch">
                             <!-- AO (BIRU) CARD -->
                             <div class="col-md-6">
-                                <div class="card h-100 border-primary shadow-sm" style="background: rgba(30, 58, 138, 0.18); border-width: 2px; border-radius: 12px;">
+                                <div class="card h-100 border-primary shadow-sm" style="background: rgba(30, 58, 138, 0.25); border: 2px solid #3b82f6 !important; border-radius: 12px;">
                                     <div class="card-header bg-primary text-white py-2 px-3 d-flex justify-content-between align-items-center" style="border-radius: 10px 10px 0 0;">
                                         <span class="fw-bold fs-6"><i class="fas fa-user-ninja me-1"></i> AO (BIRU)</span>
                                         <span class="badge bg-light text-primary fw-bold">{{ detail_bagan.atlet2.nama_atlet|default:"Ao" }}</span>
@@ -1161,7 +1569,7 @@
                                         <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
                                             <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="-0.5">-0.5</button>
                                             <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="-0.1">-0.1</button>
-                                            <input type="number" step="0.1" min="0.0" max="10.0" id="modal-ao-input" class="form-control text-center fw-bold text-primary" style="font-size: 34px; width: 130px; height: 62px; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.4); border: 2px solid #3b82f6; border-radius: 10px;" value="7.5">
+                                            <input type="number" step="0.1" min="0.0" max="10.0" id="modal-ao-input" class="form-control text-center fw-bold text-primary" style="font-size: 34px; width: 130px; height: 62px; font-family: var(--font-mono); background: #020617; border: 2.5px solid #3b82f6; border-radius: 10px; color: #93c5fd;" value="7.5">
                                             <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="0.1">+0.1</button>
                                             <button type="button" class="btn btn-outline-primary btn-sm px-2 step-score" data-side="ao" data-step="0.5">+0.5</button>
                                         </div>
@@ -1191,7 +1599,7 @@
 
                             <!-- AKA (MERAH) CARD -->
                             <div class="col-md-6">
-                                <div class="card h-100 border-danger shadow-sm" style="background: rgba(127, 29, 29, 0.18); border-width: 2px; border-radius: 12px;">
+                                <div class="card h-100 border-danger shadow-sm" style="background: rgba(127, 29, 29, 0.25); border: 2px solid #ef4444 !important; border-radius: 12px;">
                                     <div class="card-header bg-danger text-white py-2 px-3 d-flex justify-content-between align-items-center" style="border-radius: 10px 10px 0 0;">
                                         <span class="fw-bold fs-6"><i class="fas fa-user-ninja me-1"></i> AKA (MERAH)</span>
                                         <span class="badge bg-light text-danger fw-bold">{{ detail_bagan.atlet1.nama_atlet|default:"Aka" }}</span>
@@ -1203,7 +1611,7 @@
                                         <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
                                             <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="-0.5">-0.5</button>
                                             <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="-0.1">-0.1</button>
-                                            <input type="number" step="0.1" min="0.0" max="10.0" id="modal-aka-input" class="form-control text-center fw-bold text-danger" style="font-size: 34px; width: 130px; height: 62px; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.4); border: 2px solid #ef4444; border-radius: 10px;" value="7.5">
+                                            <input type="number" step="0.1" min="0.0" max="10.0" id="modal-aka-input" class="form-control text-center fw-bold text-danger" style="font-size: 34px; width: 130px; height: 62px; font-family: var(--font-mono); background: #020617; border: 2.5px solid #ef4444; border-radius: 10px; color: #fca5a5;" value="7.5">
                                             <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="0.1">+0.1</button>
                                             <button type="button" class="btn btn-outline-danger btn-sm px-2 step-score" data-side="aka" data-step="0.5">+0.5</button>
                                         </div>
@@ -1240,10 +1648,10 @@
 
                     <div class="modal-footer border-secondary justify-content-between" style="background: #111827; padding: 14px 24px;">
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="modal-btn-prev">
+                            <button type="button" class="btn btn-sm px-3 fw-bold" id="modal-btn-prev" style="background: #334155; color: #ffffff !important; border: 1.5px solid #64748b;">
                                 <i class="fas fa-chevron-left me-1"></i> Wasit Sebelumnya
                             </button>
-                            <button type="button" class="btn btn-outline-warning btn-sm px-3" id="modal-btn-next">
+                            <button type="button" class="btn btn-sm px-3 fw-bold" id="modal-btn-next" style="background: #f59e0b; color: #020617 !important; border: 1.5px solid #fbbf24;">
                                 Wasit Berikutnya <i class="fas fa-chevron-right ms-1"></i>
                             </button>
                         </div>
@@ -1431,10 +1839,10 @@
         <!-- Top Operations Bar with Prominent Save Button -->
         <div class="cockpit-page-header">
             <div class="d-flex align-items-center gap-2">
-                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn btn-outline-danger">
-                    <i class="fas fa-arrow-left me-1"></i> <b>Kembali</b>
+                <a href="{% url 'admin-bagan-detail' event_pk=event.pk bagan_pk=bagan.pk %}" class="btn-cockpit-back">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
                 </a>
-                <button type="submit" class="btn btn-success fw-bold px-4 py-2 shadow" id="simpan-keluar-btn" style="font-size: 15px;">
+                <button type="submit" class="btn-cockpit-save" id="simpan-keluar-btn">
                     <span id="simpan-btn-text">
                         <i class="fas {% if is_kumite_beregu %}fa-forward{% else %}fa-save{% endif %} me-1"></i>
                         <b>{% if is_kumite_beregu %}Simpan Partai {{ current_matchup.round|default:"" }}{% else %}Simpan & Keluar{% endif %}</b>
@@ -1451,16 +1859,22 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <span id="ws-status-badge" class="badge bg-secondary py-2 px-3"><i class="fas fa-network-wired me-1"></i> WS Connect...</span>
-                <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3 py-2 shadow-sm" id="btn-sync-board-kumite" title="Sinkronkan ulang data partai & atlet ke Scoring Board">
+                <span id="ws-status-badge" class="cockpit-status-pill pill-offline">
+                    <i class="fas fa-network-wired me-1"></i> WS Connect...
+                </span>
+                <button type="button" class="btn-cockpit-action text-warning" id="btn-sync-board-kumite" title="Sinkronkan ulang data partai & atlet ke Scoring Board">
                     <i class="fas fa-sync-alt me-1"></i> Sync Board
                 </button>
                 <div id="status-indicator">
-                    <span id="status-loading" class="badge bg-warning text-dark py-2 px-3"><i class="fas fa-spinner fa-spin me-1"></i> Sync...</span>
-                    <span id="status-success" style="display:none;" class="badge bg-success py-2 px-3"><i class="fas fa-check-circle me-1"></i> Tatami Online</span>
-                    <span id="status-error" style="display:none;" class="badge bg-danger py-2 px-3">
+                    <span id="status-loading" class="cockpit-status-pill pill-pending">
+                        <i class="fas fa-spinner fa-spin me-1"></i> Sync...
+                    </span>
+                    <span id="status-success" style="display:none;" class="cockpit-status-pill pill-online">
+                        <i class="fas fa-check-circle me-1"></i> Tatami Online
+                    </span>
+                    <span id="status-error" style="display:none;" class="cockpit-status-pill pill-offline">
                         <i class="fas fa-exclamation-triangle me-1"></i> Offline
-                        <button id="retry-status-btn" class="btn btn-sm btn-light py-0 px-1 ms-1" type="button">Retry</button>
+                        <button id="retry-status-btn" class="btn btn-sm btn-light py-0 px-1 ms-1 text-dark fw-bold" type="button">Retry</button>
                     </span>
                 </div>
             </div>
@@ -1509,19 +1923,19 @@
                         </button>
                     </div>
 
-                    <!-- 1-Click Fast Scoring Deck (Mirrored on Ao) -->
-                    <div class="fast-score-deck mirrored">
-                        <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin Ao">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn-point-act ao-3" onclick="addScorePoint('ao', 3, 'ao-ippon')">
-                            +3 IPPON
+                    <!-- 1-Click Fast Scoring Deck -->
+                    <div class="fast-score-deck">
+                        <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')">
+                            +1 YUKO
                         </button>
                         <button type="button" class="btn-point-act ao-2" onclick="addScorePoint('ao', 2, 'ao-wazaari')">
                             +2 WAZA
                         </button>
-                        <button type="button" class="btn-point-act ao-1" onclick="addScorePoint('ao', 1, 'ao-yuko')">
-                            +1 YUKO
+                        <button type="button" class="btn-point-act ao-3" onclick="addScorePoint('ao', 3, 'ao-ippon')">
+                            +3 IPPON
+                        </button>
+                        <button type="button" class="btn-point-act btn-dec" onclick="decScorePoint('ao', 'ao-score-dec')" title="Kurangi 1 Poin Ao">
+                            <i class="fas fa-minus"></i>
                         </button>
                     </div>
 
@@ -1543,7 +1957,7 @@
                 <!-- Bottom Tools (VR Review) -->
                 {% if bagan.has_vr %}
                 <div class="vr-action-bar">
-                    <span class="small text-muted fw-bold">VIDEO REVIEW:</span>
+                    <span class="small text-secondary fw-bold">VIDEO REVIEW:</span>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-primary dropdown-toggle vr-badge-btn" type="button" id="vr-ao-btn" data-bs-toggle="dropdown">
                             <i class="fas fa-video me-1"></i> <span id="vr-ao-status-label">{% if detail_bagan.vr2 %}VR Card Aktif{% else %}Kartu Hangus{% endif %}</span>
@@ -1713,7 +2127,7 @@
                 <!-- Bottom Tools (VR Review) -->
                 {% if bagan.has_vr %}
                 <div class="vr-action-bar">
-                    <span class="small text-muted fw-bold">VIDEO REVIEW:</span>
+                    <span class="small text-secondary fw-bold">VIDEO REVIEW:</span>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-danger dropdown-toggle vr-badge-btn" type="button" id="vr-aka-btn" data-bs-toggle="dropdown">
                             <i class="fas fa-video me-1"></i> <span id="vr-aka-status-label">{% if detail_bagan.vr1 %}VR Card Aktif{% else %}Kartu Hangus{% endif %}</span>
@@ -1773,7 +2187,7 @@
                 <div class="history-drawer">
                     <table class="table table-dark table-striped table-sm mb-0 text-center align-middle" id="ms-history-table" style="font-size: 12px;">
                         <thead class="sticky-top bg-dark">
-                            <tr class="text-muted small">
+                            <tr class="text-secondary small">
                                 <th>Waktu</th>
                                 <th>J1</th>
                                 <th>J2</th>
@@ -1784,7 +2198,7 @@
                         </thead>
                         <tbody id="ms-history-tbody">
                             <tr id="empty-history-row">
-                                <td colspan="6" class="text-muted py-2 small">
+                                <td colspan="6" class="text-secondary py-2 small">
                                     <i>Menunggu sinyal tombol / joystick juri...</i>
                                 </td>
                             </tr>
@@ -1796,6 +2210,7 @@
     </div>
     </form>
 {% endif %}
+</div>
 </div>
 
 {% if is_kumite_beregu %}

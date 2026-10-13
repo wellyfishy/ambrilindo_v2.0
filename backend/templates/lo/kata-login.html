@@ -7,28 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LO Kata Pointer &bull; Ambrilindo</title>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --bg-body: #f8fafc;
-            --bg-card: rgba(255, 255, 255, 0.94);
+            --bg-card: #ffffff;
             --bg-input: #ffffff;
-            --border-color: rgba(0, 0, 0, 0.08);
-            --border-hover: rgba(0, 0, 0, 0.16);
-            --red-core: #09090b;
-            --red-hover: #27272a;
-            --red-glow: rgba(9, 9, 11, 0.15);
-            --blue-core: #2563eb;
-            --text-primary: #09090b;
+            --border-card: #334155;
+            --border-input: #64748b;
+            --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --radius-md: 10px;
-            --radius-lg: 16px;
-            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            --text-muted: #64748b;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.15s ease-in-out;
         }
 
         * {
@@ -38,7 +29,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-primary);
             min-height: 100vh;
@@ -46,28 +37,16 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            position: relative;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 20%);
-        }
-
-        body::before {
-            display: none;
         }
 
         .login-card {
-            position: relative;
-            z-index: 1;
             width: 100%;
             max-width: 440px;
             background: var(--bg-card);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-card);
             border-radius: var(--radius-lg);
             padding: 32px 28px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
         }
 
         .brand-badge {
@@ -78,9 +57,9 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #09090b;
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #0f172a;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
             padding: 4px 10px;
             border-radius: 999px;
             margin-bottom: 14px;
@@ -90,35 +69,37 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background-color: #09090b;
+            background-color: #0f172a;
         }
 
         .title {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Oswald', 'Arial Narrow', 'Segoe UI', sans-serif;
             font-size: 26px;
             font-weight: 700;
             letter-spacing: 0.02em;
             margin-bottom: 6px;
             color: var(--text-primary);
+            text-transform: uppercase;
         }
 
         .subtitle {
             font-size: 13px;
             color: var(--text-secondary);
             margin-bottom: 24px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .alert-box {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(220, 38, 38, 0.08);
-            border: 1px solid rgba(220, 38, 38, 0.25);
-            color: #b91c1c;
+            background: #fef2f2;
+            border: 1px solid #f87171;
+            color: #991b1b;
             padding: 10px 14px;
             border-radius: var(--radius-md);
             font-size: 13px;
+            font-weight: 500;
             margin-bottom: 20px;
         }
 
@@ -129,7 +110,7 @@
         .form-label {
             display: block;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-secondary);
@@ -139,10 +120,11 @@
         .form-select, .form-input {
             width: 100%;
             background: var(--bg-input);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-input);
             color: var(--text-primary);
             font-size: 14px;
-            padding: 12px 14px;
+            font-weight: 500;
+            padding: 10px 12px;
             border-radius: var(--radius-md);
             transition: var(--transition);
             outline: none;
@@ -150,17 +132,17 @@
         }
 
         .form-select:focus, .form-input:focus {
-            border-color: #09090b;
-            box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.1);
+            border-color: #0f172a;
+            box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.15);
             background-color: #ffffff;
         }
 
         .btn-submit {
             width: 100%;
-            background: #09090b;
+            background: #0f172a;
             color: #ffffff;
-            border: 1px solid #09090b;
-            padding: 13px 20px;
+            border: 1px solid #0f172a;
+            padding: 12px 20px;
             font-size: 14px;
             font-weight: 600;
             border-radius: var(--radius-md);
@@ -171,14 +153,11 @@
             justify-content: center;
             gap: 8px;
             margin-top: 24px;
-            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.2);
         }
 
         .btn-submit:hover {
-            background: #27272a;
-            border-color: #27272a;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.25);
+            background: #1e293b;
+            border-color: #1e293b;
         }
 
         .hint-text {
@@ -189,18 +168,28 @@
             line-height: 1.4;
         }
 
+        .hint-text code {
+            background: #f1f5f9;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #0f172a;
+        }
+
         .back-link {
             display: block;
             text-align: center;
             margin-top: 16px;
             color: var(--text-secondary);
             font-size: 12.5px;
+            font-weight: 500;
             text-decoration: none;
             transition: var(--transition);
         }
 
         .back-link:hover {
             color: var(--text-primary);
+            text-decoration: underline;
         }
     </style>
 </head>
