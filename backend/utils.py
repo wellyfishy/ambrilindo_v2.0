@@ -131,7 +131,16 @@ def enqueue_sync(payload, endpoint, event=None):
     Menyimpan payload ke database lokal SyncQueue secara persisten,
     lalu langsung memicu pemrosesan antrean secara non-blocking.
     """
+    import uuid
+    import time
     from .models import SyncQueue
+
+    if isinstance(payload, dict):
+        if 'msg_id' not in payload:
+            payload['msg_id'] = str(uuid.uuid4())
+        if 'client_timestamp' not in payload:
+            payload['client_timestamp'] = time.time()
+
     queue_item = SyncQueue.objects.create(
         event=event,
         endpoint=endpoint,
