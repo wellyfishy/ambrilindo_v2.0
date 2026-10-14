@@ -5,49 +5,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ event.nama_event }} - Roster Maker 2.0</title>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/icons/fontawesome-free/css/all.min.css">
     
     <style>
         :root {
-            --bg-body: #f8fafc;
-            --bg-surface: #ffffff;
-            --bg-surface-alt: #f8fafc;
+            /* Surfaces & Backgrounds */
+            --bg-body:          #f1f5f9;  /* Slate 100 — grounded, cool neutral grey */
+            --bg-surface:       #ffffff;  /* Pure white surface */
+            --bg-surface-alt:   #f8fafc;  /* Slate 50 — soft inset panels & table bodies */
             --bg-surface-elevated: #ffffff;
-            --bg-input: #ffffff;
-            --border-color: rgba(0, 0, 0, 0.08);
-            --border-hover: rgba(0, 0, 0, 0.16);
-            --border-subtle: rgba(0, 0, 0, 0.04);
-            --red-core: #09090b;
-            --red-hover: #27272a;
-            --red-glow: rgba(9, 9, 11, 0.15);
-            --red-tint: rgba(9, 9, 11, 0.04);
-            --blue-core: #2563eb;
-            --emerald-core: #059669;
-            --amber-core: #d97706;
-            --text-primary: #09090b;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            --bg-input:         #ffffff;
+            --bg-track:         #e2e8f0;  /* Slate 200 — segmented tracks & badges */
+
+            /* High-Contrast Borders */
+            --border-card:      #334155;  /* Slate 700 (1.5px) — sharp container definition */
+            --border-input:     #64748b;  /* Slate 500 (1.5px) — clear, high-contrast input border */
+            --border-divider:   #cbd5e1;  /* Slate 300 — clean internal section dividers */
+            --border-hover:     #0f172a;  /* Slate 900 — active cursor hover */
+            --border-focus:     #020617;  /* Pitch black (2px) — focused element */
+            --border-color:     #cbd5e1;  /* Compatibility alias */
+            --border-subtle:    #e2e8f0;  /* Compatibility alias */
+
+            /* Typography Hierarchy */
+            --text-primary:     #020617;  /* Pitch Dark (Slate 950) — headers, labels, active items */
+            --text-secondary:   #1e293b;  /* Dark Slate (Slate 800) — descriptions, unselected tabs */
+            --text-muted:       #475569;  /* Medium Slate (Slate 600) — footers, metadata, helper text */
+
+            /* Primary Actions */
+            --primary:          #000000;  /* Pitch black — primary CTA buttons */
+            --primary-hover:    #1e293b;  /* Slate 800 — button hover */
+            --red-core:         #000000;
+            --red-hover:        #1e293b;
+            --red-glow:         rgba(0, 0, 0, 0.12);
+            --red-tint:         rgba(0, 0, 0, 0.05);
+            --blue-core:        #0284c7;
+            --emerald-core:     #047857;
+            --amber-core:       #b45309;
+
+            --radius-sm:        6px;
+            --radius-md:        8px;
+            --radius-lg:        12px;
+            --transition:       all 0.15s ease-in-out;
         }
 
         * { box-sizing: border-box; }
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-primary);
             margin: 0;
             min-height: 100vh;
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-            background-size: 36px 36px;
+            background-image: none;
         }
 
         /* ---------- Sidebar (Category Pool) ---------- */
@@ -57,13 +65,13 @@
             left: 0;
             height: 100vh;
             width: 330px;
-            background: var(--bg-surface);
-            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.06);
+            background: #ffffff;
+            box-shadow: 4px 0 25px rgba(15, 23, 42, 0.06);
             overflow-y: auto;
             padding: 20px 18px;
             z-index: 1000;
             transition: transform 0.22s ease;
-            border-right: 1px solid var(--border-color);
+            border-right: 1.5px solid var(--border-card);
         }
         .nt-sidebar.hidden { transform: translateX(-100%); }
         .nt-sidebar-header {
@@ -71,14 +79,14 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1.5px solid var(--border-divider);
             padding-bottom: 10px;
         }
         .nt-sidebar-title {
-            font-family: 'Oswald', sans-serif;
+            font-family: inherit;
             font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            font-weight: 800;
+            letter-spacing: -0.01em;
             text-transform: uppercase;
             color: var(--text-primary);
             margin: 0;
@@ -88,28 +96,30 @@
         }
         .nt-search-input {
             width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-input);
             border-radius: var(--radius-sm);
             padding: 8px 12px;
             color: var(--text-primary);
             font-size: 13px;
+            font-weight: 600;
             outline: none;
             margin-bottom: 10px;
             transition: var(--transition);
         }
         .nt-search-input:focus {
-            border-color: var(--red-core);
-            box-shadow: 0 0 0 2px var(--red-glow);
+            border-color: #020617;
+            box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.15);
         }
         .nt-sidebar select {
             width: 100%;
             margin-bottom: 14px;
             padding: 8px 12px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
+            border: 1.5px solid var(--border-input);
             font-size: 13px;
-            background: var(--bg-surface-alt);
+            font-weight: 600;
+            background: #ffffff;
             color: var(--text-primary);
             outline: none;
         }
@@ -122,8 +132,8 @@
         /* Chips in pool */
         .nt-chip {
             padding: 10px 12px;
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-input);
             border-radius: var(--radius-md);
             cursor: grab;
             font-size: 12px;
@@ -135,20 +145,20 @@
             gap: 5px;
             user-select: none;
             position: relative;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
         }
         .nt-chip:hover {
-            border-color: var(--border-hover);
+            border-color: #020617;
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
         }
         .nt-chip:active { cursor: grabbing; }
 
         .nt-chip.is-kata {
-            border-left: 3px solid #38bdf8;
+            border-left: 4px solid #0284c7;
         }
         .nt-chip.is-kumite {
-            border-left: 3px solid #f87171;
+            border-left: 4px solid #dc2626;
         }
 
         .nt-chip-header {
@@ -158,7 +168,7 @@
             gap: 6px;
         }
         .nt-chip-title {
-            font-weight: 600;
+            font-weight: 700;
             font-size: 13px;
             color: var(--text-primary);
             white-space: normal;
@@ -171,25 +181,26 @@
             flex-wrap: wrap;
         }
         .nt-badge-mini {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             padding: 2px 6px;
             border-radius: 4px;
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--text-secondary);
+            background: #e2e8f0;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
         }
         .nt-badge-mini.dur {
-            background: rgba(245, 158, 11, 0.15);
-            color: #b45309;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
         }
 
         .nt-chip.nt-chip-used {
-            opacity: 0.45;
-            background: rgba(255, 255, 255, 0.02);
-            border-color: var(--border-subtle);
-            border-left-color: var(--text-muted);
+            opacity: 0.55;
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            border-left-color: #64748b;
             box-shadow: none;
             cursor: default;
         }
@@ -200,9 +211,10 @@
             right: 10px;
             top: 10px;
             font-size: 10px;
-            font-weight: 700;
-            color: var(--emerald-core);
-            background: rgba(16, 185, 129, 0.15);
+            font-weight: 800;
+            color: #065f46;
+            background: #d1fae5;
+            border: 1px solid #059669;
             padding: 1px 6px;
             border-radius: 4px;
         }
@@ -212,24 +224,24 @@
             top: 20px;
             left: 340px;
             z-index: 1001;
-            background: var(--red-core);
-            color: #fff;
-            border: none;
+            background: #000000;
+            color: #ffffff;
+            border: 1.5px solid #000000;
             border-radius: var(--radius-sm);
             padding: 10px 14px;
             cursor: pointer;
-            font-family: 'Oswald', sans-serif;
+            font-family: inherit;
             font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.04em;
+            font-weight: 700;
+            letter-spacing: 0.02em;
             text-transform: uppercase;
-            box-shadow: 0 4px 14px var(--red-glow);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
             transition: left 0.22s ease, background 0.15s ease;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .nt-sidebar-toggle:hover { background: var(--red-hover); }
+        .nt-sidebar-toggle:hover { background: #1e293b; border-color: #1e293b; }
         .nt-sidebar.hidden ~ .nt-sidebar-toggle { left: 16px; }
 
         /* ---------- Main Content ---------- */
@@ -242,8 +254,8 @@
 
         /* Top Bar */
         .workspace-header {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-card);
             border-radius: var(--radius-lg);
             padding: 20px 24px;
             margin-bottom: 20px;
@@ -252,16 +264,9 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
             position: relative;
             overflow: hidden;
-        }
-        .workspace-header::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--red-core) 0%, var(--blue-core) 50%, var(--emerald-core) 100%);
         }
 
         /* Toolbar */
@@ -270,16 +275,17 @@
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
-            background: var(--bg-surface);
+            background: #ffffff;
             padding: 14px 18px;
             border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
+            border: 1.5px solid var(--border-card);
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
         .toolbar label {
-            font-size: 12px;
-            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -289,21 +295,22 @@
         .toolbar input[type="number"] {
             padding: 6px 10px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            background: var(--bg-input);
+            border: 1.5px solid var(--border-input);
+            background: #ffffff;
             color: var(--text-primary);
             font-size: 13px;
+            font-weight: 600;
             outline: none;
         }
 
         button.btn-tool {
             padding: 8px 14px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            background: var(--bg-surface-alt);
+            border: 1.5px solid var(--border-input);
+            background: #ffffff;
             color: var(--text-primary);
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: var(--transition);
             display: inline-flex;
@@ -311,78 +318,80 @@
             gap: 6px;
         }
         button.btn-tool:hover {
-            border-color: var(--border-hover);
-            background: var(--bg-surface-elevated);
-            color: var(--text-primary);
+            border-color: #020617;
+            background: #f8fafc;
+            color: #020617;
         }
         button.btn-tool.primary {
-            background: var(--red-core);
-            border-color: var(--red-core);
-            color: #fff;
-            box-shadow: 0 2px 10px var(--red-glow);
+            background: #000000;
+            border-color: #000000;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         }
         button.btn-tool.primary:hover {
-            background: var(--red-hover);
+            background: #1e293b;
+            border-color: #1e293b;
         }
         button.btn-tool.success {
-            background: #059669;
-            border-color: #059669;
-            color: #fff;
+            background: #047857;
+            border-color: #047857;
+            color: #ffffff;
         }
-        button.btn-tool.success:hover { background: #10b981; }
+        button.btn-tool.success:hover {
+            background: #065f46;
+            border-color: #065f46;
+        }
 
         button.btn-tool.magic {
-            background: #09090b;
-            border: 1px solid #27272a;
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            background: #020617;
+            border: 1.5px solid #020617;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         button.btn-tool.magic:hover {
-            background: #27272a;
+            background: #1e293b;
+            border-color: #1e293b;
             transform: translateY(-1px);
         }
 
         /* Conflict Alert Banner */
         .conflict-alert-bar {
-            background: rgba(220, 38, 38, 0.08);
-            border: 1px solid rgba(220, 38, 38, 0.25);
+            background: #fef2f2;
+            border: 1.5px solid #ef4444;
             border-radius: var(--radius-md);
             padding: 12px 18px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #b91c1c;
+            color: #991b1b;
             font-size: 13.5px;
-            animation: pulseBanner 2s infinite;
-        }
-        @keyframes pulseBanner {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.2); }
-            50% { box-shadow: 0 0 12px 2px rgba(220, 38, 38, 0.15); }
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
         }
 
         /* Day Blocks */
         .day-block {
-            background: var(--bg-surface);
+            background: #ffffff;
             border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
+            border: 1.5px solid var(--border-card);
             overflow: hidden;
             margin-bottom: 28px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
         }
         .day-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 14px 20px;
-            background: var(--bg-surface-alt);
-            border-bottom: 1px solid var(--border-color);
+            background: #f8fafc;
+            border-bottom: 1.5px solid var(--border-divider);
         }
         .day-title-text {
-            font-family: 'Oswald', sans-serif;
-            font-size: 17px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
             color: var(--text-primary);
             display: flex;
             align-items: center;
@@ -391,10 +400,11 @@
         .day-date-input {
             padding: 6px 10px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            background: var(--bg-input);
+            border: 1.5px solid var(--border-input);
+            background: #ffffff;
             color: var(--text-primary);
             font-size: 13px;
+            font-weight: 600;
             outline: none;
         }
 
@@ -408,19 +418,19 @@
         }
 
         .tatami-column {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-card);
             border-radius: var(--radius-md);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
         }
 
         .tatami-col-header {
-            background: var(--bg-surface-alt);
+            background: #f8fafc;
             padding: 12px 14px;
-            border-bottom: 2px solid var(--border-color);
+            border-bottom: 1.5px solid var(--border-divider);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -428,11 +438,11 @@
         }
 
         .tatami-name-label {
-            font-family: 'Oswald', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 800;
             color: var(--text-primary);
-            letter-spacing: 0.03em;
+            letter-spacing: -0.01em;
         }
 
         .tatami-actions-row {
@@ -459,12 +469,12 @@
            📊 ROSTER PROGRESS DASHBOARD STYLES
            ========================================================= */
         .roster-progress-dashboard {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-card);
             border-radius: var(--radius-lg);
             padding: 16px 20px;
             margin-bottom: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
         }
         .progress-dash-header {
             display: flex;
@@ -472,7 +482,7 @@
             justify-content: space-between;
             margin-bottom: 14px;
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1.5px solid var(--border-divider);
         }
         .dash-title-wrap {
             display: flex;
@@ -480,32 +490,29 @@
             gap: 10px;
         }
         .live-dot-pulse {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background-color: #10b981;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: pulseDot 2s infinite;
-        }
-        @keyframes pulseDot {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            background-color: #059669;
+            border: 1.5px solid #047857;
+            flex-shrink: 0;
+            display: inline-block;
         }
         .dash-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 800;
             color: var(--text-primary);
-            letter-spacing: 0.04em;
+            letter-spacing: -0.01em;
             margin: 0;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .dash-auto-sync {
-            font-size: 11px;
-            color: var(--text-secondary);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 6px;
@@ -520,8 +527,8 @@
             .dash-metric-cards { grid-template-columns: repeat(2, 1fr); }
         }
         .dash-metric-card {
-            background: var(--bg-surface-alt);
-            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            border: 1.5px solid var(--border-input);
             border-radius: var(--radius-md);
             padding: 12px 14px;
             display: flex;
@@ -531,7 +538,7 @@
         }
         .dash-metric-card:hover {
             transform: translateY(-2px);
-            border-color: var(--border-hover);
+            border-color: #020617;
         }
         .metric-icon {
             width: 38px;
@@ -549,16 +556,16 @@
         .metric-icon.purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.2); }
         .metric-body { flex: 1; min-width: 0; }
         .metric-val {
-            font-family: 'Oswald', sans-serif;
+            font-family: inherit;
             font-size: 22px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--text-primary);
             line-height: 1.1;
         }
         .metric-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-weight: 500;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-weight: 700;
             margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
@@ -571,17 +578,17 @@
         }
         .dash-progress-track {
             height: 8px;
-            background: rgba(0, 0, 0, 0.06);
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
             border-radius: 999px;
             overflow: hidden;
             position: relative;
         }
         .dash-progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #2563eb 0%, #059669 100%);
+            background: #020617;
             border-radius: 999px;
             transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 0 10px rgba(5, 150, 105, 0.3);
         }
         .dash-progress-stats {
             display: flex;
@@ -598,7 +605,7 @@
             flex-wrap: wrap;
             gap: 8px;
             padding-top: 10px;
-            border-top: 1px solid var(--border-subtle);
+            border-top: 1.5px solid var(--border-divider);
         }
         .tatami-live-pill {
             display: inline-flex;
@@ -607,32 +614,25 @@
             padding: 5px 10px;
             border-radius: var(--radius-sm);
             font-size: 11.5px;
-            background: var(--bg-surface-elevated);
-            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            border: 1.5px solid var(--border-input);
             transition: all 0.2s ease;
         }
         .tatami-live-pill.is-live {
-            background: rgba(37, 99, 235, 0.08);
-            border-color: rgba(37, 99, 235, 0.3);
+            background: #eff6ff;
+            border-color: #3b82f6;
         }
         .tatami-live-pill.is-live .t-pill-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
             background-color: #2563eb;
-            box-shadow: 0 0 6px #2563eb;
-            animation: pulseLiveDot 1.5s infinite;
-        }
-        @keyframes pulseLiveDot {
-            0% { transform: scale(0.9); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.8; }
         }
         .tatami-live-pill.is-standby .t-pill-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: #94a3b8;
+            background-color: #64748b;
         }
         .t-pill-name {
             font-weight: 700;
@@ -653,8 +653,8 @@
            ========================================================= */
         .tt-card {
             position: relative;
-            background: var(--bg-surface-elevated);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-input);
             border-radius: var(--radius-sm);
             padding: 8px 10px;
             margin-bottom: 6px;
@@ -665,11 +665,12 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
         }
         .tt-card:hover {
-            border-color: var(--border-hover);
+            border-color: #020617;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
         }
         .tt-card:active {
             cursor: grabbing;
@@ -681,26 +682,29 @@
 
         /* Status Colors */
         .tt-card.status-running {
-            border-left: 4px solid #2563eb !important;
-            background: linear-gradient(90deg, rgba(37, 99, 235, 0.08) 0%, var(--bg-surface-elevated) 100%) !important;
-            box-shadow: 0 0 12px rgba(37, 99, 235, 0.12) !important;
+            border-left: 5px solid #2563eb !important;
+            background: #eff6ff !important;
+            border-color: #93c5fd;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
         }
         .tt-card.status-selesai {
-            border-left: 4px solid #059669 !important;
-            background: linear-gradient(90deg, rgba(5, 150, 105, 0.08) 0%, var(--bg-surface-elevated) 100%) !important;
+            border-left: 5px solid #059669 !important;
+            background: #f0fdf4 !important;
+            border-color: #86efac;
         }
         .tt-card.status-belum_disentuh,
         .tt-card.status-unstarted {
-            border-left: 4px solid #cbd5e1 !important;
-            background: var(--bg-surface-elevated) !important;
+            border-left: 5px solid #64748b !important;
+            background: #ffffff !important;
         }
         .tt-card.is-festival-card {
-            border-left: 4px solid #d97706 !important;
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.08) 0%, var(--bg-surface-elevated) 100%) !important;
+            border-left: 5px solid #d97706 !important;
+            background: #fffbeb !important;
+            border-color: #fde68a;
         }
         .tt-card.is-break-card {
             border: 1.5px dashed #0284c7 !important;
-            background: rgba(2, 132, 199, 0.06) !important;
+            background: #f0f9ff !important;
             padding: 8px 10px;
             align-items: center;
             text-align: center;
@@ -824,15 +828,15 @@
         }
         .auto-schedule-result-bar {
             background: #f0fdf4;
-            border: 1px solid #86efac;
+            border: 1.5px solid #047857;
             border-radius: var(--radius-md);
             padding: 12px 18px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.1);
-            color: #166534;
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.1);
+            color: #065f46;
             animation: fadeIn 0.25s ease-out;
         }
         @keyframes fadeIn {
@@ -843,11 +847,12 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: var(--bg-surface-elevated);
-            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            border: 1.5px solid var(--border-input);
             padding: 5px 12px;
             border-radius: 6px;
             font-size: 12px;
+            font-weight: 600;
             color: var(--text-primary);
             cursor: pointer;
             transition: all 0.15s ease;
@@ -935,31 +940,32 @@
             z-index: 2000;
         }
         .modal-box {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 2px solid var(--border-card);
             border-radius: var(--radius-lg);
             width: 90%;
             max-width: 560px;
             max-height: 88vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
         .modal-box-header {
-            background: var(--bg-surface-alt);
+            background: #f8fafc;
             padding: 14px 18px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1.5px solid var(--border-divider);
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-shrink: 0;
         }
         .modal-box-title {
-            font-family: 'Oswald', sans-serif;
-            font-size: 17px;
-            font-weight: 700;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 800;
             color: var(--text-primary);
+            letter-spacing: -0.01em;
             margin: 0;
         }
         .modal-box-body {
@@ -969,9 +975,9 @@
             min-height: 0;
         }
         .modal-box-footer {
-            background: var(--bg-surface-alt);
+            background: #f8fafc;
             padding: 12px 18px;
-            border-top: 1px solid var(--border-color);
+            border-top: 1.5px solid var(--border-divider);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
@@ -983,18 +989,19 @@
         .form-group-custom label {
             display: block;
             font-size: 12.5px;
-            font-weight: 600;
-            color: var(--text-secondary);
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 5px;
         }
         .form-group-custom input:not([type="checkbox"]), .form-group-custom select {
             width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1.5px solid var(--border-input);
             border-radius: var(--radius-sm);
             padding: 8px 12px;
             color: var(--text-primary);
             font-size: 13.5px;
+            font-weight: 600;
             outline: none;
         }
 
@@ -1287,8 +1294,8 @@
                 margin-bottom: 6px;
             }
             .detailed-day-title {
-                font-family: 'Oswald', sans-serif;
-                font-weight: 700;
+                font-family: inherit;
+                font-weight: 800;
                 font-size: 12px;
                 color: #b91c1c;
                 text-transform: uppercase;
@@ -1400,9 +1407,9 @@
             }
             .simple-roster-org-name {
                 margin: 0;
-                font-family: 'Oswald', 'Segoe UI', Arial, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                 font-size: 13px;
-                font-weight: 700;
+                font-weight: 800;
                 color: #0f172a;
                 line-height: 1.15;
             }
@@ -1429,9 +1436,9 @@
                 min-width: 90px;
             }
             .simple-roster-day-label {
-                font-family: 'Oswald', 'Segoe UI', sans-serif;
+                font-family: inherit;
                 font-size: 11.5px;
-                font-weight: 700;
+                font-weight: 800;
                 color: #b91c1c;
                 text-transform: uppercase;
             }
@@ -1458,9 +1465,9 @@
                 margin: 2px 0 1.5px 0;
             }
             .day-bar-title {
-                font-family: 'Oswald', 'Segoe UI', sans-serif;
+                font-family: inherit;
                 font-size: 10px;
-                font-weight: 700;
+                font-weight: 800;
                 color: #b91c1c;
                 text-transform: uppercase;
                 letter-spacing: 0.02em;
@@ -1726,7 +1733,7 @@
     <div class="nt-sidebar" id="nt-sidebar">
         <div class="nt-sidebar-header">
             <h4 class="nt-sidebar-title"><i class="fas fa-layer-group text-danger"></i> Pool Nomor Tanding</h4>
-            <span id="unscheduled-count-badge" class="badge" style="background: rgba(229,37,37,0.2); color:#fca5a5; font-size:11px; padding:2px 8px; border-radius:999px;">0 Sisa</span>
+            <span id="unscheduled-count-badge" class="badge" style="background: var(--status-red-bg); border: 1px solid var(--status-red-bdr); color: var(--status-red-text); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">0 Sisa</span>
         </div>
 
         <input type="text" id="chip-search-input" class="nt-search-input" placeholder="🔍 Cari kategori / kelas..." onkeyup="filterChipsBySearch()">
@@ -1762,16 +1769,16 @@
                     </div>
                     <div class="nt-chip-meta">
                         {% if nt.is_festival %}
-                            <span class="nt-badge-mini" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24;"><i class="fas fa-flag"></i> Festival ({{ nt.atlet_count }} Atlet)</span>
+                            <span class="nt-badge-mini" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;"><i class="fas fa-flag"></i> Festival ({{ nt.atlet_count }} Atlet)</span>
                         {% elif nt.atlet_count <= 1 %}
-                            <span class="nt-badge-mini" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8;"><i class="fas fa-info-circle"></i> {{ nt.atlet_count }} Atlet (Tanpa Lawan)</span>
+                            <span class="nt-badge-mini" style="background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1;"><i class="fas fa-info-circle"></i> {{ nt.atlet_count }} Atlet (Tanpa Lawan)</span>
                         {% else %}
                             <span class="nt-badge-mini">{{ nt.atlet_count }} Atlet</span>
                             <span class="nt-badge-mini">{{ nt.matches }} Partai</span>
                             {% if nt.progress_status == 'running' %}
-                                <span class="nt-badge-mini" style="background: rgba(59, 130, 246, 0.25); color: #60a5fa;"><i class="fas fa-play-circle fa-beat"></i> Running (Sisa {{ nt.remaining_matches }})</span>
+                                <span class="nt-badge-mini" style="background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd;"><i class="fas fa-play-circle fa-beat"></i> Running (Sisa {{ nt.remaining_matches }})</span>
                             {% elif nt.progress_status == 'selesai' %}
-                                <span class="nt-badge-mini" style="background: rgba(16, 185, 129, 0.2); color: #34d399;"><i class="fas fa-check-circle"></i> Selesai</span>
+                                <span class="nt-badge-mini" style="background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;"><i class="fas fa-check-circle"></i> Selesai</span>
                             {% endif %}
                         {% endif %}
                     </div>
@@ -1795,7 +1802,7 @@
                 {% endif %}
             </div>
             <div>
-                <h3 style="margin:0; font-family:'Oswald',sans-serif;">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
+                <h3 style="margin:0; font-family:inherit; font-weight:800;">{{ kop_surat.nama_organisasi|default:event.nama_event }}</h3>
                 <p style="margin:2px 0; font-size:12px;">{{ kop_surat.alamat }} &bull; {{ kop_surat.kontak }}</p>
                 <h4 style="margin:4px 0 0; font-size:14px;">JADWAL PERTANDINGAN / RUN SHEET</h4>
             </div>
@@ -1808,20 +1815,20 @@
                     <span style="background:var(--red-tint); border:1px solid var(--red-core); color:var(--red-hover); font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; text-transform:uppercase;">
                         Roster Maker 2.0
                     </span>
-                    <span class="text-secondary" style="font-size:13px; color:var(--text-secondary);">Event: {{ event.nama_event }}</span>
+                    <span class="text-secondary" style="font-size:13px; color:var(--text-secondary); font-weight:600;">Event: {{ event.nama_event }}</span>
                 </div>
-                <h2 style="font-family:'Oswald',sans-serif; font-size:22px; margin:0; color:#fff; letter-spacing:0.02em;">
-                    PENYUSUNAN JADWAL & ROSTER PERTANDINGAN
+                <h2 style="font-size:20px; font-weight:800; margin:0; color:var(--text-primary); letter-spacing:-0.01em;">
+                    PENYUSUNAN JADWAL &amp; ROSTER PERTANDINGAN
                 </h2>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" class="btn-tool magic" onclick="openAutoScheduleModal()">
-                    <i class="fas fa-magic"></i> ⚡ Auto-Jadwal Cerdas
+                    <i class="fas fa-magic"></i> Auto-Jadwal Cerdas
                 </button>
                 <button type="button" class="btn-tool success" id="save-timetable-btn">
                     <i class="fas fa-save"></i> Simpan Jadwal
                 </button>
-                <button type="button" class="btn-tool" id="sync-roster-btn" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; font-weight: 600;" onclick="syncRosterToWeb()">
+                <button type="button" class="btn-tool" id="sync-roster-btn" style="background: #eff6ff; border: 1.5px solid #3b82f6; color: #1d4ed8; font-weight: 700;" onclick="syncRosterToWeb()">
                     <i class="fas fa-cloud-upload-alt"></i> Sync Roster ke Web
                 </button>
                 <span id="save-status" style="font-size:12px; font-weight:600; margin-left:4px;"></span>
@@ -1837,7 +1844,7 @@
                     <div id="conflict-details-text" style="font-size:12px; opacity:0.9;">Ada atlet yang bertanding pada waktu yang bersamaan di Tatami berbeda.</div>
                 </div>
             </div>
-            <button type="button" class="btn-tool" style="font-size:12px; padding:4px 10px; background:rgba(0,0,0,0.3); border-color:transparent; color:#fff;" onclick="highlightNextConflict()">
+            <button type="button" class="btn-tool" style="font-size:12px; padding:4px 10px; background:#ffffff; border:1.5px solid #b91c1c; color:#b91c1c; font-weight:700;" onclick="highlightNextConflict()">
                 Lihat Bentrok
             </button>
         </div>
@@ -1845,16 +1852,16 @@
         <!-- Auto Schedule Result Banner -->
         <div id="auto-schedule-result-banner" class="auto-schedule-result-bar" style="display: none;">
             <div style="display:flex; align-items:center; gap:12px;">
-                <span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; font-size:18px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                <span style="background:#d1fae5; border:1.5px solid #059669; color:#047857; font-size:18px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
                     <i class="fas fa-check"></i>
                 </span>
                 <div>
-                    <strong id="auto-result-title" style="font-size:14px; color:#fff;">Auto-Jadwal Berhasil Diterapkan!</strong>
-                    <div id="auto-result-summary" style="font-size:12.5px; color:#94a3b8; margin-top:2px;"></div>
+                    <strong id="auto-result-title" style="font-size:14px; color:#065f46; font-weight:800;">Auto-Jadwal Berhasil Diterapkan!</strong>
+                    <div id="auto-result-summary" style="font-size:12.5px; color:#166534; font-weight:600; margin-top:2px;"></div>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-                <button type="button" class="btn-tool" style="font-size:12px; padding:6px 12px; background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.3); color:#fca5a5;" onclick="undoLastAutoSchedule()">
+                <button type="button" class="btn-tool" style="font-size:12px; padding:6px 12px; background:#fee2e2; border:1.5px solid #ef4444; color:#7f1d1d; font-weight:700;" onclick="undoLastAutoSchedule()">
                     <i class="fas fa-undo"></i> Urungkan (Undo)
                 </button>
                 <button type="button" class="btn-tool success" style="font-size:12px; padding:6px 12px;" onclick="document.getElementById('save-timetable-btn').click()">
@@ -1956,7 +1963,7 @@
 
             <button id="kop-surat-btn" class="btn-tool" type="button"><i class="fas fa-file-invoice"></i> Kop Surat</button>
             <button id="print-detailed-btn" class="btn-tool" type="button" title="Cetak run sheet timeline dengan visualisasi durasi waktu"><i class="fas fa-print"></i> Cetak Timeline (Detail)</button>
-            <button id="print-simple-btn" class="btn-tool" type="button" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #93c5fd; font-weight: 600;" title="Cetak run sheet nomor tanding ringkas 1 halaman (hemat kertas)"><i class="fas fa-table"></i> Cetak Roster 1 Halaman</button>
+            <button id="print-simple-btn" class="btn-tool" type="button" style="background: #eff6ff; border: 1.5px solid #3b82f6; color: #1d4ed8; font-weight: 700;" title="Cetak run sheet nomor tanding ringkas 1 halaman (hemat kertas)"><i class="fas fa-table"></i> Cetak Roster 1 Halaman</button>
         </div>
 
         <!-- Days Container -->
@@ -2186,14 +2193,14 @@
                         <option value="append">Lanjutkan di Bawah Baris Terakhir Hari Ini</option>
                     </select>
                 </div>
-                <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 8px 12px; margin-top: 10px; font-size: 12px; color: #bae6fd;">
-                    <i class="fas fa-shield-alt text-info"></i> <strong>Pencegahan Bentrok Aktif:</strong> Sistem otomatis menyeleksi kategori pada tiap slot waktu agar tidak ada atlet yang bertanding bersamaan di tatami berbeda.
+                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 6px; padding: 10px 14px; margin-top: 10px; font-size: 12px; color: #1e40af; font-weight: 600;">
+                    <i class="fas fa-shield-alt text-primary"></i> <strong>Pencegahan Bentrok Aktif:</strong> Sistem otomatis menyeleksi kategori pada tiap slot waktu agar tidak ada atlet yang bertanding bersamaan di tatami berbeda.
                 </div>
             </div>
             <div class="modal-box-footer">
                 <button type="button" class="btn-tool" onclick="closeAutoScheduleModal()">Batal</button>
                 <button type="button" class="btn-tool magic" onclick="executeAutoScheduler()">
-                    ⚡ Jalankan & Terapkan
+                    <i class="fas fa-play"></i> Jalankan &amp; Terapkan
                 </button>
             </div>
         </div>
@@ -2221,12 +2228,12 @@
                 </div>
                 <div class="form-group-custom">
                     <label>Logo Kop Surat:</label>
-                    <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-color); border-radius:6px; padding:8px 10px; margin-bottom:8px;">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <img src="{% static 'img/ambrilindo-logo.png' %}" style="height:26px; width:auto; object-fit:contain; background:#fff; border-radius:3px; padding:2px;">
+                    <div style="background:var(--bg-surface-alt); border:1.5px solid var(--border-divider); border-radius:6px; padding:10px 12px; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="{% static 'img/ambrilindo-logo.png' %}" style="height:28px; width:auto; object-fit:contain; background:#fff; border:1px solid var(--border-divider); border-radius:4px; padding:2px;">
                             <div>
-                                <strong style="font-size:12px; color:#fff;">Logo 1: Ambrilindo (Wajib / Sistem)</strong>
-                                <div style="font-size:11px; color:var(--text-secondary);">Selalu dicantumkan secara otomatis pada kop surat cetak.</div>
+                                <strong style="font-size:12.5px; color:var(--text-primary); font-weight:700;">Logo 1: Ambrilindo (Wajib / Sistem)</strong>
+                                <div style="font-size:11.5px; color:var(--text-secondary);">Selalu dicantumkan secara otomatis pada kop surat cetak.</div>
                             </div>
                         </div>
                     </div>
@@ -2235,11 +2242,11 @@
                     <input type="file" id="kop-logo-input" accept="image/*">
                     
                     <div id="kop-logo-current-wrap" style="margin-top:6px; {% if not kop_surat.logo_url %}display:none;{% endif %}">
-                        <div style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:6px 10px; border-radius:4px;">
+                        <div style="display:flex; align-items:center; gap:10px; background:var(--bg-surface-alt); border:1.5px solid var(--border-divider); padding:8px 12px; border-radius:6px;">
                             <img id="kop-logo-preview" src="{{ kop_surat.logo_url|default:'' }}" style="max-height:45px; max-width:70px; object-fit:contain; border:1px solid #cbd5e1; border-radius:3px; padding:2px; background:#fff;">
                             <div>
-                                <div style="font-size:11px; color:#94a3b8;">Logo event aktif</div>
-                                <button type="button" class="btn-tool danger" id="kop-logo-remove-btn" style="padding:2px 8px; font-size:11px; margin-top:3px;">
+                                <div style="font-size:11.5px; font-weight:600; color:var(--text-secondary);">Logo event aktif</div>
+                                <button type="button" class="btn-tool danger" id="kop-logo-remove-btn" style="padding:3px 10px; font-size:11.5px; margin-top:4px; background:#fee2e2; border:1px solid #ef4444; color:#7f1d1d; font-weight:700;">
                                     <i class="fas fa-trash"></i> Hapus Logo Ini
                                 </button>
                             </div>
@@ -3559,7 +3566,7 @@
                         <div style="display:flex; align-items:center; gap:12px;">
                             ${customLogoHtml}
                             <div>
-                                <h3 style="margin:0; font-family:'Oswald',sans-serif; font-size:15px; color:#0f172a;">${escapeHtml(kopOrg)}</h3>
+                                <h3 style="margin:0; font-family:inherit; font-weight:800; font-size:15px; color:#0f172a;">${escapeHtml(kopOrg)}</h3>
                                 ${metaStr ? `<p style="margin:2px 0 0; font-size:9.5px; color:#475569;">${metaStr}</p>` : ''}
                                 <div style="margin-top:2px; font-size:11.5px; font-weight:800; color:#b91c1c; text-transform:uppercase;">TIMELINE DETAIL PERTANDINGAN DENGAN ESTIMASI WAKTU</div>
                             </div>
@@ -4565,8 +4572,8 @@
 
             if (resBanner && resTitle && resSummary) {
                 resBanner.style.display = 'flex';
-                resTitle.innerText = `⚡ Auto-Jadwal Berhasil Diterapkan (${bestTrial.scheduledCount} Kategori Terjadwal)`;
-                resSummary.innerHTML = `Estimasi Selesai: <strong>${finishTimeStr}</strong> &bull; Beban: ${balanceSummary}. ${bestTrial.unscheduled.length > 0 ? `<span style="color:#fca5a5;">(Sisa ${bestTrial.unscheduled.length} kategori dapat dijadwalkan di hari berikutnya)</span>` : '<span style="color:#6ee7b7;">(Seluruh kategori telah terjadwal bebas bentrok)</span>'}`;
+                resTitle.innerText = `Auto-Jadwal Berhasil Diterapkan (${bestTrial.scheduledCount} Kategori Terjadwal)`;
+                resSummary.innerHTML = `Estimasi Selesai: <strong>${finishTimeStr}</strong> &bull; Beban: ${balanceSummary}. ${bestTrial.unscheduled.length > 0 ? `<span style="color:#991b1b; font-weight:700;">(Sisa ${bestTrial.unscheduled.length} kategori dapat dijadwalkan di hari berikutnya)</span>` : '<span style="color:#065f46; font-weight:700;">(Seluruh kategori telah terjadwal bebas bentrok)</span>'}`;
                 resBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }

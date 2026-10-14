@@ -1,38 +1,38 @@
 <!-- 4. Link Event Web Modal -->
 <div class="modal fade" id="linkEventModal" tabindex="-1" aria-labelledby="linkEventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="linkEventModalLabel"><i class="fas fa-link me-2 text-warning"></i>Hubungkan ke Event Web Public</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content" style="background: #ffffff; border: 1.5px solid #334155; border-radius: 12px; color: #020617; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);">
+            <div class="modal-header" style="background: #f8fafc; border-bottom: 1.5px solid #cbd5e1;">
+                <h5 class="modal-title fw-bold text-dark" id="linkEventModalLabel"><i class="fas fa-link me-2 text-warning"></i>Hubungkan ke Event Web Public</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" id="formLinkEvent">
                 {% csrf_token %}
                 <input type="hidden" name="submit_type" value="set_event_mapping">
                 <input type="hidden" name="redirect_url" value="{{ request.path }}">
                 <input type="hidden" name="hosted_event_name" id="selected_hosted_event_name" value="{{ event_mapping.hosted_event_name|default:'' }}">
-                <div class="modal-body">
-                    <div class="card bg-dark border p-3 mb-3">
-                        <div class="d-flex justify-content-between mb-1 small">
-                            <span class="text-muted">Target Web Server:</span>
-                            <strong>{{ sync_config.label }}</strong>
+                <div class="modal-body p-4">
+                    <div class="card p-3 mb-3" style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+                        <div class="d-flex justify-content-between mb-1.5 small">
+                            <span style="color: #475569; font-weight: 600;">Target Web Server:</span>
+                            <strong style="color: #020617;">{{ sync_config.label }}</strong>
                         </div>
-                        <div class="d-flex justify-content-between mb-1 small">
-                            <span class="text-muted">Event Lokal:</span>
-                            <strong>{{ event.nama_event }} (ID #{{ event.pk }})</strong>
+                        <div class="d-flex justify-content-between mb-1.5 small">
+                            <span style="color: #475569; font-weight: 600;">Event Lokal:</span>
+                            <strong style="color: #020617;">{{ event.nama_event }} (ID #{{ event.pk }})</strong>
                         </div>
                         {% if event_mapping.hosted_event_id %}
-                        <div class="d-flex justify-content-between small">
-                            <span class="text-muted">Terhubung ke:</span>
-                            <span class="badge bg-success">[#{{ event_mapping.hosted_event_id }}] {{ event_mapping.hosted_event_name }}</span>
+                        <div class="d-flex justify-content-between small align-items-center mt-1">
+                            <span style="color: #475569; font-weight: 600;">Terhubung ke:</span>
+                            <span class="badge" style="background: #dcfce7; border: 1px solid #059669; color: #065f46; font-weight: 700; font-size: 11px;">[#{{ event_mapping.hosted_event_id }}] {{ event_mapping.hosted_event_name }}</span>
                         </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group mb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="hosted_event_select" class="form-label mb-0">Pilih Event di Web Public:</label>
-                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" id="btnRefreshHostedEvents" title="Muat ulang daftar event dari web server" style="font-size: 11px;">
+                            <label for="hosted_event_select" class="form-label mb-0 fw-bold" style="color: #020617; font-size: 13px;">Pilih Event di Web Public:</label>
+                            <button type="button" class="btn sync-btn-outline btn-sm py-0 px-2" id="btnRefreshHostedEvents" title="Muat ulang daftar event dari web server" style="font-size: 11px;">
                                 <i class="fas fa-sync-alt me-1" id="refreshIcon"></i> Muat Ulang
                             </button>
                         </div>
@@ -42,7 +42,7 @@
                         <div id="hostedEventsError" class="alert alert-danger py-2 mt-2" style="display: none; font-size: 13px;">
                             <i class="fas fa-exclamation-circle me-1"></i> <span id="hostedEventsErrorMsg"></span>
                         </div>
-                        <select class="form-select" id="hosted_event_select" name="hosted_event_id" required style="width: 100%;">
+                        <select class="form-select mt-1" id="hosted_event_select" name="hosted_event_id" required style="width: 100%; border: 1.5px solid #64748b; color: #020617; font-weight: 500;">
                             <option value="">-- Pilih Event dari Web Server --</option>
                             {% if event_mapping.hosted_event_id %}
                                 <option value="{{ event_mapping.hosted_event_id }}" data-name="{{ event_mapping.hosted_event_name }}" selected>
@@ -52,21 +52,21 @@
                         </select>
                     </div>
 
-                    <div id="mismatchAlertBox" class="alert alert-warning py-2 mt-3" style="display: none; font-size: 12.5px;">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
+                    <div id="mismatchAlertBox" class="alert alert-warning py-2 mt-3 text-dark" style="display: none; font-size: 12.5px; background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px;">
+                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
                         <strong>Peringatan Nama Berbeda:</strong><br>
-                        Lokal: <code id="lblLocalName">{{ event.nama_event }}</code><br>
-                        Web: <code id="lblHostedName"></code><br>
-                        <span class="small text-muted">Data akan disinkronkan ke event web yang dipilih ini.</span>
+                        Lokal: <code id="lblLocalName" style="color: #020617;">{{ event.nama_event }}</code><br>
+                        Web: <code id="lblHostedName" style="color: #020617;"></code><br>
+                        <span class="small" style="color: #475569;">Data akan disinkronkan ke event web yang dipilih ini.</span>
                     </div>
 
-                    <div id="matchAlertBox" class="alert alert-success py-2 mt-3" style="display: none; font-size: 12.5px;">
-                        <i class="fas fa-check-circle me-1"></i> <strong>Nama Event Cocok!</strong>
+                    <div id="matchAlertBox" class="alert alert-success py-2 mt-3" style="display: none; font-size: 12.5px; background: #f0fdf4; border: 1.5px solid #059669; color: #065f46; border-radius: 8px;">
+                        <i class="fas fa-check-circle me-1" style="color: #059669;"></i> <strong>Nama Event Cocok!</strong>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="btnSaveLinkEvent">
+                <div class="modal-footer" style="border-top: 1.5px solid #cbd5e1; background: #f8fafc;">
+                    <button type="button" class="btn sync-btn-outline btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn sync-btn-primary btn-sm" id="btnSaveLinkEvent">
                         <i class="fas fa-save me-1"></i> Simpan Hubungan Event
                     </button>
                 </div>

@@ -305,6 +305,7 @@ def admin_control(request, tatami_pk):
         'detail_bagan': detail_bagan,
         'bagan': bagan,
         'all_tatamis': all_tatamis,
+        'role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
     }
     return render(request, 'jury/admin-control.html', context)
 
