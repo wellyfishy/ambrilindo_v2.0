@@ -7689,6 +7689,12 @@ def delete_day(request, event_pk, day_pk):
         return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=401)
     day = get_object_or_404(TimetableDay, pk=day_pk, event_id=event_pk)
     day.delete()
+    # Otomatis re-index hari yang tersisa (Day 1, Day 2, dst)
+    remaining_days = TimetableDay.objects.filter(event_id=event_pk).order_by('order', 'id')
+    for idx, d in enumerate(remaining_days):
+        if d.order != idx:
+            d.order = idx
+            d.save(update_fields=['order'])
     return JsonResponse({'success': True})
 
 
@@ -7703,13 +7709,14 @@ def timetable_save(request, event_pk):
         return JsonResponse({'success': False, 'message': 'Invalid JSON'}, status=400)
 
     with transaction.atomic():
-        for day_data in data.get('days', []):
+        for idx, day_data in enumerate(data.get('days', [])):
             day = TimetableDay.objects.filter(pk=day_data.get('day_pk'), event=event).first()
             if not day:
                 continue
 
             tanggal = day_data.get('tanggal') or None
             day.tanggal = tanggal
+            day.order = idx
             day.save()
 
             TimetableRow.objects.filter(day=day).delete()

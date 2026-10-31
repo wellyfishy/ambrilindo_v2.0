@@ -4043,6 +4043,20 @@
                 'Kadet', 'Junior', 'Under-21', 'Senior', 'Veteran', 'Lainnya'
             ];
 
+            function getAgeGroupRank(ageStr, name) {
+                const combined = ((ageStr || '') + ' ' + (name || '')).toLowerCase();
+                if (combined.includes('pra usia dini')) return 0;
+                if (combined.includes('usia dini')) return 1;
+                if (combined.includes('pra pemula')) return 2;
+                if (combined.includes('pemula')) return 3;
+                if (combined.includes('kadet') || combined.includes('cadet')) return 4;
+                if (combined.includes('junior')) return 5;
+                if (combined.includes('under-21') || combined.includes('under 21') || combined.includes('u-21') || combined.includes('u21')) return 6;
+                if (combined.includes('senior')) return 7;
+                if (combined.includes('veteran')) return 8;
+                return 9;
+            }
+
             function getWeightSortVal(name) {
                 const upper = (name || '').toUpperCase();
                 const mPlus = upper.match(/\+(\d+)/);
@@ -4064,8 +4078,8 @@
                     if (a.discipline !== b.discipline) {
                         return a.discipline === 'kata' ? -1 : 1;
                     }
-                    const ga = ORDERED_GROUPS.indexOf(a.age_group);
-                    const gb = ORDERED_GROUPS.indexOf(b.age_group);
+                    const ga = getAgeGroupRank(a.age_group, a.nama);
+                    const gb = getAgeGroupRank(b.age_group, b.nama);
                     if (ga !== gb) return ga - gb;
                     const genda = getGenderSortVal(a.nama);
                     const gendb = getGenderSortVal(b.nama);
@@ -4077,8 +4091,8 @@
                 });
             } else if (sortMode === 'age_first') {
                 unscheduled.sort((a, b) => {
-                    const ga = ORDERED_GROUPS.indexOf(a.age_group);
-                    const gb = ORDERED_GROUPS.indexOf(b.age_group);
+                    const ga = getAgeGroupRank(a.age_group, a.nama);
+                    const gb = getAgeGroupRank(b.age_group, b.nama);
                     if (ga !== gb) return ga - gb;
                     if (a.discipline !== b.discipline) {
                         return a.discipline === 'kata' ? -1 : 1;
@@ -4295,18 +4309,17 @@
 
                         let minAgeIdx = Infinity;
                         candidateIndices.forEach(i => {
-                            const idx = ORDERED_GROUPS.indexOf(trialUnscheduled[i].age_group);
+                            const idx = getAgeGroupRank(trialUnscheduled[i].age_group, trialUnscheduled[i].nama);
                             if (idx !== -1 && idx < minAgeIdx) minAgeIdx = idx;
                         });
                         if (minAgeIdx === Infinity) minAgeIdx = 0;
 
-                        let ageFiltered = candidateIndices;
-                        if (attempt === 1 || attempt === 3) {
-                            ageFiltered = candidateIndices.filter(i => {
-                                const idx = ORDERED_GROUPS.indexOf(trialUnscheduled[i].age_group);
-                                return idx === -1 || idx <= minAgeIdx + 1;
-                            });
-                        }
+                        // STRICT: Urutan kategori usia WAJIB konsisten dan tidak boleh dibalik
+                        // Kategori usia yang lebih tua (seperti Senior) tidak boleh mendahului usia lebih muda (seperti Under-21)
+                        const ageFiltered = candidateIndices.filter(i => {
+                            const idx = getAgeGroupRank(trialUnscheduled[i].age_group, trialUnscheduled[i].nama);
+                            return idx === -1 || idx === minAgeIdx;
+                        });
 
                         const feasible = [];
                         for (const tid of activeLockstepTatamis) {
